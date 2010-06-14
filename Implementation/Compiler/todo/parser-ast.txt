@@ -1,0 +1,30 @@
+DPJ Parser/AST:  TODO
+=====================
+
+Add support for index variable substitutions in generic regions and
+types
+- In class definitions
+  (a) #i can appear after the class name and parameters
+  (b) If (a) holds, then #i can appear after any type or region parameter
+- In explicit types
+  (a) #i can appear after the type
+  (b) If (a) holds, then i can appear in any integer position in the type
+- In type and region variables
+  - If #i appears after the variable in its declaration, then #i can
+     appear after the variable in its use
+
+Add support for region parameter substitutions in generic regions and
+types
+- Same as above, except we write '##P' instead of '#i', and P can
+  appear in a region parameter position, instead of i appearing in an
+  integer position
+
+Add support for generic effects
+- Effect parameter declarations
+- Effect constraints
+- Effect uses at method summary in addition to 'reads' and 'writes'
+
+
+Add support for 'invokes' at method summary (lower priority)
+
+

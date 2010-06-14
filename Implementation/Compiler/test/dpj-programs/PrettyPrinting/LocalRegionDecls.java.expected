@@ -1,0 +1,11 @@
+public class LocalRegionDecls<region P> {
+    
+    public LocalRegionDecls() {
+        super();
+    }
+    
+    public void m() {
+        region r1;
+        LocalRegionDecls<Local:r1> x;
+    }
+}

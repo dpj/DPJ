@@ -1,0 +1,1 @@
+ant -Dboot.java.home=/usr/lib/jvm/java-1.6.0-ibm.x86_64/

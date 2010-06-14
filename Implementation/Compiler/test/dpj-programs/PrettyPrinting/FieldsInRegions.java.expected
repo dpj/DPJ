@@ -1,0 +1,20 @@
+
+public class FieldsInRegions {
+    
+    public FieldsInRegions() {
+        super();
+    }
+    public region r1;
+    public region r2;
+    public region r3;
+    public int a in Root:FieldsInRegions.r1;
+    public int b = 17;
+    public int c in Root:FieldsInRegions.r2;
+    public int a_short in r1;
+    public int b_short = 17;
+    public int c_short in r2;
+    private float d in Root:FieldsInRegions.r2:FieldsInRegions.r3;
+    private float d_short in r3;
+    protected FieldsInRegions e in Root:FieldsInRegions.r2:FieldsInRegions.r3 = null;
+    protected FieldsInRegions e_short in r3 = null;
+}

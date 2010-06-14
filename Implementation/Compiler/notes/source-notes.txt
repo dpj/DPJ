@@ -1,0 +1,8 @@
+CHANGE LOG
+==========
+
+A complete list of the changes made to implement DPJ on javac is in
+the JavaDoc for the class
+                  com.sun.tools.javac.comp.DPJChanges
+This class does nothing; it was created so that the change log could
+be hyperlinked to the relevant parts of the source code.

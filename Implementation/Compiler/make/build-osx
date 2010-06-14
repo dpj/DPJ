@@ -1,0 +1,2 @@
+ant -Dboot.java.home=/Library/Java/Home
+

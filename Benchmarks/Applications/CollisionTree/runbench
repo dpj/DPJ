@@ -1,0 +1,20 @@
+# Run as "runbench inputfile.dat"
+
+# sequential case
+echo "1 threads, cutoff=0:"
+for i in 1 2 3 4 5
+do
+	java -cp $DPJ_ROOT/Implementation/Runtime/classes:bin jmetest/collisiontree/BenchmarkCollisionTree --dpj_threadnum 1 $1 0
+done
+
+for cutoff in 17
+do
+	for ncpus in 1 2 3 4 7 12 17 22
+	do
+		echo "$ncpus threads, cutoff=$cutoff:"
+		for i in 1 2 3 4 5
+		do
+			java -cp $DPJ_ROOT/Implementation/Runtime/classes:bin jmetest/collisiontree/BenchmarkCollisionTree --dpj_threadnum $ncpus $1 $cutoff
+		done
+	done
+done

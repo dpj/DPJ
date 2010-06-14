@@ -1,0 +1,29 @@
+
+public class MethodEffectAnnotations {
+    region r1;
+    region r2;
+    
+    public MethodEffectAnnotations() {
+        super();
+    }
+    
+    public MethodEffectAnnotations(int x) pure {
+        super();
+    }
+    
+    public MethodEffectAnnotations(char x) reads r1, r2 writes r1, r2 {
+        super();
+    }
+    
+    void m1() {
+    }
+    
+    void m2() pure {
+    }
+    
+    void m3() reads r1, r2 writes r1, r2 {
+    }
+    
+    commutative void m4() {
+    }
+}

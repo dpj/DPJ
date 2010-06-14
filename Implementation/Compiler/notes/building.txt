@@ -1,0 +1,48 @@
+BUILDING DPJ JAVAC
+==================
+
+cd make
+ant
+
+Note: It may be necessary to set the Ant property boot.java.home to
+      the Java home directory, such as
+          ant -Dboot.java.home=/usr/java/jdk1.5.0_06
+      on Linux or
+          ant -Dboot.java.home=/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home
+      on Mac OS X
+
+
+BUILD NOTES
+===========
+
+1. After an initial Ant build, DPJ javac will build automatically in Eclipse
+   (albeit to a bin/ directory instead of build/).  However, if any of the
+   resource bundles are changed (be sure to change the .properties files in
+   src/share/classes/com/sun/tools/javac/resources and not the generated .java
+   files!), the compiler must be re-built using the Ant script.
+
+2. The Ant script bootstraps the compiler.  So if there is an internal compiler
+   error, it is due to a fault in the DPJ compiler.  Note also that the compiler
+   may compile successfully in Eclipse but fail when it is bootstraped in the
+   Ant script due to differences between pure Java and DPJ (or an error in the
+   DPJ compiler).  In particular, note that the following keywords are reserved
+   in DPJ and therefore may not be used as variable names (in any DPJ program,
+   including the DPJ compiler):
+     * region
+     * under
+     * reads
+     * writes
+
+
+TEST NOTES
+==========
+
+1. JUnit 4 tests are in test/dpj-junit-tests.  The corresponding DPJ source
+   files are in test/dpj-programs.
+
+2. If the JUnit tests fail with a MethodNotFound error, it is probably because
+   the classpath is wrong.  Many of the javac classes are included in the
+   system library (rt.jar), and so the DPJ versions must *precede* the system
+   library in the classpath.  There is an Eclipse launcher for the unit tests
+   (test/dpj-junit-tests/dpj-junit-tests.launch) which has the classpath set
+   correctly.

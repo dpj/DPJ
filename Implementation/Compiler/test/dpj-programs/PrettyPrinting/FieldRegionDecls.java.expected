@@ -1,0 +1,10 @@
+
+public class FieldRegionDecls {
+    
+    public FieldRegionDecls() {
+        super();
+    }
+    region r1;
+    region r2;
+    region r3;
+}
