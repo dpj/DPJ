@@ -1,5 +1,5 @@
 ==============================================================================
-LLVM Release License
+DPJ Release License
 ==============================================================================
 University of Illinois/NCSA
 Open Source License
