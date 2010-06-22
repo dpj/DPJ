@@ -4,12 +4,18 @@ ifndef INSTRUMENT		## set this in your env to change behavior
 INSTRUMENT=#-instrument		## or take out the comment on this line
 endif
 
-all : 
+all : java classes
 	cp -Rf forkjoin jsr166y extra166y java
 	# Compile FJTask
 	javac -d classes java/forkjoin/*.java
 	make runtime-only
 	make dpjdoc-html
+
+java :
+	mkdir $@
+
+classes :
+	mkdir $@
 
 runtime-only:
 	# Generate Java 'template' classes
@@ -43,7 +49,7 @@ dpjdoc :
 	mkdir $@
 
 clean :
-	rm -Rf classes/*
-	rm -Rf java/*
+	rm -Rf classes
+	rm -Rf java
 	rm -Rf dpjdoc
 	perl clearAll.pl

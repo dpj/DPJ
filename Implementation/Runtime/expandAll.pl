@@ -2,7 +2,12 @@
 
 # Expand all template files
 
-my @targets = ( ["int", "Int"], ["char", "Char"], ["byte", "Byte"], ["java.lang.String", "String"] );
+my @targets = ( 
+    ["int", "Int"], 
+    ["char", "Char"], 
+    ["byte", "Byte"], 
+    ["boolean", "Boolean"] 
+);
 
 foreach (`ls dpj`) {
     chomp;
