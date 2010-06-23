@@ -54,11 +54,11 @@ public class RuntimeState {
      *
      * <p>This variable may be set to value <i>n</i> at the start of
      * program execution by passing {@code
-     * --dpj-foreach-split=}<i>n</i> as a command-line argument to the
-     * DPJ program.  All DPJ command-line arguments must come first.
-     * This variable may also be set directly in the DPJ program, if a
-     * different splitting factor is desired for different {@code
-     * foreach} loops.
+     * --dpj-foreach-cutoff=}<i>n</i> as a command-line argument to
+     * the DPJ program.  All DPJ command-line arguments must come
+     * first.  This variable may also be set directly in the DPJ
+     * program, if a different splitting factor is desired for
+     * different {@code foreach} loops.
      */
      public static int dpjForeachSplit = 2; 
 
@@ -67,9 +67,9 @@ public class RuntimeState {
      * available processors.
      *
      * <p>This variable may be set to value <i>n</i> at the start of
-     * program execution by passing {@code
-     * --dpj-foreach-split=}<i>n</i> as a command-line argument to the
-     * DPJ program.  Thereafter it may not be changed.
+     * program execution by passing {@code --dpj-num-threads=}<i>n</i>
+     * as a command-line argument to the DPJ program.  Thereafter it
+     * may not be changed.
      */
     public static int dpjNumThreads =
         Runtime.getRuntime().availableProcessors();

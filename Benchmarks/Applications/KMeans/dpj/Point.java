@@ -64,7 +64,7 @@ public class Point {
      * @param pos index
      * @return feature at position pos
      */
-    public float getFeature(int pos) {
+    public float getFeature(int pos) reads Root {
         return features[pos];
     }
     

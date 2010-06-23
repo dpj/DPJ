@@ -34,11 +34,14 @@ public class Normal {
     /** Random value generator */
     RandomType      randomPtr;
     
+    /** Region for doing the accumulation */
+    region AccumRegion;
+
     /** New cluster centers for every iteration */
-    float[][]       new_centers;
+    float[][]<AccumRegion>       new_centers;
     
     /** Number of points in each cluster */
-    int[]           globalSize;
+    int[]<AccumRegion>           globalSize;
 
     /** Clusters with their centers */
     float[][]       clusters;
@@ -66,8 +69,8 @@ public class Normal {
         this.threshold   = threshold;
         this.randomPtr   = randomPtr;
 
-        new_centers = new float[nclusters][nattributes];
-        globalSize  = new int[nclusters];
+        new_centers = new float[nclusters][nattributes]<AccumRegion>;
+        globalSize  = new int[nclusters]<AccumRegion>;
         lock        = new ReentrantLock[nclusters];
 
         for (int i = 0; i < nclusters; i++) 
@@ -80,8 +83,10 @@ public class Normal {
 
     /**
      * Reduction function
+     * Writes AccumRegion, but the effects are commutative.
      */
-    commutative void commuteFunc(int clusterIndex, int ptIndex) {
+    commutative void accumulate(int clusterIndex, int ptIndex) 
+        reads Root writes AccumRegion {
         lock[clusterIndex].lock();
 
         for(int k = 0; k < nattributes; k++) {
@@ -109,11 +114,10 @@ public class Normal {
                     clusters,
                     nclusters);
 
-            commuteFunc(index, i);
+            accumulate(index, i);
         }
 
         long end1 = System.nanoTime();
-        //System.out.println("per iteration " + (end1-start1)/1000000000.0);
     }
 
     /**
@@ -130,7 +134,6 @@ public class Normal {
 
         /* Randomly pick cluster centers */
         for (int i = 0; i < nclusters; i++) {
-        //foreach (int i in 0, nclusters) {    
             
             int n = (int)(randomPtr.random_generate() % npoints);
             //to test the correctness
@@ -151,7 +154,6 @@ public class Normal {
 
             // Replace old cluster centers with new_centers 
             for (int i = 0; i < nclusters; i++) {
-            //foreach (int i in 0, nclusters) {
                 int size = globalSize[i];
 
                 if (size > 0) {
@@ -166,7 +168,6 @@ public class Normal {
             }
 
             delta /= npoints;
-        //} while (/*(delta > threshold) && */(loop++ < 500));
         } while (loop++ < 10);
 
         return clusters;

@@ -1,4 +1,4 @@
-ALL ?= sequential-classes parallel-classes
+ALL ?= sequential-classes parallel-classes instrument-classes
 IMPLEMENTATION=${DPJ_ROOT}/Implementation
 RUNTIME=${IMPLEMENTATION}/Runtime
 SCRIPTS=${DPJ_ROOT}/Benchmarks/Scripts

@@ -11,8 +11,8 @@ run-seq :
 	${DPJ-SEQ} KMeans ${INPUT} ${MIN} ${MAX} ${TN}
 
 run-par:
-	${DPJ-PAR} KMeans --dpj_threadnum ${TN} ${INPUT} ${MIN} ${MAX} ${TN}
+	${DPJ-PAR} KMeans --dpj-num-threads ${TN} ${INPUT} ${MIN} ${MAX} ${TN}
 
 rg:
-	${DPJ-PAR} KMeans --dpj_threadnum 24 color100 40 40 24 debug > output
+	${DPJ-PAR} KMeans --dpj-num-threads 24 color100 40 40 24 debug > output
 	diff --brief -s output ref_output

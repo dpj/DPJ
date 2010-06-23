@@ -1,9 +1,10 @@
 /**
- * A harness for running DPJ kernel programs.  Supports three kinds of runs:
+ * A harness for running DPJ kernel programs.  Supports three kinds of
+ * runs:
  *
  * 1. TEST: A user-defined test of correctness.
- * 2. IDEAL: Run the code, time the tasks, and measure ideal
- *    speedup on infinite processors (i.e., critical path length).
+ * 2. IDEAL: Run the code, time the tasks, and measure ideal speedup
+ *    on infinite processors (i.e., critical path length).
  * 3. TIME: Run the code and output the time of the work portion.
  *
  * The default command-line parameters are MODE, specifying the kind
