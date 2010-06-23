@@ -42,7 +42,6 @@ public class Body<region R> extends Node {
         vel.SETV(body.vel);
         acc.SETV(body.acc);
         phi   = body.phi;
-//        cost  = body.cost;
         index = body.index;
     }
 
@@ -115,7 +114,6 @@ public class Body<region R> extends Node {
         /* add to net acceleration  */
         hg.acc0.ADDV(hg.acc0, hg.ai);
         
-//        cost++;
     }
 
     /**

@@ -100,14 +100,6 @@ public class BarnesHut {
         // Accumulated velocity
         Vector cmv = new Vector();
 
-        //emit the input.txt which is input to splash code
-        /*File f = new File(nbody+"_input.txt");
-        FileOutputStream fout = new FileOutputStream(f);
-        PrintStream pStr = new PrintStream(new BufferedOutputStream(fout));
-        pStr.println(nbody);
-        pStr.println(Constants.NDIM);
-        pStr.println("0");*/
-
         // Fill in the tree
         tree.rmin.SETVS(-2.0);
         tree.rsize = -2.0 * -2.0;  // t->rmin.elts[0];
@@ -135,40 +127,8 @@ public class BarnesHut {
             p.pos.SUBV(p.pos, cmr); 
             p.vel.SUBV(p.vel, cmv);
             p.index = i;
-//            p.cost = 1;
         }
 
-/*        //emit body masses to input file
-        for(int i = 0; i < tree.bodies.length; i++)
-        {
-            Body p = tree.bodies[i];
-            //pStr.println("0.25");
-            DecimalFormat form = new DecimalFormat("#.000000");
-            pStr.println(form.format(p.mass));
-            //pStr.println((float)1.0/(float)(nbody/32.0));
-        }
-        for(int i = 0; i < tree.bodies.length; i++)
-        {
-            Body p = tree.bodies[i];
-            for(int j = 0; j < Constants.NDIM; j++)
-            {
-                pStr.print(p.pos.elts[j]);
-                pStr.print(" ");
-            }
-            pStr.println("");
-        }
-        for(int i = 0; i < tree.bodies.length; i++)
-        {
-            Body p = tree.bodies[i];
-            for(int j = 0; j < Constants.NDIM; j++)
-            {
-                pStr.print(p.vel.elts[j]);
-                pStr.print(" ");
-            }
-            pStr.println("");
-        }
-        pStr.close();*/
-         
         //calculate bounding box once instead of expanding it everytime
         tree.setRsize();
     }
@@ -191,18 +151,6 @@ public class BarnesHut {
         tree.count = 0;
         long start = System.nanoTime();
 
-        //create threads and barrier
-/*        tree.barrier = new CyclicBarrier(tree.N);
-        tree.barMakeTree = new CyclicBarrier(tree.N);
-        tree.barComputeGrav = new CyclicBarrier(tree.N);
-        tree.barPosUpdate = new CyclicBarrier(tree.N);
-        Thread th[] = new Thread[tree.N - 1];
-        for(int n = 0; n < (tree.N - 1); n++)
-        {
-            th[n] = new Thread(new SlaveStart(n+1, tree, tnow));
-            th[n].start();
-        }
-*/
         i = 0;
         while ((tnow < Constants.tstop + 0.1*Constants.dtime) && (i < Constants.NSTEPS)) {
             tree.stepsystem(0, i); 
@@ -211,11 +159,6 @@ public class BarnesHut {
             i++;
         }
 
- /*       for(int n = 0; n < (tree.N - 1); n++)
-        {
-            th[n].join();
-        }
-*/
         long end = System.nanoTime();
         if(!tree.printBodies)
         {

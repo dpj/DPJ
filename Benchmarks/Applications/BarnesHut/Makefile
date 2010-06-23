@@ -6,7 +6,7 @@ run :
 	java -cp classes BarnesHut ${NBODY}
 
 test:
-	${DPJ-PAR} BarnesHut --dpj-num-threads 2 100 1 true > output
+	${DPJ-PAR} BarnesHut --dpj-num-threads 1 100 1 true > output
 	diff --brief -s output ref.output
 	
 run-inst :
