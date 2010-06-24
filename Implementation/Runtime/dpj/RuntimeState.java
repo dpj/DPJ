@@ -54,11 +54,11 @@ public class RuntimeState {
      *
      * <p>This variable may be set to value <i>n</i> at the start of
      * program execution by passing {@code
-     * --dpj-foreach-cutoff=}<i>n</i> as a command-line argument to
-     * the DPJ program.  All DPJ command-line arguments must come
-     * first.  This variable may also be set directly in the DPJ
-     * program, if a different splitting factor is desired for
-     * different {@code foreach} loops.
+     * --dpj-foreach-split=}<i>n</i> as a command-line argument to the
+     * DPJ program.  All DPJ command-line arguments must come first.
+     * This variable may also be set directly in the DPJ program, if a
+     * different splitting factor is desired for different {@code
+     * foreach} loops.
      */
      public static int dpjForeachSplit = 2; 
 
@@ -67,9 +67,9 @@ public class RuntimeState {
      * available processors.
      *
      * <p>This variable may be set to value <i>n</i> at the start of
-     * program execution by passing {@code --dpj-num-threads=}<i>n</i>
-     * as a command-line argument to the DPJ program.  Thereafter it
-     * may not be changed.
+     * program execution by passing {@code
+     * --dpj-foreach-split=}<i>n</i> as a command-line argument to the
+     * DPJ program.  Thereafter it may not be changed.
      */
     public static int dpjNumThreads =
         Runtime.getRuntime().availableProcessors();
@@ -79,6 +79,12 @@ public class RuntimeState {
     private static void error(String msg) {
 	System.err.println(msg);
 	System.exit(1);
+    }
+
+    private static void checkIdx(String flag, int idx, int length) {
+	if (idx >= length - 1) {
+	    error("Missing argument to " + flag);
+	}
     }
 
     /**
@@ -103,14 +109,17 @@ public class RuntimeState {
 	int idx = 0;
 	for ( ; idx < args.length; ++idx) {
 	    if(args[idx].equals("--dpj-foreach-split")) {
+		checkIdx("--dpj-foreach-split", idx, args.length);
 		dpjForeachSplit = Integer.parseInt(args[++idx]);
 		if (dpjForeachSplit < 1) {
 		    error("DPJ foreach split must be greater than 0; " +
 			  dpjForeachSplit + " is not valid");
 		}
 	    } else if (args[idx].equals("--dpj-foreach-cutoff")) {
+		checkIdx("--dpj-foreach-cutoff", idx, args.length);
 		dpjForeachCutoff = Integer.parseInt(args[++idx]);
 	    } else if(args[idx].equals("--dpj-num-threads")) {
+		checkIdx("--dpj-num-threads", idx, args.length);
 		dpjNumThreads = Integer.parseInt(args[++idx]);
 		if (dpjNumThreads < 1) {
 		    error("DPJ num threads must be greater than 0; " +
