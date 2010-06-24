@@ -45,5 +45,9 @@ public class MethodParamsGood extends DPJTestCase {
     @Test public void testTypeParams() throws Throwable {
 	compile("TypeParams");
     }
+    
+    @Test public void testDisjointStar() throws Throwable {
+	compile("DisjointStar");
+    }
 
 }
