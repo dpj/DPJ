@@ -1,11 +1,11 @@
-
-SRCS= ${wildcard dpj/*.java}
-SRC = Cluster.java KMeans.java Normal.java Point.java RandomType.java
+ALL=sequential-classes parallel-classes
 
 include ../../Makefile.common
 
-run-inst :
-	${DPJ-INST} KMeans ${INPUT} ${MIN} ${MAX} ${TN}
+INPUT ?= inputs/color100
+MIN ?= 40
+MAX ?= 40
+TN ?= 2
 
 run-seq :
 	${DPJ-SEQ} KMeans ${INPUT} ${MIN} ${MAX} ${TN}
@@ -13,6 +13,3 @@ run-seq :
 run-par:
 	${DPJ-PAR} KMeans --dpj-num-threads ${TN} ${INPUT} ${MIN} ${MAX} ${TN}
 
-rg:
-	${DPJ-PAR} KMeans --dpj-num-threads 1 color100 40 40 24 > debug output
-	diff -u -s output ref_output
