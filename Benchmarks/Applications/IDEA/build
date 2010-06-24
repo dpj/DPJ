@@ -1,0 +1,6 @@
+javac -d classes jgfutil/*.java
+dpjc -cp ../../../Implementation/Runtime/classes:. -d java dpj/*.java
+javac -cp ../../../Implementation/Runtime/classes:. -d classes java/*.java
+javac -cp classes -d classes test/*.java
+cd classes
+java -cp ../../../../Implementation/Runtime/classes:. JGFCryptBenchSizeA 5
