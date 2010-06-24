@@ -14,5 +14,5 @@ run-par:
 	${DPJ-PAR} KMeans --dpj-num-threads ${TN} ${INPUT} ${MIN} ${MAX} ${TN}
 
 rg:
-	${DPJ-PAR} KMeans --dpj-num-threads 1 color100 40 40 24 debug > output
+	${DPJ-PAR} KMeans --dpj-num-threads 1 color100 40 40 24 > debug output
 	diff -u -s output ref_output

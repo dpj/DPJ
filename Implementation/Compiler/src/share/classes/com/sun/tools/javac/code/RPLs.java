@@ -85,6 +85,9 @@ public class RPLs {
 	}
 	if (rpl1.isUnderLocal() != rpl2.isUnderLocal())
 	    return true;
+	// Distinct local names
+	if (rpl1.elts.head.isDisjointFrom(rpl2.elts.head, this, constraints))
+	    return true;
 	// Do the RPLs start out the same then diverge?
 	if (!rpl1.elts.head.equals(rpl2.elts.head)) return false;
 	List<RPLElement> elts1 = rpl1.elts.tail;
