@@ -177,8 +177,8 @@ It is intended to be accessible to readers with no previous knowledge
 of DPJ, though familiarity with Java is assumed. <BR>
 <BR>
 Many cross-references appear throughout the document. To refer to
-sections, we use the section symbol §: for example,
-§&nbsp;<A HREF="#sec:effects:basic">5.1</A> refers to the section numbered
+sections, we use the section symbol &sect;: for example,
+&sect;&nbsp;<A HREF="#sec:effects:basic">5.1</A> refers to the section numbered
 <A HREF="#sec:effects:basic">5.1</A>.<BR>
 <BR>
 Readers of this document may also wish to consult the following:
@@ -200,30 +200,30 @@ Readers of this document may also wish to consult the following:
 </UL>
 The rest of the document is organized as follows:
 <UL CLASS="itemize"><LI CLASS="li-itemize">
-§&nbsp;<A HREF="#sec:classes">2</A>, <EM>Classes and Interfaces</EM>, describes
+&sect;&nbsp;<A HREF="#sec:classes">2</A>, <EM>Classes and Interfaces</EM>, describes
  DPJ's extensions to Java classes and interfaces. These include
  features for declaring region names, using assigning region names to
  class fields, summarizing method effects, and writing classes and
  methods with region variables.
-<LI CLASS="li-itemize">§&nbsp;<A HREF="#sec:rpls">3</A>, <EM>Region Path Lists</EM>, describes region
+<LI CLASS="li-itemize">&sect;&nbsp;<A HREF="#sec:rpls">3</A>, <EM>Region Path Lists</EM>, describes region
  path lists, or RPLs. These are the general form of a region name in
  DPJ. RPLs are hierarchically structured, and the structure allows
  many fine distinctions between sets of regions to be expressed.
-<LI CLASS="li-itemize">§&nbsp;<A HREF="#sec:types">4</A>, <EM>Types</EM>, describes DPJ's extensions to
+<LI CLASS="li-itemize">&sect;&nbsp;<A HREF="#sec:types">4</A>, <EM>Types</EM>, describes DPJ's extensions to
  Java's class and array types. The main difference is that both
  class and array types can have region arguments. There are also new
  rules for type comparisons, casts, etc. to support the extensions.
-<LI CLASS="li-itemize">§&nbsp;<A HREF="#sec:effects">5</A>, <EM>Effects</EM>, describes DPJ's effect
+<LI CLASS="li-itemize">&sect;&nbsp;<A HREF="#sec:effects">5</A>, <EM>Effects</EM>, describes DPJ's effect
  system, which is closely integrated with the regions in the type
  system. Effects describe operations on the heap. The programmer
  declares the effects of methods, and the compiler infers the rest of
  the effects. The compiler checks to make sure that the effects of
  parallel tasks are mutually noninterfering.
-<LI CLASS="li-itemize">§&nbsp;<A HREF="#sec:parallel">6</A>, <EM>Parallel Control Flow</EM>, describes
+<LI CLASS="li-itemize">&sect;&nbsp;<A HREF="#sec:parallel">6</A>, <EM>Parallel Control Flow</EM>, describes
  DPJ's constructs for creating parallel tasks.
-<LI CLASS="li-itemize">§&nbsp;<A HREF="#sec:runtime">7</A>, <EM>The DPJ Runtime</EM>, explains the classes in
+<LI CLASS="li-itemize">&sect;&nbsp;<A HREF="#sec:runtime">7</A>, <EM>The DPJ Runtime</EM>, explains the classes in
  the DPJ runtime that are useful for manipulating arrays.
-<LI CLASS="li-itemize">§&nbsp;<A HREF="#sec:exceptions">8</A>, <EM>Exception Behavior</EM>, explains
+<LI CLASS="li-itemize">&sect;&nbsp;<A HREF="#sec:exceptions">8</A>, <EM>Exception Behavior</EM>, explains
  what happens when an exception is thrown in DPJ.
 </UL>
 
@@ -238,15 +238,15 @@ DPJ classes and interfaces are identical to classes and interfaces in
 Java, with the following additional features:
 <UL CLASS="itemize"><LI CLASS="li-itemize">
 New members called <EM>class region name declarations</EM>
- (§&nbsp;<A HREF="#sec:classes:region-names">2.1</A>) declare region names at class or
+ (&sect;&nbsp;<A HREF="#sec:classes:region-names">2.1</A>) declare region names at class or
  interface scope that can be associated with class fields
- (§&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>).
+ (&sect;&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>).
 <LI CLASS="li-itemize">Methods have several new features to support regions and effects
- (§&nbsp;<A HREF="#sec:classes:methods">2.3</A>).
+ (&sect;&nbsp;<A HREF="#sec:classes:methods">2.3</A>).
 <LI CLASS="li-itemize">Classes, interfaces, and methods support <EM>region
  parameters</EM>, so that different objects of the same class or
  interface, and different invocations of the same method, can use
- different regions (§&nbsp;<A HREF="#sec:classes:params">2.4</A>).
+ different regions (&sect;&nbsp;<A HREF="#sec:classes:params">2.4</A>).
 </UL>
 Throughout this section, we use the term &#8220;class&#8221; with the
 understanding that the concepts apply identically to interfaces,
@@ -291,9 +291,9 @@ regions that can be referred to from anywhere in the program:<BR>
 }</TT></DIV><BR>
 <BR>
 Class region name declarations are available for use in RPLs
-(§&nbsp;<A HREF="#sec:rpls">3</A>) in the scope where they are visible. A class
+(&sect;&nbsp;<A HREF="#sec:rpls">3</A>) in the scope where they are visible. A class
 region name standing alone is a particular case of an RPL (see
-§&nbsp;<A HREF="#sec:rpls:basic:class">3.1.2</A>).<BR>
+&sect;&nbsp;<A HREF="#sec:rpls:basic:class">3.1.2</A>).<BR>
 <BR>
 <!--TOC subsection 2.2&nbsp;&nbsp;Field RPL Specifiers-->
 
@@ -303,9 +303,9 @@ region name standing alone is a particular case of an RPL (see
 <BR>
 <BR>
 Every class field in DPJ resides in a <EM>region</EM>, named with a
-region path list (§&nbsp;<A HREF="#sec:rpls">3</A>). This is a fundamental aspect of
+region path list (&sect;&nbsp;<A HREF="#sec:rpls">3</A>). This is a fundamental aspect of
 DPJ versus plain Java; it allows the specification and checking of
-effects (§&nbsp;<A HREF="#sec:effects">5</A>). There are two ways to specify the RPL
+effects (&sect;&nbsp;<A HREF="#sec:effects">5</A>). There are two ways to specify the RPL
 of a field: (1) with an explicit <EM>field RPL specifier</EM>; and (2)
 by using the <EM>default field RPL</EM>.<BR>
 <BR>
@@ -313,7 +313,7 @@ by using the <EM>default field RPL</EM>.<BR>
 following form:
 <DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>in</TT> <EM>rpl</EM>
 </DL>
-<EM>rpl</EM> is an RPL, as defined in §&nbsp;<A HREF="#sec:rpls">3</A>. If the field
+<EM>rpl</EM> is an RPL, as defined in &sect;&nbsp;<A HREF="#sec:rpls">3</A>. If the field
 RPL specifier is present, then it must appear immediately after the
 field name (and before the field initializer expression, if there is
 one). For example:
@@ -323,17 +323,17 @@ one). For example:
     <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> X;              <FONT COLOR="fuchsia"><EM>// field x is in region X</EM></FONT>
     <B>boolean</B> y <FONT COLOR="blue"><B>in</B></FONT> Y = <B>false</B>;  <FONT COLOR="fuchsia"><EM>// field y is in region Y</EM></FONT>
 }</TT></DIV>Notice that because a class region name declaration functions like a
-static class member (§&nbsp;<A HREF="#sec:classes:region-names">2.1</A>), it creates a
+static class member (&sect;&nbsp;<A HREF="#sec:classes:region-names">2.1</A>), it creates a
 single region name <EM>per class</EM>, not per object. Therefore, a
 field RPL specifier such as <TT>int x in X</TT> assigns the same
 region <TT>FieldRPLSpecifiers.X</TT> to the field of <EM>every object
  instance</EM> of class <TT>FieldRPLSpecifiers</TT> created at runtime.
-§&nbsp;<A HREF="#sec:classes:params">2.4</A> explains how to use <EM>region
+&sect;&nbsp;<A HREF="#sec:classes:params">2.4</A> explains how to use <EM>region
  parameters</EM> to assign different regions to the fields of different
 objects of the same class.<BR>
 <BR>
 <EM>Final fields:</EM> Effects on <TT>final</TT> fields are ignored
-(§&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A>), because their values never change
+(&sect;&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A>), because their values never change
 after initialization. Therefore, field RPL specifiers are not
 meaningful for <TT>final</TT> fields. If a field is declared
 <TT>final</TT>, then an RPL specifier may be given for the field; but if
@@ -341,7 +341,7 @@ so, it is ignored.<BR>
 <BR>
 <B>Default field RPL:</B> If a field has no explicit RPL specifier,
 then its RPL is <TT>Root</TT>. The name <TT>Root</TT> is always in scope
-(§&nbsp;<A HREF="#sec:rpls:basic:root">3.1.1</A>). For example, in the following code,
+(&sect;&nbsp;<A HREF="#sec:rpls:basic:root">3.1.1</A>). For example, in the following code,
 field <TT>x</TT> is in region <TT>Root</TT>:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> DefaultRegionSpecifier {
@@ -358,16 +358,16 @@ field <TT>x</TT> is in region <TT>Root</TT>:
 <BR>
 DPJ adds the following features to Java methods:
 <UL CLASS="itemize"><LI CLASS="li-itemize">
-Every method (§&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>) and
- constructor (§&nbsp;<A HREF="#sec:classes:methods:summaries-constructor">2.3.2</A>)
+Every method (&sect;&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>) and
+ constructor (&sect;&nbsp;<A HREF="#sec:classes:methods:summaries-constructor">2.3.2</A>)
  summarizes its effects, either explicitly or through a default
  effect summary.
 <LI CLASS="li-itemize">The programmer may declare and use <EM>local region names</EM>
- inside a method body (§&nbsp;<A HREF="#sec:classes:methods:local-regions">2.3.3</A>),
+ inside a method body (&sect;&nbsp;<A HREF="#sec:classes:methods:local-regions">2.3.3</A>),
  to express effects that do not escape the method scope.
 <LI CLASS="li-itemize">Methods may be marked <TT>commutative</TT> to indicate that their
  effects commute, even though they have conflicting reads and writes
- (§&nbsp;<A HREF="#sec:classes:methods:commutative">2.3.4</A>).
+ (&sect;&nbsp;<A HREF="#sec:classes:methods:commutative">2.3.4</A>).
 </UL>
 <!--TOC subsubsection 2.3.1&nbsp;&nbsp;Effect Summaries (Non-Constructor Methods)-->
 
@@ -378,9 +378,9 @@ Every method (§&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>) and
 <BR>
 Every DPJ method must summarize its effects. The compiler uses the
 summaries to check noninterference of effect
-(§&nbsp;<A HREF="#sec:effects:nonint">5.7</A>). This section discusses effect
+(&sect;&nbsp;<A HREF="#sec:effects:nonint">5.7</A>). This section discusses effect
 summaries for non-constructor methods.
-§&nbsp;<A HREF="#sec:classes:methods:summaries-constructor">2.3.2</A> describes effects
+&sect;&nbsp;<A HREF="#sec:classes:methods:summaries-constructor">2.3.2</A> describes effects
 summaries for constructors. There are two ways to summarize a
 method's effects: (1) with an explicit method effect summary; or (2)
 with the default method effect summary.<BR>
@@ -388,7 +388,7 @@ with the default method effect summary.<BR>
 <B>Explicit method effect summaries:</B> An explicit method effect
 summary appears immediately after the method's value parameters and
 before the <TT>throws</TT> clause, if any. It has the form given in
-§&nbsp;<A HREF="#sec:effects:summaries">5.2</A>. For example:
+&sect;&nbsp;<A HREF="#sec:effects:summaries">5.2</A>. For example:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> Summaries {
   <FONT COLOR="blue"><B>region</B></FONT> X, Y;
@@ -408,10 +408,10 @@ before the <TT>throws</TT> clause, if any. It has the form given in
 <BR>
 A method effect summary must represent all the effects of the method
 body. More precisely, the actual method effects must be a
-<EM>subeffect</EM> (§&nbsp;<A HREF="#sec:effects:subeffects">5.6</A>) of the summarized
+<EM>subeffect</EM> (&sect;&nbsp;<A HREF="#sec:effects:subeffects">5.6</A>) of the summarized
 effects. The actual effects are computed as described in
-§&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A>, <EM>except</EM> that any local effect
-(§&nbsp;<A HREF="#sec:effects:local">5.3</A>) can be omitted from the summary. The
+&sect;&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A>, <EM>except</EM> that any local effect
+(&sect;&nbsp;<A HREF="#sec:effects:local">5.3</A>) can be omitted from the summary. The
 representation can be conservative, i.e., it is permissible to include
 effects in the summary that can never occur in executing the method.
 But if any effect of any possible execution of the method is omitted
@@ -515,7 +515,7 @@ effort, because the effects of those methods are not important.<BR>
 <BR>
 Constructors are special methods; therefore they must also summarize
 their effects. All the rules given in
-§&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A> apply, with one important
+&sect;&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A> apply, with one important
 exception: the effect summary of a constructor does <EM>not</EM> have to
 report any initialization effects on fields of the object being
 constructed. For example, the following code is legal:
@@ -538,7 +538,7 @@ So there can be no interference due to initialization effects of
 constructors.<BR>
 <BR>
 However, if we wrote the same initializer as a non-constructor method,
-then the rules in §&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A> would apply,
+then the rules in &sect;&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A> would apply,
 and we would have to write the effects:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> NonConstructorExample {
@@ -561,12 +561,12 @@ and we would have to write the effects:
 A region name declaration may appear as a statement in the body of a
 method. This kind of declaration is called a <EM>local region name
  declaration</EM>. Like a class region name declaration
-(§&nbsp;<A HREF="#sec:classes:region-names">2.1</A>), a local region name declaration
+(&sect;&nbsp;<A HREF="#sec:classes:region-names">2.1</A>), a local region name declaration
 consists of the keyword <TT>region</TT> followed by a comma-separated
 list of identifiers. The declared names are available for use in RPLs
-(§&nbsp;<A HREF="#sec:rpls">3</A>) in the scope of the enclosing statement block. In
+(&sect;&nbsp;<A HREF="#sec:rpls">3</A>) in the scope of the enclosing statement block. In
 particular, a local region name standing alone is a valid RPL
-(§&nbsp;<A HREF="#sec:rpls:basic:local">3.1.4</A>).<BR>
+(&sect;&nbsp;<A HREF="#sec:rpls:basic:local">3.1.4</A>).<BR>
 <BR>
 For example, the following code declares
 region names <TT>A</TT> and <TT>B</TT> that are available for use as region
@@ -579,13 +579,13 @@ names in the scope of method <TT>localRegionNames</TT>:
 <BR>
 Because of their limited scope, local names (and RPLs constructed from
 them) cannot appear in field RPL specifiers
-(§&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>). They can be used
+(&sect;&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>). They can be used
 <EM>only</EM> in arguments to class or method region parameters
-(§&nbsp;<A HREF="#sec:classes:params">2.4</A>). Their purpose is to indicate that the
+(&sect;&nbsp;<A HREF="#sec:classes:params">2.4</A>). Their purpose is to indicate that the
 effects of operating on the class object, or invoking the method, are
 local to the enclosing method, and need not to be reported in the
 effect summary of the enclosing method or constructor
-(§§&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>,&nbsp;<A HREF="#sec:classes:methods:summaries-constructor">2.3.2</A>).
+(&sect;&sect;&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>,&nbsp;<A HREF="#sec:classes:methods:summaries-constructor">2.3.2</A>).
 This technique is called <EM>effect masking</EM>. For example:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> EffectMasking&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
@@ -714,9 +714,9 @@ in checking for such bugs.<BR>
 DPJ extends Java's generic type parameters by allowing <EM>region
  parameters</EM> in class and method definitions. Class region
 parameters become bound to actual regions when the class is
-instantiated to a type (§&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>). Method
+instantiated to a type (&sect;&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>). Method
 region parameters become bound to actual regions when the method is
-invoked (§&nbsp;<A HREF="#sec:classes:params:method">2.4.2</A>).<BR>
+invoked (&sect;&nbsp;<A HREF="#sec:classes:params:method">2.4.2</A>).<BR>
 <BR>
 <!--TOC subsubsection 2.4.1&nbsp;&nbsp;Class Region Parameters-->
 
@@ -756,11 +756,11 @@ For example, the following are valid class declarations:
 <B>class</B> F&lt;<FONT COLOR="blue"><B>type</B></FONT> T1, T2, <FONT COLOR="blue"><B>region</B></FONT> R1, R2&gt; {}</TT></DIV><BR>
 <BR>
 <B>Using class region parameters:</B> A class region parameter is
-available for use in RPLs (§&nbsp;<A HREF="#sec:rpls:param">3.3</A>) within the class
+available for use in RPLs (&sect;&nbsp;<A HREF="#sec:rpls:param">3.3</A>) within the class
 definition. In particular, a class region parameter standing alone is
 a valid RPL. For example, the following code declares a class
 <TT>ParamInField</TT> with a region parameter <TT>R</TT> and uses <TT>R</TT> in
-a field RPL specifier (§&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>):
+a field RPL specifier (&sect;&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>):
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> ParamInField&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
     <B>public int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
@@ -774,7 +774,7 @@ example, this code creates a fresh <TT>ParamInField</TT> object called
 <BR>
 As another example of using parameters, the following code declares a
 class region parameter <TT>R</TT> and uses it to instantiate a type
-(§&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>):
+(&sect;&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>):
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> ParamInType&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
     ParamInType&lt;R&gt; x <FONT COLOR="blue"><B>in</B></FONT> R;
@@ -861,7 +861,7 @@ of identifiers enclosed in angle brackets (<TT>&lt;&gt;</TT>) immediately
 before the method return type (for non-constructor methods) or class
 name (for constructors). A method parameter declaration has the same
 form as a class parameter declaration
-(§&nbsp;<A HREF="#sec:classes:params:class">2.4.1</A>).
+(&sect;&nbsp;<A HREF="#sec:classes:params:class">2.4.1</A>).
 For example, the following code defines a method with type parameter
 <TT>T</TT> and region parameter <TT>R</TT>:
 
@@ -872,7 +872,7 @@ and the <TT>region</TT> keyword is optional except as to the first region
 parameter.<BR>
 <BR>
 <B>Using method region parameters:</B> A method region parameter is
-available for use in RPLs (§&nbsp;<A HREF="#sec:rpls:param">3.3</A>) with the method
+available for use in RPLs (&sect;&nbsp;<A HREF="#sec:rpls:param">3.3</A>) with the method
 definition. In particular, a method region parameter standing alone
 is a valid RPL. For example, the following code declares a method
 <TT>method</TT> with a region parameter <TT>R</TT> and uses <TT>R</TT> in the
@@ -894,7 +894,7 @@ method defined with region parameters, the programmer may always use
 infer the arguments, in some cases the programmer may alternatively
 use <EM>inferred RPL arguments</EM>. In either case, the arguments must
 obey any disjointness constraints on the method's region parameters
-(§&nbsp;<A HREF="#sec:classes:params:disjoint">2.4.3</A>).<BR>
+(&sect;&nbsp;<A HREF="#sec:classes:params:disjoint">2.4.3</A>).<BR>
 <BR>
 <I>Explicit RPL arguments:</I> The programmer can always supply the
 RPL arguments to the method region parameters explicitly, using an
@@ -942,12 +942,12 @@ pass <TT>ExplicitArgs&lt;Root&gt;</TT> as the type argument to <TT>T</TT> and
 arguments. Notice that the type of <TT>arg</TT> matches the type of
 <TT>param</TT>, after substituting <TT>Root</TT> for <TT>R</TT> in <TT>param</TT>.
 If the types did not match, there would be a compile error. See
-§&nbsp;<A HREF="#sec:types:exp:invoke">4.3.3</A> for more information about how typing
+&sect;&nbsp;<A HREF="#sec:types:exp:invoke">4.3.3</A> for more information about how typing
 works for method invocations in the presence of region parameters.<BR>
 <BR>
 Note that the keyword <TT>region</TT> must be present to identify the
 first RPL argument in the list, unlike the case of RPL arguments to
-classes (§&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>), where the <TT>region</TT>
+classes (&sect;&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>), where the <TT>region</TT>
 keyword is optional. The reason for this rule is Java's method
 overloading: because multiple methods can be declared with the same
 name but different parameters, information about which arguments are
@@ -1024,14 +1024,14 @@ vertical bar:
 </DL>
 <EM>constraints</EM> is a comma-separated list of constraints, where a
 constraint has the form <EM>rpl1</EM> <TT>#</TT> <EM>rpl2</EM>, and
-<EM>rpl1</EM> and <EM>rpl2</EM> are valid RPLs (§&nbsp;<A HREF="#sec:rpls">3</A>). The
+<EM>rpl1</EM> and <EM>rpl2</EM> are valid RPLs (&sect;&nbsp;<A HREF="#sec:rpls">3</A>). The
 constraint states that <EM>rpl1</EM> and <EM>rpl2</EM> are disjoint
-regions (§&nbsp;<A HREF="#sec:rpls:comparing:disjoint">3.6.4</A>). For class region
+regions (&sect;&nbsp;<A HREF="#sec:rpls:comparing:disjoint">3.6.4</A>). For class region
 parameters, the requirement is enforced when the class is instantiated
 to a type by substituting RPLs for parameters
-(§&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>). For method region parameters, the
+(&sect;&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>). For method region parameters, the
 requirement is enforced when RPL arguments are provided to an
-invocation of the method (§&nbsp;<A HREF="#sec:classes:params:method">2.4.2</A>).<BR>
+invocation of the method (&sect;&nbsp;<A HREF="#sec:classes:params:method">2.4.2</A>).<BR>
 <BR>
 For example, the code above could be rewritten as follows to make it
 safe:
@@ -1107,11 +1107,11 @@ RPLs can be <EM>fully specified</EM> or <EM>partially specified</EM>. A
 fully-specified RPL names a <EM>region</EM>, which represents a set of
 memory locations on the heap. The correspondence between memory
 locations and regions is given by the way that the programmer has
-assigned RPLs to class fields (§&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>)
+assigned RPLs to class fields (&sect;&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>)
 and bound RPLs to region parameters in class types
-(§&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>), array types
-(§&nbsp;<A HREF="#sec:types:array:instant">4.2.1</A>), and method invocations
-(§&nbsp;<A HREF="#sec:classes:params:method">2.4.2</A>). A partially-specified RPL names
+(&sect;&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>), array types
+(&sect;&nbsp;<A HREF="#sec:types:array:instant">4.2.1</A>), and method invocations
+(&sect;&nbsp;<A HREF="#sec:classes:params:method">2.4.2</A>). A partially-specified RPL names
 a <EM>set of regions</EM> and is useful for expressing hierarchical
 effects (e.g., &#8220;all regions under this one&#8221;).<BR>
 <BR>
@@ -1123,23 +1123,23 @@ in comparing sets of memory locations to determine whether they are
 overlapping or disjoint. These properties are the key to specifying
 and checking effects. In particular, checking <EM>subeffects</EM>
 (e.g., that a method's effect summary covers its effects,
-§&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>) requires reasoning about
+&sect;&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>) requires reasoning about
 inclusion of RPLs, while checking <EM>noninterfering effects</EM> (e.g.,
 that the branches of a <TT>cobegin</TT> statement do not interfere,
-§&nbsp;<A HREF="#sec:parallel:cobegin">6.1</A>) requires reasoning about disjointness
+&sect;&nbsp;<A HREF="#sec:parallel:cobegin">6.1</A>) requires reasoning about disjointness
 of RPLs.<BR>
 <BR>
-The rest of this section proceeds as follows. §&nbsp;<A HREF="#sec:rpls:basic">3.1</A>
+The rest of this section proceeds as follows. &sect;&nbsp;<A HREF="#sec:rpls:basic">3.1</A>
 describes the simplest form of RPL, which is just a name, such as a
 region name declared at class scope
-(§&nbsp;<A HREF="#sec:classes:region-names">2.1</A>). §&nbsp;<A HREF="#sec:rpls:sequences">3.2</A>
+(&sect;&nbsp;<A HREF="#sec:classes:region-names">2.1</A>). &sect;&nbsp;<A HREF="#sec:rpls:sequences">3.2</A>
 describes how to construct RPLs using <EM>sequences of names</EM>, which
-put a nesting structure on RPLs. §&nbsp;<A HREF="#sec:rpls:param">3.3</A> describes
-the use of region parameters (§&nbsp;<A HREF="#sec:classes:params">2.4</A>) with RPLs.
+put a nesting structure on RPLs. &sect;&nbsp;<A HREF="#sec:rpls:param">3.3</A> describes
+the use of region parameters (&sect;&nbsp;<A HREF="#sec:classes:params">2.4</A>) with RPLs.
 These parameters allow RPLs to vary with the class type or method
-invocation. §&nbsp;<A HREF="#sec:rpls:partial">3.4</A> explains how to write
+invocation. &sect;&nbsp;<A HREF="#sec:rpls:partial">3.4</A> explains how to write
 <EM>partially specified RPLs</EM>, which describe sets of fully
-specified RPLs. §&nbsp;<A HREF="#sec:rpls:comparing">3.6</A> explains the rules for
+specified RPLs. &sect;&nbsp;<A HREF="#sec:rpls:comparing">3.6</A> explains the rules for
 comparing RPLs for properties such as inclusion and disjointness.<BR>
 <BR>
 Finally, a word about the uses of RPLs. This section is about the
@@ -1151,16 +1151,16 @@ list all the possible uses here, together with the sections discussing
 those uses:
 <UL CLASS="itemize"><LI CLASS="li-itemize">
 RPLs can appear in field RPL specifiers, to assign class fields
- to regions (§&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>).
+ to regions (&sect;&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>).
 <LI CLASS="li-itemize">RPLs can appear in effect summaries
- (§&nbsp;<A HREF="#sec:effects:summaries">5.2</A>). These RPLs describe the effects
+ (&sect;&nbsp;<A HREF="#sec:effects:summaries">5.2</A>). These RPLs describe the effects
  of a code statement.
 <LI CLASS="li-itemize">RPLs can appear as arguments to parametric class types
- (§&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>) and to array types
- (§&nbsp;<A HREF="#sec:types:array:instant">4.2.1</A>). These RPLs provide actual
+ (&sect;&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>) and to array types
+ (&sect;&nbsp;<A HREF="#sec:types:array:instant">4.2.1</A>). These RPLs provide actual
  regions for the parameters in the instantiation of a class or array.
 <LI CLASS="li-itemize">RPLs can appear in method invocations, as arguments to method
- region parameters (§&nbsp;<A HREF="#sec:classes:params:method">2.4.2</A>). These RPLs
+ region parameters (&sect;&nbsp;<A HREF="#sec:classes:params:method">2.4.2</A>). These RPLs
  provide actual regions for the parameters in an invocation of a
  method.
 </UL>
@@ -1179,16 +1179,16 @@ name. There are five kinds of region names:
 <OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 <TT>Root</TT>, a special name that is always in scope.
 <LI CLASS="li-enumerate">A region name declared at class scope
- (§&nbsp;<A HREF="#sec:classes:region-names">2.1</A>).
+ (&sect;&nbsp;<A HREF="#sec:classes:region-names">2.1</A>).
 <LI CLASS="li-enumerate">An array index region <TT>[</TT><EM>exp</EM><TT>]</TT>, where <EM>exp</EM>
  is an integer expression.
 <LI CLASS="li-enumerate">A region name declared in a method-local scope
- (§&nbsp;<A HREF="#sec:classes:methods:local-regions">2.3.3</A>).
+ (&sect;&nbsp;<A HREF="#sec:classes:methods:local-regions">2.3.3</A>).
 <LI CLASS="li-enumerate">A <TT>final</TT> local variable or <TT>this</TT>. 
 </OL>
 The first three kinds of names are available everywhere (except that
 class region names may have access qualifiers, see
-§&nbsp;<A HREF="#sec:classes:region-names">2.1</A>). The last two kinds of names are
+&sect;&nbsp;<A HREF="#sec:classes:region-names">2.1</A>). The last two kinds of names are
 available only in the scope where the region names or variables
 are active.<BR>
 <BR>
@@ -1201,8 +1201,8 @@ are active.<BR>
 <BR>
 The region name <TT>Root</TT> is always in scope, and can be used
 anywhere as an RPL. For example, the following code uses <TT>Root</TT>
-in a field region specifier (§&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>)
-and to instantiate a class type (§&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>):
+in a field region specifier (&sect;&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>)
+and to instantiate a class type (&sect;&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>):
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> RootExample&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
     RootExample&lt;Root&gt; x <FONT COLOR="blue"><B>in</B></FONT> Root;
@@ -1211,7 +1211,7 @@ and to instantiate a class type (§&nbsp;<A HREF="#sec:types:class:instant">4.1.1
 The name <TT>Root</TT> has a special meaning: it is the root of the
 region tree. Every RPL is nested under <TT>Root</TT>. For more
 information about the nesting relation on RPLs, see
-§&nbsp;<A HREF="#sec:rpls:comparing:nest">3.6.2</A>.<BR>
+&sect;&nbsp;<A HREF="#sec:rpls:comparing:nest">3.6.2</A>.<BR>
 <BR>
 <!--TOC subsubsection 3.1.2&nbsp;&nbsp;Class Region Names-->
 
@@ -1221,11 +1221,11 @@ information about the nesting relation on RPLs, see
 <BR>
 <BR>
 A region name declared as a class member
-(§&nbsp;<A HREF="#sec:classes:region-names">2.1</A>) is available for use as an RPL in
+(&sect;&nbsp;<A HREF="#sec:classes:region-names">2.1</A>) is available for use as an RPL in
 any scope where it is visible. For example, the following code
 declares a region name <TT>ClassRegion</TT> at class scope, then uses it
-in a field region specifier (§&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>)
-and to instantiate a class type (§&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>):
+in a field region specifier (&sect;&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>)
+and to instantiate a class type (&sect;&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>):
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> ClassRegionExample&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
     <FONT COLOR="blue"><B>region</B></FONT> ClassRegion;
@@ -1242,7 +1242,7 @@ Java static fields, the following code is also legal:
 <BR>
 When a class region name <I>R</I> is used as an RPL, it is shorthand for
 the name sequence <TT>Root</TT>:<I>R</I>, as described in
-§&nbsp;<A HREF="#sec:rpls:sequences">3.2</A>. For example, the following definition of
+&sect;&nbsp;<A HREF="#sec:rpls:sequences">3.2</A>. For example, the following definition of
 <TT>Class2</TT> is equivalent to the one given above:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> Class2 {
@@ -1261,12 +1261,12 @@ functions as an RPL, called an <EM>array index RPL</EM>. The array
 index RPL represents a region indexed by the number that <I>e</I>
 evaluates to at runtime (so there is a different region for each
 natural number). It is useful in conjunction with
-<EM>index-parameterized arrays</EM> (§&nbsp;<A HREF="#sec:types:array:ipa">4.2.2</A>) and
+<EM>index-parameterized arrays</EM> (&sect;&nbsp;<A HREF="#sec:types:array:ipa">4.2.2</A>) and
 with DPJ's built-in features for array partitioning
-(§&nbsp;<A HREF="#sec:runtime:partition">7.2</A>).<BR>
+(&sect;&nbsp;<A HREF="#sec:runtime:partition">7.2</A>).<BR>
 <BR>
 As with class region names used as RPLs
-(§&nbsp;<A HREF="#sec:rpls:basic:class">3.1.2</A>), an array index RPL <TT>[</TT><I>e</I><TT>]</TT>
+(&sect;&nbsp;<A HREF="#sec:rpls:basic:class">3.1.2</A>), an array index RPL <TT>[</TT><I>e</I><TT>]</TT>
 is short for <TT>Root:[</TT><I>e</I><TT>]</TT>.<BR>
 <BR>
 <!--TOC subsubsection 3.1.4&nbsp;&nbsp;Local Region Names-->
@@ -1277,7 +1277,7 @@ is short for <TT>Root:[</TT><I>e</I><TT>]</TT>.<BR>
 <BR>
 <BR>
 A region name declared inside a method body
-(§&nbsp;<A HREF="#sec:classes:methods:local-regions">2.3.3</A>) is available for use as
+(&sect;&nbsp;<A HREF="#sec:classes:methods:local-regions">2.3.3</A>) is available for use as
 an RPL in the scope where it is visible. For example, the following
 code declares a region name <TT>LocalRegion</TT> in a local scope, and
 uses it to instantiate a type:
@@ -1317,9 +1317,9 @@ A <TT>final</TT> local variable or method parameter with a class
 </UL>
 This usage is called a <EM>variable RPL</EM>. For example, the
 following code uses <TT>this</TT> as an RPL in a field region specifier
-(§&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>), as an argument to a class
-type (§&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>), and in an effect summary
-(§&nbsp;<A HREF="#sec:effects:summaries">5.2</A>):
+(&sect;&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>), as an argument to a class
+type (&sect;&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>), and in an effect summary
+(&sect;&nbsp;<A HREF="#sec:effects:summaries">5.2</A>):
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> VarRegionExample&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
     VarRegionExample&lt;<B>this</B>&gt; x <B><FONT COLOR="blue">in</FONT> this</B>;
@@ -1334,16 +1334,16 @@ the object stored to the variable at runtime. Because the variable
 must be <TT>final</TT> or <TT>this</TT> (which cannot be assigned to), the
 variable always refers to the same object. This feature is
 particularly useful in conjunction with the <TT>DPJParititon</TT> class
-(§&nbsp;<A HREF="#sec:runtime:partition">7.2</A>), because it provides a way to
+(&sect;&nbsp;<A HREF="#sec:runtime:partition">7.2</A>), because it provides a way to
 instantiate a partition with the region corresponding to the array
 being partitioned.<BR>
 <BR>
 As in ownership systems, a variable RPL is nested under the first RPL
 argument of its type, which is called the <EM>owner RPL</EM> of the type
-(§&nbsp;<A HREF="#sec:types:class:owner-rpl">4.1.4</A>). For example, in the code above,
+(&sect;&nbsp;<A HREF="#sec:types:class:owner-rpl">4.1.4</A>). For example, in the code above,
 the variable <TT>this</TT> has type <TT>VarRegionExample&lt;R&gt;</TT>, so it is
 nested under the RPL <TT>R</TT>. For more information about the nesting
-relationship on RPLs, see §&nbsp;<A HREF="#sec:rpls:comparing:nest">3.6.2</A>.<BR>
+relationship on RPLs, see &sect;&nbsp;<A HREF="#sec:rpls:comparing:nest">3.6.2</A>.<BR>
 <BR>
 <!--TOC subsection 3.2&nbsp;&nbsp;Sequences of Basic Names-->
 
@@ -1362,17 +1362,17 @@ syntax: for example, <TT>A:B</TT> and <TT>A:A:B</TT> are both nested under
  A</TT> does <EM>not</EM> cover (or imply) the effect <TT>writes A:B</TT>.
 However, the nesting structure creates a hierarchy of regions that is
 useful in conjunction with partially specified RPLs
-(§&nbsp;<A HREF="#sec:rpls:partial">3.4</A>), because then we can use it to say things
+(&sect;&nbsp;<A HREF="#sec:rpls:partial">3.4</A>), because then we can use it to say things
 like &#8220;all RPLs under this one&#8221; or &#8220;all RPLs under this one that end
 in <TT>B</TT>.&#8221; Separating nesting from inclusion like this makes RPLs
 more complicated, but it also allows greater precision.<BR>
 <BR>
 An RPL is valid if it is conforms to the following rules:
 <UL CLASS="itemize"><LI CLASS="li-itemize">
-It is composed of basic names (§&nbsp;<A HREF="#sec:rpls:basic">3.1</A>),
+It is composed of basic names (&sect;&nbsp;<A HREF="#sec:rpls:basic">3.1</A>),
  separated by colons.
-<LI CLASS="li-itemize">If <TT>Root</TT> (§&nbsp;<A HREF="#sec:rpls:basic:root">3.1.1</A>) or a variable name
- (§&nbsp;<A HREF="#sec:rpls:basic:var">3.1.5</A>) appears in the sequence, it must
+<LI CLASS="li-itemize">If <TT>Root</TT> (&sect;&nbsp;<A HREF="#sec:rpls:basic:root">3.1.1</A>) or a variable name
+ (&sect;&nbsp;<A HREF="#sec:rpls:basic:var">3.1.5</A>) appears in the sequence, it must
  appear first (so, in particular, both cannot appear).
 </UL>
 The names in the sequence are called the <EM>elements</EM> of the RPL.
@@ -1408,14 +1408,14 @@ Root:<B>this</B> <FONT COLOR="fuchsia"><EM>// this must appear first</EM></FONT>
 <!--NAME rpls.param.html-->
 <BR>
 <BR>
-Class and method region parameters (§&nbsp;<A HREF="#sec:classes:params">2.4</A>) work
+Class and method region parameters (&sect;&nbsp;<A HREF="#sec:classes:params">2.4</A>) work
 with RPLs in a natural way. First, a region parameter standing alone
 is always a valid RPL, as shown in the examples in
-§§&nbsp;<A HREF="#sec:classes:params:class">2.4.1</A>
+&sect;&sect;&nbsp;<A HREF="#sec:classes:params:class">2.4.1</A>
 and&nbsp;<A HREF="#sec:classes:params:method">2.4.2</A>. Second, an RPL may be
 constructed from a region parameter followed by a colon-separated
 sequence of elements, similar to a sequence of basic names
-(§&nbsp;<A HREF="#sec:rpls:sequences">3.2</A>). If a parameter appears in an RPL, then
+(&sect;&nbsp;<A HREF="#sec:rpls:sequences">3.2</A>). If a parameter appears in an RPL, then
 it must appear first, and no <TT>Root</TT> or <TT>final</TT> local variable
 may appear in the RPL (because those, when they appear, must also be
 first).<BR>
@@ -1447,14 +1447,14 @@ class definition:
     <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R:r
 }</TT></DIV>The class <TT>ParameterExample</TT> has one region parameter <TT>R</TT>, and
 one field <TT>x</TT> placed in RPL <TT>R</TT> using a field RPL specifier
-(§&nbsp;<A HREF="#sec:classes:region-names">2.1</A>). Suppose we now instantiate that
-class to a type (§&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>), by binding
+(&sect;&nbsp;<A HREF="#sec:classes:region-names">2.1</A>). Suppose we now instantiate that
+class to a type (&sect;&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>), by binding
 <TT>Root</TT> to <TT>R</TT>:
 
  <DIV CLASS="dpjlisting"><TT>ParameterExample&lt;Root&gt; pa = <B>new</B> ParameterExample&lt;Root&gt;();</TT></DIV>This type says that the object bound to <TT>pa</TT> at runtime has its
 field <TT>x</TT> in RPL <TT>Root:r</TT> (substituting <TT>Root</TT> for <TT>R</TT>
 in <TT>R:r</TT>). For more information about how this subsitution works,
-see §&nbsp;<A HREF="#sec:types:exp">4.3</A>.<BR>
+see &sect;&nbsp;<A HREF="#sec:types:exp">4.3</A>.<BR>
 <BR>
 <!--TOC subsection 3.4&nbsp;&nbsp;Partially Specified RPLs-->
 
@@ -1479,7 +1479,7 @@ sets of array regions.<BR>
 <BR>
 <BR>
 An RPL may be written with <TT>*</TT> as one if its elements. The RPL
-must otherwise follow the rules in §§&nbsp;<A HREF="#sec:rpls:sequences">3.2</A>
+must otherwise follow the rules in &sect;&sect;&nbsp;<A HREF="#sec:rpls:sequences">3.2</A>
 and&nbsp;<A HREF="#sec:rpls:param">3.3</A>: for example, if a parameter appears in the
 RPL, it must be first. It is permissible for an RPL to start with
 <TT>*</TT>; in this case, there is an implicit <TT>Root</TT> before the
@@ -1492,7 +1492,7 @@ or more elements for the <TT>*</TT>. For example, <TT>A:*:B</TT> stands in
 for <TT>A:B</TT>, <TT>A:A:B</TT>, <TT>A:B:B</TT>, <TT>A:A:A:B</TT>, etc. However,
 <TT>A:*:B</TT> does <EM>not</EM> stand in for <TT>A:Root:B</TT>, because that
 is not a valid RPL (<TT>Root</TT> must appear first). See
-§§&nbsp;<A HREF="#sec:rpls:comparing:nest">3.6.2</A>
+&sect;&sect;&nbsp;<A HREF="#sec:rpls:comparing:nest">3.6.2</A>
 and&nbsp;<A HREF="#sec:rpls:comparing:include">3.6.3</A> for more information about the
 nesting and inclusion rules for RPLs using <TT>*</TT>.<BR>
 <BR>
@@ -1510,7 +1510,7 @@ Root:A:*   <FONT COLOR="fuchsia"><EM>// Same as A:*</EM></FONT>
 most one <TT>*</TT> appears in an RPL, as shown in the examples above.<BR>
 <BR>
 Here are some examples of RPLs that are <EM>not</EM> valid, because they
-do not conform to the rules stated in §§&nbsp;<A HREF="#sec:rpls:sequences">3.2</A>
+do not conform to the rules stated in &sect;&sect;&nbsp;<A HREF="#sec:rpls:sequences">3.2</A>
 and&nbsp;<A HREF="#sec:rpls:param">3.3</A> (<TT>R</TT> is a region parameter):
 
  <DIV CLASS="dpjlisting"><TT>*:R        <FONT COLOR="fuchsia"><EM>// R must appear first</EM></FONT>
@@ -1526,7 +1526,7 @@ A:*:Root   <FONT COLOR="fuchsia"><EM>// Root must appear first</EM></FONT></TT><
 <BR>
 The <EM>wildcard array index element</EM> <TT>[?]</TT> may be used in an
 RPL anywhere that an array index element <TT>[<I>e</I>]</TT> may appear
-(§&nbsp;<A HREF="#sec:rpls:basic:array">3.1.3</A>). It stands in for any array index
+(&sect;&nbsp;<A HREF="#sec:rpls:basic:array">3.1.3</A>). It stands in for any array index
 element. For example:
 
  <DIV CLASS="dpjlisting"><TT>[?]        <FONT COLOR="fuchsia"><EM>// Matches [e] for any [e]</EM></FONT>
@@ -1542,7 +1542,7 @@ Root:[?]   <FONT COLOR="fuchsia"><EM>// Same as [?]</EM></FONT>
 <BR>
 <BR>
 A <EM>local RPL</EM> is an RPL that contains a local region name
-(§&nbsp;<A HREF="#sec:rpls:basic:local">3.1.4</A>) as an element. It may be
+(&sect;&nbsp;<A HREF="#sec:rpls:basic:local">3.1.4</A>) as an element. It may be
 parameterized and/or partially specified. For example:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> LocalRPLs&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
@@ -1558,7 +1558,7 @@ parameterized and/or partially specified. For example:
         LocalRpls&lt;ClassRegion&gt; z = <B>null</B>;
     }
 }</TT></DIV>Local RPLs are important because they define <EM>local effects</EM>
-(§&nbsp;<A HREF="#sec:effects:local">5.3</A>). A local effect is visible only in a
+(&sect;&nbsp;<A HREF="#sec:effects:local">5.3</A>). A local effect is visible only in a
 method and its callees, so doesn't have to be reported to the caller.
 For example, in the code above, any effects on <TT>LocalRegion</TT> or
 <TT>R:LocalRegion</TT> could be omitted from the effect summary of
@@ -1596,7 +1596,7 @@ To support this kind of reasoning, there are four relations on RPLs:
  locations represented by another RPL. For example, if <TT>A</TT> and
  <TT>B</TT> are distinct names, then they represent disjoint regions.
  Or <TT>R1</TT> and <TT>R2</TT> are disjoint if they are parameters
- declared to be disjoint (§&nbsp;<A HREF="#sec:classes:params:disjoint">2.4.3</A>).
+ declared to be disjoint (&sect;&nbsp;<A HREF="#sec:classes:params:disjoint">2.4.3</A>).
 </OL>
 <!--TOC subsubsection 3.6.1&nbsp;&nbsp;Equivalence-->
 
@@ -1636,7 +1636,7 @@ equivalence of RPL elements.<BR>
 <BR>
 <I>Basic names other than array index elements:</I> Two RPL elements
 are equivalent if they refer to the same basic name
-(§&nbsp;<A HREF="#sec:rpls:basic">3.1</A>), except for array index elements.<BR>
+(&sect;&nbsp;<A HREF="#sec:rpls:basic">3.1</A>), except for array index elements.<BR>
 <BR>
 <I>The elements <TT>*</TT> and <TT>[?]</TT>:</I> Two RPL elements are
 equivalent if they are both <TT>*</TT> or <TT>[?]</TT>.<BR>
@@ -1672,7 +1672,7 @@ are not always-equal.<BR>
 The meaning of the nesting relation on RPLs is that one RPL is a
 descendant of another in the region tree. Nesting is important
 because, in conjunction with partially specified RPLs, it defines
-inclusion of RPLs (§&nbsp;<A HREF="#sec:rpls:comparing:include">3.6.3</A>). Four rules
+inclusion of RPLs (&sect;&nbsp;<A HREF="#sec:rpls:comparing:include">3.6.3</A>). Four rules
 govern nesting of RPLs.<BR>
 <BR>
 <B>Nesting under <TT>Root</TT>:</B> Any RPL is nested under
@@ -1685,12 +1685,12 @@ is nested under <TT>this</TT>.<BR>
 <BR>
 <B>Nesting by inclusion:</B> If one RPL is included in another, then
 the first RPL is nested under the second. For example, <TT>A:B</TT> is
-included in <TT>A:*</TT> (see §&nbsp;<A HREF="#sec:rpls:comparing:include">3.6.3</A>), so
+included in <TT>A:*</TT> (see &sect;&nbsp;<A HREF="#sec:rpls:comparing:include">3.6.3</A>), so
 <TT>A:B</TT> is nested under <TT>A:*</TT>.<BR>
 <BR>
 <B>Nesting by ownership:</B> An RPL that starts with a variable
-element (§&nbsp;<A HREF="#sec:rpls:basic:var">3.1.5</A>) is nested under the owner RPL of
-the variable (§&nbsp;<A HREF="#sec:types:class:owner-rpl">4.1.4</A>). For example, in
+element (&sect;&nbsp;<A HREF="#sec:rpls:basic:var">3.1.5</A>) is nested under the owner RPL of
+the variable (&sect;&nbsp;<A HREF="#sec:types:class:owner-rpl">4.1.4</A>). For example, in
 the following code, the method parameter <TT>param</TT> has type
 <TT>NestByOwnership&lt;R&gt;</TT>, so it is nested under <TT>R</TT> when used as
 an RPL:
@@ -1713,12 +1713,12 @@ The meaning of the inclusion relation on RPLs is that the set of
 regions represented by one RPL is included (in the sense of set
 inclusion) in the set of regions represented by another RPL.
 Inclusion of RPLs is important in checking type comparisons
-(§§&nbsp;<A HREF="#sec:types:class:compare">4.1.2</A>,&nbsp;<A HREF="#sec:types:array:compare">4.2.4</A>)
-and subeffects (§&nbsp;<A HREF="#sec:effects:subeffects">5.6</A>). The following rules
+(&sect;&sect;&nbsp;<A HREF="#sec:types:class:compare">4.1.2</A>,&nbsp;<A HREF="#sec:types:array:compare">4.2.4</A>)
+and subeffects (&sect;&nbsp;<A HREF="#sec:effects:subeffects">5.6</A>). The following rules
 govern inclusion of RPLs.<BR>
 <BR>
 <B>Inclusion by equivalence:</B> One RPL is included in another if
-the RPLs are equivalent (§&nbsp;<A HREF="#sec:rpls:comparing:equiv">3.6.1</A>).<BR>
+the RPLs are equivalent (&sect;&nbsp;<A HREF="#sec:rpls:comparing:equiv">3.6.1</A>).<BR>
 <BR>
 <B>Inclusion by trailing <TT>*</TT>:</B> One RPL is included in another
 if the second ends with <TT>*</TT>, and the first is nested under the
@@ -1731,7 +1731,7 @@ included in another if the last element of the first is included in
 the last element of the second, and inclusion holds for the RPLs after
 stripping the last elements of both. One RPL element is included in
 another if the elements are equivalent
-(§&nbsp;<A HREF="#sec:rpls:comparing:equiv">3.6.1</A>) or the first element is any array
+(&sect;&nbsp;<A HREF="#sec:rpls:comparing:equiv">3.6.1</A>) or the first element is any array
 index element or <TT>[?]</TT>, and the second is <TT>[?]</TT>. For example:
 <UL CLASS="itemize"><LI CLASS="li-itemize">
 <TT>A:B</TT> is included in <TT>A:*:B</TT>, because <TT>B</TT> is
@@ -1746,7 +1746,7 @@ index element or <TT>[?]</TT>, and the second is <TT>[?]</TT>. For example:
 <B>Inclusion by constrant:</B> Two RPLs may be constrained to be
 included, one in the other. In the current language specification,
 the only way this can happen is when capturing a type
-(§&nbsp;<A HREF="#sec:types:exp">4.3</A>). There is no way for the programmer to
+(&sect;&nbsp;<A HREF="#sec:types:exp">4.3</A>). There is no way for the programmer to
 directly write an inclusion constraint on RPLs.<BR>
 <BR>
 <!--TOC subsubsection 3.6.4&nbsp;&nbsp;Disjointness-->
@@ -1759,7 +1759,7 @@ directly write an inclusion constraint on RPLs.<BR>
 The meaning of the disjointness relation on RPLs is that the sets of
 regions represented by the RPLs have no common elements. This
 relation is important in checking noninterference
-(§&nbsp;<A HREF="#sec:effects:nonint">5.7</A>).<BR>
+(&sect;&nbsp;<A HREF="#sec:effects:nonint">5.7</A>).<BR>
 <BR>
 <B>Disjoint RPLs:</B> The following rules govern disjointness of
 RPLs.<BR>
@@ -1775,7 +1775,7 @@ branches of the tree.<BR>
 <BR>
 The following are examples of distinctions from the left, assuming
 <TT>A</TT> and <TT>B</TT> are class region names
-(§&nbsp;<A HREF="#sec:rpls:basic:class">3.1.2</A>):
+(&sect;&nbsp;<A HREF="#sec:rpls:basic:class">3.1.2</A>):
 <UL CLASS="itemize"><LI CLASS="li-itemize">
 <TT>A</TT> and <TT>B</TT> are disjoint, because they are short for
  <TT>Root:A</TT> and <TT>Root:B</TT>, so they start with the same element
@@ -1801,7 +1801,7 @@ after substituting for parameters, <TT>*</TT>, and <TT>[?]</TT>.<BR>
 <BR>
 The following are examples of distinctions from the right, assuming
 <TT>A</TT> and <TT>B</TT> are class region names
-(§&nbsp;<A HREF="#sec:rpls:basic:class">3.1.2</A>):
+(&sect;&nbsp;<A HREF="#sec:rpls:basic:class">3.1.2</A>):
 <UL CLASS="itemize"><LI CLASS="li-itemize">
 <TT>Root:*:A</TT> and <TT>Root:*:B</TT> are disjoint RPLs.
 <LI CLASS="li-itemize"><TT>R:*:A</TT> and <TT>R:*:B</TT> are disjoint RPLs.
@@ -1850,7 +1850,7 @@ identify pairs of never-equal expressions:
  compile-time constants. For example, 0 and 1 are never-equal.
 <LI CLASS="li-itemize"><I>e</I><SUB>1</SUB> and <I>e</I><SUB>2</SUB> are never-equal if they represent the same
  binary operation, one of the corresponding subexpressions is
- always-equal (§&nbsp;<A HREF="#sec:rpls:comparing:equiv">3.6.1</A>), and the other is
+ always-equal (&sect;&nbsp;<A HREF="#sec:rpls:comparing:equiv">3.6.1</A>), and the other is
  never-equal. For example, if <TT>i</TT> is a <TT>final</TT> local
  variable, then <TT>i+1</TT> and <TT>i+2</TT> are never-equal.
 </UL>
@@ -1865,7 +1865,7 @@ are not never-equal.<BR>
 <!--NAME types.html-->
 <BR>
 <BR>
-DPJ extends the Java type system by adding RPLs (§&nbsp;<A HREF="#sec:rpls">3</A>) to
+DPJ extends the Java type system by adding RPLs (&sect;&nbsp;<A HREF="#sec:rpls">3</A>) to
 class and array types. The RPLs in the types support the effect
 system: different class and array objects can be created with
 different RPLs, and the compiler can use the RPLs to infer the effect
@@ -1873,9 +1873,9 @@ of an operation on the object (i.e., accessing a class field or array
 cell, or invoking a method).<BR>
 <BR>
 This section discusses DPJ's extensions to the Java type system:
-§&nbsp;<A HREF="#sec:types:class">4.1</A> discusses class and interface types,
-§&nbsp;<A HREF="#sec:types:array">4.2</A> discusses array types, and
-§&nbsp;<A HREF="#sec:types:exp">4.3</A> discusses the rules for determining the type of
+&sect;&nbsp;<A HREF="#sec:types:class">4.1</A> discusses class and interface types,
+&sect;&nbsp;<A HREF="#sec:types:array">4.2</A> discusses array types, and
+&sect;&nbsp;<A HREF="#sec:types:exp">4.3</A> discusses the rules for determining the type of
 an expression (e.g., what type is returned by calling a method).<BR>
 <BR>
 <!--TOC subsection 4.1&nbsp;&nbsp;Class and Interface Types
@@ -1890,14 +1890,14 @@ an expression (e.g., what type is returned by calling a method).<BR>
 This section discusses DPJ's class and interface types. We will use
 the term &#8220;class&#8221; throughout this section, with the understanding
 that the concepts apply identically to interfaces, unless otherwise
-noted. §&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A> discusses the instantiation
+noted. &sect;&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A> discusses the instantiation
 of a class to a type by supplying RPLs for its parameters.
-§&nbsp;<A HREF="#sec:types:class:compare">4.1.2</A> explains how the DPJ compiler
+&sect;&nbsp;<A HREF="#sec:types:class:compare">4.1.2</A> explains how the DPJ compiler
 compares two class types for compatibility, for example in checking an
-assignment statement. §&nbsp;<A HREF="#sec:types:class:cast">4.1.3</A> discusses casting
-one type to another in DPJ. §&nbsp;<A HREF="#sec:types:class:owner-rpl">4.1.4</A>
+assignment statement. &sect;&nbsp;<A HREF="#sec:types:class:cast">4.1.3</A> discusses casting
+one type to another in DPJ. &sect;&nbsp;<A HREF="#sec:types:class:owner-rpl">4.1.4</A>
 explains <EM>owner RPLs</EM>, which determine the nesting relation for
-variable RPLs (§&nbsp;<A HREF="#sec:rpls:basic:var">3.1.5</A>).<BR>
+variable RPLs (&sect;&nbsp;<A HREF="#sec:rpls:basic:var">3.1.5</A>).<BR>
 <BR>
 <!--TOC subsubsection 4.1.1&nbsp;&nbsp;Writing Class Types-->
 
@@ -1909,7 +1909,7 @@ variable RPLs (§&nbsp;<A HREF="#sec:rpls:basic:var">3.1.5</A>).<BR>
 In DPJ, as in generic Java, a class with parameters defines a family
 of types, one for each set of arguments to the parameters. However,
 in addition to type parameters, DPJ classes can have region parameters
-(§&nbsp;<A HREF="#sec:classes:params:class">2.4.1</A>). When writing a DPJ class type,
+(&sect;&nbsp;<A HREF="#sec:classes:params:class">2.4.1</A>). When writing a DPJ class type,
 parameter arguments must be supplied. They can be supplied implicitly
 or explicitly.<BR>
 <BR>
@@ -1938,7 +1938,7 @@ Implicit parameter arguments are useful in two ways. First they help
 with porting legacy Java code to DPJ. For example, adding a region
 parameter to a preexisting class will not break any code that uses the
 class. Second, because region arguments are used to compute the
-effects on fields of a class (§&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A>), they are
+effects on fields of a class (&sect;&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A>), they are
 usually not important for code that is never invoked in a parallel
 context (for example, in a sequential initialization phase). For this
 code, the programmer can avoid writing the arguments.<BR>
@@ -2015,7 +2015,7 @@ can be assigned to a variable of class type <I>T</I><SUB>2</SUB> in DPJ.<BR>
 to <I>T</I><SUB>2</SUB> if the two types instantiate the same class, the DPJ erasure
 of <I>T</I><SUB>1</SUB> may be assigned to the DPJ erasure of <I>T</I><SUB>2</SUB> in ordinary Java,
 and the RPL arguments of <I>T</I><SUB>1</SUB> are included
-(§&nbsp;<A HREF="#sec:rpls:comparing:include">3.6.3</A>) in the corresponding arguments
+(&sect;&nbsp;<A HREF="#sec:rpls:comparing:include">3.6.3</A>) in the corresponding arguments
 of <I>T</I><SUB>2</SUB>.<BR>
 <BR>
 Here are some examples of compatible types that instantiate the same
@@ -2093,7 +2093,7 @@ For example, if we have class declarations <TT>class C&lt;region R&gt;
 <BR>
 <BR>
 One DPJ type may be cast to another if the cast would be allowed for
-the DPJ erasures of the types (§&nbsp;<A HREF="#sec:types:class:compare">4.1.2</A>) in
+the DPJ erasures of the types (&sect;&nbsp;<A HREF="#sec:types:class:compare">4.1.2</A>) in
 ordinary Java. For example, assuming a class declared as <TT>class
  C&lt;region R&gt;</TT> the following cast is legal:
 
@@ -2133,9 +2133,9 @@ other way to express the program.<BR>
 <BR>
 <BR>
 Owner RPLs define the nesting relationship between <TT>final</TT> local
-variables used as RPLs (§&nbsp;<A HREF="#sec:rpls:basic:var">3.1.5</A>) and other RPLs.
+variables used as RPLs (&sect;&nbsp;<A HREF="#sec:rpls:basic:var">3.1.5</A>) and other RPLs.
 A variable RPL is nested under the owner RPL of its class type
-(§&nbsp;<A HREF="#sec:rpls:comparing:nest">3.6.2</A>).<BR>
+(&sect;&nbsp;<A HREF="#sec:rpls:comparing:nest">3.6.2</A>).<BR>
 <BR>
 If a class has RPL parameters, then the owner RPL of a type
 instantiating the class is the argument to the first parameter. For
@@ -2157,17 +2157,17 @@ declaration <TT>class C&lt;type T&gt;</TT>, the owner RPL of the type
 <BR>
 <BR>
 This section discusses DPJ's array types.
-§&nbsp;<A HREF="#sec:types:array:instant">4.2.1</A> discusses the instantiation of an
+&sect;&nbsp;<A HREF="#sec:types:array:instant">4.2.1</A> discusses the instantiation of an
 array to a type by supplying an RPL for its parameter. This assigns
-an RPL to each cell of the array. §&nbsp;<A HREF="#sec:types:array:ipa">4.2.2</A>
+an RPL to each cell of the array. &sect;&nbsp;<A HREF="#sec:types:array:ipa">4.2.2</A>
 discusses DPJ's <EM>index-parameterized array type</EM>, which provides
 a way to assign a different region to each cell of an array. This is
 useful for updating different array cells (or different objects stored
-in different array cells) in parallel. §&nbsp;<A HREF="#sec:types:array:new">4.2.3</A>
+in different array cells) in parallel. &sect;&nbsp;<A HREF="#sec:types:array:new">4.2.3</A>
 explains the creation of new array objects.
-§&nbsp;<A HREF="#sec:types:array:compare">4.2.4</A> explains how the DPJ compiler
+&sect;&nbsp;<A HREF="#sec:types:array:compare">4.2.4</A> explains how the DPJ compiler
 compares two array types for compatibility, for example in checking an
-assignment statement. §&nbsp;<A HREF="#sec:types:array:cast">4.2.5</A> discusses casting
+assignment statement. &sect;&nbsp;<A HREF="#sec:types:array:cast">4.2.5</A> discusses casting
 one array type to another in DPJ.<BR>
 <BR>
 Because Java arrays do not support slices (e.g., extracting a
@@ -2175,7 +2175,7 @@ contiguous subsection of an array), DPJ provides a generic class
 called <TT>DPJArray</TT> with an interface similar to Java's
 <TT>ArrayList</TT> that supports slices. There are also versions of
 <TT>DPJArray</TT> specialized to the various primitive types.
-§&nbsp;<A HREF="#sec:runtime:array">7.1</A> discusses these classes.<BR>
+&sect;&nbsp;<A HREF="#sec:runtime:array">7.1</A> discusses these classes.<BR>
 <BR>
 <!--TOC subsubsection 4.2.1&nbsp;&nbsp;Writing Array Types-->
 
@@ -2251,7 +2251,7 @@ region <TT>ReadOnlyData</TT> and then putting the array in that region:
  <DIV CLASS="dpjlisting"><TT><FONT COLOR="blue"><B>region</B></FONT> ReadOnlyData;
 <B>final int</B>[]&lt;ReadOnlyData&gt; data = <B>new int</B>[N]&lt;ReadOnlyData&gt;;</TT></DIV>On the right-hand side of the assignment, we have created a new array
 of type <TT>int[]&lt;ReadOnlyData&gt;</TT> with <TT>N</TT> elements (see
-§&nbsp;<A HREF="#sec:types:array:new">4.2.3</A>).<BR>
+&sect;&nbsp;<A HREF="#sec:types:array:new">4.2.3</A>).<BR>
 <BR>
 Inside the parallel computation, with the proper use of disjointness
 constraints on parameters and disjoint RPLs, read effects on
@@ -2293,7 +2293,7 @@ DPJ's index-parameterized arrays can express both cases.<BR>
 cells, it is necessary to put each cell in a different region. DPJ
 does this with an <EM>index-parameterized array type</EM>. An
 index-parameterized array type uses the array index element <TT>[i]</TT>
-(§&nbsp;<A HREF="#sec:rpls:basic:array">3.1.3</A>) in the RPL associated with cell
+(&sect;&nbsp;<A HREF="#sec:rpls:basic:array">3.1.3</A>) in the RPL associated with cell
 <TT>i</TT>. Because the index value of <TT>i</TT> is different for every
 array cell, every cell has its own region.<BR>
 <BR>
@@ -2332,7 +2332,7 @@ array, as before:
  <DIV CLASS="dpjlisting"><TT><FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, N)
     arr[i] = <B>new</B> Data&lt;[i]&gt;();</TT></DIV>Notice that the type <TT>Data&lt;[i]&gt;</TT> on the left-hand side of the
 assignment matches the type of <TT>arr[i]</TT>, as it must; see
-§&nbsp;<A HREF="#sec:types:array:compare">4.2.4</A>.<BR>
+&sect;&nbsp;<A HREF="#sec:types:array:compare">4.2.4</A>.<BR>
 <BR>
 We can also update the objects disjointly through the references in
 the array:
@@ -2392,8 +2392,8 @@ initialization of the array might look like this:
         A[i][j] = INITIAL_VALUE;
     }
 }</TT></DIV>For the details of how the compiler would check this example, see
-§&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A> (computing effects of statements) and
-§&nbsp;<A HREF="#sec:effects:nonint">5.7</A> (noninterfering effects).<BR>
+&sect;&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A> (computing effects of statements) and
+&sect;&nbsp;<A HREF="#sec:effects:nonint">5.7</A> (noninterfering effects).<BR>
 <BR>
 <!--TOC subsubsection 4.2.3&nbsp;&nbsp;New Arrays-->
 
@@ -2404,7 +2404,7 @@ initialization of the array might look like this:
 <BR>
 Creation of new arrays in DPJ works just as in Java, with the extra
 annotations in the array types
-(§§&nbsp;<A HREF="#sec:types:array:instant">4.2.1</A>,&nbsp;<A HREF="#sec:types:array:ipa">4.2.2</A>). <BR>
+(&sect;&sect;&nbsp;<A HREF="#sec:types:array:instant">4.2.1</A>,&nbsp;<A HREF="#sec:types:array:ipa">4.2.2</A>). <BR>
 <BR>
 <B>Arrays of primitive and class types:</B> To create an array of
 <I>n</I> primitive types or class objects, write a DPJ array type with <I>n</I>
@@ -2441,7 +2441,7 @@ the point of array creation. Once the array is created and assigned,
 everything else works as it should.<BR>
 <BR>
 An alternative to this ugly code would be to use a <TT>DPJArray</TT>
-(§&nbsp;<A HREF="#sec:runtime:array">7.1</A>) instead of a Java array. As of the
+(&sect;&nbsp;<A HREF="#sec:runtime:array">7.1</A>) instead of a Java array. As of the
 current version of DPJ, the <TT>DPJArray</TT> class cannot be used with
 index-parameterized regions. It is anticipated that future versions
 of DPJ will support index-parameterized <TT>DPJArray</TT>s.<BR>
@@ -2478,7 +2478,7 @@ where <I>T</I><SUB>1</SUB> and <I>T</I><SUB>2</SUB> are both array types.<BR>
 <B>Comparing arrays of primitive types:</B> <I>T</I><SUB>1</SUB> may be assigned to
 <I>T</I><SUB>2</SUB> if the element types of <I>T</I><SUB>1</SUB> and <I>T</I><SUB>2</SUB> are both the same
 primitive type, and the RPL argument of <I>T</I><SUB>1</SUB> is included in the RPL
-argument of <I>T</I><SUB>2</SUB> (§&nbsp;<A HREF="#sec:rpls:comparing:include">3.6.3</A>). For example:
+argument of <I>T</I><SUB>2</SUB> (&sect;&nbsp;<A HREF="#sec:rpls:comparing:include">3.6.3</A>). For example:
 <OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 <TT>int[]&lt;Root&gt;</TT> may be a assigned to <TT>int[]&lt;Root&gt;</TT>.
 <LI CLASS="li-enumerate"><TT>int[]</TT> may be assigned to <TT>int[]</TT>; this is the same as
@@ -2494,8 +2494,8 @@ assigned to <I>T</I><SUB>2</SUB> if the element types of <I>T</I><SUB>1</SUB> an
 <I>T</I><SUB>1</SUB> is included in the RPL argument of <I>T</I><SUB>2</SUB>. Two class types are
 array-compatible if the element type of <I>T</I><SUB>1</SUB> can be assigned to the
 element type of <I>T</I><SUB>2</SUB> using the rules in
-§§&nbsp;<A HREF="#sec:types:class:compare">4.1.2</A>,&nbsp;<A HREF="#sec:types:array:compare">4.2.4</A>, but
-requiring equivalence (§&nbsp;<A HREF="#sec:rpls:comparing:equiv">3.6.1</A>) instead of
+&sect;&sect;&nbsp;<A HREF="#sec:types:class:compare">4.1.2</A>,&nbsp;<A HREF="#sec:types:array:compare">4.2.4</A>, but
+requiring equivalence (&sect;&nbsp;<A HREF="#sec:rpls:comparing:equiv">3.6.1</A>) instead of
 inclusion of RPLs. For example:
 <OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 <TT>C&lt;R&gt;[]&lt;R&gt;</TT> may be a assigned to <TT>C&lt;R&gt;[]&lt;R:*&gt;</TT>, because
@@ -2530,7 +2530,7 @@ badArr[0] = <B>new</B> C&lt;r2&gt;();</TT></DIV><BR>
 <BR>
 <BR>
 Casts of array types have the same rules as casts of class types
-(§&nbsp;<A HREF="#sec:types:class:cast">4.1.3</A>). The cast is allowed if it would be
+(&sect;&nbsp;<A HREF="#sec:types:class:cast">4.1.3</A>). The cast is allowed if it would be
 allowed for the DPJ erasures of the types in ordinary Java. The DPJ
 erasure of an array type is computed by erasing all the DPJ region
 information from the entire type. For example:
@@ -2556,7 +2556,7 @@ consistency of assignments; for example, to make sure that an
 <TT>int</TT> is never assigned to a variable of type <TT>String</TT>.<BR>
 <BR>
 In DPJ, every expression has a type and an effect.
-§&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A> discusses the effects of statements and
+&sect;&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A> discusses the effects of statements and
 expressions. Here we discuss DPJ's extensions to Java's rules for
 determinining the type of an expression.<BR>
 <BR>
@@ -2583,7 +2583,7 @@ Determine the type <EM>selector-type</EM> of <EM>selector-exp</EM>, using the ru
  this section together with the ordinary rules for Java types.
 <LI CLASS="li-enumerate">Look up the type <EM>field-type</EM> of <TT>field</TT> based on the
  class <I>C</I> named in <EM>selector-type</EM>.
-<LI CLASS="li-enumerate">Compute the <EM>capture</EM> (§&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A>) of
+<LI CLASS="li-enumerate">Compute the <EM>capture</EM> (&sect;&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A>) of
  <EM>selector-type</EM> to generate the type
  <EM>captured-selector-type</EM>.
 <LI CLASS="li-enumerate">Make the following subsitutions in <EM>field-type</EM> to generate
@@ -2594,14 +2594,14 @@ Substitute the type and RPL arguments of
  parameters of class <I>C</I>.
 <LI CLASS="li-enumerate">If <EM>selector-exp</EM> is a <TT>final</TT> local variable or
  <TT>this</TT>, then substitute the variable for <TT>this</TT>. Otherwise,
- substitute a capture parameter (§&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A>)
+ substitute a capture parameter (&sect;&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A>)
  included in <EM>owner-rpl</EM><TT>:*</TT>, where <EM>owner-rpl</EM> is the
- owner RPL of the variable (§&nbsp;<A HREF="#sec:types:class:owner-rpl">4.1.4</A>).
+ owner RPL of the variable (&sect;&nbsp;<A HREF="#sec:types:class:owner-rpl">4.1.4</A>).
 </OL>
 </OL>
 Here is some example code for which the capture in step 3 is a no-op,
 and the capture in step 4(b) isn't needed.
-§&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A> gives examples involving capture.
+&sect;&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A> gives examples involving capture.
 
  <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>class</B> FieldTypingExample&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
 <FONT SIZE=2>   2</FONT>     <FONT COLOR="blue"><B>region</B></FONT> r;
@@ -2621,7 +2621,7 @@ Let's see how to compute the type of the expression in the
 expression of type <TT>FieldTypingExample&lt;r&gt;</TT>. Step 2: The field
 name is <TT>field1</TT>, the class <I>C</I> is <TT>FieldTypingExample</TT>, and
 the declared type of the field is <TT>FieldTypingExample&lt;R&gt;</TT> (line
-3). Step 3: Nothing to do (see §&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A>). Step
+3). Step 3: Nothing to do (see &sect;&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A>). Step
 4: Substituting <TT>r</TT> given in the selector type expression for
 <TT>R</TT> in the field type, we have that the answer is
 <TT>FieldTypingExample&lt;r&gt;</TT>.<BR>
@@ -2683,12 +2683,12 @@ Determine the type <EM>selector-type</EM> of <EM>selector-type</EM>
 <LI CLASS="li-enumerate">Look up the method in the ordinary Java way, using the method
  name, <EM>selector-type</EM>, and <EM>arg-types</EM>. Use the method to
  find formal value parameter types and return type.
-<LI CLASS="li-enumerate">Compute the <EM>capture</EM> (§&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A>) of
+<LI CLASS="li-enumerate">Compute the <EM>capture</EM> (&sect;&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A>) of
  <EM>selector-type</EM> to generate the type
  <EM>captured-selector-type</EM>.
 <LI CLASS="li-enumerate">Make the following substitutions in each of the formal argument
  types then check that the actual argument types <EM>arg-types</EM> are
- assignable (§§&nbsp;<A HREF="#sec:types:class:compare">4.1.2</A>
+ assignable (&sect;&sect;&nbsp;<A HREF="#sec:types:class:compare">4.1.2</A>
  and&nbsp;<A HREF="#sec:types:array:compare">4.2.4</A>) to the formal argument types:
 <OL CLASS="enumerate" type=a><LI CLASS="li-enumerate">
 Substitute the type and RPL arguments of
@@ -2701,16 +2701,16 @@ Substitute the type and RPL arguments of
  corresponding formal parameter of the method.
 <LI CLASS="li-enumerate">If <EM>selector-exp</EM> is a <TT>final</TT> local variable or
  <TT>this</TT>, then substitute the variable for <TT>this</TT>. Otherwise
- substitute a capture parameter (§&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A>)
+ substitute a capture parameter (&sect;&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A>)
  included in <EM>owner-rpl</EM><TT>:*</TT>, where <EM>owner-rpl</EM> is the
- owner RPL of the variable (§&nbsp;<A HREF="#sec:types:class:owner-rpl">4.1.4</A>).
+ owner RPL of the variable (&sect;&nbsp;<A HREF="#sec:types:class:owner-rpl">4.1.4</A>).
 </OL>
 <LI CLASS="li-enumerate">Make the same substitutions as in step 4 in the return type to
  compute the answer.
 </OL>
 Here is some example code for which the capture in step 3 is a no-op,
 and the capture in step 4(d) isn't needed.
-§&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A> gives examples involving capture.
+&sect;&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A> gives examples involving capture.
 
  <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>abstract class</B> MethodInvocationExample&lt;<FONT COLOR="blue"><B>region</B></FONT> R1, R2&gt; {
 <FONT SIZE=2>   2</FONT>     <B>abstract</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R3&gt;
@@ -2732,7 +2732,7 @@ The selector type is
 </DL>
 and the argument type is <TT>int</TT>. Step 2: The invoked method is
 <TT>callee</TT>, defined in lines 1&ndash;2. Step 3: Nothing to do (see
-§&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A>). Step 4: Binding 0 to <TT>int</TT> is
+&sect;&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A>). Step 4: Binding 0 to <TT>int</TT> is
 OK. Step 5: The return type is
 <DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>&lt;MethodInvocationExample&lt;R3,[i]&gt;</TT>.
 </DL>
@@ -2742,7 +2742,7 @@ Substituting arguments for parameters gives a return type of
 </DL>
 <B>Inferred type and RPL arguments:</B> If there are no explicit
 type or RPL arguments, the compiler infers them as discussed in
-§&nbsp;<A HREF="#sec:classes:params:method">2.4.2</A> and proceeds as stated above, using
+&sect;&nbsp;<A HREF="#sec:classes:params:method">2.4.2</A> and proceeds as stated above, using
 the inferred arguments in step 4(b). As in ordinary Java, if there is
 no <EM>selector-exp</EM>, then the implied selector is <TT>this</TT>.<BR>
 <BR>
@@ -2789,15 +2789,15 @@ So we don't do that. Instead, we introduce a new parameter, called a
 for the unknown actual region of an object stored in a variable with
 partially specified type. The introduction of the new parameter is
 called <EM>capturing</EM> a type. It occurs in steps 3 and 4(b) of
-typing field access (§&nbsp;<A HREF="#sec:types:exp:field">4.3.1</A>) and steps 3 and
-4(d) of typing method invocation (§&nbsp;<A HREF="#sec:types:exp:invoke">4.3.3</A>).<BR>
+typing field access (&sect;&nbsp;<A HREF="#sec:types:exp:field">4.3.1</A>) and steps 3 and
+4(d) of typing method invocation (&sect;&nbsp;<A HREF="#sec:types:exp:invoke">4.3.3</A>).<BR>
 <BR>
 In this example, the captured type of the selector is
 <TT>CaptureExample&lt;P&gt;</TT>, where <TT>P</TT> is the capture parameter.
 <TT>P</TT> is constrained to be included in <TT>R:*</TT>, because that is
 all we know about the actual region from the type
 <TT>CaptureExample&lt;R:*&gt;</TT>. This is the only way parameters can be
-inclusion-constrained in DPJ (§&nbsp;<A HREF="#sec:rpls:comparing:include">3.6.3</A>).
+inclusion-constrained in DPJ (&sect;&nbsp;<A HREF="#sec:rpls:comparing:include">3.6.3</A>).
 In the example above, now the bad assignment is disallowed, because
 the type <TT>CaptureExample&lt;R:r2&gt;</TT> is not assignable to the type
 <TT>CaptureExample&lt;P&gt;</TT>, where <TT>P</TT> is the capture parameter. Nor
@@ -2877,24 +2877,24 @@ If the effects of two statements do not interfere, then the statements
 may be safely run in parallel. Effects don't interfere if neither one
 writes to memory, or they operate on different parts of memory, or
 they are both invocations of a method declared <TT>commutative</TT>
-(§&nbsp;<A HREF="#sec:classes:methods:commutative">2.3.4</A>).<BR>
+(&sect;&nbsp;<A HREF="#sec:classes:methods:commutative">2.3.4</A>).<BR>
 <BR>
 This section describes how effects work in DPJ.
-§&nbsp;<A HREF="#sec:effects:basic">5.1</A> describes <EM>basic effects</EM>, which are
+&sect;&nbsp;<A HREF="#sec:effects:basic">5.1</A> describes <EM>basic effects</EM>, which are
 individual actions involving memory (such as reading or writing a
-variable). §&nbsp;<A HREF="#sec:effects:summaries">5.2</A> describes <EM>effect
+variable). &sect;&nbsp;<A HREF="#sec:effects:summaries">5.2</A> describes <EM>effect
  summaries</EM>, which are the program representation of sets of basic
 effects, and are used to summarize the effects of methods.
-§&nbsp;<A HREF="#sec:effects:local">5.3</A> describes <EM>local effects</EM>, which are
+&sect;&nbsp;<A HREF="#sec:effects:local">5.3</A> describes <EM>local effects</EM>, which are
 effects inside a method that are not visible to the caller and so may
 be omitted from the method's effect summary.
-§&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A> explains how DPJ statements and
-expressions generate basic effects. §&nbsp;<A HREF="#sec:effects:coarsening">5.5</A>
+&sect;&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A> explains how DPJ statements and
+expressions generate basic effects. &sect;&nbsp;<A HREF="#sec:effects:coarsening">5.5</A>
 describes <EM>effect coarsening</EM>, which is necessary for summarizing
 effects on RPLs and local variables that can go out of scope.
-§&nbsp;<A HREF="#sec:effects:subeffects">5.6</A> explains the <EM>subeffect</EM> relation
+&sect;&nbsp;<A HREF="#sec:effects:subeffects">5.6</A> explains the <EM>subeffect</EM> relation
 on effects, which is important for checking method effect summaries
-against the actual method effects. §&nbsp;<A HREF="#sec:effects:nonint">5.7</A>
+against the actual method effects. &sect;&nbsp;<A HREF="#sec:effects:nonint">5.7</A>
 explains the <EM>noninterference</EM> relation on effects, which is
 important for checking that pairs of parallel tasks have no
 conflicting operations.<BR>
@@ -2910,11 +2910,11 @@ A basic effect is an action involving memory. DPJ's effect system
 represents the following kinds of effects:
 <OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 <EM>Read effects:</EM> A read effect indicates a read operation on
- an RPL (§&nbsp;<A HREF="#sec:rpls">3</A>) or local variable. Such an effect
+ an RPL (&sect;&nbsp;<A HREF="#sec:rpls">3</A>) or local variable. Such an effect
  summarizes one or more reads to one or more memory locations
  associated with the region or regions named by the RPL.
 <LI CLASS="li-enumerate"><EM>Write effects:</EM> A write effect indicates a write operation
- on an RPL (§&nbsp;<A HREF="#sec:rpls">3</A>) or local variable. Such an effect
+ on an RPL (&sect;&nbsp;<A HREF="#sec:rpls">3</A>) or local variable. Such an effect
  summarizes one or more writes <EM>or reads</EM> to one or more memory
  locations associated with the region or regions named by the RPL.
 <LI CLASS="li-enumerate"><EM>Invocation effects:</EM> An invocation effects indicates an
@@ -2922,21 +2922,21 @@ represents the following kinds of effects:
  effects of invoking the method). The basic effects associated with
  the invocation are called the <EM>underlying effects</EM> of the
  invocation. For example, if method <TT>m</TT> has effect summary
- <TT>writes r</TT> (§&nbsp;<A HREF="#sec:effects:summaries">5.2</A>), then invoking
+ <TT>writes r</TT> (&sect;&nbsp;<A HREF="#sec:effects:summaries">5.2</A>), then invoking
  <TT>m</TT> generates an invocation effect with <TT>m</TT> as its method
  and <TT>writes r</TT> as its underlying effect.
 </OL>
 Read and write effects on an RPL <I>R</I> are generated by directly
 accessing a class field declared to be in <I>R</I>
-(§&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>) or an array cell in <I>R</I>
-(§&nbsp;<A HREF="#sec:types:array">4.2</A>), or by invoking a method with the effect in
-its effect summary (§&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>).
+(&sect;&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>) or an array cell in <I>R</I>
+(&sect;&nbsp;<A HREF="#sec:types:array">4.2</A>), or by invoking a method with the effect in
+its effect summary (&sect;&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>).
 Invocation effects are always generated by invoking methods.
-§&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A> gives more details on how DPJ statements
+&sect;&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A> gives more details on how DPJ statements
 and expressions generate these effects.<BR>
 <BR>
 Invocation effects are necessary because some method invocations can
-commute with others (§&nbsp;<A HREF="#sec:classes:methods:commutative">2.3.4</A>). To
+commute with others (&sect;&nbsp;<A HREF="#sec:classes:methods:commutative">2.3.4</A>). To
 keep track of these pairs of commuting methods, the compiler needs to
 record the information about which method was invoked, in addition to
 what effects the method invocation caused.<BR>
@@ -2970,10 +2970,10 @@ presence or absence of the read makes no difference).<BR>
 <BR>
 <BR>
 An <EM>effect summary</EM> is a bit of program text that summarizes a
-set of basic effects (§&nbsp;<A HREF="#sec:effects:basic">5.1</A>). In the current DPJ
+set of basic effects (&sect;&nbsp;<A HREF="#sec:effects:basic">5.1</A>). In the current DPJ
 language, effect summaries can appear in the program text only in
 method definitions, where they summarize the effects of invoking the
-method (§&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>). It is anticipated
+method (&sect;&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>). It is anticipated
 that future versions of DPJ will also allow effect summaries to appear
 as arguments to <EM>effect variables</EM> in class types and method
 invocations, for greater flexibility in specifying and checking
@@ -2991,7 +2991,7 @@ An effect summary consists of one of the following:
  the RPLs in <EM>rpl-list-2</EM>.
 </OL>
 Currently there is no way to represent an invocation effect
-(§&nbsp;<A HREF="#sec:effects:basic">5.1</A>) directly in an effect summary;
+(&sect;&nbsp;<A HREF="#sec:effects:basic">5.1</A>) directly in an effect summary;
 invocations in the method body must be summarized by giving their
 underlying effects. This may change in future versions of DPJ.<BR>
 <BR>
@@ -3006,7 +3006,7 @@ Here is a simple example of an effect summary:
 <FONT SIZE=2>   7</FONT>     }
 <FONT SIZE=2>   8</FONT> }</TT></DIV>This class defines a simple <TT>Point</TT> object with integer
 coordinates <TT>x</TT> and <TT>y</TT>. There is one class region parameter
-<TT>R</TT> (§&nbsp;<A HREF="#sec:classes:params:class">2.4.1</A>), and the coordinate fields
+<TT>R</TT> (&sect;&nbsp;<A HREF="#sec:classes:params:class">2.4.1</A>), and the coordinate fields
 are placed in the region of <TT>R</TT>. The <TT>add</TT> method takes a
 <TT>Point</TT> object with some other (possibly different) region
 <TT>Rp</TT> and adds the coordinates of that point to the coordinates of
@@ -3022,9 +3022,9 @@ region <TT>Rp</TT> and writes the coordinates of <TT>this</TT> in region
 <!--NAME effects.local.html-->
 <BR>
 <BR>
-A basic effect (§&nbsp;<A HREF="#sec:effects:basic">5.1</A>) is <EM>local</EM> if it is a
+A basic effect (&sect;&nbsp;<A HREF="#sec:effects:basic">5.1</A>) is <EM>local</EM> if it is a
 read or write effect on a local variable or local RPL
-(§&nbsp;<A HREF="#sec:rpls:local">3.5</A>), or it is an invocation effect whose
+(&sect;&nbsp;<A HREF="#sec:rpls:local">3.5</A>), or it is an invocation effect whose
 underlying effects are all local. Local effects are contained within
 a method scope and never seen by the calling context, so they may be
 ignored when summarizing method effects. For example:
@@ -3064,10 +3064,10 @@ The form of the expression or statement. For example,
  R</TT>, then invoking <TT>m</TT> on a variable of type <TT>C&lt;r&gt;</TT>
  generates the effect <TT>writes r</TT>.
 </UL>
-The field region specifiers (§&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>)
+The field region specifiers (&sect;&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>)
 are important because they effectively partition the class fields into
 regions that can be used to describe the effects. The method effect
-summaries (§&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>) are important
+summaries (&sect;&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>) are important
 because they (1) document the effects of methods at API boundaries
 (including, e.g., methods in classes for which the source code is not
 available); and (2) allow the compiler to infer the effect of a method
@@ -3082,11 +3082,11 @@ DPJ statement or expression:<BR>
 <EM>selector-exp</EM><TT>.</TT><EM>field-name</EM> that directly access a
 non-<TT>final</TT> field, the compiler first computes the RPL accessed by
 the expression. It uses the same procedure as for typing field access
-(§&nbsp;<A HREF="#sec:types:exp:field">4.3.1</A>), except that it uses the RPL specifier
-of the field (§&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>) instead of the
+(&sect;&nbsp;<A HREF="#sec:types:exp:field">4.3.1</A>), except that it uses the RPL specifier
+of the field (&sect;&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>) instead of the
 type associated with the field, and there are no substitutions for
 type parameters in step 4(a). The compiler records a write or read
-effect (§&nbsp;<A HREF="#sec:effects:basic">5.1</A>) to the RPL so computed, depending
+effect (&sect;&nbsp;<A HREF="#sec:effects:basic">5.1</A>) to the RPL so computed, depending
 on whether the expression appears on the left-hand side of an
 assignment, or in a read access.<BR>
 <BR>
@@ -3119,12 +3119,12 @@ together with the rules for compound expressions (see below).<BR>
 compiler computes and accumulates the effects of evaluating the
 selector and argument expressions as described in this section. Then
 it uses the method's effect summary
-(§&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>) to compute the effect of the
+(&sect;&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>) to compute the effect of the
 invocation itself. It uses the same procedure as for computng the
-return type of a method (§&nbsp;<A HREF="#sec:types:exp:invoke">4.3.3</A>), except that
+return type of a method (&sect;&nbsp;<A HREF="#sec:types:exp:invoke">4.3.3</A>), except that
 it uses the effect summary instead of the declared return type, and
 there are no substitutions for type parameters in steps 4(a) or 4(b).
-The compiler records an invocation effect (§&nbsp;<A HREF="#sec:effects:basic">5.1</A>)
+The compiler records an invocation effect (&sect;&nbsp;<A HREF="#sec:effects:basic">5.1</A>)
 with the invoked method and the computed effect.<BR>
 <BR>
 <B>Local variable access:</B> For statements and expressions that
@@ -3139,7 +3139,7 @@ example, an assignment that has a method invocation on its right-hand
 side, or an array access to an expression which is itself an array
 access), the compiler accumulates the effect of the components,
 coarsening component effects as necessary
-(§&nbsp;<A HREF="#sec:effects:coarsening">5.5</A>) to remove elements that are no
+(&sect;&nbsp;<A HREF="#sec:effects:coarsening">5.5</A>) to remove elements that are no
 longer in scope at the outer level.<BR>
 <BR>
 <!--TOC subsection 5.5&nbsp;&nbsp;Effect Coarsening-->
@@ -3151,8 +3151,8 @@ longer in scope at the outer level.<BR>
 <BR>
 A statement or expression may generate an effect that is no longer in
 scope where the effect must be reported. For example, consider the
-following <TT>foreach</TT> loop (§&nbsp;<A HREF="#sec:parallel:foreach">6.2</A>) on an
-index-parameterized array (§&nbsp;<A HREF="#sec:types:array:ipa">4.2.2</A>):
+following <TT>foreach</TT> loop (&sect;&nbsp;<A HREF="#sec:parallel:foreach">6.2</A>) on an
+index-parameterized array (&sect;&nbsp;<A HREF="#sec:types:array:ipa">4.2.2</A>):
 
  <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>int</B>[]&lt;[_]&gt; A = <B>new int</B>[N]&lt;[_]&gt;;
 <FONT SIZE=2>   2</FONT> <FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, N) {
@@ -3161,13 +3161,13 @@ index-parameterized array (§&nbsp;<A HREF="#sec:types:array:ipa">4.2.2</A>):
 the scope outside the loop? This is important, for example, if this
 code appears inside a method body and its effect must be summarized.
 We can solve this problem with partially-specified RPLs
-(§&nbsp;<A HREF="#sec:rpls:partial">3.4</A>). For example, the effect <TT>writes [?]</TT>
+(&sect;&nbsp;<A HREF="#sec:rpls:partial">3.4</A>). For example, the effect <TT>writes [?]</TT>
 covers all the effects <TT>writes [i]</TT> for all <TT>i</TT> inside the
 loop, so that is what we use. This is called <EM>effect
  coarsening</EM>.<BR>
 <BR>
 <B>Coarsening of local effects:</B> An effect on a local RPL
-(§&nbsp;<A HREF="#sec:rpls:local">3.5</A>) or local variable is simply deleted from the
+(&sect;&nbsp;<A HREF="#sec:rpls:local">3.5</A>) or local variable is simply deleted from the
 effect set when the RPL or variable goes out of scope. For example,
 in the following code fragment, neither block contained in the
 <TT>cobegin</TT> has any effect:
@@ -3213,10 +3213,10 @@ effects works as follows.<BR>
 <BR>
 <I>Variable RPLs:</I> An effect on an RPL starting with a
 <TT>final</TT> local variable
-(§§&nbsp;<A HREF="#sec:rpls:basic:var">3.1.5</A>,&nbsp;<A HREF="#sec:rpls:sequences">3.2</A>) is coarsened
+(&sect;&sect;&nbsp;<A HREF="#sec:rpls:basic:var">3.1.5</A>,&nbsp;<A HREF="#sec:rpls:sequences">3.2</A>) is coarsened
 when the variable goes out of scope. The effect is replaced by a new
 effect on <EM>owner-rpl</EM><TT>:*</TT>, where <EM>owner-rpl</EM> is the
-owner RPL of the variable's type (§&nbsp;<A HREF="#sec:types:class:owner-rpl">4.1.4</A>).
+owner RPL of the variable's type (&sect;&nbsp;<A HREF="#sec:types:class:owner-rpl">4.1.4</A>).
 Because variables may be nested under variables, this operation is
 performed recursively on the resulting RPL until an RPL is obtained
 that is valid in the outer scope.<BR>
@@ -3263,14 +3263,14 @@ The subeffect relation determines whether one set of effects covers
 another set of effects, i.e., all effects in the second set are
 represented in the first set. The compiler uses the subeffect
 relation to check that a method's declared effects
-(§&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>) include the actual effects of
+(&sect;&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>) include the actual effects of
 its body and the effects of any overriding methods.<BR>
 <BR>
 <B>Basic effects:</B> The following rules determine when one basic
-effect (§&nbsp;<A HREF="#sec:effects:basic">5.1</A>) is a subeffect of another:
+effect (&sect;&nbsp;<A HREF="#sec:effects:basic">5.1</A>) is a subeffect of another:
 <UL CLASS="itemize"><LI CLASS="li-itemize">
 If one RPL is included in another
- (§&nbsp;<A HREF="#sec:rpls:comparing:include">3.6.3</A>), then a read of the first RPL
+ (&sect;&nbsp;<A HREF="#sec:rpls:comparing:include">3.6.3</A>), then a read of the first RPL
  is a subeffect of a read or write to the second. For example,
  <TT>reads Root</TT> is a subeffect of <TT>reads Root:*</TT> and
  <TT>writes Root:*</TT>.
@@ -3309,19 +3309,19 @@ If each basic effect in one set is a subeffect of some basic
 The noninterference relation on effects determines whether two sets of
 effects are safe to be run in parallel. The compiler uses the
 noninterference relation to check that there are no conflicting
-effects in mutually parallel tasks (§&nbsp;<A HREF="#sec:parallel">6</A>).<BR>
+effects in mutually parallel tasks (&sect;&nbsp;<A HREF="#sec:parallel">6</A>).<BR>
 <BR>
 <B>Basic effects:</B> The following rules determine when one basic
-effect (§&nbsp;<A HREF="#sec:effects:basic">5.1</A>) is a subeffect of another:
+effect (&sect;&nbsp;<A HREF="#sec:effects:basic">5.1</A>) is a subeffect of another:
 <UL CLASS="itemize"><LI CLASS="li-itemize">
 Two basic effects are noninterfering if they are both read
  effects.
 <LI CLASS="li-itemize">Two basic effects are noninterfering if they are each read or
  write effects, and they operate on disjoint RPLs
- (§&nbsp;<A HREF="#sec:rpls:comparing:disjoint">3.6.4</A>).
+ (&sect;&nbsp;<A HREF="#sec:rpls:comparing:disjoint">3.6.4</A>).
 <LI CLASS="li-itemize">Two invoke effects are noninterfering if they invoke the same
  method, and the method is declared <TT>commutative</TT>
- (§&nbsp;<A HREF="#sec:classes:methods:commutative">2.3.4</A>).
+ (&sect;&nbsp;<A HREF="#sec:classes:methods:commutative">2.3.4</A>).
 </UL>
 <B>Effect sets:</B> The following rules determine when one effect
 set is a subeffect of another:
@@ -3337,7 +3337,7 @@ If every basic effect in one set is noninterfering with every
  are noninterfering. In particular, two invoke effects are
  noninterfering if their underlying effects are (because the
  underlying effects include the invoke effects, see
- §&nbsp;<A HREF="#sec:effects:subeffects">5.6</A>).
+ &sect;&nbsp;<A HREF="#sec:effects:subeffects">5.6</A>).
 </UL>
 
 <!--TOC section 6&nbsp;&nbsp;Parallel Control Flow-->
@@ -3762,7 +3762,7 @@ partitions (such as tiling an array).<BR>
 <BR>
 <I>Accessing segments:</I> The field <TT>length</TT> stores the number
 of segments in the partition. It is <TT>final</TT>, so reading it has no
-effect (§&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A>). The method <TT>get</TT> takes an
+effect (&sect;&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A>). The method <TT>get</TT> takes an
 integer index <TT>idx</TT> and returns the segment corresponding to that
 index (and throws an exception if the index is out of range). The
 type of the segment is <TT>DPJArray&lt;T,this:[idx]:*&gt;</TT>.<BR>
@@ -3770,9 +3770,9 @@ type of the segment is <TT>DPJArray&lt;T,this:[idx]:*&gt;</TT>.<BR>
 The index-parameterized type returned by <TT>get</TT> allows the
 different segments to be operated on in parallel without interference,
 similarly to an index-parameterized array
-(§&nbsp;<A HREF="#sec:types:array:ipa">4.2.2</A>). For example, the following code uses
+(&sect;&nbsp;<A HREF="#sec:types:array:ipa">4.2.2</A>). For example, the following code uses
 <TT>DPJPartition</TT> to parallelize the simple recursive <TT>increment</TT>
-shown in §&nbsp;<A HREF="#sec:runtime:array">7.1</A>:
+shown in &sect;&nbsp;<A HREF="#sec:runtime:array">7.1</A>:
 
  <DIV CLASS="dpjlisting"><TT>&lt;<FONT COLOR="blue"><B>type</B></FONT> T, <FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> parallelIncrement(DPJArray&lt;T,R&gt; A)
   <FONT COLOR="blue"><B>writes</B></FONT> R:* {
@@ -3792,7 +3792,7 @@ shown in §&nbsp;<A HREF="#sec:runtime:array">7.1</A>:
 }</TT></DIV>For more examples of how to use <TT>DPJPartition</TT>, see <EM>The Deterministic Parallel Java Tutorial</EM>.<BR>
 <BR>
 The variable <TT>this</TT> in the type gets substituted by the selector
-expression at the call site (§&nbsp;<A HREF="#sec:types:exp:invoke">4.3.3</A>), so it is
+expression at the call site (&sect;&nbsp;<A HREF="#sec:types:exp:invoke">4.3.3</A>), so it is
 usually most useful to call <TT>get</TT> through a <TT>final</TT> local
 variable. Including the variable in the RPL ensures that the compiler
 doesn't erroneously infer disjointness for two different partitions of
