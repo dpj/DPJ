@@ -396,12 +396,12 @@ before the <TT>throws</TT> clause, if any. It has the form given in
   <B>int</B> y <FONT COLOR="blue"><B>in</B></FONT> Y;
   <FONT COLOR="fuchsia"><EM>// pureMethod has no effect on the heap</EM></FONT>
   <B>int</B> pureMethod(<B>int</B> y) <FONT COLOR="blue"><B>pure</B></FONT> { <B>return</B> y+1; }
-  <FONT COLOR="fuchsia"><EM>// throwsMethod reads r1 and throws an exception</EM></FONT>
-  <B>void</B> throwsMethod() <FONT COLOR="blue"><B>reads</B></FONT> r1 <B>throws</B> Exception {
+  <FONT COLOR="fuchsia"><EM>// throwsMethod reads X and throws an exception</EM></FONT>
+  <B>void</B> throwsMethod() <FONT COLOR="blue"><B>reads</B></FONT> X <B>throws</B> Exception {
     <B>if</B> (x != 0) <B>throw new</B> Exception();
   }
-  <FONT COLOR="fuchsia"><EM>// readWriteMethod reads r2 and writes r1</EM></FONT>
-  <B>void</B> readWriteMethod() <FONT COLOR="blue"><B>reads</B></FONT> r2 <FONT COLOR="blue"><B>writes</B></FONT> r1 {
+  <FONT COLOR="fuchsia"><EM>// readWriteMethod reads Y and writes X</EM></FONT>
+  <B>void</B> readWriteMethod() <FONT COLOR="blue"><B>reads</B></FONT> Y <FONT COLOR="blue"><B>writes</B></FONT> X {
     x = y;
   }
 }</TT></DIV><BR>
@@ -3553,14 +3553,31 @@ compiler.<BR>
 This section gives an overview of the classes <TT>DPJArray</TT> and
 <TT>DPJPartition</TT> in the package <TT>DPJRuntime</TT>. These classes are
 part of the runtime supplied with DPJ and are useful for manipulating
-arrays. To use these classes, put the DPJ runtime
-(<TT>DPJ/Implementation/Runtime/classes</TT>) in your class path and
-either put <TT>import DPJRuntime.*</TT> at the head of your code, or
-import just the classes you want to use. For full documentation of
-these classes, and for coverage of the other DPJ runtime classes, see
-the HTML documentation included in the DPJ release at
-<TT>DPJ/Implementation/Runtime/dpjdoc</TT>.<BR>
-<BR>
+arrays. For full documentation of these classes, and for coverage of
+the other DPJ runtime classes, see the HTML documentation included in
+the DPJ release at 
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>DPJ/Implementation/Runtime/dpjdoc</TT>.
+</DL>
+To use the DPJ runtime, you have to do the following:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+Put <TT>import DPJRuntime.*</TT> at the top of your code (or just
+ import the class or classes you want to use), as for regular Java.
+<LI CLASS="li-enumerate">When compiling your code, you must compile the runtime classes
+ located at <TT>Implementation/Runtime/dpj</TT> in the DPJ release
+ together with any code that uses the runtime. For example, if class
+ file <TT>Foo.java</TT> depends on the DPJ runtime, then you need to do
+ something like this:
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>dpj Foo.java ${DPJ_ROOT}/Implementation/Runtime/dpj</TT>
+</DL>
+<EM>It is not sufficient to put the runtime classes in your class
+ path.</EM> If you do that, you will get a lot of errors. The reason is
+that DPJ bytecode doesn't yet properly support separate compilation of
+DPJ annotations; the DPJ compiler needs the DPJ source for all
+annotated code to process the annotations.
+<LI CLASS="li-enumerate">When running your code, put the runtime classes located at
+ <TT>Implementation/Runtime/classes</TT> in your class path, as for
+ regular Java.
+</OL>
 <!--TOC subsection 7.1&nbsp;&nbsp;<TT>DPJArray</TT>-->
 
 <H3 CLASS="subsection"><A NAME="htoc63">7.1</A>&nbsp;&nbsp;<TT>DPJArray</TT><A NAME="sec:runtime:array"></A></H3><!--SEC END -->
