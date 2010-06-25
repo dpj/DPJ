@@ -525,7 +525,7 @@ constructed. For example, the following code is legal:
     <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> X, y <FONT COLOR="blue"><B>in</B></FONT> Y;
     <FONT COLOR="fuchsia"><EM>// Effect 'pure' is valid, because initialization effects
     // on x and y don't have to be reported</EM></FONT>
-    ConstructorExample(<B>int</B> x, <B>int</B> y) {
+    ConstructorExample(<B>int</B> x, <B>int</B> y) <FONT COLOR="blue"><B>pure</B></FONT> {
         <B>this</B>.x = x;
         <B>this</B>.y = y;
     }
