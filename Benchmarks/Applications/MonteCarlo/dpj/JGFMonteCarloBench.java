@@ -31,7 +31,9 @@ public class JGFMonteCarloBench extends CallAppDemo {
    if (dev > 1.0e-12 ){
      System.out.println("Validation failed");
      System.out.println(" expectedReturnRate= " + AppDemo.JGFavgExpectedReturnRateMC + "  " + dev + "  " + size);
-    }
+   } else {
+       System.out.println("Validation success!");
+   }
   }
 
   public void JGFtidyup(){    

@@ -177,7 +177,7 @@ public class RatePath<region P> extends PathId<P> {
     * @exception DemoException thrown if there is a mismatch between the
     *            lengths of the operand and target arrays.
     */
-  public void inc_pathValue(double[]<P> operandPath) reads P writes P  /*throws DemoException*/ {
+  public <region R>void inc_pathValue(double[]<R> operandPath) reads P,R writes P  /*throws DemoException*/ {
     /*
 	if( pathValue.length != operandPath.length )
       throw new DemoException("The path to update has a different size to the path to update with!");
