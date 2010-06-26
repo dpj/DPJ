@@ -23,11 +23,11 @@ public class AppDemo extends Universal {
   // Class variables.
   //------------------------------------------------------------------------
 
-  // DPJ: sregion declaration
-  // taskR: for tasks
-  // resultR: for results (one result per task)
-   // reductionR: for local reduction
-  region resultR, taskR, reductionR;
+  // DPJ: Region declarations
+  // TaskR: for tasks
+  // ResultR: for results (one result per task)
+  // reductionR: for local reduction
+  region ResultR, TaskR, reductionR;
 
   public static double JGFavgExpectedReturnRateMC =0.0;
   /**
@@ -73,14 +73,12 @@ public class AppDemo extends Universal {
     */
   private int runMode;
 
-  // DPJ
-  // an array of tasks under taskR
-  // Note: the entire array under taskR and pass taskR to the taskss
-  private ToTask<[i]>[]<taskR:[i]>#i tasks in taskR;
+  // An index-parameterized array of tasks under TaskR
+    private ToTask<TaskR:[i]>[]<TaskR:[i]>#i tasks in TaskR;
 
   // DPJ
-  // an array of results under resultR and pass resultR to the results
-  private ToResult<[i]>[]<resultR:[i]>#i results in resultR;
+  // an index-parameterized array of results under ResultR
+  private ToResult<ResultR:[i]>[]<ResultR:[i]>#i results in ResultR;
 
   public AppDemo(String dataDirname, String dataFilename, int nTimeStepsMC, int nRunsMC) {
     this.dataDirname    = dataDirname;
@@ -149,15 +147,16 @@ public class AppDemo extends Universal {
     * @param nRunsMC the number of tasks, and hence Monte Carlo paths to
     *        produce.
     */
-  private void initTasks(int nRunsMC) writes taskR, taskR:[?] {
+  private void initTasks(int nRunsMC) writes TaskR, TaskR:[?] {
         
-	  // initialize task array
-	 tasks = new ToTask<[i]>[nRunsMC]<taskR:[i]>#i;
+      // initialize task array
+      tasks = new ToTask<TaskR:[i]>[nRunsMC]<TaskR:[i]>#i;
 	
-	  // for each task, parallel init
+      // for each task, parallel init
       foreach (int i in 0, nRunsMC) {
         String header = "MC run "+String.valueOf(i);
-        ToTask<[i]> task = new ToTask<[i]>(header, (long)i*11);
+        ToTask<TaskR:[i]> task = 
+	    new ToTask<TaskR:[i]>(header, (long)i*11);
         tasks[i] = task;
       }
    }
@@ -166,23 +165,22 @@ public class AppDemo extends Universal {
   // an effect should be specified to show it's partitionable
   public void runParallel() {
 	 	 
-      results = new ToResult<[i]>[nRunsMC]<resultR:[i]>#i;
+      results = new ToResult<ResultR:[i]>[nRunsMC]<ResultR:[i]>#i;
            
       foreach (int iRun in 0, nRunsMC) {
-	// [iRun] notation indicates separate region for each PriceStock object
-    	// each PriceStock object should be declared as a local object for each iteration
-    		PriceStock<[iRun]> ps = new PriceStock<[iRun]>();
-		ps.setInitAllTasks(initAllTasks);
-		// read the corresponding task and copy its value to PriceStock
-		ps.setTask(tasks[iRun]);
-		
-		// ****************************************************
-		// main Monte Carlo computation
-		ps.run();
-		// ****************************************************
-		
-		//results.addElement(ps.getResult());
-		results[iRun] = ps.getResult();
+	  // [iRun] notation indicates separate region for each PriceStock object
+     	  // each PriceStock object should be declared as a local object for each iteration
+	  PriceStock<ResultR:[iRun]> ps = new PriceStock<ResultR:[iRun]>();
+	  ps.setInitAllTasks(initAllTasks);
+	  // read the corresponding task and copy its value to PriceStock
+	  ps.setTask(tasks[iRun]);
+	  
+	  // ****************************************************
+	  // main Monte Carlo computation
+	  ps.run();
+	  // ****************************************************
+	  
+	  results[iRun] = ps.getResult();
       }
   }
   
@@ -252,47 +250,18 @@ public class AppDemo extends Universal {
 	localAvgMCrate[p] = new RatePath<reductionR:[p]>(nTimeStepsMC, "MC", 19990109, 19991231, dTime);
 
     	for (int i=start;i<end;i++) {
-		ToResult<reductionR:[p]> returnMC = (ToResult<reductionR:[p]>) results[i];
-    		localAvgMCrate[p].inc_pathValue(returnMC.get_pathValue());
+	    ToResult<ResultR:[?]> returnMC = results[i];
+	    localAvgMCrate[p].inc_pathValue(returnMC.get_pathValue());
 
-    	      // reductions (sum)
+    	    // reductions (sum)
     	    localAvgExpectedReturnRateMC += returnMC.get_expectedReturnRate();
     	    localAvgVolatilityMC         += returnMC.get_volatility();
        	}
     	
     	// update global sum
-/*	
-    	lock.lock();
-    	//avgExpectedReturnRateMC[0] += localAvgExpectedReturnRateMC;
-    	//avgVolatilityMC[0] += localAvgVolatilityMC;
-    	avgMCrate.inc_pathValue(localAvgMCrate.get_pathValue());
-    	
-	avgExpectedReturnRateMC += localAvgExpectedReturnRateMC;
-	avgVolatilityMC += localAvgVolatilityMC;'
-
- 	lock.unlock();
-*/	
 	sumReduction(p, localAvgExpectedReturnRateMC, localAvgVolatilityMC);
 
     }
-       
-    /*
-    for( int i=0; i < nRunsMC; i++ ) {
-    // foreach (int i in 0, nRunsMC) {
-      // First, create an instance which is supposed to generate a
-      // particularly simple MC path.
-      returnMC = (ToResult) results[i];
-      
-      avgMCrate.inc_pathValue(returnMC.get_pathValue());
-      
-      // reductions (sum)
-      avgExpectedReturnRateMC += returnMC.get_expectedReturnRate();
-      avgVolatilityMC         += returnMC.get_volatility();
-      
-      runAvgExpectedReturnRateMC = avgExpectedReturnRateMC /((double)(i+1));
-      runAvgVolatilityMC = avgVolatilityMC / ((double)(i+1));
-    } // for i;
-    */
     
     // ********************************************************************
     // final result
@@ -301,15 +270,6 @@ public class AppDemo extends Universal {
 	avgVolatilityMC /= nRunsMC;
     // ********************************************************************
     
-    /*
-    try{
-      Thread.sleep(200);
-    } catch( InterruptedException intEx) {
-      errPrintln(intEx.toString());
-    }
-
-    */
-
 	JGFavgExpectedReturnRateMC = avgExpectedReturnRateMC;
 
 //    dbgPrintln("Average over "+nRunsMC+": expectedReturnRate="+
@@ -328,6 +288,7 @@ public class AppDemo extends Universal {
   public String get_dataDirname() {
     return(this.dataDirname);
   }
+
   /**
     * Set method for private instance variable <code>dataDirname</code>.
     *
@@ -336,6 +297,7 @@ public class AppDemo extends Universal {
   public void set_dataDirname(String dataDirname) {
     this.dataDirname = dataDirname;
   }
+
   /**
     * Accessor method for private instance variable <code>dataFilename</code>.
     *
@@ -344,6 +306,7 @@ public class AppDemo extends Universal {
   public String get_dataFilename() {
     return(this.dataFilename);
   }
+
   /**
     * Set method for private instance variable <code>dataFilename</code>.
     *
@@ -352,6 +315,7 @@ public class AppDemo extends Universal {
   public void set_dataFilename(String dataFilename) {
     this.dataFilename = dataFilename;
   }
+
   /**
     * Accessor method for private instance variable <code>nTimeStepsMC</code>.
     *
@@ -360,6 +324,7 @@ public class AppDemo extends Universal {
   public int get_nTimeStepsMC() {
     return(this.nTimeStepsMC);
   }
+
   /**
     * Set method for private instance variable <code>nTimeStepsMC</code>.
     *
@@ -368,6 +333,7 @@ public class AppDemo extends Universal {
   public void set_nTimeStepsMC(int nTimeStepsMC) {
     this.nTimeStepsMC = nTimeStepsMC;
   }
+
   /**
     * Accessor method for private instance variable <code>nRunsMC</code>.
     *
@@ -376,6 +342,7 @@ public class AppDemo extends Universal {
   public int get_nRunsMC() {
     return(this.nRunsMC);
   }
+
   /**
     * Set method for private instance variable <code>nRunsMC</code>.
     *
@@ -390,8 +357,7 @@ public class AppDemo extends Universal {
     *
     * @return Value of instance variable <code>tasks</code>.
     */
-  //public Vector get_tasks() reads taskR {
-  public ToTask<[i]>[]<taskR:[i]>#i get_tasks() reads taskR {
+  public ToTask<TaskR:[i]>[]<TaskR:[i]>#i get_tasks() reads TaskR {
   	return(this.tasks);
   }
   /**
@@ -399,26 +365,25 @@ public class AppDemo extends Universal {
     *
     * @param tasks the value to set for the instance variable <code>tasks</code>.
     */
-  //public void set_tasks(Vector tasks) writes taskR {
-  public void set_tasks(ToTask<[i]>[]<taskR:[i]>#i tasks) writes taskR {
+  public void set_tasks(ToTask<TaskR:[i]>[]<TaskR:[i]>#i tasks) writes TaskR {
 	this.tasks = tasks;
   }
+
   /**
     * Accessor method for private instance variable <code>results</code>.
     *
     * @return Value of instance variable <code>results</code>.
     */
-  //public Vector get_results() reads resultR {
-  public ToResult<[i]>[]<resultR:[i]>#i get_results() reads Root,resultR {
+  public ToResult<ResultR:[i]>[]<ResultR:[i]>#i get_results() reads Root,ResultR {
   	return(this.results);
   }
+
   /**
     * Set method for private instance variable <code>results</code>.
     *
     * @param results the value to set for the instance variable <code>results</code>.
     */
-  //public void set_results(Vector results) writes resultR {
-  public void set_results(ToResult<[i]>[]<resultR:[i]>#i results) writes resultR {
+  public void set_results(ToResult<ResultR:[i]>[]<ResultR:[i]>#i results) writes ResultR {
   	this.results = results;
   }
  
