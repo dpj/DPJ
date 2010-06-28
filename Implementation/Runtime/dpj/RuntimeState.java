@@ -9,6 +9,11 @@ import jsr166y.forkjoin.ForkJoinPool;
  * @author Rob Bocchino
  */
 public class RuntimeState {
+
+    /**
+     * Global region for RuntimeState
+     */
+    public region Global;
        
     /**
      * Flag indicating whether we are inside a task forked by a DPJ
@@ -20,7 +25,7 @@ public class RuntimeState {
      * <p>This variable is set only by the DPJ compiler and should
      * never be set by user code.
      */
-    public static boolean insideParallelTask = false; 
+    public static boolean insideParallelTask in Global = false; 
 
     /**
      * The {@code ForkJoinPool} that the runtime uses to launch {@code
@@ -29,7 +34,7 @@ public class RuntimeState {
      * <p>This variable is set only by the DPJ compiler and should
      * never be set by user code.
      */
-    public static ForkJoinPool pool;
+    public static ForkJoinPool pool in Global;
 
     /**
      * The minimum number of {@code foreach} iterations to be
@@ -45,7 +50,7 @@ public class RuntimeState {
      * program, if a different cutoff is desired for different {@code
      * foreach} loops.
      */
-    public static int dpjForeachCutoff = 128;
+    public static int dpjForeachCutoff in Global = 128;
 
     /**
      * The number of ways to split a {@code foreach} loop.  The loop
@@ -60,7 +65,7 @@ public class RuntimeState {
      * different splitting factor is desired for different {@code
      * foreach} loops.
      */
-     public static int dpjForeachSplit = 2; 
+     public static int dpjForeachSplit in Global = 2; 
 
     /**
      * The number of worker threads.  The default is the number of
@@ -71,7 +76,7 @@ public class RuntimeState {
      * --dpj-foreach-split=}<i>n</i> as a command-line argument to the
      * DPJ program.  Thereafter it may not be changed.
      */
-    public static int dpjNumThreads =
+    public static int dpjNumThreads in Global =
         Runtime.getRuntime().availableProcessors();
 
 
