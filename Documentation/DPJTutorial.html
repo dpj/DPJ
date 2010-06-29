@@ -128,7 +128,7 @@ parallel programs difficult to reason about and hard to debug.<BR>
 The purpose of this tutorial is to bring you up to speed quickly using
 DPJ. Section&nbsp;<A HREF="#sec:overview">2</A> gives an overview of major DPJ
 concepts, so you can start writing programs as quickly as possible.
-It provides links to <EM>The Deterministic Parallel Java Language Reference Manual</EM> manual (e.g., Reference Manual, §&nbsp;1)
+It provides links to <EM>The Deterministic Parallel Java Language Reference Manual</EM> manual (e.g., Reference Manual, &sect;&nbsp;1)
 so you can look up particular features there to get more detail. The
 rest of the sections show how to write common parallel patterns in
 DPJ. We believe that a very good way to get started with DPJ is to
@@ -342,16 +342,16 @@ parallel.<BR>
 The Reference Manual has more detailed information on the topics
 discussed above. In addition to <TT>cobegin</TT> for parallel
 statements, DPJ has a <TT>foreach</TT> construct for parallel loop
-iterations. See Reference Manual, §&nbsp;6, for more details. Reference
-Manual, §§&nbsp;2.1 and 2.2, have more information on declaring and using
+iterations. See Reference Manual, &sect;&nbsp;6, for more details. Reference
+Manual, &sect;&sect;&nbsp;2.1 and 2.2, have more information on declaring and using
 regions. For further information about summarizing and checking
 effects, see the following sections of the Reference Manual:
 <UL CLASS="itemize"><LI CLASS="li-itemize">
-§§&nbsp;2.3.1, 2.3.2, and 5.2 explain how to write method effect summaries.
-<LI CLASS="li-itemize">§&nbsp;5.4 explains how the compiler computes a method's actual effects.
-<LI CLASS="li-itemize">§&nbsp;5.6 explains how the compiler compares a method's actual effects to
+&sect;&sect;&nbsp;2.3.1, 2.3.2, and 5.2 explain how to write method effect summaries.
+<LI CLASS="li-itemize">&sect;&nbsp;5.4 explains how the compiler computes a method's actual effects.
+<LI CLASS="li-itemize">&sect;&nbsp;5.6 explains how the compiler compares a method's actual effects to
 its summarized effects.
-<LI CLASS="li-itemize">§&nbsp;5.7 explains noninterference of effect.
+<LI CLASS="li-itemize">&sect;&nbsp;5.7 explains noninterference of effect.
 </UL>
 It may be best to read at least the rest of this section of this
 tutorial before consulting these sections of the reference manual,
@@ -367,7 +367,7 @@ when you don't understand something, if you prefer learning that way.<BR>
 <H3 CLASS="subsection"><A NAME="htoc7">2.2</A>&nbsp;&nbsp;Region Path Lists<A NAME="sec:overview:rpls"></A></H3><!--SEC END -->
 
 Every region in DPJ is described by a <EM>region path list</EM>, or RPL.
-A basic region name, shown in §&nbsp;<A HREF="#sec:overview:basic:simple">2.1.1</A>, is a
+A basic region name, shown in &sect;&nbsp;<A HREF="#sec:overview:basic:simple">2.1.1</A>, is a
 particular kind of RPL. More generally, a <EM>sequence of names</EM>
 separated by colons is an RPL. For example, if <TT>A</TT> and <TT>B</TT>
 are declared region names, then <TT>A</TT>, <TT>B</TT>, <TT>A:B</TT>,
@@ -376,7 +376,7 @@ by writing a <TT>*</TT> in place of some sequence of names. For example,
 <TT>A:*:B</TT> stands in for <TT>A:B</TT>, <TT>A:A:B</TT>, <TT>A:B:B</TT>,
 <TT>A:A:A:B</TT>, etc. Nesting and partial specification are useful for
 describing <EM>sets of regions</EM> in effects. For example, in
-conjunction with region parameters (§&nbsp;<A HREF="#sec:overview:params">2.3</A>),
+conjunction with region parameters (&sect;&nbsp;<A HREF="#sec:overview:params">2.3</A>),
 RPLs let you write an effect that says &#8220;writes all nodes in the left
 subtree.&#8221;<BR>
 <BR>
@@ -420,7 +420,7 @@ Covering effects in method effect summaries, as shown in the
  the next section of this tutorial for more information.
 </UL>
 Later sections of this tutorial give more examples of using RPLs. For
-the full details, see §§&nbsp;3 (RPLs), 4 (Types), and 5 (Effects) of the
+the full details, see &sect;&sect;&nbsp;3 (RPLs), 4 (Types), and 5 (Effects) of the
 Reference Manual.<BR>
 <BR>
 <!--TOC subsection 2.3&nbsp;&nbsp;Class and Method Region Parameters-->
@@ -471,15 +471,15 @@ assign into the objects they refer to. We do this in method
 <TT>updateBoth</TT>. In line 15, the effect is <TT>writes First</TT>.
 That's because the write is to field <TT>x</TT>, <TT>x</TT> is in region
 <TT>R</TT> (line 2), and <TT>R=First</TT> in the type of the selector
-<TT>first</TT>. See Reference Manual, §&nbsp;2.4.1, for more information on
-defining class region parameters, and Reference Manual, §&nbsp;4, for more
+<TT>first</TT>. See Reference Manual, &sect;&nbsp;2.4.1, for more information on
+defining class region parameters, and Reference Manual, &sect;&nbsp;4, for more
 information on using parametric classes as types. See Reference
-Manual, §&nbsp;5.4 for more information on how the compiler computes the
+Manual, &sect;&nbsp;5.4 for more information on how the compiler computes the
 effect of a field access through a parametric type.<BR>
 <BR>
 <B>Method region parameters:</B> Methods can also have region
 parameters in DPJ. Method region parameters allow the same method to
-be invoked with different regions. See Reference Manual, §&nbsp;2.4.2.<BR>
+be invoked with different regions. See Reference Manual, &sect;&nbsp;2.4.2.<BR>
 <BR>
 <B>Disjointness constraints on parameters:</B> You can put
 disjointness constraints on class and method parameters. This allows
@@ -489,18 +489,18 @@ compiler at the point where the region arguments are given to the
 parameters. Inside the class or method definition, the compiler can
 use the disjointness constraint to prove noninterference. For
 example, if two parameters are constrained to be disjoint, then
-effects on them are disjoint. See Reference Manual, §&nbsp;2.4.3, for
+effects on them are disjoint. See Reference Manual, &sect;&nbsp;2.4.3, for
 more details.<BR>
 <BR>
 <B>Assignment restrictions:</B> In order to ensure sound reasoning
 about types, some assignments aren't allowed when two types with the
 same class have different region arguments. The rules are in
-Reference Manual, §&nbsp;4.1.2. Sometimes this means you can't do an
+Reference Manual, &sect;&nbsp;4.1.2. Sometimes this means you can't do an
 assignment you want to do. For example, if variable <TT>a</TT> has type
 <TT>C&lt;A&gt;</TT> and <TT>b</TT> has type <TT>C&lt;B&gt;</TT>, you can't say <TT>b=a</TT>.
 In this case, you have three options:
 <OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
-Use partially specified RPLs (Reference Manual, §&nbsp;3.4) and/or
+Use partially specified RPLs (Reference Manual, &sect;&nbsp;3.4) and/or
  additional region parameters to express the assignment. DPJ's
  subtyping features are fairly powerful, so often you can do this.
  For example, if you give <TT>b</TT> the type <TT>C&lt;*&gt;</TT>, now you can
@@ -520,7 +520,7 @@ Use partially specified RPLs (Reference Manual, §&nbsp;3.4) and/or
 }</TT></DIV>This strategy adds some overhead, which is a price of DPJ's
 determinism guarantee in this case.
 <LI CLASS="li-enumerate">As a last resort, use a type cast (Reference Manual,
- §&nbsp;4.1.3). For example, <TT>b = (C&lt;B&gt;) a</TT>. This is usually not a
+ &sect;&nbsp;4.1.3). For example, <TT>b = (C&lt;B&gt;) a</TT>. This is usually not a
  good option, because it breaks DPJ's determinism guarantee.
 </OL>
 <!--TOC subsection 2.4&nbsp;&nbsp;Arrays-->
@@ -536,12 +536,12 @@ features to support them.<BR>
 
 In DPJ, array types can have region arguments. This is similar to
 giving a region argument to a class type
-(§&nbsp;<A HREF="#sec:overview:params">2.3</A>). For example, the following array type
+(&sect;&nbsp;<A HREF="#sec:overview:params">2.3</A>). For example, the following array type
 describes an array of <TT>int</TT> cells all located in region <TT>R</TT>:
 
  <DIV CLASS="dpjlisting"><TT><B>int</B>[]&lt;R&gt;</TT></DIV>This technique is useful to distinguish effects on whole arrays from
 effect on other whole arrays or objects. See Reference Manual,
-§&nbsp;4.2.1, for more information about regions in array types.<BR>
+&sect;&nbsp;4.2.1, for more information about regions in array types.<BR>
 <BR>
 Sometimes it's useful to put different array cells in different
 regions, in particular if you want to update different parts of the
@@ -561,13 +561,13 @@ The two strategies can also be mixed. For example, you can give array
 two arrays, you can express the effects on <TT>A</TT> as <TT>writes
  rA:[?]</TT> and the effects on <TT>B</TT> as <TT>writes rB:[?]</TT>. The
 <TT>[?]</TT> is an RPL element that stands in for any array index element
-(see Reference Manual, §&nbsp;3.4.2). However, you can also express
+(see Reference Manual, &sect;&nbsp;3.4.2). However, you can also express
 disjoint effects on different parts of <TT>A</TT> or <TT>B</TT>. For
 example, writing to cells 0 and 1 of <TT>A</TT> generates effects
 <TT>writes rA:[0]</TT> and <TT>writes rA:[1]</TT>, which are disjoint.<BR>
 <BR>
 Index-parameterized arrays are also useful with arrays of class
-objects and arrays of arrays. See Reference Manual, §&nbsp;4.2.2, for
+objects and arrays of arrays. See Reference Manual, &sect;&nbsp;4.2.2, for
 more information. Later sections of this tutorial also provide
 concrete examples.<BR>
 <BR>
@@ -578,12 +578,12 @@ concrete examples.<BR>
 The DPJ runtime provides classes <TT>DPJArray</TT> and <TT>DPJPartition</TT>
 for manipulating arrays. These classes are useful for divide and
 conquer traversals that update disjoint parts of the same array.
-Reference Manual, §&nbsp;7, gives an overview of how these classes work.
+Reference Manual, &sect;&nbsp;7, gives an overview of how these classes work.
 They are fully documented in the HTML documentation included with the
 DPJ release. Later sections of this tutorial also give concrete
 examples for how to use the classes.<BR>
 <BR>
-Please note that, as described in §&nbsp;7 of the Reference Manual, it is
+Please note that, as described in &sect;&nbsp;7 of the Reference Manual, it is
 not sufficient to put the DPJ runtime classes in your class path when
 compiling DPJ code that uses the runtime classes. Instead, you must
 compile the runtime together with your code that depends on the
@@ -603,13 +603,13 @@ all the source code to process the annotations.
 This section explains how to write common parallel patterns for array
 processing, using DPJ's features for supporting arrays:
 <UL CLASS="itemize"><LI CLASS="li-itemize">
-§&nbsp;<A HREF="#sec:array:disjoint">3.1</A>, Disjoint Array Update, shows how to
+&sect;&nbsp;<A HREF="#sec:array:disjoint">3.1</A>, Disjoint Array Update, shows how to
  create an array whose cells all point to different objects, then
  traverse the array in parallel and update the objects.
-<LI CLASS="li-itemize">§&nbsp;<A HREF="#sec:array:blocked">3.2</A>, Blocked Array Update, shows how to
+<LI CLASS="li-itemize">&sect;&nbsp;<A HREF="#sec:array:blocked">3.2</A>, Blocked Array Update, shows how to
  divide an array into segments and process the segments in parallel
  using a loop. 
-<LI CLASS="li-itemize">§&nbsp;<A HREF="#sec:array:dandc">3.3</A>, Divide-and-Conquer Array Update, shows
+<LI CLASS="li-itemize">&sect;&nbsp;<A HREF="#sec:array:dandc">3.3</A>, Divide-and-Conquer Array Update, shows
  how to partition and recurse on arrays in parallel.
 </UL>
 <!--TOC subsection 3.1&nbsp;&nbsp;Disjoint Array Update-->
@@ -662,17 +662,17 @@ of each one).
 <A NAME="fig:array:disjoint"></A>
 <DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV></BLOCKQUOTE>
 Class <TT>Data</TT> (lines 2&ndash;4) has an integer field <TT>x</TT> and one
-region parameter <TT>R</TT> (Reference Manual, §&nbsp;2.4.1). The field
+region parameter <TT>R</TT> (Reference Manual, &sect;&nbsp;2.4.1). The field
 <TT>x</TT> is in region <TT>R</TT>; that means that when <TT>Data</TT> is used
 as a type, the field of the object instance will be in whatever region
 is supplied as an argument to the type. See Reference Manual,
-§&nbsp;4.1.1.<BR>
+&sect;&nbsp;4.1.1.<BR>
 <BR>
 The rest of the code consists of an array <TT>arr</TT> of <TT>Data</TT>
 objects and three methods that operate on the array:
 <OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 <TT>initialize</TT> assigns a new array to <TT>arr</TT> and uses a
- <TT>foreach</TT> loop (Reference Manual, §&nbsp;6.2) to assign a fresh
+ <TT>foreach</TT> loop (Reference Manual, &sect;&nbsp;6.2) to assign a fresh
  <TT>Data</TT> object to every element of <TT>arr</TT> in parallel.
 <LI CLASS="li-enumerate"><TT>compute</TT> increments the <TT>x</TT> field of each <TT>Data</TT>
  object in <TT>arr</TT> in parallel.
@@ -681,7 +681,7 @@ objects and three methods that operate on the array:
  the array, and exits.
 </OL>
 The array <TT>arr</TT> has an index-parameterized type (Reference Manual,
-§&nbsp;4.2.2) stating that cell <TT>i</TT> of the array is in region
+&sect;&nbsp;4.2.2) stating that cell <TT>i</TT> of the array is in region
 <TT>[i]</TT> and has type <TT>Data&lt;[i]&gt;</TT>. The compiler can prove
 that the parallelism is safe because:
 <UL CLASS="itemize"><LI CLASS="li-itemize">
@@ -707,9 +707,9 @@ force computation iterates in parallel over a disjoint array of
 
 When you write a <TT>foreach</TT> loop in DPJ, the runtime repeatedly
 divides the iteration space in half, until a programmer-specified
-depth is reached. See Reference Manual, §&nbsp;6.2.2. In conjunction
+depth is reached. See Reference Manual, &sect;&nbsp;6.2.2. In conjunction
 with an index-parameterized array that has each cell in its own region
-(Reference Manual, §&nbsp;4.2.2), this is usually the easiest and best way
+(Reference Manual, &sect;&nbsp;4.2.2), this is usually the easiest and best way
 to write a loop that traverses an array in parallel and updates its
 elements. However, sometimes you may want to control the partition
 directly, by dividing the array into blocks (or tiles) and having each
@@ -744,7 +744,7 @@ contains the value <TT>i</TT>).
 <A NAME="fig:array:blocked"></A>
 <DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV></BLOCKQUOTE>
 The code uses the <TT>DPJArrayInt</TT> and <TT>DPJPartitionInt</TT> classes
-discussed in ReferenceManual, §&nbsp;7, and the DPJ runtime documentation.
+discussed in ReferenceManual, &sect;&nbsp;7, and the DPJ runtime documentation.
 (<TT>DPJArrayInt</TT> and <TT>DPJPartitionInt</TT> are specializations of
 the <TT>DPJArray</TT> and <TT>DPJPartition</TT> classes to the primitive
 type <TT>int</TT>.) Line 5 creates a fresh <TT>DPJArrayInt</TT> called
@@ -756,14 +756,14 @@ methods for accessing the array elements. Lines 6&ndash;7 create a
 partition has stride 10, which means that the array is divided into 10
 segments of length 10 each. The variable <TT>segs</TT> is declared
 <TT>final</TT> so that it can be used as a region (Reference Manual,
-§&nbsp;3.1.5).<BR>
+&sect;&nbsp;3.1.5).<BR>
 <BR>
 Lines 8&ndash;13 represent the parallel computation. The outer parallel
 <TT>foreach</TT> loop iterates over the segments in <TT>segs</TT>. Line 4
 pulls segment <TT>i</TT> out of the partition. Segment <TT>i</TT> is itself
 a <TT>DPJArray</TT>, representing the segment consisting of indices
 10*<I>i</I> through 10*<I>i</I>+9 of the original array. Its type is
-<TT>DPJArray&lt;segs:[i]:*&gt;</TT>. As explained in Reference Manual, §&nbsp;7.2,
+<TT>DPJArray&lt;segs:[i]:*&gt;</TT>. As explained in Reference Manual, &sect;&nbsp;7.2,
 the <TT>[i]</TT> in the type allows different segments of the same array
 to be treated as disjoint, and the variable <TT>segs</TT> in the type
 ensures that different partitions of the same array are not treated as
@@ -789,7 +789,7 @@ pattern is useful for IDEA, because the IDEA algorithm operates on
 fixed-size blocks of the input data.<BR>
 <BR>
 This pattern is also useful for implementing reductions. See
-§&nbsp;<A HREF="#sec:reductions">6</A> of this tutorial for more details.<BR>
+&sect;&nbsp;<A HREF="#sec:reductions">6</A> of this tutorial for more details.<BR>
 <BR>
 <!--TOC subsection 3.3&nbsp;&nbsp;Divide-and-Conquer Array Update-->
 
@@ -840,17 +840,17 @@ cell contains the same value).
 <A NAME="fig:array:dandc"></A>
 <DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV></BLOCKQUOTE>
 The code uses the <TT>DPJArrayInt</TT> and <TT>DPJPartitionInt</TT> classes
-also used for Blocked Array Update (§&nbsp;<A HREF="#sec:array:blocked">3.2</A>). The
+also used for Blocked Array Update (&sect;&nbsp;<A HREF="#sec:array:blocked">3.2</A>). The
 method <TT>recursiveInit</TT> (line 4) takes as input a <TT>DPJArrayInt</TT>
 parameterized by a method region parameter <TT>R</TT> (Reference Manual,
-§&nbsp;2.4.2). Its effect is <TT>writes R:*</TT>, i.e., it reads and writes
+&sect;&nbsp;2.4.2). Its effect is <TT>writes R:*</TT>, i.e., it reads and writes
 regions under the parameter. If the array is sufficiently small, the
 initialization is done sequentially (lines 8&ndash;12). Otherwise the
 program creates a <TT>DPJPartition</TT> that splits the array in half.
 Lines 17&ndash;22 recursively and in parallel call <TT>recursiveInit</TT> on
 the halves. The effects of the recursive calls are as shown, for the
-reasons explained in Reference Manual, §&nbsp;7.2, and they are disjoint
-for the two parallel tasks (see Reference Manual, §&nbsp;3.6.4).<BR>
+reasons explained in Reference Manual, &sect;&nbsp;7.2, and they are disjoint
+for the two parallel tasks (see Reference Manual, &sect;&nbsp;3.6.4).<BR>
 <BR>
 <B>Further examples:</B> For a more realistic example of this
 pattern, see the implementation of parallel merge sort in file
@@ -868,9 +868,9 @@ DPJ release.<BR>
 This section explains how to write two common parallel patterns for
 tree processing in DPJ:
 <UL CLASS="itemize"><LI CLASS="li-itemize">
-§&nbsp;<A HREF="#sec:tree:build">4.1</A> shows how to build a tree data structure
+&sect;&nbsp;<A HREF="#sec:tree:build">4.1</A> shows how to build a tree data structure
  in parallel, using a divide-and-conquer strategy.
-<LI CLASS="li-itemize">§&nbsp;<A HREF="#sec:tree:update">4.2</A> shows how to recurse over a tree in
+<LI CLASS="li-itemize">&sect;&nbsp;<A HREF="#sec:tree:update">4.2</A> shows how to recurse over a tree in
  parallel and update its nodes.
 </UL>
 
@@ -1027,7 +1027,7 @@ the two branches of the <TT>cobegin</TT> are <TT>reads RA:* writes
 <TT>Benchmarks/Kernels/dpj</TT> of the DPJ uses this pattern to build a
 quadtree (i.e., a tree in which each node has up to four children)
 for partitioning two-dimensional space. The main difference is that
-index-parameterized arrays (Reference Manual, §&nbsp;4.2.2) are used
+index-parameterized arrays (Reference Manual, &sect;&nbsp;4.2.2) are used
 instead of the regions <TT>LeftRgn</TT> and <TT>RightRgn</TT> to distinguish
 the different branches of the tree. The partition step is implemented
 sequentially, but it could easily be parallelized.<BR>
@@ -1042,7 +1042,7 @@ parallelized in that benchmark, but it could be using this pattern.<BR>
 <H3 CLASS="subsection"><A NAME="htoc18">4.2</A>&nbsp;&nbsp;Recursive Tree Update<A NAME="sec:tree:update"></A></H3><!--SEC END -->
 
 This section shows how to traverse the tree created in
-§&nbsp;<A HREF="#sec:tree:build">4.1</A> in parallel and update its nodes. The tree
+&sect;&nbsp;<A HREF="#sec:tree:build">4.1</A> in parallel and update its nodes. The tree
 structure of the regions in the types of the nodes allow this
 traversal and update to be done with provable noninterference.
 <BLOCKQUOTE CLASS="figure"><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV>
@@ -1121,10 +1121,10 @@ parallel, so the effects cannot cause interference.<BR>
 <BR>
 This section discusses two kinds of local objects:
 <OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
-§&nbsp;<A HREF="#sec:local:iteration">5.1</A> discusses <EM>iteration-local
+&sect;&nbsp;<A HREF="#sec:local:iteration">5.1</A> discusses <EM>iteration-local
  objects</EM>. These objects are created inside a <TT>foreach</TT>
  iteration, and are local to that iteration.
-<LI CLASS="li-enumerate">§&nbsp;<A HREF="#sec:local:method">5.2</A> discusses <EM>method-local objects</EM>.
+<LI CLASS="li-enumerate">&sect;&nbsp;<A HREF="#sec:local:method">5.2</A> discusses <EM>method-local objects</EM>.
  These objects are created inside a method, and are local to that
  method scope and its callees.
 </OL>
@@ -1182,7 +1182,7 @@ and returns it. The effect of <TT>produceValue</TT> is to write to
 <TT>R</TT>, the region of the <TT>LocalObject</TT> type. The rest of the
 program (lines 9 and following) creates an array and writes to it in
 parallel. Line 9 creates an array of integers called <TT>results</TT>.
-The array is index-parameterized (Reference Manual, §&nbsp;4.2.2), so that
+The array is index-parameterized (Reference Manual, &sect;&nbsp;4.2.2), so that
 every cell is in its own region.<BR>
 <BR>
 Line 16 produces two effects, both disjoint for distinct iterations of
@@ -1259,24 +1259,24 @@ region, to store temporary data for processing the task. See the file
 Figure&nbsp;<A HREF="#fig:local:method:pattern">8</A> illustrates the Method-Local
 Objects pattern with a simple sum reduction that also performs an
 incidental computation on local data. Class <TT>LocalObject</TT> (lines
-4&ndash;10) is the same as in §&nbsp;<A HREF="#sec:local:iteration">5.1</A>. Method
+4&ndash;10) is the same as in &sect;&nbsp;<A HREF="#sec:local:iteration">5.1</A>. Method
 <TT>sumReduce</TT> (lines 11 and following) takes as input a
-<TT>DPJArrayInt</TT> (Reference Manual, §&nbsp;7.1). In the base cases it
+<TT>DPJArrayInt</TT> (Reference Manual, &sect;&nbsp;7.1). In the base cases it
 either does nothing (empty array) or returns the only value (array
 with one element). Otherwise, it divides the array in half and
 processes each half recursively and in parallel. This part of the
 computation is similar to the Divide-and-Conquer Array Update pattern
-(§&nbsp;<A HREF="#sec:array:dandc">3.3</A>), except that the array is only read, not
+(&sect;&nbsp;<A HREF="#sec:array:dandc">3.3</A>), except that the array is only read, not
 written.<BR>
 <BR>
 The rest of the computation (lines 20 and following) declares a local
-region (Reference Manual, §&nbsp;2.3.3) called <TT>LocalRegion</TT>, and
+region (Reference Manual, &sect;&nbsp;2.3.3) called <TT>LocalRegion</TT>, and
 creates a <TT>LocalObject</TT> with the local region as its RPL argument.
 The effect of invoking <TT>localObject.produceValue</TT> in line 24 is
 <TT>writes LocalRegion</TT>, as shown in line 23. This effect is a local
-effect (Reference Manual, §&nbsp;5.3), so it doesn't have to be reported
+effect (Reference Manual, &sect;&nbsp;5.3), so it doesn't have to be reported
 in the declared effect of <TT>sumReduce</TT> (Reference Manual,
-§&nbsp;2.3.1). The write effect on the <TT>LocalObject</TT> instance in each
+&sect;&nbsp;2.3.1). The write effect on the <TT>LocalObject</TT> instance in each
 invocation of <TT>sumReduce</TT> is therefore hidden, or <EM>masked</EM>,
 from the callee, and doesn't cause any interference at the
 <TT>cobegin</TT> in line 16.<BR>
@@ -1337,7 +1337,7 @@ ways to do it, both supported in DPJ:
  result, either sequentially or in parallel.
 </OL>
 Below we illustrate method (2) (iterative reduction).
-§&nbsp;<A HREF="#sec:local:method">5.2</A> shows an example of a divide-and-conquer sum
+&sect;&nbsp;<A HREF="#sec:local:method">5.2</A> shows an example of a divide-and-conquer sum
 reduction.
 <BLOCKQUOTE CLASS="figure"><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV>
 
@@ -1395,18 +1395,18 @@ Method <TT>reduce</TT> has a region parameter <TT>R</TT>, so a
 <TT>DPJArrayInt</TT> with any RPL argument can be passed to its <TT>arr</TT>
 parameter. The region parameter is declared so that binding
 <TT>R=<I>r</I></TT> at a call site must satisfy <TT><I>r</I>:* # AccumRgn</TT>
-(Reference Manual, §&nbsp;2.4.3). The method is declared to read under
+(Reference Manual, &sect;&nbsp;2.4.3). The method is declared to read under
 <TT>R</TT> (because it is reading the array), and to write <TT>AccumRgn</TT>
 (because it uses <TT>AccumRgn</TT> to compute the sum)<BR>
 <BR>
 The body of the <TT>reduce</TT> method sets <TT>sum</TT> to zero and uses a
 blocked array to do the partial sums. The array blocking is similar
-to Blocked Array Update (§&nbsp;<A HREF="#sec:array:blocked">3.2</A>), except the array
+to Blocked Array Update (&sect;&nbsp;<A HREF="#sec:array:blocked">3.2</A>), except the array
 is only read, and not written. Inside the <TT>foreach</TT> loop (lines
 13&ndash;19), there is a sequential partial sum computation, followed by a
 global accumulation. The accumulation invokes the private method
 <TT>updateSum</TT> (defined at line 22). That method is declared
-<TT>commutative</TT> (Reference Manual, §&nbsp;2.3.4), because it is properly
+<TT>commutative</TT> (Reference Manual, &sect;&nbsp;2.3.4), because it is properly
 synchronized to allow concurrent execution, and the operation it
 performs commutes with itself. This is a typical way to write an
 accumulation operation in DPJ. If the number of parallel tasks is
