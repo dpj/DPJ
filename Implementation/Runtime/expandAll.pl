@@ -6,7 +6,8 @@ my @targets = (
     ["int", "Int"], 
     ["char", "Char"], 
     ["byte", "Byte"], 
-    ["boolean", "Boolean"] 
+    ["boolean", "Boolean"],
+    ["double", "Double"]
 );
 
 foreach (`ls dpj`) {

@@ -2,7 +2,7 @@
 
 # Clear all files expanded from a template
 
-my @targets = ( "Int", "Char", "Byte", "Boolean" );
+my @targets = ( "Int", "Char", "Byte", "Boolean", "Double" );
 
 sub myexec(@) {
     (my $cmd) = @_;
