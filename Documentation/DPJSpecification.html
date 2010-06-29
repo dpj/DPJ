@@ -1,0 +1,1351 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+            "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+
+<HEAD>
+
+<TITLE>The Deterministic Parallel Java Language
+ Specification 
+Version 1.0</TITLE>
+
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META name="GENERATOR" content="hevea 1.08">
+<STYLE type="text/css">
+.toc{list-style:none;}
+.title{margin:auto;text-align:center}
+.center{text-align:center;margin-left:auto;margin-right:auto;}
+.flushleft{text-align:left;margin-left:0ex;margin-right:auto;}
+.flushright{text-align:right;margin-left:auto;margin-right:0ex;}
+DIV TABLE{margin-left:inherit;margin-right:inherit;}
+PRE{text-align:left;margin-left:0ex;margin-right:auto;}
+BLOCKQUOTE{margin-left:4ex;margin-right:4ex;text-align:left;}
+.part{margin:auto;text-align:center}
+.lstlisting{font-family:monospace;white-space:pre;margin-right:auto;margin-left:0pt;text-align:left}
+.verbatim{margin:1ex 1ex;padding:1ex;}
+.dpjlisting{font-family:monospace;white-space:pre;
+margin:1ex 1ex;padding:1ex;}
+.numbereddpjlisting{font-family:monospace;white-space:pre;
+margin:1ex 1ex;padding:1ex 1ex 1ex 0ex;}
+BODY{backgroundcolor:white}
+.title{padding:1ex;background:#B24D00}
+.titlemain{padding:1ex;background:#B24D00}
+.titlerest{padding:1ex;background:#B24D00}
+.part{padding:1ex;background:#CC5800}
+.section{padding:.5ex;background:#E57D2D}
+.subsection{padding:0.3ex;background:#FFA866}
+.subsubsection{padding:0.5ex;background:#FFC598}
+.ftoc1{list-style:none;margin:0ex 1ex;padding:0ex 1ex;border-left:1ex solid transparent;}
+.ftoc2{list-style:none;margin:0ex 1ex;padding:0ex 1ex;border-left:1ex solid transparent;}
+.ftoc3{list-style:none;margin:0ex 1ex;padding:0ex 1ex;border-left:1ex solid transparent;}
+.ftoc4{list-style:none;margin:0ex 1ex;padding:0ex 1ex;border-left:1ex solid transparent;}
+.ftoc5{list-style:none;margin:0ex 1ex;padding:0ex 1ex;border-left:1ex solid transparent;}
+</STYLE>
+</HEAD>
+
+<BODY >
+<!--HEVEA command line is: hevea -fix -O DPJSpecification.tex -->
+<!--HTMLHEAD-->
+<!--ENDHTML-->
+<!--PREFIX <ARG ></ARG>-->
+<!--CUT DEF section 0 -->
+
+<BR>
+<TABLE CLASS="title">
+<TR><TD>
+<H1 CLASS="titlemain"><B>The Deterministic Parallel Java Language
+ Specification<BR>
+Version 1.0</B></H1>
+<H3 CLASS="titlerest">University of Illinois at Urbana-Champaign</H3>
+<H3 CLASS="titlerest">Revised June 2010</H3></TD>
+</TR></TABLE><BR>
+<!--TOC section Contents-->
+
+<H2 CLASS="section">Contents</H2><!--SEC END -->
+
+<UL CLASS="ftoc1"><LI CLASS="li-toc">
+<A HREF="#htoc1">1&nbsp;&nbsp;Introduction</A>
+<LI CLASS="li-toc"><A HREF="#htoc2">2&nbsp;&nbsp;Class and Interface Definitions</A>
+<UL CLASS="ftoc2"><LI CLASS="li-toc">
+<A HREF="#htoc3">2.1&nbsp;&nbsp;Class Region Name Declarations</A>
+<LI CLASS="li-toc"><A HREF="#htoc4">2.2&nbsp;&nbsp;Fields</A>
+<LI CLASS="li-toc"><A HREF="#htoc5">2.3&nbsp;&nbsp;Methods</A>
+<UL CLASS="ftoc3"><LI CLASS="li-toc">
+<A HREF="#htoc6">2.3.1&nbsp;&nbsp;Method Effect Summaries</A>
+<LI CLASS="li-toc"><A HREF="#htoc7">2.3.2&nbsp;&nbsp;Local Region Name Declarations</A>
+<LI CLASS="li-toc"><A HREF="#htoc8">2.3.3&nbsp;&nbsp;Commutativity Annotations</A>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc9">2.4&nbsp;&nbsp;Type and RPL Parameters</A>
+<UL CLASS="ftoc3"><LI CLASS="li-toc">
+<A HREF="#htoc10">2.4.1&nbsp;&nbsp;Class Parameters</A>
+<LI CLASS="li-toc"><A HREF="#htoc11">2.4.2&nbsp;&nbsp;Method Parameters</A>
+</UL>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc12">3&nbsp;&nbsp;Region Path Lists</A>
+<UL CLASS="ftoc2"><LI CLASS="li-toc">
+<A HREF="#htoc13">3.1&nbsp;&nbsp;Valid RPLs</A>
+<LI CLASS="li-toc"><A HREF="#htoc14">3.2&nbsp;&nbsp;RPL Elements</A>
+<UL CLASS="ftoc3"><LI CLASS="li-toc">
+<A HREF="#htoc15">3.2.1&nbsp;&nbsp;Name RPL Elements</A>
+<LI CLASS="li-toc"><A HREF="#htoc16">3.2.2&nbsp;&nbsp;Parameter RPL Elements</A>
+<LI CLASS="li-toc"><A HREF="#htoc17">3.2.3&nbsp;&nbsp;Array Index RPL Elements</A>
+<LI CLASS="li-toc"><A HREF="#htoc18">3.2.4&nbsp;&nbsp;Variable RPL Elements</A>
+<LI CLASS="li-toc"><A HREF="#htoc19">3.2.5&nbsp;&nbsp;The Star RPL Element</A>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc20">3.3&nbsp;&nbsp;Relations on RPLs</A>
+<UL CLASS="ftoc3"><LI CLASS="li-toc">
+<A HREF="#htoc21">3.3.1&nbsp;&nbsp;Equivalence</A>
+<LI CLASS="li-toc"><A HREF="#htoc22">3.3.2&nbsp;&nbsp;Nesting</A>
+<LI CLASS="li-toc"><A HREF="#htoc23">3.3.3&nbsp;&nbsp;Inclusion</A>
+<LI CLASS="li-toc"><A HREF="#htoc24">3.3.4&nbsp;&nbsp;Disjointness</A>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc25">3.4&nbsp;&nbsp;Regions</A>
+<UL CLASS="ftoc3"><LI CLASS="li-toc">
+<A HREF="#htoc26">3.4.1&nbsp;&nbsp;Heap Regions</A>
+<LI CLASS="li-toc"><A HREF="#htoc27">3.4.2&nbsp;&nbsp;Stack Regions</A>
+</UL>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc28">4&nbsp;&nbsp;Types</A>
+<UL CLASS="ftoc2"><LI CLASS="li-toc">
+<A HREF="#htoc29">4.1&nbsp;&nbsp;Class and Interface Types</A>
+<UL CLASS="ftoc3"><LI CLASS="li-toc">
+<A HREF="#htoc30">4.1.1&nbsp;&nbsp;Type and RPL Arguments</A>
+<LI CLASS="li-toc"><A HREF="#htoc31">4.1.2&nbsp;&nbsp;DPJ Erasure of Class Types</A>
+<LI CLASS="li-toc"><A HREF="#htoc32">4.1.3&nbsp;&nbsp;Equivalent Types</A>
+<LI CLASS="li-toc"><A HREF="#htoc33">4.1.4&nbsp;&nbsp;Subtypes</A>
+<LI CLASS="li-toc"><A HREF="#htoc34">4.1.5&nbsp;&nbsp;Casts</A>
+<LI CLASS="li-toc"><A HREF="#htoc35">4.1.6&nbsp;&nbsp;Owner RPLs</A>
+<LI CLASS="li-toc"><A HREF="#htoc36">4.1.7&nbsp;&nbsp;Captured Types</A>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc37">4.2&nbsp;&nbsp;Array Types</A>
+<UL CLASS="ftoc3"><LI CLASS="li-toc">
+<A HREF="#htoc38">4.2.1&nbsp;&nbsp;Valid Array Types</A>
+<LI CLASS="li-toc"><A HREF="#htoc39">4.2.2&nbsp;&nbsp;New Arrays</A>
+<LI CLASS="li-toc"><A HREF="#htoc40">4.2.3&nbsp;&nbsp;Subtypes</A>
+<LI CLASS="li-toc"><A HREF="#htoc41">4.2.4&nbsp;&nbsp;Casts</A>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc42">4.3&nbsp;&nbsp;Typing Expressions</A>
+<UL CLASS="ftoc3"><LI CLASS="li-toc">
+<A HREF="#htoc43">4.3.1&nbsp;&nbsp;Field Access</A>
+<LI CLASS="li-toc"><A HREF="#htoc44">4.3.2&nbsp;&nbsp;Array Access</A>
+<LI CLASS="li-toc"><A HREF="#htoc45">4.3.3&nbsp;&nbsp;Method Invocation</A>
+</UL>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc46">5&nbsp;&nbsp;Effects</A>
+<UL CLASS="ftoc2"><LI CLASS="li-toc">
+<A HREF="#htoc47">5.1&nbsp;&nbsp;Basic Effects</A>
+<LI CLASS="li-toc"><A HREF="#htoc48">5.2&nbsp;&nbsp;Effect Summaries</A>
+<LI CLASS="li-toc"><A HREF="#htoc49">5.3&nbsp;&nbsp;Effect Inference</A>
+<LI CLASS="li-toc"><A HREF="#htoc50">5.4&nbsp;&nbsp;Effect Coarsening</A>
+<LI CLASS="li-toc"><A HREF="#htoc51">5.5&nbsp;&nbsp;Subeffects</A>
+<LI CLASS="li-toc"><A HREF="#htoc52">5.6&nbsp;&nbsp;Noninterfering Effects</A>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc53">6&nbsp;&nbsp;Parallel Control Flow</A>
+<UL CLASS="ftoc2"><LI CLASS="li-toc">
+<A HREF="#htoc54">6.1&nbsp;&nbsp;<TT>cobegin</TT></A>
+<LI CLASS="li-toc"><A HREF="#htoc55">6.2&nbsp;&nbsp;<TT>foreach</TT></A>
+</UL>
+</UL>
+
+<!--TOC section 1&nbsp;&nbsp;Introduction-->
+
+<H2 CLASS="section"><A NAME="htoc1">1</A>&nbsp;&nbsp;Introduction</H2><!--SEC END -->
+
+<A NAME="section:intro"></A>
+This document defines Deterministic Parallel Java (DPJ) as an
+extension to the Java Programming Language, v1.6 (Java 6). For the
+specification of Java 6, see <EM>The Java Programming Language
+ Specification</EM>&nbsp;[<CITE><A HREF="#JLS">3</A></CITE>], hereafter referred to as &#8220;JLS.&#8221;
+Because we are extending an already-specified language (Java), we omit
+many of the topics one would expect to find in a specification
+(lexical structure, form of statements and expressions, etc.). We use
+JLS for all that. Instead, we describe only what DPJ adds to Java.<BR>
+<BR>
+The structure of the specification is as follows. In
+§&nbsp;<A HREF="#section:class-def">2</A>, we describe the DPJ extensions to Java's
+class and interface definitions. In §&nbsp;<A HREF="#section:rpls">3</A>, we
+describe <EM>region path lists</EM>, or RPLs, which provide a way to
+name sets of memory locations on the heap in a DPJ program. In
+§&nbsp;<A HREF="#section:types">4</A>, we describe the DPJ extensions to Java's class
+and array types. In §&nbsp;<A HREF="#section:effects">5</A> we describe
+<EM>effects</EM>, which specify accesses to memory in terms of
+operations on RPLs. In §&nbsp;<A HREF="#section:parallel">6</A>, we describe DPJ's
+constructs for expressing parallelism.<BR>
+<BR>
+Readers of this document may wish to consult the following documents:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+<EM>The Deterministic Parallel Java Tutorial</EM> provides a guided introduction to the DPJ language.
+<LI CLASS="li-itemize"><EM>The Deterministic Parallel Java Installation Manual</EM> explains how to install DPJ on your system, and
+ how to compile and run DPJ programs.
+<LI CLASS="li-itemize"><EM>The Deterministic Parallel Java Language Reference Manual</EM> explains the major features of the DPJ language in
+ detail. It contains many of the same concepts as this
+ specification, but with more discussion, motivation, and examples.</UL>
+
+
+Please note that the purpose of this specification is to give a
+compact and precise <EM>definition</EM> of DPJ, for someone who is
+already familiar with the concepts discussed herein. Therefore, it is
+probably best to have at least a working knowledge of the tutorial and
+reference manual (which are more concerned with <EM>explaining</EM> the
+language) before consulting this specification.
+
+<!--TOC section 2&nbsp;&nbsp;Class and Interface Definitions-->
+
+<H2 CLASS="section"><A NAME="htoc2">2</A>&nbsp;&nbsp;Class and Interface Definitions</H2><!--SEC END -->
+
+<A NAME="section:class-def"></A>
+This section describes DPJ's extensions to Java class and interface
+definitions.<BR>
+<BR>
+<!--TOC subsection 2.1&nbsp;&nbsp;Class Region Name Declarations-->
+
+<H3 CLASS="subsection"><A NAME="htoc3">2.1</A>&nbsp;&nbsp;Class Region Name Declarations</H3><!--SEC END -->
+
+<A NAME="section:class-def:class-rgn-decl"></A>
+A region name declaration as defined immediately below may appear as a
+class member (JLS §&nbsp;8.1.6).<BR>
+<BR>
+A region name declaration has the form <TT>region</TT>
+<EM>region-decls</EM>, where <EM>region-decls</EM> is a comma-separated
+list of identifiers. The declared names are available within the
+enclosing class scope and via inheritance and/or class selection (as
+for an ordinary Java static member, JLS §&nbsp;8.2), subject to visibility
+restrictions. The declared names may be used as name RPL elements
+(§&nbsp;<A HREF="#section:rpls:elts:name-elts">3.2.1</A>) wherever they are available.<BR>
+<BR>
+Every region name declaration appearing in a particular class must
+have a unique name. Otherwise, if two region declarations with the
+same name appear in the same scope, the innermost declaration hides
+all the others.<BR>
+<BR>
+<!--TOC subsection 2.2&nbsp;&nbsp;Fields-->
+
+<H3 CLASS="subsection"><A NAME="htoc4">2.2</A>&nbsp;&nbsp;Fields</H3><!--SEC END -->
+
+<A NAME="section:class-def:fields"></A>
+Any field declaration may include an <EM>RPL specifier</EM> with the
+syntax <TT>in</TT> <EM>rpl</EM>, where <EM>rpl</EM> is a valid RPL
+(§&nbsp;<A HREF="#section:rpls:valid">3.1</A>). If the RPL specifier appears in a field
+declaration, it must appear after the field name and before the
+initializer expression, if any. The RPL specifier is meaningful only
+for non-<TT>final</TT> fields; if an RPL specifier appears in a
+<TT>final</TT> field, it is allowed but silently ignored. RPL specifiers
+are not allowed for local variable declarations or formal method
+parameter definitions, because those variables reside in stack regions
+(see §&nbsp;<A HREF="#section:effects:inference">5.3</A>).<BR>
+<BR>
+<!--TOC subsection 2.3&nbsp;&nbsp;Methods-->
+
+<H3 CLASS="subsection"><A NAME="htoc5">2.3</A>&nbsp;&nbsp;Methods</H3><!--SEC END -->
+
+<A NAME="section:class-def:methods"></A>
+<!--TOC subsubsection 2.3.1&nbsp;&nbsp;Method Effect Summaries-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc6">2.3.1</A>&nbsp;&nbsp;Method Effect Summaries</H4><!--SEC END -->
+
+<A NAME="section:class-def:methods:effect-summaries"></A>
+Every method may optionally declare its effects via an <EM>effect
+ summary</EM> (§&nbsp;<A HREF="#section:effects:summaries">5.2</A>). If an effect summary
+is present, it must appear after the method arguments, before the
+method body, and before the <TT>throws</TT> clause, if any. The compiler
+internally converts each method effect summary to an effect set
+(§&nbsp;<A HREF="#section:effects:basic">5.1</A>), called the <EM>declared effect set</EM>
+of the method. If there is no explicit effect summary, then the
+compiler inserts a <EM>default effect set</EM> containing <TT>writes
+ Root:*</TT>. In particular, an ordinary Java 1.6 method (with no DPJ
+annotations) is a valid DPJ method, whose effect summary is
+<TT>writes Root:*</TT>.<BR>
+<BR>
+The compiler infers the effects of the method body
+(§&nbsp;<A HREF="#section:effects:inference">5.3</A>) and checks the following, after
+deleting all local effects (§&nbsp;<A HREF="#section:effects:basic">5.1</A>):
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+The inferred effects are a subeffect
+ (§&nbsp;<A HREF="#section:effects:subeffects">5.5</A>) of the declared effects.
+<LI CLASS="li-itemize">The declared effects are a subeffect
+ (§&nbsp;<A HREF="#section:effects:subeffects">5.5</A>) of the declared effects of all
+ methods overridden by this one.
+</UL>
+If either of these requirements is not met, the compiler generates an
+error.<BR>
+<BR>
+<B>Constructors:</B> The following rules apply to the method effect
+summaries of constructors:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+The effect of writing into a field of the object being
+ constructed does not have to be reported in the constructor's effect
+ summary, even if the field is not declared <TT>final</TT>. This is
+ because in DPJ, the effect of initializing an object in a task is
+ not seen until after all concurrent tasks have completed.
+<LI CLASS="li-itemize">All instance initializer effects for a class must be included in
+ the method summaries of all constructors of the class.
+</UL>
+<!--TOC subsubsection 2.3.2&nbsp;&nbsp;Local Region Name Declarations-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc7">2.3.2</A>&nbsp;&nbsp;Local Region Name Declarations</H4><!--SEC END -->
+
+<A NAME="section:class-def:methods:local-rgn-decl"></A>
+A region declaration may appear as a statement in a method body (JLS
+§&nbsp; 8.4.7). The declaration has the same form as for class region
+name declarations (§&nbsp;<A HREF="#section:class-def:class-rgn-decl">2.1</A>). The
+declared names are available as name RPL elements in the innermost
+enclosing statement block.<BR>
+<BR>
+<!--TOC subsubsection 2.3.3&nbsp;&nbsp;Commutativity Annotations-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc8">2.3.3</A>&nbsp;&nbsp;Commutativity Annotations</H4><!--SEC END -->
+
+<A NAME="section:class-def:methods:commutativity"></A>
+The keyword <TT>commutative</TT> may optionally appear as a method
+qualifier, before the return type and before the method parameters, if
+any. The <TT>commutative</TT> annotation is a programmer-specified
+guarantee that the method commutes with itself, i.e., any pair of
+<TT>invokes</TT> effects (§&nbsp;<A HREF="#section:effects:basic">5.1</A>) using this
+method are treated as noninterfering. If <TT>commutative</TT> appears in
+the definition of a method <I>M</I>, then it must also appear in the
+definitions of all methods overriding <I>M</I>.<BR>
+<BR>
+When using <TT>commutative</TT>, the programmer is responsible for
+ensuring two things:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+The method is properly synchronized so that concurrent
+ invocations of the method behave as though they have occurred in
+ sequence (i.e., the invocations have serializable
+ semantics&nbsp;[<CITE><A HREF="#Papadimitriou:Database">4</A></CITE>]).<BR>
+<BR>
+<LI CLASS="li-enumerate">The semantics of the method is such that either order of a pair
+ of invocations produces the same result.
+</OL>
+Note that &#8220;same result&#8221; in condition (2) generally has an
+application-specific meaning. For instance, two insert operations on
+a set may commute with each other, because they produce the &#8220;same&#8221;
+set (i.e., the two sets are indistinguishable as far as future set
+operations like find are concerned), even though the sets may have
+different internal representations. However, two append operations on
+an ordered list generally do not commute.<BR>
+<BR>
+<!--TOC subsection 2.4&nbsp;&nbsp;Type and RPL Parameters-->
+
+<H3 CLASS="subsection"><A NAME="htoc9">2.4</A>&nbsp;&nbsp;Type and RPL Parameters</H3><!--SEC END -->
+
+<A NAME="section:class-def:params"></A>
+<!--TOC subsubsection 2.4.1&nbsp;&nbsp;Class Parameters-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc10">2.4.1</A>&nbsp;&nbsp;Class Parameters</H4><!--SEC END -->
+
+<A NAME="section:class-def:params:class"></A>
+As part of a class or interface definition, a list of generic type
+and/or RPL parameter declarations may appear directly after the class
+or interface name, which follows the keyword <TT>class</TT> or
+<TT>interface</TT>. A parameter declaration extends the generic
+parameter declaration of Java 1.6 and has the form
+<TT>&lt;</TT><EM>params</EM><TT>&gt;</TT> or
+<TT>&lt;</TT><EM>params</EM><TT>|</TT><EM>constraints</EM><TT>&gt;</TT>, where
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+<EM>params</EM> is a comma-separated nonempty list of identifiers
+ stating the parameters being declared. The generic type parameters,
+ if any, must come first; followed by the RPL parameters, if any.
+ Any of the type parameters may be preceded by the keyword
+ <TT>type</TT>. At least the first RPL parameter must be preceded by
+ the keyword <TT>region</TT>, and the other RPL parameters may be
+ preceded by the keyword <TT>region</TT>.
+<LI CLASS="li-itemize"><EM>constraints</EM> is a comma-separated list of <EM>RPL
+ constraints</EM>. An RPL constraint has the form <EM>rpl-1</EM> <TT>#</TT>
+ <EM>rpl-2</EM>, where <EM>rpl-1</EM> and <EM>rpl-2</EM> are legal RPLs
+ (§&nbsp;<A HREF="#section:rpls:valid">3.1</A>) in the scope of the class definition.
+</UL>
+The type parameters function exactly as in Java 1.6 (notice that if
+only type parameters appear, and the optional <TT>type</TT> keyword is
+not used, the syntax corresponds exactly to Java 1.6). The RPL
+parameters may be used as RPL elements (§&nbsp;<A HREF="#section:rpls:elts">3.2</A>) in
+the scope of the class definition, including in any type constraints
+appearing in any generic parameter declarations. As with type
+parameters in Java 1.6, the type and RPL parameters are available only
+in an instance context (i.e., in any scope where <TT>this</TT> is in
+scope).<BR>
+<BR>
+The RPL parameter constraints, if present, impose disjointness
+constraints (§&nbsp;<A HREF="#section:rpls:relations:disjoint">3.3.4</A>) that are
+enforced when RPL arguments are bound to the parameters in a type that
+instantiates the class (§&nbsp;<A HREF="#section:types:class:args">4.1.1</A>). Each
+constraint <EM>rpl-1</EM><TT> # </TT><EM>rpl-2</EM> is also recorded in the
+environment, so that the compiler can prove that <EM>rpl-3</EM> and
+<EM>rpl-4</EM> are disjoint, if <EM>rpl-3</EM> is included in
+(§&nbsp;<A HREF="#section:rpls:relations:inclusion">3.3.3</A>) <EM>rpl-1</EM> and
+<EM>rpl-4</EM> is included in <EM>rpl-2</EM>. It is an error to write a
+constraint <EM>rpl-1</EM><TT> # </TT><EM>rpl-2</EM> such that <EM>rpl-1</EM>
+is included in <EM>rpl-2</EM> or vice versa.<BR>
+<BR>
+<!--TOC subsubsection 2.4.2&nbsp;&nbsp;Method Parameters-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc11">2.4.2</A>&nbsp;&nbsp;Method Parameters</H4><!--SEC END -->
+
+<A NAME="section:class-def:params:method"></A>
+<B>Declaring method parameters:</B> As part of a method definition
+(including constructors), a list of type and RPL parameter
+declarations may appear inside angle brackets <TT>&lt;...&gt;</TT> in the same
+position where Java 1.6 allows type parameters, i.e., after the method
+qualifiers (<TT>public</TT>, <TT>static</TT>, etc.), if any, and before the
+method return type (for non-constructor methods) or class name (for
+constructors). A method parameter declaration has the same form as a
+class parameter declaration (§&nbsp;<A HREF="#section:class-def:params">2.4</A>). The
+declared RPL parameters may be used as RPL elements in the scope of
+the method definition, including the formal parameters and return
+type. The constraints, if present, impose disjointness constraints
+that are enforced when the parameters become bound in a method
+invocation. The constraints are also recorded in the method
+environment, as described in §&nbsp;<A HREF="#section:class-def:params">2.4</A> for
+class parameter constraints.<BR>
+<BR>
+<B>Invoking parametric methods:</B> When a method defined with type
+and/or RPL parameters is invoked, the invocation (at the programmer's
+option, and depending upon the support for region inference in the DPJ
+compiler) may use either <EM>explicit type and RPL arguments</EM> or
+<EM>inferred type and RPL arguments</EM>. This approach corresponds to
+the way that Java 1.6 handles generic method parameters.<BR>
+<BR>
+<I>Explicit Type and RPL Arguments:</I> As in Java 1.6, if type
+and/or RPL arguments are present, then there must be an explicit
+selector (a static class selector or an expression of class or
+interface type) followed by a dot. The arguments must be enclosed in
+angle brackets <TT>&lt;...&gt;</TT>, after the dot and before the method name.
+For constructors, the arguments must follow the keyword <TT>new</TT> and
+precede the class name. In either case, the RPL arguments have the
+same form as for class and interface RPL arguments
+(§&nbsp;<A HREF="#section:types:class:args">4.1.1</A>), except that the keyword
+<TT>region</TT> must precede at least the first RPL argument. (This
+requirement tells the compiler which arguments are types and which
+ones are RPLs. Because of Java's method overloading, this information
+is not available from the method name, as it is for classes from the
+class name.) The number of type and RPL arguments must exactly match
+the number of type and RPL parameters; otherwise, the compiler reports
+an error.<BR>
+<BR>
+<I>Inferred Type and RPL Arguments:</I> If a method is defined with
+type and/or RPL parameters, then the method invocation may be written
+without explicit type or RPL arguments. The compiler <EM>may</EM>
+attempt to infer the RPL arguments from the types of the value
+arguments, using an algorithm similar to the one that Java 1.6 uses
+for inferring generic parameters. This specification does not require
+any particular inference algorithm; in particular no inference is a
+correct implementation of the language. If the inference is not
+possible for a given RPL argument, either because inference is not
+supported or it is not possible (for instance, because the parameter
+does not appear in any of the actual argument types), then the
+compiler must use <TT>Root:*</TT> as the RPL for that argument.<BR>
+<BR>
+<I>RPL Constraints:</I> The compiler checks the RPL arguments
+against the constraints, as discussed in
+§&nbsp;<A HREF="#section:types:class:args">4.1.1</A> for class parameter constraints. If
+any constraint is violated, the compiler issues a warning.<BR>
+<BR>
+
+<!--TOC section 3&nbsp;&nbsp;Region Path Lists-->
+
+<H2 CLASS="section"><A NAME="htoc12">3</A>&nbsp;&nbsp;Region Path Lists</H2><!--SEC END -->
+
+<A NAME="section:rpls"></A>
+In DPJ, the programmer uses region path lists, or RPLs, to name sets
+of heap regions (§&nbsp;<A HREF="#section:regions:heap">3.4.1</A>). The region sets in
+turn are used in specifying and checking effects
+(§&nbsp;<A HREF="#section:effects">5</A>). §&nbsp;<A HREF="#section:rpls:valid">3.1</A> and
+§&nbsp;<A HREF="#section:rpls:elts">3.2</A> describe the construction of RPLs.
+§&nbsp;<A HREF="#section:rpls:relations">3.3</A> describe the rules for comparing RPLs,
+which are essential in noninterference checking.
+§&nbsp;<A HREF="#section:rpls:regions">3.4</A> describes <EM>heap regions</EM> and
+<EM>stack regions</EM>, which do not appear in DPJ programs, but are
+used by the implementation to do noninterference checking.<BR>
+<BR>
+<!--TOC subsection 3.1&nbsp;&nbsp;Valid RPLs-->
+
+<H3 CLASS="subsection"><A NAME="htoc13">3.1</A>&nbsp;&nbsp;Valid RPLs</H3><!--SEC END -->
+
+<A NAME="section:rpls:valid"></A>
+A region path list (RPL) is a nonempty sequence of RPL elements
+(§&nbsp;<A HREF="#section:rpls:elts">3.2</A>) separated by colons (<TT>:</TT>). An RPL
+is well-formed if it obeys the following rules:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+The first element must be <TT>Root</TT>, an RPL parameter element
+ (§&nbsp;<A HREF="#section:rpls:elts:array">3.2.3</A>), or a variable RPL element
+ (§&nbsp;<A HREF="#section:rpls:elts:var">3.2.4</A>).
+<LI CLASS="li-itemize"><TT>Root</TT>, an RPL parameter element, or a variable element may
+ appear only as the first element.
+</UL>
+It is also acceptable to write an RPL starting with a class or local
+region name element (§&nbsp;<A HREF="#section:rpls:elts:name-elts">3.2.1</A>), an array
+index element (§&nbsp;<A HREF="#section:rpls:elts:array">3.2.3</A>), or the star element
+(§&nbsp;<A HREF="#section:rpls:elts:star">3.2.5</A>). In these cases, the RPL has
+<TT>Root</TT> as an implicit first element.<BR>
+<BR>
+<!--TOC subsection 3.2&nbsp;&nbsp;RPL Elements-->
+
+<H3 CLASS="subsection"><A NAME="htoc14">3.2</A>&nbsp;&nbsp;RPL Elements</H3><!--SEC END -->
+
+<A NAME="section:rpls:elts"></A>
+An RPL element is one of the following: a name RPL element, a
+parameter RPL element, an array index RPL element, a variable RPL
+element, or the star RPL element.
+<BR>
+<BR>
+<!--TOC subsubsection 3.2.1&nbsp;&nbsp;Name RPL Elements-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc15">3.2.1</A>&nbsp;&nbsp;Name RPL Elements</H4><!--SEC END -->
+
+<A NAME="section:rpls:elts:name-elts"></A>
+A name RPL element is one of the following:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+<TT>Root</TT>, which is a reserved name available at global scope.
+<LI CLASS="li-itemize">A class region name declared in the enclosing class scope
+ (§&nbsp;<A HREF="#section:class-def:class-rgn-decl">2.1</A>).
+<LI CLASS="li-itemize">A local region name declared in the enclosing statement scope
+ (§&nbsp;<A HREF="#section:class-def:methods:local-rgn-decl">2.3.2</A>).
+<LI CLASS="li-itemize"><EM>selector</EM><TT>.</TT><EM>region</EM>, where <EM>selector</EM> is a
+ field access selector (i.e., everything to the left of
+ <TT>.</TT><EM>Identifier</EM> in a field access expression, JLS §&nbsp;
+ 15.11), and <EM>region</EM> is a class region declared in the class
+ named by <EM>selector</EM> (§&nbsp;<A HREF="#section:class-def:class-rgn-decl">2.1</A>).
+</UL>
+
+<!--TOC subsubsection 3.2.2&nbsp;&nbsp;Parameter RPL Elements-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc16">3.2.2</A>&nbsp;&nbsp;Parameter RPL Elements</H4><!--SEC END -->
+
+<A NAME="section:rpls:elts:param"></A>
+A parameter RPL element names a class RPL parameter
+(§&nbsp;<A HREF="#section:class-def:params">2.4</A>), method RPL parameter
+(§&nbsp;<A HREF="#section:class-def:params:method">2.4.2</A>), or capture parameter
+(§&nbsp;<A HREF="#section:types:class:capture">4.1.7</A>) that is in scope. Note that
+capture parameters are introduced by the compiler in capturing types
+(§&nbsp;<A HREF="#section:types:class:capture">4.1.7</A>), and cannot be written by the
+programmer.<BR>
+<BR>
+<!--TOC subsubsection 3.2.3&nbsp;&nbsp;Array Index RPL Elements-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc17">3.2.3</A>&nbsp;&nbsp;Array Index RPL Elements</H4><!--SEC END -->
+
+<A NAME="section:rpls:elts:array"></A>
+An array index RPL element is one of the following:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+<TT>[</TT><EM>expr</EM><TT>]</TT>, where <EM>expr</EM> is a valid integer
+ expression, indicating the array index corresponding to the runtime
+ value of <EM>expr</EM>.
+<LI CLASS="li-itemize"><TT>[?]</TT>, indicating any array index.
+</UL>
+<!--TOC subsubsection 3.2.4&nbsp;&nbsp;Variable RPL Elements-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc18">3.2.4</A>&nbsp;&nbsp;Variable RPL Elements</H4><!--SEC END -->
+
+<A NAME="section:rpls:elts:var"></A>
+A variable RPL element is one of the following: <TT>this</TT>; a
+<TT>final</TT> method variable of class type; or a <TT>final</TT> method
+formal parameter of class type.<BR>
+<BR>
+<!--TOC subsubsection 3.2.5&nbsp;&nbsp;The Star RPL Element-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc19">3.2.5</A>&nbsp;&nbsp;The Star RPL Element</H4><!--SEC END -->
+
+<A NAME="section:rpls:elts:star"></A>
+The star RPL element has the form <TT>*</TT>. It indicates any sequence
+of RPL elements.<BR>
+<BR>
+<!--TOC subsection 3.3&nbsp;&nbsp;Relations on RPLs-->
+
+<H3 CLASS="subsection"><A NAME="htoc20">3.3</A>&nbsp;&nbsp;Relations on RPLs</H3><!--SEC END -->
+
+<A NAME="section:rpls:relations"></A>
+RPLs have several pairwise relations that are used to determine when
+two RPLs name disjoint or overlapping sets of regions: equivalence
+(§&nbsp;<A HREF="#section:rpls:relations:equiv">3.3.1</A>), nesting
+(§&nbsp;<A HREF="#section:rpls:relations:nesting">3.3.2</A>), disjointness
+(§&nbsp;<A HREF="#section:rpls:relations:disjoint">3.3.4</A>), and inclusion
+(§&nbsp;<A HREF="#section:rpls:relations:inclusion">3.3.3</A>).<BR>
+<BR>
+<!--TOC subsubsection 3.3.1&nbsp;&nbsp;Equivalence-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc21">3.3.1</A>&nbsp;&nbsp;Equivalence</H4><!--SEC END -->
+
+<A NAME="section:rpls:relations:equiv"></A>
+There is an equivalence relation on RPLs, which we will denote here by
+&#8220;<EM>rpl-1</EM> is equivalent to <EM>rpl-2</EM>.&#8221; Its meaning is that
+the set of regions represented by <EM>rpl-1</EM> is equal to the set of
+regions represented by <EM>rpl-2</EM>.<BR>
+<BR>
+<B>Equivalent RPLs:</B> Two RPLs are equivalent if both RPLs have
+the same number of elements, and the corresponding pairs of elements
+are equivalent. <BR>
+<BR>
+<B>Equivalent RPL Elements:</B> Two RPL elements are equivalent if:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+They refer to the declared same region name, RPL parameter, or
+ variable name; or
+<LI CLASS="li-itemize">They are <TT>[</TT><EM>expr-1</EM><TT>]</TT> and
+ <TT>[</TT><EM>expr-2</EM><TT>]</TT>, where <EM>expr-1</EM> and <EM>expr-2</EM>
+ are always-equal expressions; or
+<LI CLASS="li-itemize">They are both <TT>[?]</TT> or <TT>*</TT>.
+</UL>
+<B>Always-Equal Expressions:</B> Always-equal expressions are
+defined as follows:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+Two constants are always-equal expressions if they are the same
+ value.
+<LI CLASS="li-itemize">Two variables are always-equal expressions if they are the same
+ variable (i.e., they have the same variable symbol) and the variable
+ is declared <TT>final</TT>.
+<LI CLASS="li-itemize">Two binary operation expressions are always-equal expressions if
+ they represent the same operation, and their corresponding component
+ expressions are always-equal.
+<LI CLASS="li-itemize">Any other two expressions are not always-equal.
+</UL>
+<!--TOC subsubsection 3.3.2&nbsp;&nbsp;Nesting-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc22">3.3.2</A>&nbsp;&nbsp;Nesting</H4><!--SEC END -->
+
+<A NAME="section:rpls:relations:nesting"></A>
+There is a nesting relation on RPLs, which we will denote here by
+&#8220;<EM>rpl-1</EM> is nested under <EM>rpl-2</EM>.&#8221; Its meaning is that
+for every region <EM>r-1</EM> represented by <EM>rpl-1</EM>, there exists
+a region <EM>r-2</EM> represented by <EM>rpl-2</EM> such that <EM>r-1</EM>
+is nested under <EM>r-2</EM>. The meaning of &#8220;<EM>r-1</EM> is nested
+under <EM>r-2</EM>&#8221; Is that <EM>r-1</EM> is a descendant of <EM>r-2</EM> in
+the region tree.
+<EM>rpl-1</EM> is nested under <EM>rpl-2</EM> if one of the following holds:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+<EM>rpl-2</EM> is <TT>Root</TT>.
+<LI CLASS="li-itemize"><EM>rpl-1</EM> is a sequence of two or more RPL elements, and
+ <EM>rpl-1</EM> without its last element is nested under <EM>rpl-2</EM>.
+<LI CLASS="li-itemize"><EM>rpl-1</EM> is included in <EM>rpl-2</EM>
+ (§&nbsp;<A HREF="#section:rpls:relations:inclusion">3.3.3</A>).
+<LI CLASS="li-itemize"><EM>rpl-1</EM> has one element, which is an object reference
+ variable whose owner RPL (§&nbsp;<A HREF="#section:types:class:owner-rpls">4.1.6</A>) is
+ nested under <EM>rpl-2</EM>.
+</UL>
+<!--TOC subsubsection 3.3.3&nbsp;&nbsp;Inclusion-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc23">3.3.3</A>&nbsp;&nbsp;Inclusion</H4><!--SEC END -->
+
+<A NAME="section:rpls:relations:inclusion"></A>
+There is an inclusion relation on RPLs, which we will denote here by
+&#8220;<EM>rpl-1</EM> is included in <EM>rpl-2</EM>.&#8221; Its meaning is that the
+set of regions represented by <EM>rpl-1</EM> is contained (in the sense
+of ordinary set inclusion) in the set of regions represented by
+<EM>rpl-2</EM>.<BR>
+<BR>
+<B>Inclusion of RPLs:</B> <EM>rpl-1</EM> is included in <EM>rpl-2</EM>
+if one of the following holds:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+<EM>rpl-1</EM> and <EM>rpl-2</EM> are equivalent
+ (§&nbsp;<A HREF="#section:rpls:relations:equiv">3.3.1</A>).
+<LI CLASS="li-itemize"><EM>rpl-2</EM> ends with <TT>*</TT>, and <EM>rpl-1</EM> is nested under
+ <EM>rpl-2</EM> (§&nbsp;<A HREF="#section:rpls:relations:nesting">3.3.2</A>) without its last element.
+<LI CLASS="li-itemize">The last element of <EM>rpl-1</EM> is included in the last element
+ of <EM>rpl-2</EM>, and inclusion holds for the RPLs after stripping
+ the last elements of both.
+<LI CLASS="li-itemize"><EM>rpl-1</EM> has one element, which is a capture parameter
+ (§&nbsp;<A HREF="#section:types:class:capture">4.1.7</A>) included in <EM>rpl-2</EM>.
+</UL>
+
+<B>Inclusion of RPL Elements:</B> RPL element <EM>elt-1</EM> is
+included in RPL element <EM>elt-2</EM> if (1) the elements are
+equivalent (§&nbsp;<A HREF="#section:rpls:relations:equiv">3.3.1</A>); or (2) <EM>elt-1</EM>
+is any array index RPL element and <EM>elt-2</EM> is <TT>[?]</TT>.<BR>
+<BR>
+<!--TOC subsubsection 3.3.4&nbsp;&nbsp;Disjointness-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc24">3.3.4</A>&nbsp;&nbsp;Disjointness</H4><!--SEC END -->
+
+<A NAME="section:rpls:relations:disjoint"></A>
+There is a disjointness relation on RPLs, which we will denote here by
+&#8220;<EM>rpl-1</EM> is disjoint from <EM>rpl-2</EM>.&#8221; Its meaning is that
+the set of regions represented by <EM>rpl-1</EM> has empty intersection
+with the set of regions represented by <EM>rpl-2</EM>.<BR>
+<BR>
+<B>Disjoint RPLs:</B> <EM>rpl-1</EM> and <EM>rpl-2</EM> are disjoint if
+one of the following holds:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+<EM>rpl-1</EM> is included in
+ (§&nbsp;<A HREF="#section:rpls:relations:inclusion">3.3.3</A>) some RPL <EM>rpl-3</EM>;
+ <EM>rpl-2</EM> is included in some RPL <EM>rpl-4</EM>; and <EM>rpl-3</EM>
+ and <EM>rpl-4</EM> are constrained to be disjoint
+ (§&nbsp;<A HREF="#section:class-def:params">2.4</A>).
+<LI CLASS="li-enumerate">For some <I>n</I> &#8805; 1, (a) the RPLs formed by taking the first <I>n</I>
+ elements of <EM>rpl-1</EM> and <EM>rpl-2</EM> are equivalent
+ (§&nbsp;<A HREF="#section:rpls:relations:equiv">3.3.1</A>); and (b) <EM>rpl-1</EM> and
+ <EM>rpl-2</EM> have disjoint elements in position <I>n</I>+1 (this is
+ called a &#8220;distinction from the left&#8221; in&nbsp;[<CITE><A HREF="#DPJ:OOPSLA09">2</A></CITE>]).
+<LI CLASS="li-enumerate">The last elements of <EM>rpl-1</EM> and <EM>rpl-2</EM> are disjoint
+ (this is called a &#8220;distinction from the right&#8221;
+ in&nbsp;[<CITE><A HREF="#DPJ:OOPSLA09">2</A></CITE>]).
+</OL>
+<B>Disjoint RPL Elements:</B> Two RPL elements <EM>elt-1</EM> and
+<EM>elt-2</EM> are disjoint if (1) one is a name RPL element
+(§&nbsp;<A HREF="#section:rpls:elts:name-elts">3.2.1</A>) and the other is an array index
+RPL element (§&nbsp;<A HREF="#section:rpls:elts:array">3.2.3</A>); or (2) they are both
+name RPL elements corresponding to distinct region name symbols
+(§§&nbsp;<A HREF="#section:class-def:class-rgn-decl">2.1</A>
+and&nbsp;<A HREF="#section:class-def:methods:local-rgn-decl">2.3.2</A>); or (3) they are
+the array RPL elements <TT>[</TT><EM>expr-1</EM><TT>]</TT> and
+<TT>[</TT><EM>expr-2</EM><TT>]</TT>, where <EM>expr-1</EM> and <EM>expr-2</EM> are
+always-unequal expressions.<BR>
+<BR>
+<B>Always-Unequal Expressions:</B> Always-unequal expressions are
+defined as follows:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+Two constants are always-unequal expressions if they are
+ different values.
+<LI CLASS="li-itemize"><EM>expr-1</EM> and <EM>expr-2</EM> are always-unequal expressions
+ if <EM>expr-1</EM> is the negation expression
+ (§&nbsp;<A HREF="#section:parallel:foreach">6.2</A>) of <EM>expr-2</EM>, or vice versa.
+<LI CLASS="li-itemize">Any other two expressions are not always-unequal.
+</UL>
+<!--TOC subsection 3.4&nbsp;&nbsp;Regions-->
+
+<H3 CLASS="subsection"><A NAME="htoc25">3.4</A>&nbsp;&nbsp;Regions</H3><!--SEC END -->
+
+<A NAME="section:rpls:regions"></A>
+DPJ partitions memory into <EM>heap regions</EM> (collections of memory
+locations on the heap) and <EM>stack regions</EM> (collections of memory
+locations on the stack). Heap regions are explicitly named using RPLs
+(§&nbsp;<A HREF="#section:rpls">3</A>). Stack regions are internally named and
+automatically managed by the compiler.<BR>
+<BR>
+Because all DPJ type and effect annotations are erased at compile
+time, regions are not actually represented at runtime. They are a
+theoretical construct, used in the soundness proofs of
+DPJ&nbsp;[<CITE><A HREF="#DPJ:FormalTR08">1</A></CITE>]. For example, regions are used to show that
+if two RPLs are disjoint (§&nbsp;<A HREF="#section:rpls:relations:disjoint">3.3.4</A>),
+then the two sets of memory locations associated with the RPLs in the
+dynamic semantics are nonintersecting.<BR>
+<BR>
+The programmer should not have to reason directly about regions; the
+proofs in&nbsp;[<CITE><A HREF="#DPJ:FormalTR08">1</A></CITE>] essentially say that it is sufficient
+to reason about RPLs, using the rules given in §&nbsp;<A HREF="#section:rpls">3</A>.
+For more information about regions and the region tree, the interested
+reader is referred to&nbsp;[<CITE><A HREF="#DPJ:FormalTR08">1</A></CITE>].<BR>
+<BR>
+<!--TOC subsubsection 3.4.1&nbsp;&nbsp;Heap Regions-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc26">3.4.1</A>&nbsp;&nbsp;Heap Regions</H4><!--SEC END -->
+
+<A NAME="section:regions:heap"></A>
+A heap region names a set of memory locations on the heap at runtime.
+Syntactically, a heap region is like an RPL (§&nbsp;<A HREF="#section:rpls">3</A>),
+with the following exceptions:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+No <TT>*</TT> or <TT>[?]</TT> appears in the sequence of elements.
+<LI CLASS="li-itemize">There are no parameter RPL elements.
+<LI CLASS="li-itemize">Object reference values appear instead of object reference variables.
+<LI CLASS="li-itemize">Integer values <TT>[<I>n</I>]</TT> appear instead of integer expressions
+ <TT>[</TT><EM>expr</EM><TT>]</TT>.
+</UL>
+An RPL with no <TT>*</TT> or <TT>[?]</TT> corresponds to a heap region at
+runtime, by replacing parameters with actual regions, object reference
+variables with the references they store, and integer expressions with
+the values to which they evaluate. For more information about how
+this substitution works, see&nbsp;[<CITE><A HREF="#DPJ:FormalTR08">1</A></CITE>]. An RPL containing
+<TT>*</TT> or <TT>[?]</TT> represents the set of valid RPLs obtained by
+substituting (possibly empty) sequences of RPL elements for <TT>*</TT>
+and nonnegative array index values for <TT>?</TT>. This set of RPLs in
+turn corresponds to a set of regions, via the substitutions mentioned
+above.<BR>
+<BR>
+Every heap region is part of a tree of regions rooted at the global
+name <TT>Root</TT> (§&nbsp;<A HREF="#section:rpls:elts:name-elts">3.2.1</A>). The tree
+structure is given in two ways:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+By the syntax of RPLs: e.g., <TT>A:B</TT> is a child of <TT>A</TT>.
+<LI CLASS="li-enumerate">By the types of object references: if <I>o</I> is an object
+ reference, and the owner region of the type of <I>o</I>
+ (§&nbsp;<A HREF="#section:types:class:owner-rpls">4.1.6</A>) is <I>R</I>, then a region whose
+ RPL starts with <I>o</I> is a descendant of region <I>R</I>.
+</OL>
+For more information about the region tree, see&nbsp;[<CITE><A HREF="#DPJ:FormalTR08">1</A></CITE>].<BR>
+<BR>
+<!--TOC subsubsection 3.4.2&nbsp;&nbsp;Stack Regions-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc27">3.4.2</A>&nbsp;&nbsp;Stack Regions</H4><!--SEC END -->
+
+<A NAME="section:regions:stack"></A>
+The compiler internally generates <EM>stack regions</EM> for method
+value parameters and local variables. For example, the declaration
+<TT>int x</TT> inside a method generates the stack region <TT>x</TT> that is
+in scope where the variable <TT>x</TT> is in scope. These stack regions
+are generated and checked automatically, and the programmer cannot
+specify them directly.<BR>
+<BR>
+Stack regions are compared by symbol: two occurrences of the same
+symbol are treated as identical, and different symbols are treated as
+different. This simple comparison is possible for stack variables
+because Java does not allow references to or aliasing of these
+variables.<BR>
+<BR>
+
+<!--TOC section 4&nbsp;&nbsp;Types-->
+
+<H2 CLASS="section"><A NAME="htoc28">4</A>&nbsp;&nbsp;Types</H2><!--SEC END -->
+
+<A NAME="section:types"></A>
+<!--TOC subsection 4.1&nbsp;&nbsp;Class and Interface Types-->
+
+<H3 CLASS="subsection"><A NAME="htoc29">4.1</A>&nbsp;&nbsp;Class and Interface Types</H3><!--SEC END -->
+
+<A NAME="section:types:class"></A>
+<!--TOC subsubsection 4.1.1&nbsp;&nbsp;Type and RPL Arguments-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc30">4.1.1</A>&nbsp;&nbsp;Type and RPL Arguments</H4><!--SEC END -->
+
+<A NAME="section:types:class:args"></A>
+When a class or interface defined with type and/or RPL parameters
+(§&nbsp;<A HREF="#section:class-def:params">2.4</A>) is used to name a type, the type
+may optionally specify type and/or RPL arguments.<BR>
+<BR>
+<B>Syntax:</B> The arguments have the form
+<TT>&lt;</TT><EM>args</EM><TT>&gt;</TT>, where <EM>args</EM> is a comma-separated list
+of valid class or interface types (this section) and/or RPLs
+(§&nbsp;<A HREF="#section:rpls">3</A>). This syntax, if it appears, must immediately
+follow the class or interface name. The types, if any, must appear
+first; followed by the RPLs, if any. Any of the types may be preceded
+by the keyword <TT>type</TT>, and any of the RPLs may be preceded by the
+keyword <TT>region</TT>; but the keywords are optional, as the compiler
+can infer which are the types and which are the RPLs from the class or
+interface definition.<BR>
+<BR>
+<B>Binding RPL arguments:</B> It is an error to specify more RPL
+arguments than there are RPL parameters. If fewer RPL arguments than
+parameters are specified, the remaining arguments (from left to right)
+become bound to <TT>Root</TT>. For each RPL parameter constraint
+<EM>rpl-1</EM><TT> # </TT><EM>rpl-2</EM> specified in the parameter
+declaration (§&nbsp;<A HREF="#section:class-def:params">2.4</A>), the compiler checks
+that the RPLs <EM>rpl-1</EM> and <EM>rpl-2</EM> are disjoint
+(§&nbsp;<A HREF="#section:rpls:relations:disjoint">3.3.4</A>), after substituting the RPL
+arguments for the corresponding parameters in the RPLs. If any
+disjointness constraint is violated, the compiler issues a warning.<BR>
+<BR>
+<!--TOC subsubsection 4.1.2&nbsp;&nbsp;DPJ Erasure of Class Types-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc31">4.1.2</A>&nbsp;&nbsp;DPJ Erasure of Class Types</H4><!--SEC END -->
+
+<A NAME="section:types:class:dpjerasure"></A>
+The <EM>DPJ erasure</EM> of a class type is the type obtained by
+ignoring all RPL parameters and arguments. For example, suppose class
+<TT>C</TT> has a type parameter <TT>T</TT> and a region parameter <TT>R</TT>.
+Then the DPJ erasure of <TT>C&lt;Object,Root&gt;</TT> is <TT>C&lt;Object&gt;</TT>.<BR>
+<BR>
+<!--TOC subsubsection 4.1.3&nbsp;&nbsp;Equivalent Types-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc32">4.1.3</A>&nbsp;&nbsp;Equivalent Types</H4><!--SEC END -->
+
+<A NAME="section:types:class:equiv"></A>
+Class or interface types <I>T</I><SUB>1</SUB> and <I>T</I><SUB>2</SUB> with no type or RPL arguments
+are equivalent if they are equivalent in ordinary Java. Otherwise,
+<I>T</I><SUB>1</SUB> and <I>T</I><SUB>2</SUB> are equivalent if (1) their DPJ erasures
+(§&nbsp;<A HREF="#section:types:class:dpjerasure">4.1.2</A>) are equivalent according to
+this section; and (2) for every RPL parameter <I>P</I> of <I>C</I>, the RPL
+arguments bound to <I>P</I> in <I>T</I><SUB>1</SUB> and <I>T</I><SUB>2</SUB> are equivalent
+(§&nbsp;<A HREF="#section:rpls:relations:equiv">3.3.1</A>).<BR>
+<BR>
+<!--TOC subsubsection 4.1.4&nbsp;&nbsp;Subtypes-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc33">4.1.4</A>&nbsp;&nbsp;Subtypes</H4><!--SEC END -->
+
+<A NAME="section:types:class:subtypes"></A>
+<B>Types that instantiate the same class or interface :</B> <I>T</I><SUB>1</SUB> is
+a subtype of <I>T</I><SUB>2</SUB> in DPJ if (1) the two types instantiate the same
+class or interface; (2) the two types have no type or RPL arguments;
+and (3) <I>T</I><SUB>1</SUB> is a subtype of <I>T</I><SUB>2</SUB> in ordinary Java.<BR>
+<BR>
+<I>T</I><SUB>1</SUB> is also a subtype of of <I>T</I><SUB>2</SUB> in DPJ if (1) the two types
+instantiate the same class or interface; (2) the DPJ erasure
+(§&nbsp;<A HREF="#section:types:class:dpjerasure">4.1.2</A>) of <I>T</I><SUB>1</SUB> is a subtype of the
+DPJ erasure of <I>T</I><SUB>2</SUB> according to this section; and (3) the RPL
+arguments of <I>T</I><SUB>1</SUB> are included
+(§&nbsp;<A HREF="#section:rpls:relations:inclusion">3.3.3</A>) in the corresponding
+arguments of <I>T</I><SUB>2</SUB>.<BR>
+<BR>
+<B>Types that instantiate different classes:</B> <I>T</I><SUB>1</SUB> is a subtype
+of <I>T</I><SUB>2</SUB> if <I>T</I><SUB>2</SUB> is a <EM>direct supertype</EM> or <EM>indirect
+ supertype</EM> of <I>T</I><SUB>1</SUB>.<BR>
+<BR>
+<I>Direct supertypes: T</I><SUB>2</SUB> is a direct supertype of <I>T</I><SUB>1</SUB> if a
+type with <I>T</I><SUB>2</SUB>'s class or interface appears in an <TT>extends</TT> or
+<TT>implements</TT> clause of <I>T</I><SUB>1</SUB>'s class or interface, and that type
+is a subtype of <I>T</I><SUB>2</SUB> after substituting arguments for parameters
+according to <I>T</I><SUB>1</SUB>.<BR>
+<BR>
+<I>Indirect supertypes: T</I><SUB>2</SUB> is an indirect supertype of <I>T</I><SUB>1</SUB>
+if there is a chain of direct supertypes connecting <I>T</I><SUB>1</SUB> to <I>T</I><SUB>2</SUB>.<BR>
+<BR>
+<!--TOC subsubsection 4.1.5&nbsp;&nbsp;Casts-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc34">4.1.5</A>&nbsp;&nbsp;Casts</H4><!--SEC END -->
+
+<A NAME="section:types:class:casts"></A>
+A cast from one class or interface type to another is legal if the
+cast would be legal for the DPJ erasures
+(§&nbsp;<A HREF="#section:types:class:dpjerasure">4.1.2</A>) of the types. Therefore
+casts that violate type preservation are allowed. Any unsafe cast
+will generate the usual &#8220;unchecked or unsafe operations&#8221; warning
+that Java 1.6 gives for unsound generic casts.<BR>
+<BR>
+<!--TOC subsubsection 4.1.6&nbsp;&nbsp;Owner RPLs-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc35">4.1.6</A>&nbsp;&nbsp;Owner RPLs</H4><!--SEC END -->
+
+<A NAME="section:types:class:owner-rpls"></A>
+If <EM>class-type</EM> is a class type, then the <EM>owner RPL</EM> of
+<EM>class-type</EM> is (1) the RPL bound to the first parameter of
+<EM>class-type</EM>, if <EM>class-type</EM> has parameters; otherwise (2)
+<TT>Root</TT>.<BR>
+<BR>
+<!--TOC subsubsection 4.1.7&nbsp;&nbsp;Captured Types-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc36">4.1.7</A>&nbsp;&nbsp;Captured Types</H4><!--SEC END -->
+
+<A NAME="section:types:class:capture"></A>
+The compiler extends Java 1.6 type capture (JLS §&nbsp;5.1.10) to capture
+RPL parameters as well as generic type parameters. If <EM>type</EM> is
+a class type with <EM>rpls</EM> as its RPL arguments, then the capture
+of <EM>type</EM> is defined as follows:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+Take the Java 1.6 capture of <EM>type</EM>, possibly
+ substituting for the generic type arguments but keeping the same RPL
+ arguments.
+<LI CLASS="li-enumerate">In the result of step 1, for each RPL <EM>rpl</EM> in <EM>rpls</EM>
+ that is partially specified (i.e., contains <TT>*</TT> or <TT>[?]</TT>),
+ replace that RPL with a fresh RPL parameter constrained to be
+ included in <EM>rpl</EM>.
+</OL>
+<!--TOC subsection 4.2&nbsp;&nbsp;Array Types-->
+
+<H3 CLASS="subsection"><A NAME="htoc37">4.2</A>&nbsp;&nbsp;Array Types</H3><!--SEC END -->
+
+<!--TOC subsubsection 4.2.1&nbsp;&nbsp;Valid Array Types-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc38">4.2.1</A>&nbsp;&nbsp;Valid Array Types</H4><!--SEC END -->
+
+<A NAME="arrays:valid"></A>
+In DPJ, the array type is given by <EM>base-type</EM> followed by one or
+more instances of <EM>brackets</EM>, where <EM>base-type</EM> is a
+primitive, class, or interface type; and each instance of
+<EM>brackets</EM> is a pair of brackets (<TT>[]</TT>) optionally followed
+by an RPL argument <TT>&lt;</TT><EM>rpl</EM><TT>&gt;</TT>, optionally followed by
+<TT>#</TT><EM>index-var</EM>, where <EM>index-var</EM> is an identifier that
+declares an index variable. An array type is valid if (1)
+<EM>base-type</EM> is valid, treating all index variables appearing in
+the type as integer variables in scope; and (2) the RPL of every
+<EM>brackets</EM> is valid, treating all index variables appearing in
+that <EM>brackets</EM> and all <EM>brackets</EM> to the left of that one
+as integer variables in scope.<BR>
+<BR>
+<B>Default index variable declaration:</B> If no index variable
+declaration <TT>#</TT><EM>index-var</EM> appears in a particular instance
+of <EM>brackets</EM>, then that instance of <EM>brackets</EM> is treated
+as if it had the declaration <TT>#_</TT> (pound underscore). For
+example, <TT>int[]&lt;[_]&gt;</TT> is a valid array type; it is equivalent to
+<TT>int[]&lt;[_]&gt;#_</TT>.<BR>
+<BR>
+<!--TOC subsubsection 4.2.2&nbsp;&nbsp;New Arrays-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc39">4.2.2</A>&nbsp;&nbsp;New Arrays</H4><!--SEC END -->
+
+<A NAME="arrays:new"></A>
+A new array expression is <TT>new</TT> followed by <EM>base-type</EM> and
+one or more instances of <EM>new-brackets</EM>, where <EM>base-type</EM>
+is a primitive, class, or interface type; and <EM>new-brackets</EM> is
+the same as <EM>brackets</EM> as described in
+§&nbsp;<A HREF="#arrays:valid">4.2.1</A>, except that an integer length expression
+<EM>expr</EM> may optionally appear between the brackets. A new array
+expression is valid if (1) the array type generated by deleting the
+length expressions is valid (§&nbsp;<A HREF="#arrays:valid">4.2.1</A>); and (2) the
+first <I>n</I> instances of <EM>new-brackets</EM> contain a length
+expression, for some <I>n</I> &#8805; 1, while the rest do not.<BR>
+<BR>
+<!--TOC subsubsection 4.2.3&nbsp;&nbsp;Subtypes-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc40">4.2.3</A>&nbsp;&nbsp;Subtypes</H4><!--SEC END -->
+
+If <I>T</I><SUB>1</SUB> and <I>T</I><SUB>2</SUB> are array types, then the compiler
+checks whether <I>T</I><SUB>1</SUB> is a subtype of <I>T</I><SUB>2</SUB> as follows:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+If the RPL specified in the leftmost <EM>brackets</EM> of
+ <I>T</I><SUB>1</SUB> is not included in
+ (§&nbsp;<A HREF="#section:rpls:relations:inclusion">3.3.3</A>) the RPL specified in the
+ leftmost <EM>brackets</EM> of <I>T</I><SUB>2</SUB>, then the answer is no.
+<LI CLASS="li-enumerate">Otherwise, check whether the element type of <I>T</I><SUB>1</SUB> is a subtype
+ of the element type of <I>T</I><SUB>2</SUB> (§&nbsp;<A HREF="#section:types:class:subtypes">4.1.4</A>
+ or this section), but require equivalence of corresponding RPL
+ arguments (§&nbsp;<A HREF="#section:rpls:relations:equiv">3.3.1</A>), instead of just
+ inclusion, in doing this check.
+</OL>
+We require equivalence of RPL arguments for all but the leftmost RPL
+because it is not sound in general to allow subtype assignments into
+array cells.<BR>
+<BR>
+<!--TOC subsubsection 4.2.4&nbsp;&nbsp;Casts-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc41">4.2.4</A>&nbsp;&nbsp;Casts</H4><!--SEC END -->
+
+Array type casts work in the same way as class type casts
+(§&nbsp;<A HREF="#section:types:class:casts">4.1.5</A>).<BR>
+<BR>
+<!--TOC subsection 4.3&nbsp;&nbsp;Typing Expressions-->
+
+<H3 CLASS="subsection"><A NAME="htoc42">4.3</A>&nbsp;&nbsp;Typing Expressions</H3><!--SEC END -->
+
+<!--TOC subsubsection 4.3.1&nbsp;&nbsp;Field Access-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc43">4.3.1</A>&nbsp;&nbsp;Field Access</H4><!--SEC END -->
+
+<A NAME="section:types:exp:field"></A>
+The compiler computes the type of a field access expression
+<EM>selector-exp</EM><TT>.</TT><EM>field-name</EM> as follows: (1) compute
+the type <EM>selector-type</EM> of <EM>selector-exp</EM>; (2) capture the
+type (§&nbsp;<A HREF="#section:types:class:capture">4.1.7</A>) to generate type
+<EM>captured-selector-type</EM>; (3) look up the type <EM>field-type</EM>
+of <EM>field</EM> based on the class <I>C</I> named in
+<EM>captured-selector-type</EM>; (4) make the following substitutions in
+<EM>field-type</EM>: (a) the type and RPL arguments of
+<EM>captured-selector-type</EM> for the type RPL parameters of <I>C</I>; and
+(b) <EM>selector-rpl</EM> for <TT>this</TT>. If <EM>selector-exp</EM> is a
+<TT>final</TT> local variable <EM>var</EM>, then <EM>selector-rpl</EM> is
+<EM>var</EM>; otherwise, <EM>selector-rpl</EM> is a fresh capture
+parameter (§&nbsp;<A HREF="#section:types:class:capture">4.1.7</A>) constrained to be
+included in <EM>owner-rpl</EM><TT>:*</TT>, where <EM>owner-rpl</EM> is the
+owner RPL (§&nbsp;<A HREF="#section:types:class:owner-rpls">4.1.6</A>) of
+<EM>captured-selector-type</EM>.<BR>
+<BR>
+<!--TOC subsubsection 4.3.2&nbsp;&nbsp;Array Access-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc44">4.3.2</A>&nbsp;&nbsp;Array Access</H4><!--SEC END -->
+
+<A NAME="section:types:exp:array"></A>
+If expression <I>e</I> has array type <I>T</I> (§&nbsp;<A HREF="#arrays:valid">4.2.1</A>), then we
+construct the type and region of array access expression
+<TT><I>e</I>[<I>e</I>']</TT> as follows:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+To construct the type, do the following: (a) concatenate
+ <EM>base-type</EM> of <I>T</I> with all instances of <EM>brackets</EM> in <I>T</I>
+ but the leftmost to form <EM>elt-type</EM>; and (b) if an index
+ variable <I>i</I> is declared in the leftmost instance of
+ <EM>brackets</EM>, then substitute <I>e</I>' for all instances of <I>i</I>
+ appearing in <EM>elt-type</EM>.
+<LI CLASS="li-itemize">To construct the RPL, do the following: (a) let <EM>rpl</EM> be
+ the RPL appearing in the leftmost instance of <EM>brackets</EM> in
+ <I>T</I>, or <TT>Root</TT> if no RPL appears there; and (b) if an index
+ variable <I>i</I> appears in the leftmost instance of <EM>brackets</EM>,
+ then substitute <I>e</I>' for all instances of <I>i</I> appearing in
+ <EM>rpl</EM>.
+</UL>
+<!--TOC subsubsection 4.3.3&nbsp;&nbsp;Method Invocation-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc45">4.3.3</A>&nbsp;&nbsp;Method Invocation</H4><!--SEC END -->
+
+<A NAME="section:types:exp:invocation"></A>
+<B>Explicit Type and RPL Arguments:</B> The compiler computes the
+type of a method invocation expression
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><EM>selector-exp</EM><TT>.&lt;</TT><EM>type-args</EM><TT>,</TT><EM>rpl-args</EM><TT>&gt;</TT><EM>method-name</EM><TT>(</TT><EM>args</EM><TT>)</TT>
+</DL>
+as follows: (1) compute the type <EM>selector-type</EM> of
+<EM>selector-exp</EM> and the types <EM>arg-types</EM> of <EM>args</EM>; (2)
+capture <EM>selector-type</EM> (§&nbsp;<A HREF="#section:types:class:capture">4.1.7</A>) to
+generate type <EM>captured-selector-type</EM>; (3) look up the method
+symbol based on the method name, <EM>selector-type</EM>, and
+<EM>arg-types</EM>, and find the return type <EM>return-type</EM> of the
+method; (4) make the following substitutions in <EM>return-type</EM>:
+(a) the type and RPL arguments of <EM>captured-selector-type</EM> for
+the type and RPL parameters of <EM>return-type</EM>; (b)
+<EM>type-args</EM> and <EM>rpl-args</EM> for the type and RPL parameters
+of the method; (c) for every expression <EM>int-exp</EM> in <EM>args</EM>
+of a type assignable to <TT>int</TT>, <EM>int-exp</EM> for the
+corresponding formal parameter of the method; and (d)
+<EM>selector-rpl</EM> for <TT>this</TT>, where if <EM>selector-exp</EM> is a
+<TT>final</TT> local variable <EM>var</EM>, then <EM>selector-rpl</EM> is
+<EM>var</EM>, and otherwise <EM>selector-rpl</EM> is a fresh capture
+parameter (§&nbsp;<A HREF="#section:types:class:capture">4.1.7</A>) constrained to be
+included in <EM>owner-rpl</EM><TT>:*</TT>, where <EM>owner-rpl</EM> is the
+owner RPL (§&nbsp;<A HREF="#section:types:class:owner-rpls">4.1.6</A>) of
+<EM>selector-type</EM>.<BR>
+<BR>
+<B>Inferred or Missing Type Arguments, RPL Arguments, and/or
+ <EM>selector-exp</EM>:</B> If there are no explicit type or RPL
+arguments, the compiler infers them (if necessary) as stated in
+§&nbsp;<A HREF="#section:class-def:params:method">2.4.2</A> and proceeds as stated above
+using the inferred arguments in step (4)(b). If there is no
+<EM>selector-exp</EM>, then as in ordinary Java, the implied selector is
+<TT>this</TT>.<BR>
+<BR>
+
+<!--TOC section 5&nbsp;&nbsp;Effects-->
+
+<H2 CLASS="section"><A NAME="htoc46">5</A>&nbsp;&nbsp;Effects</H2><!--SEC END -->
+
+<A NAME="section:effects"></A>
+An effect is a set of actions that affect memory. Every statement and
+expression in the program is assigned an effect. If the effects of
+two statements do not interfere, then the statements may be safely run
+in parallel.<BR>
+<BR>
+<!--TOC subsection 5.1&nbsp;&nbsp;Basic Effects-->
+
+<H3 CLASS="subsection"><A NAME="htoc47">5.1</A>&nbsp;&nbsp;Basic Effects</H3><!--SEC END -->
+
+<A NAME="section:effects:basic"></A>
+Internally, the compiler represents effects as sets of <EM>basic
+ effects</EM>. A basic effect is one of the following:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+A <EM>read effect</EM>, indicating a read operation on an RPL
+ (§&nbsp;<A HREF="#section:rpls">3</A>) or stack region
+ (§&nbsp;<A HREF="#section:regions:stack">3.4.2</A>). This effect represents any read at
+ runtime to any heap region named by the RPL, or to the stack region.
+<LI CLASS="li-enumerate">A <EM>write effect</EM>, indicating a write operation on an RPL or
+ stack region. This effect represents any read or write to any heap
+ region named by the RPL, or to the stack region.
+<LI CLASS="li-enumerate">An <EM>invoke effect</EM>, indicating an invocation of method <I>m</I>
+ of class <I>C</I> with effect <I>E</I>, where <I>E</I> is a set of basic effects.
+</OL>
+A basic effect is <EM>local</EM> if it is a read or write effect on a
+stack region or an RPL containing a local region name
+(§&nbsp;<A HREF="#section:rpls:elts:name-elts">3.2.1</A>), or it is an invocation effect
+whose underlying effects are all local. We refer to a set of basic
+effects as an <EM>effect set</EM>.<BR>
+<BR>
+<!--TOC subsection 5.2&nbsp;&nbsp;Effect Summaries-->
+
+<H3 CLASS="subsection"><A NAME="htoc48">5.2</A>&nbsp;&nbsp;Effect Summaries</H3><!--SEC END -->
+
+<A NAME="section:effects:summaries"></A>
+The programmer may specify an effect summary as part of a method
+definition (§&nbsp;<A HREF="#section:class-def:methods:effect-summaries">2.3.1</A>). An
+effect summary consists either of the keyword <TT>pure</TT>, representing
+an empty effect set, or one or both of the following, in this order:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+<EM>Read effects:</EM> The keyword <TT>reads</TT>, followed by a
+ comma-separated list of valid RPLs (§&nbsp;<A HREF="#section:rpls">3</A>),
+ representing one read effect on each RPL.
+<LI CLASS="li-itemize"><EM>Write effects:</EM> The keyword <TT>writes</TT>, followed by a
+ comma-separated list of valid RPLs (§&nbsp;<A HREF="#section:rpls">3</A>),
+ representing one write effect on each RPL.
+</UL>
+The effect set of the whole summary is the union of zero, one, or two
+effect sets generated as described above.<BR>
+<BR>
+<!--TOC subsection 5.3&nbsp;&nbsp;Effect Inference-->
+
+<H3 CLASS="subsection"><A NAME="htoc49">5.3</A>&nbsp;&nbsp;Effect Inference</H3><!--SEC END -->
+
+<A NAME="section:effects:inference"></A>
+The compiler infers the effects of a statement, expression, or
+statement block by using the following method-local analysis:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+For expressions <EM>selector-exp</EM><TT>.</TT><EM>field-name</EM> that
+ directly access a non-<TT>final</TT> field (effects on <TT>final</TT>
+ fields are ignored), the compiler computes the RPL <EM>access-rpl</EM>
+ accessed by the expression. It uses the same procedure as for
+ typing field access expressions
+ (§&nbsp;<A HREF="#section:types:exp:field">4.3.1</A>), except that it uses the
+ the RPL specifier (§&nbsp;<A HREF="#section:class-def:fields">2.2</A>) instead of the
+ type associated with <EM>field-name</EM> in the class <I>C</I>, and there
+ are no substitutions for type parameters. The compiler records a
+ read or write effect (§&nbsp;<A HREF="#section:effects:basic">5.1</A>) to
+ <EM>access-rpl</EM>, depending on whether the expression is used in an
+ assignment or access.
+<LI CLASS="li-itemize">For statements and expressions that invoke a method, the
+ compiler computes the effect set <I>E</I> generated by the invocation.
+ It uses the same procedure as for typing method invocation
+ expressions (§&nbsp;<A HREF="#section:types:exp:invocation">4.3.3</A>), except that it
+ uses the effect summary of the method
+ (§&nbsp;<A HREF="#section:class-def:methods:effect-summaries">2.3.1</A>) instead of the
+ return type, and there are no substitutions for type parameters.
+ The compiler records an invocation effect
+ (§&nbsp;<A HREF="#section:effects:basic">5.1</A>) with the method symbol and <I>E</I>.
+<LI CLASS="li-itemize">For statements and expressions that access a non-<TT>final</TT>
+ stack variable (i.e., method formal parameter or local variable),
+ record a read or write effect on a stack region identified by the
+ variable's symbol. Effects on <TT>final</TT> variables are ignored.
+<LI CLASS="li-itemize">For any other statement or expression, the compiler accumulates
+ the effects of its components, coarsening component effects as
+ necessary (§&nbsp;<A HREF="#section:effects:coarsening">5.4</A>) to generate effects
+ that are valid at the outer scope.
+</UL>
+
+<!--TOC subsection 5.4&nbsp;&nbsp;Effect Coarsening-->
+
+<H3 CLASS="subsection"><A NAME="htoc50">5.4</A>&nbsp;&nbsp;Effect Coarsening</H3><!--SEC END -->
+
+<A NAME="section:effects:coarsening"></A>
+<B>Coarsening of RPLs:</B> RPLs appearing in accumulated effects may
+include any of the following elements that are no longer in scope at
+the point where the effects are being reported: (1) integer variables;
+(2) <TT>final</TT> local variables of class type; and (3) locally
+declared region names. The compiler therefore performs the following
+conversion (called <EM>effect coarsening</EM>) to generate a valid set
+of accumulated effects in the surrounding environment:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+Delete all effects on RPLs containing a local region name that
+ is out of scope.
+<LI CLASS="li-itemize">Replace each RPL <EM>rpl</EM> that starts with <EM>var</EM>, where
+ <EM>var</EM> is a <TT>final</TT> local variable not in scope, with
+ <EM>owner-rpl</EM><TT>:*</TT>, where <EM>owner-rpl</EM> is the owner RPL
+ (§&nbsp;<A HREF="#section:types:class:owner-rpls">4.1.6</A>) of the type of <EM>var</EM>.
+ Perform this operation recursively on the resulting RPL.
+<LI CLASS="li-itemize">Replace all elements <TT>[</TT><I>e</I><TT>]</TT>, where <I>e</I> refers to
+ variables not in scope, with <TT>[?]</TT>.
+</UL>
+<B>Coarsening of Stack Regions:</B> If a stack region appearing in
+an effect goes out of scope, any effect on that stack region is
+deleted in translating the effect to the outer scope.<BR>
+<BR>
+<!--TOC subsection 5.5&nbsp;&nbsp;Subeffects-->
+
+<H3 CLASS="subsection"><A NAME="htoc51">5.5</A>&nbsp;&nbsp;Subeffects</H3><!--SEC END -->
+
+<A NAME="section:effects:subeffects"></A>
+The following rules determine whether effect set <I>E</I><SUB>1</SUB> is a subeffect of
+effect set <I>E</I><SUB>2</SUB>:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+If <I>E</I><SUB>1</SUB> and <I>E</I><SUB>2</SUB> each consist of a single basic effect, then
+ the following rules apply: (a) if <I>R</I><SUB>1</SUB> is included in <I>R</I><SUB>2</SUB>
+ (§&nbsp;<A HREF="#section:rpls:relations:inclusion">3.3.3</A>), then a read of <I>R</I><SUB>1</SUB> is
+ a subeffect of a read or write of <I>R</I><SUB>2</SUB>, and a write of <I>R</I><SUB>1</SUB> is a
+ subeffect of a write of <I>R</I><SUB>2</SUB>; and (b) if <I>E</I><SUB>3</SUB> is included in
+ <I>E</I><SUB>4</SUB>, then an invocation of method <I>M</I> with effect <I>E</I><SUB>3</SUB> is a
+ subeffect of an invocation of the same method <I>M</I> with effect <I>E</I><SUB>4</SUB>.
+<LI CLASS="li-enumerate">An invocation of method <I>M</I> with effect <I>E</I> is a subeffect of <I>E</I>.
+<LI CLASS="li-enumerate">If <I>E</I><SUB>1</SUB> is a subset of <I>E</I><SUB>2</SUB> (i.e., all the basic effect of
+ <I>E</I><SUB>1</SUB> also appear in <I>E</I><SUB>2</SUB>), then <I>E</I><SUB>1</SUB> is a subeffect of <I>E</I><SUB>2</SUB>.
+<LI CLASS="li-enumerate">If <I>E</I><SUB>1</SUB> = <I>E</I><SUB>3</SUB> &cup; <I>E</I><SUB>4</SUB>, where <I>E</I><SUB>3</SUB> and <I>E</I><SUB>4</SUB> are subeffects of
+ <I>E</I><SUB>2</SUB>, then <I>E</I><SUB>1</SUB> is a subeffect of <I>E</I><SUB>2</SUB>.
+<LI CLASS="li-enumerate">The subeffect relation is reflexive and transitive.
+</OL>
+<!--TOC subsection 5.6&nbsp;&nbsp;Noninterfering Effects-->
+
+<H3 CLASS="subsection"><A NAME="htoc52">5.6</A>&nbsp;&nbsp;Noninterfering Effects</H3><!--SEC END -->
+
+<A NAME="section:effects:noninterference"></A>
+The following rules determine whether effect sets <I>E</I><SUB>1</SUB> and <I>E</I><SUB>2</SUB> are
+noninterfering:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+If <I>E</I><SUB>1</SUB> and <I>E</I><SUB>2</SUB> each consist of a single basic effect, then
+ the following rules apply: (a) two read effects are noninterfering;
+ (b) two effects on <I>R</I> and <I>R</I>', each a read or write, are
+ noninterfering if <I>R</I> and <I>R</I>' are disjoint
+ (§&nbsp;<A HREF="#section:rpls:relations:disjoint">3.3.4</A>); and (c) two invocations
+ of the same method are noninterfering if the method is declared
+ <TT>commutative</TT>
+ (§&nbsp;<A HREF="#section:class-def:methods:commutativity">2.3.3</A>).
+<LI CLASS="li-enumerate">If <I>E</I><SUB>3</SUB> and <I>E</I><SUB>4</SUB> are noninterfering, then an invocation of
+ method <I>M</I> with effect <I>E</I><SUB>3</SUB> is noninterfering with <I>E</I><SUB>4</SUB>.
+<LI CLASS="li-enumerate">If <I>E</I><SUB>1</SUB> = <I>E</I><SUB>3</SUB> &cup; <I>E</I><SUB>4</SUB>, where <I>E</I><SUB>3</SUB> and <I>E</I><SUB>4</SUB> are both
+ noninterfering with <I>E</I><SUB>2</SUB>, then <I>E</I><SUB>1</SUB> is noninterfering with <I>E</I><SUB>2</SUB>.
+<LI CLASS="li-enumerate">The noninterference relation is symmetric.
+</OL>
+
+<!--TOC section 6&nbsp;&nbsp;Parallel Control Flow-->
+
+<H2 CLASS="section"><A NAME="htoc53">6</A>&nbsp;&nbsp;Parallel Control Flow</H2><!--SEC END -->
+
+<A NAME="section:parallel"></A>
+DPJ extends Java's control flow constructs by adding two parallel
+statements: <TT>cobegin</TT> and <TT>foreach</TT>. <TT>cobegin</TT> followed
+by a statement block executes each statement of the block as a
+parallel task. <TT>foreach</TT> defines a loop that executes sets of
+iterations as parallel tasks.<BR>
+<BR>
+<!--TOC subsection 6.1&nbsp;&nbsp;<TT>cobegin</TT>-->
+
+<H3 CLASS="subsection"><A NAME="htoc54">6.1</A>&nbsp;&nbsp;<TT>cobegin</TT></H3><!--SEC END -->
+
+The <TT>cobegin</TT> statement consists of the keyword <TT>cobegin</TT>,
+followed by a statement <I>S</I> to execute. If <I>S</I> is any statement but a
+block enclosed in curly braces <TT>{</TT> &hellip; <TT>}</TT>, or if <I>S</I>
+is a block consisting of a single statement, then the <TT>cobegin</TT>
+just executes the statement <I>S</I>. Otherwise, <I>S</I> is a block containing
+multiple statements, and the component statements of <I>S</I> are run as
+parallel tasks. There is an implicit barrier (join) at the end of the
+<TT>cobegin</TT> statement, so that all the component tasks must finish
+execution before the parent task executes the statement after the
+<TT>cobegin</TT>.<BR>
+<BR>
+The compiler computes the inferred effect set
+(§&nbsp;<A HREF="#section:effects:inference">5.3</A>) of each statement in the block and checks
+the effect sets for pairwise noninterference
+(§&nbsp;<A HREF="#section:effects:noninterference">5.6</A>). The compiler emits a warning if
+interference is discovered. Both parallel and sequential code
+generation of <TT>cobegin</TT> blocks are supported.<BR>
+<BR>
+<!--TOC subsection 6.2&nbsp;&nbsp;<TT>foreach</TT>-->
+
+<H3 CLASS="subsection"><A NAME="htoc55">6.2</A>&nbsp;&nbsp;<TT>foreach</TT></H3><!--SEC END -->
+
+<A NAME="section:parallel:foreach"></A>
+The <TT>foreach</TT> statement has the syntax
+<TT>foreach(</TT><EM>index-var</EM><TT> in </TT><EM>start</EM><TT>,
+</TT><EM>length</EM><TT>, </TT><EM>stride</EM><TT>)</TT> <I>S</I>, where 
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+<EM>index-var</EM> is an integer variable declaration.
+<LI CLASS="li-itemize"><EM>start</EM>, <EM>length</EM>, and <EM>stride</EM> are integer
+ expressions. The <EM>stride</EM> expression is optional, and the
+ default is 1.
+<LI CLASS="li-itemize"><I>S</I> is a statement representing the loop body. It may be either
+ a simple statement or a block.
+</UL>
+The <TT>foreach</TT> statement causes one instance of <I>S</I> to execute for
+each value of <EM>index-var</EM> in the iteration space
+{<I>start</I> + <I>stride</I> &sdot; <I>i</I> | <I>i</I> &isin; [0,
+ <I>length</I>&minus;1]}. <EM>index-var</EM> is treated as a
+<TT>final</TT> variable in <I>S</I>, so that any assignment to the index
+variable inside the loop causes an error.<BR>
+<BR>
+The compiler performs the following noninterference check for indexed
+<TT>foreach</TT> loops:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+Infer the effect set of the body of the <TT>foreach</TT>
+ (§&nbsp;<A HREF="#section:effects:inference">5.3</A>).
+<LI CLASS="li-enumerate">Create a copy of the effect set generated in (1), but replace
+ every occurrence of <EM>index-var</EM> with the negation expression
+ (§&nbsp;<A HREF="#section:rpls:relations:disjoint">3.3.4</A>) of <EM>index-var</EM>.
+</OL>
+If interference is detected, the compiler generates a warning.<BR>
+<BR>
+Both parallel and sequential code generation are supported. For
+sequential code generation, the <TT>foreach</TT> iterations are executed
+in sequence, from lowest to highest in the iteration space. For
+parallel code generation, the compiler repeatedly halves the iteration
+space, recursively forking off pairs of parallel tasks, until a
+programmer-specified cutoff. The precise mechanism for specifying the
+cutoff is implementation dependent.<BR>
+<BR>
+
+<!--TOC section References-->
+
+<H2 CLASS="section">References</H2><!--SEC END -->
+<DL CLASS="list" COMPACT="compact"><DT CLASS="dt-list"><FONT COLOR=purple><A NAME="DPJ:FormalTR08">[1]</A></FONT><DD CLASS="dd-list">
+Robert&nbsp;L. Bocchino and Vikram&nbsp;S. Adve.
+Formal definition and proof of soundness for Core DPJ.
+Technical Report UIUCDCS-R-2008-2980, University of Illinois at
+ Urbana-Champaign, 2008.<BR>
+<BR>
+<DT CLASS="dt-list"><FONT COLOR=purple><A NAME="DPJ:OOPSLA09">[2]</A></FONT><DD CLASS="dd-list">
+Robert&nbsp;L. Bocchino&nbsp;Jr., Vikram&nbsp;S. Adve, Danny Dig, Sarita&nbsp;V. Adve, Stephen
+ Heumann, Rakesh Komuravelli, Jeffrey Overbey, Patrick Simmons, Hyojin Sung,
+ and Mohsen Vakilian.
+A type and effect system for Deterministic Parallel Java.
+In <EM>OOPSLA '09: Proceedings of the 24th ACM SIGPLAN Conference on
+ Object-Oriented Programming Systems, Languages, and Applications</EM>, pages
+ 97&ndash;116, New York, NY, USA, 2009.<BR>
+<BR>
+<DT CLASS="dt-list"><FONT COLOR=purple><A NAME="JLS">[3]</A></FONT><DD CLASS="dd-list">
+James Gosling, Bill Joy, Guy Steele, and Gilad Bracha.
+<EM>The Java(TM) Language Specification (3rd Edition)</EM>.
+Addison-Wesley Professional, 2005.<BR>
+<BR>
+<DT CLASS="dt-list"><FONT COLOR=purple><A NAME="Papadimitriou:Database">[4]</A></FONT><DD CLASS="dd-list">
+Christos Papadimitriou.
+<EM>The Theory of Database Concurrency Control</EM>.
+Computer Science Press, Inc., New York, NY, USA, 1986.</DL>
+
+
+<!--HTMLFOOT-->
+<!--ENDHTML-->
+<!--FOOTER-->
+<HR SIZE=2><BLOCKQUOTE CLASS="quote"><EM>This document was translated from L<sup>A</sup>T<sub>E</sub>X by
+<A HREF="http://pauillac.inria.fr/~maranget/hevea/index.html">H<FONT SIZE=2><sup>E</sup></FONT>V<FONT SIZE=2><sup>E</sup></FONT>A</A>.</EM></BLOCKQUOTE></BODY>
+</HTML>

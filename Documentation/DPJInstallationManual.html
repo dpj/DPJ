@@ -1,0 +1,474 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+            "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+
+<HEAD>
+
+<TITLE>The Deterministic Parallel Java Installation Manual 
+Version 1.0</TITLE>
+
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META name="GENERATOR" content="hevea 1.08">
+<STYLE type="text/css">
+.toc{list-style:none;}
+.title{margin:auto;text-align:center}
+.center{text-align:center;margin-left:auto;margin-right:auto;}
+.flushleft{text-align:left;margin-left:0ex;margin-right:auto;}
+.flushright{text-align:right;margin-left:auto;margin-right:0ex;}
+DIV TABLE{margin-left:inherit;margin-right:inherit;}
+PRE{text-align:left;margin-left:0ex;margin-right:auto;}
+BLOCKQUOTE{margin-left:4ex;margin-right:4ex;text-align:left;}
+.part{margin:auto;text-align:center}
+.lstlisting{font-family:monospace;white-space:pre;margin-right:auto;margin-left:0pt;text-align:left}
+.verbatim{margin:1ex 1ex;padding:1ex;}
+.dpjlisting{font-family:monospace;white-space:pre;
+margin:1ex 1ex;padding:1ex;}
+.numbereddpjlisting{font-family:monospace;white-space:pre;
+margin:1ex 1ex;padding:1ex 1ex 1ex 0ex;}
+BODY{backgroundcolor:white}
+.title{padding:1ex;background:#B24D00}
+.titlemain{padding:1ex;background:#B24D00}
+.titlerest{padding:1ex;background:#B24D00}
+.part{padding:1ex;background:#CC5800}
+.section{padding:.5ex;background:#E57D2D}
+.subsection{padding:0.3ex;background:#FFA866}
+.subsubsection{padding:0.5ex;background:#FFC598}
+.ftoc1{list-style:none;margin:0ex 1ex;padding:0ex 1ex;border-left:1ex solid transparent;}
+.ftoc2{list-style:none;margin:0ex 1ex;padding:0ex 1ex;border-left:1ex solid transparent;}
+.ftoc3{list-style:none;margin:0ex 1ex;padding:0ex 1ex;border-left:1ex solid transparent;}
+.ftoc4{list-style:none;margin:0ex 1ex;padding:0ex 1ex;border-left:1ex solid transparent;}
+.ftoc5{list-style:none;margin:0ex 1ex;padding:0ex 1ex;border-left:1ex solid transparent;}
+</STYLE>
+</HEAD>
+
+<BODY >
+<!--HEVEA command line is: hevea -fix -O DPJInstallationManual.tex -->
+<!--HTMLHEAD-->
+<!--ENDHTML-->
+<!--PREFIX <ARG ></ARG>-->
+<!--CUT DEF section 0 -->
+
+<BR>
+<TABLE CLASS="title">
+<TR><TD>
+<H1 CLASS="titlemain"><B>The Deterministic Parallel Java Installation Manual<BR>
+Version 1.0</B></H1>
+<H3 CLASS="titlerest">University of Illinois at Urbana-Champaign</H3>
+<H3 CLASS="titlerest">Revised June 2010</H3></TD>
+</TR></TABLE><BR>
+This document explains how to install Deterministic Parallel Java
+(DPJ), so you can use it to compile and run programs. It also
+explains how to build DPJ from source code, in case you wish to study
+and/or modify the compiler internals. A working knowledge of Java is
+required. Please also consult <EM>The Deterministic Parallel Java Tutorial</EM> and <EM>The Deterministic Parallel Java Language Reference Manual</EM> for
+further details about the language.<BR>
+<BR>
+The instructions in this document assume that you are working in a
+UNIX-like system (including Linux, Mac OS X, etc.). Everything should
+work in Windows, but we have not tested DPJ on Windows systems. To
+follow the instructions as stated here, you will have to install
+Cygwin on your Windows system to get a UNIX-like interface and tool
+set.
+<!--TOC section Contents-->
+
+<H2 CLASS="section">Contents</H2><!--SEC END -->
+
+<UL CLASS="ftoc1"><LI CLASS="li-toc">
+<A HREF="#htoc1">1&nbsp;&nbsp;Before You Begin</A>
+<UL CLASS="ftoc2"><LI CLASS="li-toc">
+<A HREF="#htoc2">1.1&nbsp;&nbsp;Requirements</A>
+<LI CLASS="li-toc"><A HREF="#htoc3">1.2&nbsp;&nbsp;Developer or User?</A>
+<UL CLASS="ftoc3"><LI CLASS="li-toc">
+<A HREF="#htoc4">1.2.1&nbsp;&nbsp;Requirements for User Install</A>
+<LI CLASS="li-toc"><A HREF="#htoc5">1.2.2&nbsp;&nbsp;Requirements for Developer Install</A>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc6">1.3&nbsp;&nbsp;What's in the Release</A>
+<LI CLASS="li-toc"><A HREF="#htoc7">1.4&nbsp;&nbsp;DPJ Resources</A>
+<LI CLASS="li-toc"><A HREF="#htoc8">1.5&nbsp;&nbsp;DPJ License</A>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc9">2&nbsp;&nbsp;User Install</A>
+<UL CLASS="ftoc2"><LI CLASS="li-toc">
+<A HREF="#htoc10">2.1&nbsp;&nbsp;Installation and setup</A>
+<LI CLASS="li-toc"><A HREF="#htoc11">2.2&nbsp;&nbsp;Invoking the DPJ Compiler</A>
+<LI CLASS="li-toc"><A HREF="#htoc12">2.3&nbsp;&nbsp;Running DPJ Programs</A>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc13">3&nbsp;&nbsp;Developer Install</A>
+<UL CLASS="ftoc2"><LI CLASS="li-toc">
+<A HREF="#htoc14">3.1&nbsp;&nbsp;Installation and setup</A>
+<LI CLASS="li-toc"><A HREF="#htoc15">3.2&nbsp;&nbsp;Testing the Installation</A>
+<LI CLASS="li-toc"><A HREF="#htoc16">3.3&nbsp;&nbsp;Browsing and Modifying the Compiler Code</A>
+</UL>
+</UL>
+<!--NAME contents.html-->
+<BR>
+<BR>
+<!--TOC section 1&nbsp;&nbsp;Before You Begin-->
+
+<H2 CLASS="section"><A NAME="htoc1">1</A>&nbsp;&nbsp;Before You Begin<A NAME="sec:build"></A></H2><!--SEC END -->
+
+<!--NAME Building.html-->
+<BR>
+<BR>
+Thank you for you interest in DPJ. This section covers the
+information you need to know before installing DPJ on your system.<BR>
+<BR>
+<!--TOC subsection 1.1&nbsp;&nbsp;Requirements-->
+
+<H3 CLASS="subsection"><A NAME="htoc2">1.1</A>&nbsp;&nbsp;Requirements<A NAME="sec:requirements"></A></H3><!--SEC END -->
+
+<!--NAME requirements.html-->
+<BR>
+<BR>
+DPJ is based on the Java language and <TT>javac</TT> compiler from Sun
+Microsystems. This manual assumes that the reader is familiar with
+Java, including compiling and running Java programs. You will need at
+least a Java Runtime Environment (JRE) to run DPJ codes. If you wish
+to work on the compiler sources you will need a Java Development Kit
+(JDK) to build the compiler from source. We recommend the latest Sun
+JDK from <TT>java.sun.com</TT>.<BR>
+<BR>
+<!--TOC subsection 1.2&nbsp;&nbsp;Developer or User?-->
+
+<H3 CLASS="subsection"><A NAME="htoc3">1.2</A>&nbsp;&nbsp;Developer or User?</H3><!--SEC END -->
+
+Instructions and requirements are slightly different depending on
+whether you want to use DPJ <EM>(user install)</EM> or develop
+<EM>(developer install)</EM> DPJ. A user of DPJ includes the bytecode
+versions of the compiler and runtime, documentation, and the DPJ
+source code for the benchmarks. A developer install of DPJ includes
+everything from the user install, and adds the compiler and runtime
+sources and build environment.<BR>
+<BR>
+Performing a user install is easier, but there are two reasons to do a
+developer install:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+You are interested in reading or modifying the source code for
+ the DPJ compiler and/or runtime; or
+<LI CLASS="li-enumerate">You want access to the latest updates to the DPJ compiler,
+ without waiting for the next bytecode release.
+</OL>
+<!--TOC subsubsection 1.2.1&nbsp;&nbsp;Requirements for User Install-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc4">1.2.1</A>&nbsp;&nbsp;Requirements for User Install<A NAME="sec:runDPJ"></A></H4><!--SEC END -->
+
+For a user install of DPJ, do the following:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+Make sure you have a JRE, such as Java 2 Standard Edition
+ (J2SE), installed. You must be using at least Java 6.
+<LI CLASS="li-enumerate">Follow the instructions in §&nbsp;<A HREF="#sec:user-install">2</A> to do
+ the installation and start using DPJ.
+</OL>
+<!--TOC subsubsection 1.2.2&nbsp;&nbsp;Requirements for Developer Install-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc5">1.2.2</A>&nbsp;&nbsp;Requirements for Developer Install<A NAME="sec:buildDPJ"></A></H4><!--SEC END -->
+
+For a developer install of DPJ, do the following:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+Make sure you have a JRE (at least Java 6) and JDK installed.
+<LI CLASS="li-enumerate">Make sure that you have a working installation of Apache
+ <TT>ant</TT>, the Java build tool.
+<LI CLASS="li-enumerate">Make sure you have a working installation of <TT>git</TT>, the
+ version control system.
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>http://git.com</TT>.
+</DL>
+<LI CLASS="li-enumerate">Make sure you have a working <TT>make</TT>.
+<LI CLASS="li-enumerate">The Eclipse IDE is invaluable for studying and modifying large
+ Java programs, so we recommend installing it. See
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>http://www.eclipse.org</TT>
+</DL>
+<LI CLASS="li-enumerate">Follow the instructions in §&nbsp;<A HREF="#sec:dev-install">3</A> to do the
+ installation. Then read §§&nbsp;<A HREF="#sec:invoking">2.2</A>
+ and&nbsp;<A HREF="#sec:running">2.3</A> to learn how to use DPJ.
+</OL>
+<!--TOC subsection 1.3&nbsp;&nbsp;What's in the Release-->
+
+<H3 CLASS="subsection"><A NAME="htoc6">1.3</A>&nbsp;&nbsp;What's in the Release</H3><!--SEC END -->
+
+The release directory structure contains the following directories:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+<TT>Documentation </TT>: Manuals and instructions for using and/or
+ building DPJ.
+<LI CLASS="li-itemize"><TT>Implementation</TT>: The DPJ compiler and runtime.
+<LI CLASS="li-itemize"><TT>Benchmarks</TT>: Example code kernels and applications written
+ for DPJ.
+</UL>
+<!--TOC subsection 1.4&nbsp;&nbsp;DPJ Resources-->
+
+<H3 CLASS="subsection"><A NAME="htoc7">1.4</A>&nbsp;&nbsp;DPJ Resources<A NAME="sec:getDPJ"></A></H3><!--SEC END -->
+
+You should keep the following resources in mind as you work with DPJ:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+The DPJ home page: <TT>dpj.cs.illinois.edu</TT>.
+<LI CLASS="li-enumerate">The DPJ public code repository:
+ <TT>http://github.com/dpj/DPJ.git</TT>.
+<LI CLASS="li-enumerate">The DPJ development mailing list: <TT>dpjdev@cs.uiuc.edu</TT>.
+ Joining the list allows you to follow major announcements, news, and
+ technical discussions regarding DPJ. To subscribe to the list,
+ please visit
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>http://lists.cs.uiuc.edu/mailman/listinfo/dpjdev</TT>.
+</DL><BR>
+<BR>
+<LI CLASS="li-enumerate">DPJ documentation is located in the <TT>Documentation</TT>
+ directory of the DPJ release and is also available on the DPJ web
+ site at <TT>http://dpj.cs.illinois.edu/DPJ/Download.html</TT>.
+</OL>
+The DPJ development team appreciates your feedback and questions.
+Please check the email list archives before submitting a question or
+bug report. We prefer using the list for submissions so that the
+entire DPJ community can benefit from the growing knowledge base of
+questions and answers.<BR>
+<BR>
+<!--TOC subsection 1.5&nbsp;&nbsp;DPJ License-->
+
+<H3 CLASS="subsection"><A NAME="htoc8">1.5</A>&nbsp;&nbsp;DPJ License</H3><!--SEC END -->
+
+The DPJ software is subject to the following licenses:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+The DPJ compiler is based on Sun's <TT>javac</TT> compiler and is
+ covered by the GNU General Public License version 2.
+<LI CLASS="li-itemize">The programs in the <TT>Benchmarks/Applications</TT> directory are
+ based on codes written by various third parties, and are subject to
+ their licenses.
+<LI CLASS="li-itemize">The rest of the code is by the University of Illinois and is
+ released under the University of Illinois/NCSA Open Source License.
+</UL>
+See the file <TT>LICENSE.TXT</TT> in the top-level directory of the DPJ
+software for further license information.<BR>
+<BR>
+
+<!--TOC section 2&nbsp;&nbsp;User Install-->
+
+<H2 CLASS="section"><A NAME="htoc9">2</A>&nbsp;&nbsp;User Install<A NAME="sec:user-install"></A></H2><!--SEC END -->
+
+This section explains how do a binary installation of DPJ including
+the bytecode version of the DPJ compiler and runtime, and the source
+code for the DPJ benchmarks. If you install this way, then you can
+compile and run DPJ programs. However, you will not have access to
+the source code for the DPJ compiler and runtime. If you want to
+study or modify the compiler and runtime source code, then you should
+install from the <TT>git</TT> source base, as described in
+§&nbsp;<A HREF="#sec:dev-install">3</A>.<BR>
+<BR>
+<!--TOC subsection 2.1&nbsp;&nbsp;Installation and setup-->
+
+<H3 CLASS="subsection"><A NAME="htoc10">2.1</A>&nbsp;&nbsp;Installation and setup</H3><!--SEC END -->
+
+To install the bytecode version of the compiler and runtime, do the
+following:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+Get the DPJ binary install tarball from
+ <TT>http://dpj.cs.uiuc.edu</TT>.
+<LI CLASS="li-enumerate">Unpack the tarball:
+<PRE CLASS="verbatim">
+tar -xvf djpbin.tar 
+</PRE><LI CLASS="li-enumerate">Set <TT>DPJ_ROOT</TT> and your <TT>PATH</TT>:
+<PRE CLASS="verbatim">
+setenv DPJ_ROOT ${HOME}/dpjbin
+setenv PATH ${PATH}:${DPJ_ROOT}/Implementation/bin
+</PRE>This assumes that <TT>dpjbin</TT> is in your home directory; if not, make
+the necessary changes.
+<LI CLASS="li-enumerate">To check that you have a good installation, build the programs
+ in the directory <TT>Benchmarks/Kernels</TT>:
+<PRE CLASS="verbatim">
+cd dpjbin/Benchmarks/Kernels
+make
+</PRE><LI CLASS="li-enumerate">Test the kernels:
+<PRE CLASS="verbatim">
+make test-all
+</PRE></OL>
+
+You are now ready to compile and run DPJ programs.<BR>
+<BR>
+<!--TOC subsection 2.2&nbsp;&nbsp;Invoking the DPJ Compiler-->
+
+<H3 CLASS="subsection"><A NAME="htoc11">2.2</A>&nbsp;&nbsp;Invoking the DPJ Compiler</H3><!--SEC END -->
+
+<A NAME="sec:invoking"></A>
+You invoke the DPJ compiler by saying
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>dpjc</TT>
+</DL>
+on the command line, followed by some DPJ files to compile, e.g.,
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>dpjc Foo.java Bar.java</TT>
+</DL>
+
+The compiler translates source files written in DPJ to source files
+written in plain Java, that can be compiled to bytecode by an ordinary
+Java compiler (such as <TT>javac</TT>) and then run by a Java Virtual
+Machine. By default, the compiler translates DPJ's parallel
+constructs to Java parallel code using the <TT>ForkJoinTask</TT> library
+to express the parallelism. A command-line option (see below) can be
+used to generate sequential code.<BR>
+<BR>
+Since <TT>dpjc</TT> is based on <TT>javac</TT>, you can use all the
+command-line options that <TT>javac</TT> supports. In addition,
+<TT>dpjc</TT> supports the following options:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+<TT>-seq</TT>: If this flag is present, then the compiler
+ translates the DPJ sources into sequential Java code. By default,
+ the compiler generates parallel code.
+<LI CLASS="li-itemize"><TT>-instrument</TT>: This option makes sense only with <TT>-seq</TT>.
+ With this option turned on, the compiler adds instrumentation to the
+ program, so that when run its performance characteristics can be
+ analyzed. The instrumentation consists of method calls into the API
+ defined by the <TT>Instrument</TT> class in the package
+ <TT>DPJRuntime</TT>, located in <TT>Implementation/Runtime</TT>. See the
+ DPJ runtime API documentation for further details.
+<LI CLASS="li-itemize"><TT>-count</TT>: When compiling the program, count the various
+ kinds of DPJ annotations, and report the counts.
+</UL>
+<!--TOC subsection 2.3&nbsp;&nbsp;Running DPJ Programs-->
+
+<H3 CLASS="subsection"><A NAME="htoc12">2.3</A>&nbsp;&nbsp;Running DPJ Programs</H3><!--SEC END -->
+
+<A NAME="sec:running"></A>
+You run DPJ programs by saying
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>dpj</TT>
+</DL>
+on the command line, followed by a Java class to execute, e.g.,
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>dpj Foo</TT>
+</DL>
+The class, and any classes it depends on, must be in the class path.
+The options for setting the class path and the other runtime options
+are the same as for <TT>java</TT>. In fact, <TT>dpj</TT> just invokes the
+ordinary <TT>java</TT> with a few options, so you can use <TT>java</TT> to
+run DPJ programs if you want.<BR>
+<BR>
+The DPJ runtime has several configurable parameters. These are set in
+one of two ways. First, they can be passed as command-line arguments
+to the program. The special DPJ command-line arguments must come
+first; they are processed by the runtime and then stripped from the
+argument list, which is passed to the main program. For example, the
+following invocation of the class <TT>Foo</TT> sets the DPJ foreach
+cutoff (explained below) to 100, then passes <TT>42</TT> and <TT>bar</TT> as
+the command-line arguments to the program:
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>dpj Foo &ndash;dpj-foreach-cutoff 100 42 bar</TT>
+</DL>
+The following command-line options are processed specially by the
+DPJ runtime as stated above. Each of them must be followed by a
+numeric argument; if not, an error is reported. If the options are
+not present, then the default is used as stated below.
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+<TT>&ndash;dpj-foreach-split</TT> <I>n</I>: Set the branching factor used to
+ split a <TT>foreach</TT> loop to <I>n</I>. The loop is recursively split
+ into this many branches in each iteration, until the cutoff is
+ reached (see below). The default is 2.
+<LI CLASS="li-itemize"><TT>&ndash;dpj-foreach-cutoff</TT> <I>n</I>: Set the minimum number of
+ <TT>foreach</TT> iterations allocated to a single task to <I>n</I>. Beyond
+ this point, no more parallel splitting of a foreach loop occurs.
+ The default is 128.
+<LI CLASS="li-itemize"><TT>&ndash;dpj-num-threads</TT> <I>n</I>: Set the number of worker threads
+ used to run the program to <I>n</I>. The default is the number of
+ available processors given to the java virtual machine.
+</UL>
+The second way to set the runtime parameters is to assign to them from
+within the program. This is useful if you want different
+<TT>foreach</TT> loops in your program to use different parameters. See
+the runtime API documentation (available on the DPJ web site) for
+information about how to do this.
+
+<!--TOC section 3&nbsp;&nbsp;Developer Install-->
+
+<H2 CLASS="section"><A NAME="htoc13">3</A>&nbsp;&nbsp;Developer Install<A NAME="sec:dev-install"></A></H2><!--SEC END -->
+
+<!--TOC subsection 3.1&nbsp;&nbsp;Installation and setup-->
+
+<H3 CLASS="subsection"><A NAME="htoc14">3.1</A>&nbsp;&nbsp;Installation and setup</H3><!--SEC END -->
+
+To install the DPJ compiler and runtime from source, do the following.
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+Check that your system meets the requirements in
+ §&nbsp;<A HREF="#sec:requirements">1.1</A>.
+<LI CLASS="li-enumerate">Get the source code distribution:
+<PRE CLASS="verbatim">
+cd ~
+git clone git://github.com/dpj/DPJ.git DPJ
+</PRE>This assumes you are calling the working directory <TT>DPJ</TT> and
+putting it in your home directory. If not, make the appropriate
+adjustments.
+<LI CLASS="li-enumerate">Set the <TT>DPJ_ROOT</TT> environment variable:
+<PRE CLASS="verbatim">
+setenv DPJ_ROOT ~/DPJ
+</PRE><LI CLASS="li-enumerate">Tell <TT>ant</TT> to build the compiler, using your JDK: 
+<PRE CLASS="verbatim">
+cd DPJ/Implementation/Compiler/make
+ant -Dboot.java.home=/usr/lib/jvm/java
+</PRE>If your JDK is not located at <TT>/usr/bin/jvm/java</TT>, then substitute
+the appropriate path.
+<LI CLASS="li-enumerate">A successful compiler build puts <TT>jar</TT> files for the
+ compiler and related tools (such as <TT>javadoc</TT>) in
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>Implementation/Compiler/build</TT>. 
+</DL>
+The executable files <TT>dpjc</TT> and <TT>dpj</TT> in
+<TT>Implementation/bin</TT> invoke these <TT>jar</TT> files.
+<LI CLASS="li-enumerate">Add the DPJ compiler bin to your <TT>PATH</TT>:
+<PRE CLASS="verbatim">
+setenv PATH ${PATH}:${DPJ_ROOT}/Implementation/bin/
+</PRE><LI CLASS="li-enumerate">Build the runtime classes located at
+ <TT>${DPJ_ROOT}/Implementation/Runtime</TT>. You can expect some
+ warnings.
+<PRE CLASS="verbatim">
+cd ../../Runtime/
+make
+</PRE><BR>
+<BR>
+<LI CLASS="li-enumerate">You can now build and run the kernels:
+<PRE CLASS="verbatim">
+cd ${DPJ_ROOT}/Benchmarks/Kernels
+make
+</PRE><BR>
+<BR>
+<LI CLASS="li-enumerate">Then run all the kernel tests: 
+<PRE CLASS="verbatim">
+make test-all
+</PRE></OL>
+<!--TOC subsection 3.2&nbsp;&nbsp;Testing the Installation-->
+
+<H3 CLASS="subsection"><A NAME="htoc15">3.2</A>&nbsp;&nbsp;Testing the Installation<A NAME="sec:testing"></A></H3><!--SEC END -->
+
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+JUnit 4 tests are in
+ <TT>${DPJ_ROOT}/Implementation/Compiler/test/dpj-junit-tests</TT>. The
+ corresponding DPJ source files are in <TT>test/dpj-programs</TT>.
+<LI CLASS="li-enumerate">The JUnit tests are designed to be run from within Eclipse, by
+ running the launcher file
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>test/dpj-junit-tests/dpj-junit-tests.launch</TT>.
+</DL>
+If the JUnit tests fail with a <TT>MethodNotFound</TT> error, it is
+probably because the classpath is wrong. Many of the javac classes
+are included in the system library (<TT>rt.jar</TT>), and so the DPJ
+versions must precede the system library in the classpath. If you use
+the launcher, this error should not happen.
+</OL>
+<!--TOC subsection 3.3&nbsp;&nbsp;Browsing and Modifying the Compiler Code-->
+
+<H3 CLASS="subsection"><A NAME="htoc16">3.3</A>&nbsp;&nbsp;Browsing and Modifying the Compiler Code</H3><!--SEC END -->
+
+After an initial <TT>ant</TT> build, DPJ javac will build automatically
+in Eclipse (albeit to a <TT>bin/</TT> directory instead of <TT>build/</TT>).
+However, if any of the resource bundles are changed (be sure to change
+the <TT>.properties</TT> files in
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>src/share/classes/com/sun/tools/javac/resources</TT> 
+</DL>
+and not the generated <TT>.java</TT> files!), the compiler must be
+re-built using the <TT>ant</TT> script.<BR>
+<BR>
+The <TT>ant</TT> script bootstraps the compiler. So if there is an
+internal compiler error, it is due to a fault in the DPJ compiler.
+Note also that the compiler may compile successfully in Eclipse but
+fail when it is bootstrapped in the <TT>ant</TT> script due to differences
+between pure Java and DPJ (or an error in the DPJ compiler). In
+particular, note that the following keywords are reserved in DPJ and
+therefore may not be used as variable names (in any DPJ program,
+including the DPJ compiler):
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+ <TT>under</TT>
+ <LI CLASS="li-itemize"><TT>region</TT>
+ <LI CLASS="li-itemize"><TT>reads</TT>
+ <LI CLASS="li-itemize"><TT>writes</TT>
+</UL>
+<!--HTMLFOOT-->
+<!--ENDHTML-->
+<!--FOOTER-->
+<HR SIZE=2><BLOCKQUOTE CLASS="quote"><EM>This document was translated from L<sup>A</sup>T<sub>E</sub>X by
+<A HREF="http://pauillac.inria.fr/~maranget/hevea/index.html">H<FONT SIZE=2><sup>E</sup></FONT>V<FONT SIZE=2><sup>E</sup></FONT>A</A>.</EM></BLOCKQUOTE></BODY>
+</HTML>

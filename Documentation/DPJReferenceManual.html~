@@ -188,7 +188,7 @@ Readers of this document may also wish to consult the following:
  programmer should probably read that document first. It
  cross-references this document, so you can look up particular
  features that you want to learn more about.
-<LI CLASS="li-itemize"><EM>The Deterministic Parallel Java Installation Manual</EM> explains how to get started installing the
+<LI CLASS="li-itemize"><EM>The Deterministic Parallel Java Installation and Testing Guide</EM> explains how to get started installing the
  <TT>dpjc</TT> compiler, using the compiler to compile DPJ programs, and
  running DPJ programs.
 <LI CLASS="li-itemize"><EM>The Deterministic Parallel Java Language Specification</EM> gives the specification of DPJ more precisely. The
@@ -2373,7 +2373,7 @@ In the array-of-array case, each <TT>#</TT><EM>var</EM> declaration is in
 scope for the array where it is declared, and all arrays to the right
 of that one. For example, the type
 
- <DIV CLASS="dpjlisting"><TT><B>int</B>[]&lt;[i]&gt;#i[]&lt;[i]:[j]&gt;#j</TT></DIV>defines an array of arrays. The outermost array has cell <TT>i</TT> in
+ <DIV CLASS="dpjlisting"><TT><B>int</B>[]&lt;[i]&gt;#i[]&lt;[i]:[j]&gt;#j}</TT></DIV>defines an array of arrays. The outermost array has cell <TT>i</TT> in
 region <TT>i</TT>, and the type of cell <TT>i</TT> is an array of <TT>int</TT>
 with cell <TT>j</TT> in region <TT>[i]:[j]</TT>. If we reversed the <TT>i</TT>
 and <TT>j</TT> declarations and wrote <TT>int[]&lt;[i]&gt;#j[]&lt;[i]:[j]&gt;#i</TT>,
@@ -2856,7 +2856,8 @@ example, the code above could be rewritten as follows:
 <FONT SIZE=2>   4</FONT>         <FONT COLOR="fuchsia"><EM>// OK</EM></FONT>
 <FONT SIZE=2>   5</FONT>         y.callee(y);
 <FONT SIZE=2>   6</FONT>     }
-<FONT SIZE=2>   7</FONT> }</TT></DIV>By adding a method region parameter <TT>R</TT>, we &#8220;capture the type
+<FONT SIZE=2>   7</FONT> }
+<FONT SIZE=2>   8</FONT> %</TT></DIV>By adding a method region parameter <TT>R</TT>, we &#8220;capture the type
 ourselves.&#8221; Now the code explicitly says that the region in the type
 of <TT>y</TT> is the same as the region of the type of <TT>x</TT>: whatever
 it is, it is bound to the same parameter <TT>R</TT> in both cases.<BR>
@@ -3538,7 +3539,7 @@ too much task creation overhead.<BR>
 <BR>
 The precise mechanism for specifying the number of DPJ threads and the
 <TT>foreach</TT> cutoff is implementation-dependent.
-<EM>The Deterministic Parallel Java Installation Manual</EM> explains how this mechanism works for the <TT>dpjc</TT>
+<EM>The Deterministic Parallel Java Installation and Testing Guide</EM> explains how this mechanism works for the <TT>dpjc</TT>
 compiler.<BR>
 <BR>
 
