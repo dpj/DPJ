@@ -47,14 +47,6 @@ public class Tree {
     boolean printBodies;
 
     /**
-     * Barriers for synchronization
-     */
-    /*CyclicBarrier barrier;
-    CyclicBarrier barMakeTree;
-    CyclicBarrier barComputeGrav;
-    CyclicBarrier barPosUpdate;
-*/
-    /**
      * Calculate bounding box once instead of expanding it on every body insertion 
      */
     void setRsize()
@@ -242,62 +234,6 @@ public class Tree {
         return (i);
     }
 
-    /**
-     * Create tasks for given number of processes
-     */
-/*    ArrayList<ArrayList<Body> > createTasks()
-    {
-        ArrayList<ArrayList<Body> > taskList = new ArrayList<ArrayList<Body> >();
-        ArrayList<Body> taskBodies;
-        float cavg = (float)root.cost / (float)N;
-        int minCost, maxCost;
-        for(int m = 0; m < N; m++)
-        {
-            minCost = (int)(m * cavg);
-            maxCost = (int)(cavg * (m+1));
-            if(m == (N - 1))
-                maxCost++;
-            taskBodies = new ArrayList<Body>();
-            findMyBodies(root, 0, minCost, maxCost, taskBodies);
-            taskList.add(taskBodies);
-        }
-        return taskList;
-    }
-*/
-    /**
-     * Get the bodies for the given process
-     */
-/*    void findMyBodies(Node cell, int work, int minCost, int maxCost, ArrayList<Body> taskBodies)
-    {
-        int i;
-        Node node;
-        Body body;
-        Cell inter;
-        if(cell instanceof Body)
-        {
-            body = (Body)cell;
-            if(work >= minCost - .1)
-            {
-                taskBodies.add(body);
-            }
-            work += body.cost;
-        }
-        else
-        {
-            for(i = 0; i < Constants.NSUB && (work < (maxCost - .1)); i++)
-            {
-                inter = (Cell)cell;
-                node = inter.subp[i];
-                if(node != null)
-                {
-                    if((work + node.cost) >= (minCost - .1))
-                        findMyBodies(node, work, minCost, maxCost, taskBodies);
-                    work += node.cost;
-                }
-            }
-        }
-    }
-*/
     /**
      * Compute and update forces on particles
      */
