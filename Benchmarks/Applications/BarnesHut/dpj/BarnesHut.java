@@ -28,7 +28,6 @@ public class BarnesHut {
      */
     public BarnesHut(int nbody) {
         this.nbody  = nbody;
-        this.tree.N = 1;
     }
 
     /**
@@ -37,20 +36,18 @@ public class BarnesHut {
      * @param nproc Number of threads
      * @param flag Print debug info
      */
-    public BarnesHut(int nbody, int nproc, boolean flag) {
+    public BarnesHut(int nbody, boolean flag) {
         this.nbody  = nbody;
-        this.tree.N = nproc;
         this.tree.printBodies = flag;
     }
 
     /** print usage */
     static void printUsage() {
         System.out.print("Usage:\n");
-        System.out.print("./barnes <NBODY> [N] [printOutput]\n");
+        System.out.print("dpj BarnesHut <NBODY> [N] [printOutput]\n");
         System.out.print("    where,\n");
         System.out.print("          NBODY is the number of bodies to be simulated\n");
-        System.out.print("          N is the number of processors/threads\n");
-        System.out.print("          third argument is for testing purposes, enter any argument to emit output, say, \"true\"\n");
+        System.out.print("          second argument is for testing purposes, enter any argument to emit output, say, \"true\"\n");
         System.exit(1);
     }
 
@@ -60,26 +57,23 @@ public class BarnesHut {
     public static void main(String[] args) throws Exception {
         // Deal with args
         int nbody = 100000;
-        int nproc = 1;
         boolean emitBodies = false;
-        if(args.length < 1 || args.length > 3)
+        if(args.length < 1 || args.length > 2)
             printUsage();
         if(args.length == 1)
             nbody = Integer.parseInt(args[0]);
-        if(args.length == 2)
-        {
+        if(args.length == 2) {
             nbody = Integer.parseInt(args[0]);
-            nproc = Integer.parseInt(args[1]);
-        }
-        if(args.length == 3)
-        {
-            nbody = Integer.parseInt(args[0]);
-            nproc = Integer.parseInt(args[1]);
             emitBodies = true;
         }
 
+	if ((nbody % 32) != 0) {
+	    System.err.println("Number of bodies must be divisble by 32!");
+	    System.exit(1);
+	}
+
         // Create new BH object
-        BarnesHut bh = new BarnesHut(nbody, nproc, emitBodies);
+        BarnesHut bh = new BarnesHut(nbody, emitBodies);
 
         // Initialize the system
         bh.initSystem(nbody);
@@ -99,14 +93,6 @@ public class BarnesHut {
         Vector cmr = new Vector();
         // Accumulated velocity
         Vector cmv = new Vector();
-
-        //emit the input.txt which is input to splash code
-        /*File f = new File(nbody+"_input.txt");
-        FileOutputStream fout = new FileOutputStream(f);
-        PrintStream pStr = new PrintStream(new BufferedOutputStream(fout));
-        pStr.println(nbody);
-        pStr.println(Constants.NDIM);
-        pStr.println("0");*/
 
         // Fill in the tree
         tree.rmin.SETVS(-2.0);
@@ -135,41 +121,10 @@ public class BarnesHut {
             p.pos.SUBV(p.pos, cmr); 
             p.vel.SUBV(p.vel, cmv);
             p.index = i;
-//            p.cost = 1;
         }
 
-/*        //emit body masses to input file
-        for(int i = 0; i < tree.bodies.length; i++)
-        {
-            Body p = tree.bodies[i];
-            //pStr.println("0.25");
-            DecimalFormat form = new DecimalFormat("#.000000");
-            pStr.println(form.format(p.mass));
-            //pStr.println((float)1.0/(float)(nbody/32.0));
-        }
-        for(int i = 0; i < tree.bodies.length; i++)
-        {
-            Body p = tree.bodies[i];
-            for(int j = 0; j < Constants.NDIM; j++)
-            {
-                pStr.print(p.pos.elts[j]);
-                pStr.print(" ");
-            }
-            pStr.println("");
-        }
-        for(int i = 0; i < tree.bodies.length; i++)
-        {
-            Body p = tree.bodies[i];
-            for(int j = 0; j < Constants.NDIM; j++)
-            {
-                pStr.print(p.vel.elts[j]);
-                pStr.print(" ");
-            }
-            pStr.println("");
-        }
-        pStr.close();*/
-         
-        //calculate bounding box once instead of expanding it everytime
+        // Calculate bounding box once instead of expanding it
+        // everytime
         tree.setRsize();
     }
 
@@ -191,18 +146,6 @@ public class BarnesHut {
         tree.count = 0;
         long start = System.nanoTime();
 
-        //create threads and barrier
-/*        tree.barrier = new CyclicBarrier(tree.N);
-        tree.barMakeTree = new CyclicBarrier(tree.N);
-        tree.barComputeGrav = new CyclicBarrier(tree.N);
-        tree.barPosUpdate = new CyclicBarrier(tree.N);
-        Thread th[] = new Thread[tree.N - 1];
-        for(int n = 0; n < (tree.N - 1); n++)
-        {
-            th[n] = new Thread(new SlaveStart(n+1, tree, tnow));
-            th[n].start();
-        }
-*/
         i = 0;
         while ((tnow < Constants.tstop + 0.1*Constants.dtime) && (i < Constants.NSTEPS)) {
             tree.stepsystem(0, i); 
@@ -211,11 +154,6 @@ public class BarnesHut {
             i++;
         }
 
- /*       for(int n = 0; n < (tree.N - 1); n++)
-        {
-            th[n].join();
-        }
-*/
         long end = System.nanoTime();
         if(!tree.printBodies)
         {
