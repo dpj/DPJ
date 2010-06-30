@@ -1,7 +1,7 @@
 ALL ?= sequential-classes parallel-classes instrument-classes
 IMPLEMENTATION=${DPJ_ROOT}/Implementation
 RUNTIME=${IMPLEMENTATION}/Runtime
-SCRIPTS=${DPJ_ROOT}/Benchmarks/Scripts
+SCRIPTS=${DPJ_ROOT}/Scripts
 DPJ=java -Xms1024m -Xmx1024m
 DPJ-PAR=${DPJ} -cp ${RUNTIME}/classes:parallel/classes
 DPJ-SEQ=${DPJ} -cp ${RUNTIME}/classes:sequential/classes
