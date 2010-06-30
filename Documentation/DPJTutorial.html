@@ -1065,12 +1065,18 @@ traversal and update to be done with provable noninterference.
 <FONT SIZE=2>  16</FONT>             <FONT COLOR="fuchsia"><EM>// Effect is 'writes R:InnerNode.RightRgn:*'</EM></FONT>
 <FONT SIZE=2>  17</FONT>             rightCoM = updateCenterOfMass(innerNode.rightChild);
 <FONT SIZE=2>  18</FONT>         }
-<FONT SIZE=2>  19</FONT>         Body result = <B>new</B> Body((leftCoM.mass+rightCoM.mass)/2,
-<FONT SIZE=2>  20</FONT>                                (leftCoM.pos+rightCoM.pos)/2);
-<FONT SIZE=2>  21</FONT>         innerNode.centerOfMass = result;
-<FONT SIZE=2>  22</FONT>         <B>return</B> result;
-<FONT SIZE=2>  23</FONT>     }
-<FONT SIZE=2>  24</FONT> }</TT></DIV>
+<FONT SIZE=2>  19</FONT>         Body result = <B>null</B>;
+<FONT SIZE=2>  20</FONT>         <B>if</B> (leftCoM != <B>null</B> &amp;&amp; rightCoM != <B>null</B>)
+<FONT SIZE=2>  21</FONT>             result = <B>new</B> Body((leftCoM.mass+rightCoM.mass)/2,
+<FONT SIZE=2>  22</FONT>                               (leftCoM.pos+rightCoM.pos)/2);
+<FONT SIZE=2>  23</FONT>         <B>else if</B> (leftCoM != <B>null</B>)
+<FONT SIZE=2>  24</FONT>             result = <B>new</B> Body(leftCoM.mass, leftCoM.pos);
+<FONT SIZE=2>  25</FONT>         <B>else if</B> (rightCoM != <B>null</B>)
+<FONT SIZE=2>  26</FONT>             result = <B>new</B> Body(rightCoM.mass, rightCoM.pos);
+<FONT SIZE=2>  27</FONT>         innerNode.centerOfMass = result;
+<FONT SIZE=2>  28</FONT>         <B>return</B> result;
+<FONT SIZE=2>  29</FONT>     }
+<FONT SIZE=2>  30</FONT> }</TT></DIV>
 <BR>
 <BR>
 <DIV CLASS="center">Figure 6: Recursive Tree Update.</DIV><BR>
@@ -1091,7 +1097,7 @@ then the method just returns its body as the center of mass (lines
 9&ndash;10). Otherwise, the method recursively and in parallel calls
 <TT>updateCenterOfMass</TT> on the left and right nodes (lines 13&ndash;18),
 and constructs a new <TT>Body</TT> representing the center of mass (lines
-19&ndash;20). It then stores the <TT>Body</TT> representing the center of
+19&ndash;26). It then stores the <TT>Body</TT> representing the center of
 mass into the input node and returns the <TT>Body</TT>.<BR>
 <BR>
 In lines 14&ndash;17, the effects of the two <TT>cobegin</TT> statements are
