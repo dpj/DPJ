@@ -40,7 +40,7 @@ java/DPJRuntime/%.java: dpj/%.java
 javadoc-forkjoin :
 	javadoc forkjoin/*java -d $@
 
-DPJDOC=${DPJ_ROOT}/Implementation/Compiler/build/bootstrap/bin/javadoc
+DPJDOC=${DPJ_ROOT}/Implementation/Compiler/dist/bootstrap/bin/javadoc
 dpjdoc-html : dpjdoc dpj/*java
 	# Generate html documentation for runtime classes
 	${DPJDOC} dpj/*java -classpath classes -d dpjdoc
