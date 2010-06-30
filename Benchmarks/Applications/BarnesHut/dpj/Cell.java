@@ -22,7 +22,6 @@ public class Cell extends Node {
         double[] mrs     = new double[Constants.NSUB];
 
         mq   = 0.0;
-//        cost = 0;
         
         for (int i = 0; i < Constants.NSUB; i++) {
             Node r = subp[i];
@@ -39,8 +38,6 @@ public class Cell extends Node {
                 tmp_pos.ADDV(tmp_pos, tmpv[i]);
             mq = mrs[i] + mq;
             Node r = subp[i];
-//            if(r != null)
-//                cost = cost + r.cost;
         }
 
         mass = mq;

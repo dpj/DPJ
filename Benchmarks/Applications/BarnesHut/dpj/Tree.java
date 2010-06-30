@@ -93,58 +93,23 @@ public class Tree {
      */
     void stepsystem(int processId, int nstep) {
         long start = 0, end = 0;
-        // 1. Rebuild the tree with the new positions by processor 0
+        // 1. Rebuild the tree with the new positions
         if(processId == 0) {
             maketree(nstep);
             start = System.nanoTime();
         }
-/*
-        //barrier sync
-        try {
-            barMakeTree.await();
-        }
-        catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
-        catch (BrokenBarrierException ex) {
-            ex.printStackTrace();
-        }
-*/
+
         // 2. Compute gravity on particles
         computegrav(processId, nstep);
         
-        //barrier sync
-/*        try {
-            barComputeGrav.await();
-        }
-        catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
-        catch (BrokenBarrierException ex) {
-            ex.printStackTrace();
-        }
-
-        assert(Util.chatting("Done cg\n"));
-*/
-        // 3. Update positions by processor 0
-        //if(processId == 0) {
-            end = System.nanoTime();
-            count += (end-start)/1000000000.0;
-            if(!printBodies)
-                System.out.println("timestep " + nstep + " " + (end-start)/1000000000.0);
-            vp(nstep);
-        //}
-        /*try {
-            barPosUpdate.await();
-        }
-        catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
-        catch (BrokenBarrierException ex) {
-            ex.printStackTrace();
-        }*/
-        //if(processId == 0)
-            setRsize();
+        // 3. Update positions
+	
+	end = System.nanoTime();
+	count += (end-start)/1000000000.0;
+	if(!printBodies)
+	    System.out.println("timestep " + nstep + " " + (end-start)/1000000000.0);
+	vp(nstep);
+	setRsize();
     }
 
     /**
@@ -153,11 +118,6 @@ public class Tree {
     void maketree(int step) {
         int[] xqic;
         root = null;
-/*        ArrayList<Body> list = new ArrayList<Body>();
-        for(int i = 0; i < bodies.length; i++) {
-            list.add(bodies[i]);
-        }*/
-        //root = buildTree(list, Constants.IMAX > 1);
         for (int i = 0; i < bodies.length; ++i) {
 	    final int j = i;
             Body<[j]> body = bodies[j];
@@ -179,7 +139,6 @@ public class Tree {
             {
 		final int k = i;
                 Body<[k]> p = bodies[k];
-//                System.out.print("Cost - " +p.cost+" : ");
                 for(int j = 0; j < Constants.NDIM; j++)
                 {
                     System.out.printf("%.6f", p.pos.elts[j]);
@@ -191,35 +150,7 @@ public class Tree {
         assert(Util.chatting("About to hackcofm\n"));
         root.hackcofm();
     }
-/*
-    Node buildTree(ArrayList<Body> bodyList, int level) {
-        if(bodyList.size() == 1)
-            return bodyList.get(0);
-        //divide the bodyList into 8 lists;
-        ArrayList<ArrayList<Body> list = new ArrayList<ArrayList<Body>(8);
-        for(int i = 0; i < 8; i++)
-        {
-            list.add(new ArrayList<Body>());
-        }
-        for(int i = 0; i < bodyList.size(); i++) {
-        //foreach(int i in 0, bodyList.size()) {
-            int index;
-            index = subindex(intcoord(bodyList.get(i)), level);
-            list.get(index).add(bodyList.get(i));
-        }
-        Node children[] = new Node[8];
-        foreach(int i in 0, list.size()) {
-            if(list.get(i).size() != 0)
-                children[i] = buildTree(list.get(i), level >> 1);
-        }
-        Cell cell = new Cell();
-        for(int i = 0; i < list.size(); i++) {
-            if(list.get(i).size() != 0)
-                cell.subp[i] = children[i];
-        }
-        return cell;
-    }
-*/    
+
     /**
      * Reorder the body array to capture the positioning in the tree
      * @param root
@@ -243,7 +174,6 @@ public class Tree {
                     Body<[j]> body = (Body<[j]>)cell.subp[j];
 		    final int finalIndex = index;
                     bodiesNew[finalIndex] = new Body<[finalIndex]>(body);
-                    //bodiesNew[index] = body;
                     assert(bodiesNew[index]!=null);
                     cell.subp[i] = bodiesNew[index];
                     index++;
@@ -266,7 +196,6 @@ public class Tree {
      */
     Node loadtree(Body<*> body, int[] xpic, Node subroot, int level, int idx) {
         if (subroot == null) {
-//            bodies[idx] = (Body<[idx]>)body;
             return body;
         }
         /*   dont run out of bits   */
@@ -275,8 +204,6 @@ public class Tree {
         if (subroot instanceof Body) {
             cell = new Cell();
             final int si1 = subindex(intcoord((Body) subroot), level); 
-//            Body<[idx]> b = (Body<[idx]>)subroot;
-//            bodies[idx] = b;
             cell.subp[si1] = subroot;
         } 
         else {
@@ -376,9 +303,6 @@ public class Tree {
      */
     void computegrav(int processId, int nstep) {
 
-        //long start = System.nanoTime();
-        
-        //for (int i = 0; i < bodies.length; i++) {
         foreach(int i in 0, bodies.length) {
             HGStruct<[i]> hg = new HGStruct<[i]>();
             Vector<[i]> acc1 = new Vector<[i]>();
@@ -386,7 +310,6 @@ public class Tree {
             Vector<[i]> dvel = new Vector<[i]>();
             double dthf = 0.5 * Constants.dtime;
         
-//            bodies[i].cost = 0;
             hg.pskip = bodies[i];
             hg.phi0 = 0;
             hg.pos0.SETV(bodies[i].pos);
@@ -401,8 +324,6 @@ public class Tree {
             }
         }
 
-        //long end = System.nanoTime();
-        //System.out.println("** " + (end-start)/1000000000.0);
     }
 
 
@@ -413,7 +334,6 @@ public class Tree {
                 
       long start1 = System.nanoTime();
       for (int i = 0; i < bodies.length; i++) {
-      //foreach (int i in 0, bodies.length) {
 	  final int j = i;
           Vector dvel = new Vector();
           Vector vel1 = new Vector();
