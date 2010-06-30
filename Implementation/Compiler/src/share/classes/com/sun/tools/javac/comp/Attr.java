@@ -3033,7 +3033,7 @@ public class Attr extends JCTree.Visitor {
 	Scope scope = enter.enterScope(localEnv).getActualScope();
 	if (tree.indexParam != null) {
 	    indexVar =
-		new VarSymbol(0, tree.indexParam.name, 
+		new VarSymbol(STATIC, tree.indexParam.name, 
 			syms.intType, scope.owner);
 	    tree.indexParam.sym = indexVar;
 	    scope.enter(indexVar);
