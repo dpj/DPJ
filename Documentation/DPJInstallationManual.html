@@ -405,19 +405,31 @@ To install the DPJ compiler and runtime from source, do the following.
 <OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 Check that your system meets the requirements in
  &sect;&nbsp;<A HREF="#sec:requirements">1.1</A>.
-<LI CLASS="li-enumerate">Get the source code distribution:
+<LI CLASS="li-enumerate">Get the source code distribution. We recommend using Eclipse to
+ check out the source code; that way you'll have access to all of
+ Eclipse's code browsing and editing features. Go to
+ <TT>http://www.eclipse.org</TT> to get Eclipse. Then you'll need to install
+ EGit (Git for Eclipse). This tutorial tells you how to do it:
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>http://www.vogella.de/articles/EGit/article.html</TT>
+</DL>
+Then you can check out the DPJ source tree from inside Eclipse, again
+as explained in the tutorial. The following steps assume you are
+calling the root of the working directory <TT>DPJ</TT> and putting it in
+your home directory. If not, make the appropriate adjustments.<BR>
+<BR>
+If you don't want to use Eclipse, you can check out the DPJ source
+tree from the command line:
 <PRE CLASS="verbatim">
 cd ~
 git clone git://github.com/dpj/DPJ.git DPJ
-</PRE>This assumes you are calling the working directory <TT>DPJ</TT> and
-putting it in your home directory. If not, make the appropriate
-adjustments.
+</PRE>Again, make the appropriate adjustments if you are putting the root of
+the working directory somewhere else.
 <LI CLASS="li-enumerate">Set the <TT>DPJ_ROOT</TT> environment variable:
 <PRE CLASS="verbatim">
 setenv DPJ_ROOT ~/DPJ
 </PRE><LI CLASS="li-enumerate">Tell <TT>ant</TT> to build the compiler, using your JDK: 
 <PRE CLASS="verbatim">
-cd DPJ/Implementation/Compiler/make
+cd ~/DPJ/Implementation/Compiler/make
 ant -Dboot.java.home=/usr/lib/jvm/java
 </PRE>If your JDK is not located at <TT>/usr/bin/jvm/java</TT>, then substitute
 the appropriate path.
