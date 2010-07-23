@@ -413,9 +413,12 @@ Check that your system meets the requirements in
 <DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>http://www.vogella.de/articles/EGit/article.html</TT>
 </DL>
 Then you can check out the DPJ source tree from inside Eclipse, again
-as explained in the tutorial. The following steps assume you are
-calling the root of the working directory <TT>DPJ</TT> and putting it in
-your home directory. If not, make the appropriate adjustments.<BR>
+as explained in the tutorial. Use this as the repository URL:
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>git://github.com/dpj/DPJ.git</TT>
+</DL>
+The following steps assume you are calling the root of the working
+directory <TT>DPJ</TT> and putting it in your home directory. If not,
+make the appropriate adjustments.<BR>
 <BR>
 If you don't want to use Eclipse, you can check out the DPJ source
 tree from the command line:
@@ -424,9 +427,14 @@ cd ~
 git clone git://github.com/dpj/DPJ.git DPJ
 </PRE>Again, make the appropriate adjustments if you are putting the root of
 the working directory somewhere else.
-<LI CLASS="li-enumerate">Set the <TT>DPJ_ROOT</TT> environment variable:
+<LI CLASS="li-enumerate">Set the <TT>DPJ_ROOT</TT> environment variable. For example, if
+ the root of your DPJ tree is <TT>DPJ</TT> in your home directory and
+ you are using the C shell, put this in your <TT>.cshrc</TT> file:
 <PRE CLASS="verbatim">
 setenv DPJ_ROOT ~/DPJ
+</PRE>Then do
+<PRE CLASS="verbatim">
+source ~/.cshrc
 </PRE><LI CLASS="li-enumerate">Tell <TT>ant</TT> to build the compiler, using your JDK: 
 <PRE CLASS="verbatim">
 cd ~/DPJ/Implementation/Compiler/make
