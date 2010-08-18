@@ -3078,10 +3078,9 @@ public class Parser {
         accept(CLASS);
         Name name = ident();
 
-        DPJParamInfo rgnparamInfo = regionParamInfoOpt();
-        Pair<List<JCTypeParameter>,DPJParamInfo> params = typeRPLEffectParamsOpt();
-        // Make the new syntax optional.  If it's there, it overrides the old syntax
-        if (params.snd != null) rgnparamInfo = params.snd;
+        Pair<List<JCTypeParameter>,DPJParamInfo> params = 
+            typeRPLEffectParamsOpt();
+        DPJParamInfo rgnparamInfo = params.snd;
         List<JCTypeParameter> typarams = params.fst;
 
         JCTree extending = null;
@@ -3112,11 +3111,10 @@ public class Parser {
         accept(INTERFACE);
         Name name = ident();
 
-        DPJParamInfo rgnparamInfo = regionParamInfoOpt();
         Pair<List<JCTypeParameter>,DPJParamInfo> params = typeRPLEffectParamsOpt();
         List<JCTypeParameter> typarams = params.fst;
         // Make the new syntax optional.  If it's there, it overrides the old syntax
-        if (params.snd != null) rgnparamInfo = params.snd;
+        DPJParamInfo rgnparamInfo = params.snd;
 
         List<JCExpression> extending = List.nil();
         if (S.token() == EXTENDS) {
@@ -3310,11 +3308,9 @@ public class Parser {
                 return List.<JCTree>of(block(pos, mods.flags));
             } else {
                 pos = S.pos();
-                DPJParamInfo rgnParamInfo = regionParamInfoOpt();
                 Pair<List<JCTypeParameter>,DPJParamInfo> params = typeRPLEffectParamsOpt();
                 List<JCTypeParameter> typarams = params.fst;
-                // Make the new syntax optional.  If it's there, it overrides the old syntax
-                if (params.snd != null) rgnParamInfo = params.snd;
+                DPJParamInfo rgnParamInfo = params.snd;
                 // Hack alert:  if there are type arguments but no Modifiers, the start
                 // position will be lost unless we set the Modifiers position.  There
                 // should be an AST node for type parameters (BugId 5005090).
@@ -3620,39 +3616,6 @@ public class Parser {
         return typarams.toList();    
     }
     
-    
-    /** DEPRECATED
-     *  RegionParametersOpt = ["<<" RegionParameter {"," RegionParameter} 
-     *    { "|" RegionParamConstraints} ">>"]
-     */
-    DPJParamInfo regionParamInfoOpt() {
-        if (S.token() == LTLT) {
-            int pos = S.pos();
-            S.nextToken();
-            List<DPJRegionParameter> rgnparams = regionParameters();
-            List<Pair<DPJRegionPathList,DPJRegionPathList>> constraints = null;
-            if (S.token() == BAR) {
-        	S.nextToken();
-        	constraints = constraints().fst;
-            } else {
-        	constraints = List.nil();
-            }
-            accept(GTGT);
-            return toP(F.at(pos).ParamInfo(rgnparams,
-        	    constraints, List.<JCIdent>nil(), 
-        	    List.<Pair<DPJEffect,DPJEffect>>nil()));
-        } else {
-            return null;
-        }
-    }
-
-    // DEBUG
-    private void printToken() {
-	if (S.token() == IDENTIFIER)
-	    System.out.println("token="+S.name());
-	else
-	    System.out.println("token="+S.token());
-    }
     
     /** Constraints := Constraint {("," | ";") Constraint}
      *  Constraint := RPLConstraint | EffectConstraint
