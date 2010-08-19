@@ -23,5 +23,10 @@ public class MethodEffectParamsBad extends DPJTestCase {
     public void testMethodEffectParam() throws Throwable {
 	compileExpectingErrors("EffectArgument", 1);
     }
+    
+    @Test
+    public void testConstraintsNotSatisfied() throws Throwable {
+	compileExpectingWarnings("ConstraintsNotSatisfied", 1);
+    }
 
 }

@@ -328,6 +328,18 @@ public class Effects implements Iterable<Effect> {
 	}
 	return true;
     }
+
+    public static boolean nonintConstraintsAreSatisfied(List<Pair<Effects,Effects>> constraints,
+	    List<Effects> formals, List<Effects> actuals, Constraints envConstraints) {
+	for (Pair<Effects,Effects> constraint : constraints) {
+	    Effects first = constraint.fst.substForEffectVars(formals, actuals);
+	    Effects second = constraint.snd.substForEffectVars(formals, actuals);
+	    if (!noninterferingEffects(first, second, envConstraints, false))
+		return false;
+	}
+
+	return true;
+    }
     
     /** Trim effects to minimal set
      */

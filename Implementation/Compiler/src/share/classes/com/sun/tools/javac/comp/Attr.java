@@ -1782,7 +1782,7 @@ public class Attr extends JCTree.Visitor {
         		tree.getArguments());
             }
             
-            // Check that constraints on rpl args are satisfied
+            // Check that constraints on rpl args and effect args are satisfied
             if (mtype instanceof MethodType && methSym.constraints != null) {
         	regionargs = ((MethodType) mtype).regionActuals;
         	if (!rpls.disjointnessConstraintsAreSatisfied(methSym.constraints.disjointRPLs,
@@ -1793,6 +1793,10 @@ public class Attr extends JCTree.Visitor {
         		regionargs)) {
         	    enter.log.error(tree, "atomic.constraints");
         	}
+    	    	if (!Effects.nonintConstraintsAreSatisfied(methSym.constraints.noninterferingEffects,
+    		    methSym.effectparams, effectargs, env.info.constraints)) {
+    	    	    enter.log.warning(tree, "effect.constraints");
+    	    	}
             }
             
             // Check that value of resulting type is admissible in the
