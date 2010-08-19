@@ -950,6 +950,12 @@ public class Attr extends JCTree.Visitor {
 	localEnv.info.constraints.disjointRPLs =
 	    localEnv.info.constraints.disjointRPLs.appendList(constraints);
 
+	// Attribute effect constraints
+	for (Pair<DPJEffect,DPJEffect> constraint : tree.effectConstraints) {
+	    attribTree(constraint.fst, localEnv, NIL, Type.noType);
+	    attribTree(constraint.snd, localEnv, NIL, Type.noType);
+	}
+
 	// TODO: Effect constraints
 	
 	return constraints;

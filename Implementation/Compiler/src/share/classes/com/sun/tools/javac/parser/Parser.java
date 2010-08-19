@@ -3113,7 +3113,6 @@ public class Parser {
 
         Pair<List<JCTypeParameter>,DPJParamInfo> params = typeRPLEffectParamsOpt();
         List<JCTypeParameter> typarams = params.fst;
-        // Make the new syntax optional.  If it's there, it overrides the old syntax
         DPJParamInfo rgnparamInfo = params.snd;
 
         List<JCExpression> extending = List.nil();

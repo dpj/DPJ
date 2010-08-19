@@ -76,6 +76,19 @@ public class Effects implements Iterable<Effect> {
 	return result;
     }
 
+    /** @return A new Effects set with no variable effects.  Variable effects are deleted 
+     *  recursively from invocation effects.
+     */
+    public Effects deleteVariableEffects() {
+	Effects result = new Effects();
+	for (Effect effect : effects) {
+	    Effect newEffect = effect.deleteVariableEffects();
+	    if (newEffect != null)
+		result.add(newEffect);
+	}
+	return result;
+    }
+    
     /** @return a new Effects set where instances of the given RegionParameterSymbols
      * have been replaced respectively with the given RPLs */
     public Effects substForParams(List<RegionParameterSymbol> from, List<RPL> to) {
@@ -290,14 +303,13 @@ public class Effects implements Iterable<Effect> {
      * Check whether two effect sets are noninterfering
      */
     public static boolean noninterferingEffects(Effects effects1, Effects effects2, 
-	    List<Pair<RPL,RPL>> constraintsOld, Constraints constraints,
-	    boolean atomicOK) {
+	    Constraints constraints, boolean atomicOK) {
         if (effects1.isEmpty()) return true;
         Effect e = effects1.first();
         boolean result = e.isNoninterferingWith(effects2, constraints, atomicOK);
         if (result) {
            effects1 = effects1.without(e);
-           result = noninterferingEffects(effects1, effects2, constraintsOld, 
+           result = noninterferingEffects(effects1, effects2,
         	   constraints, atomicOK);
         }
         return result;

@@ -66,6 +66,10 @@ public abstract class Effect {
 	    boolean pruneLocalEffects) {
 	return this;
     }
+    
+    public Effect deleteVariableEffects() {
+	return this;
+    }
 
     public abstract int hashCode();
     public abstract boolean equals(Object o);
@@ -459,7 +463,7 @@ public abstract class Effect {
 	    if (e instanceof InvocationEffect) {
 		InvocationEffect ie = (InvocationEffect) e;
 		if (Effects.noninterferingEffects(withEffects, ie.withEffects,
-			null, constraints, atomicOK)) {
+			constraints, atomicOK)) {
 		    return true;
 		}
 		if ((methSym == ie.methSym) && 
@@ -525,6 +529,13 @@ public abstract class Effect {
 	public Effects substForEffectVars(List<Effects> from, List<Effects> to) {
 	    Effects newEffects = withEffects.substForEffectVars(from, to);
 	    return new Effects(new InvocationEffect(rpls, methSym, newEffects));
+	}
+	
+	@Override
+	public Effect deleteVariableEffects() {
+	    Effects newEffects = withEffects.deleteVariableEffects();
+	    return (newEffects != withEffects) ?
+	    	new InvocationEffect(this.rpls, this.methSym, newEffects) : this;
 	}
 	
 	@Override
@@ -631,6 +642,11 @@ public abstract class Effect {
 	    return new Effects(this);
 	}
 
+	@Override
+	public Effect deleteVariableEffects() {
+	    return null;
+	}
+	
 	@Override
 	public Effect inAtomic() {
 	    // Effect variables don't change
