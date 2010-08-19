@@ -34,6 +34,19 @@ public abstract class Effect {
 	this.isAtomic = isAtomic && !isNonint;
     }
     
+
+    /**
+     * Do all the RPL and effect parameter substitutions implied by the bindings of t
+     */
+    public Effects substForAllParams(Type t) {
+	Effect e = this.substForParams(t.getRegionParams(), 
+		t.getRegionActuals());
+	e = e.substForTRParams(t.tsym.type.getTypeArguments(),
+		t.getTypeArguments());
+    	return e.substForEffectVars(t.tsym.type.getEffectArguments(), 
+    		t.getEffectArguments());
+    }
+
     public Effect substForParams(List<RegionParameterSymbol> from, List<RPL> to) {
 	return this;
     }
@@ -67,10 +80,6 @@ public abstract class Effect {
 	return this;
     }
     
-    public Effect deleteVariableEffects() {
-	return this;
-    }
-
     public abstract int hashCode();
     public abstract boolean equals(Object o);
     public Effects asMemberOf(Types types, Type t, Symbol owner) {
@@ -532,13 +541,6 @@ public abstract class Effect {
 	}
 	
 	@Override
-	public Effect deleteVariableEffects() {
-	    Effects newEffects = withEffects.deleteVariableEffects();
-	    return (newEffects != withEffects) ?
-	    	new InvocationEffect(this.rpls, this.methSym, newEffects) : this;
-	}
-	
-	@Override
 	public Effect inAtomic() {
 	    if (this.isAtomic() || this.isNonint()) return this;
 	    Effects inAtomicEffects = withEffects.inAtomic();
@@ -600,7 +602,7 @@ public abstract class Effect {
 	    if (atomicOK && isNondetAtomic(this, e)) {
 		return true;
 	    }
-	    for (Pair<Effect,Effect> constraint : constraints.noninterferingEffects) {
+	    for (Pair<Effects,Effects> constraint : constraints.noninterferingEffects) {
 		if (this.isSubeffectOf(constraint.fst) &&
 			e.isSubeffectOf(constraint.snd)) return true;
 		if (this.isSubeffectOf(constraint.snd) &&
@@ -642,11 +644,6 @@ public abstract class Effect {
 	    return new Effects(this);
 	}
 
-	@Override
-	public Effect deleteVariableEffects() {
-	    return null;
-	}
-	
 	@Override
 	public Effect inAtomic() {
 	    // Effect variables don't change

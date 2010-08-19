@@ -76,6 +76,7 @@ import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.TreeVisitor;
 import com.sun.source.util.SimpleTreeVisitor;
 import com.sun.tools.javac.code.BoundKind;
+import com.sun.tools.javac.code.Constraints;
 import com.sun.tools.javac.code.Effect;
 import com.sun.tools.javac.code.Effects;
 import com.sun.tools.javac.code.Flags;
@@ -124,6 +125,7 @@ import com.sun.tools.javac.tree.JCTree.DPJForLoop;
 import com.sun.tools.javac.tree.JCTree.DPJNonint;
 import com.sun.tools.javac.tree.JCTree.DPJParamInfo;
 import com.sun.tools.javac.tree.JCTree.DPJRegionApply;
+import com.sun.tools.javac.tree.JCTree.DPJRegionDecl;
 import com.sun.tools.javac.tree.JCTree.DPJRegionParameter;
 import com.sun.tools.javac.tree.JCTree.DPJRegionPathList;
 import com.sun.tools.javac.tree.JCTree.DPJRegionPathListElt;
@@ -162,7 +164,6 @@ import com.sun.tools.javac.tree.JCTree.JCNewArray;
 import com.sun.tools.javac.tree.JCTree.JCNewClass;
 import com.sun.tools.javac.tree.JCTree.JCParens;
 import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
-import com.sun.tools.javac.tree.JCTree.DPJRegionDecl;
 import com.sun.tools.javac.tree.JCTree.JCReturn;
 import com.sun.tools.javac.tree.JCTree.JCSkip;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
@@ -308,10 +309,15 @@ public class Attr extends JCTree.Visitor {
 		ClassSymbol cs = (ClassSymbol) tree.functor.getSymbol();
         	if (cs.constraints != null) {
         	    // Check that disjointness constraints on region args are satisfied
-        	    if (!rpls.disjointnessConstraintsAreSatisfied(cs.constraints, 
+        	    if (!rpls.disjointnessConstraintsAreSatisfied(cs.constraints.disjointRPLs, 
         		    ct.getRegionParams(), ct.getRegionActuals(), 
         		    parentEnv.info.constraints.disjointRPLs)) {
         		enter.log.warning(tree, "rpl.constraints");
+        	    }
+        	    // Check that nonint constraints on effect vars are satisfied
+        	    if (!Effects.nonintConstraintsAreSatisfied(cs.constraints.noninterferingEffects,
+        		    ct, parentEnv.info.constraints)) {
+        		enter.log.warning(tree, "effect.constraints");
         	    }
         	}
         	if (!rpls.atomicConstraintsAreSatisfied(ct.getRegionParams(),
@@ -897,6 +903,7 @@ public class Attr extends JCTree.Visitor {
     public void enterClassParams(JCClassDecl tree, Env<AttrContext> localEnv) {
 	// Enter region parameter info
 	if (tree.paramInfo != null) {
+	    // TODO: Store all contraints
 	    tree.sym.constraints = 
 		enterRegionParamInfo(tree.paramInfo, localEnv);
         }
@@ -909,7 +916,7 @@ public class Attr extends JCTree.Visitor {
     /**
      * Enter region param info from a class or method into a local scope
      */
-    public List<Pair<RPL,RPL>> 
+    public Constraints 
     	enterRegionParamInfo(DPJParamInfo tree, Env<AttrContext> localEnv) {
 	
 	// Enter all region params into the local method scope
@@ -928,7 +935,7 @@ public class Attr extends JCTree.Visitor {
 	    }
 	}
 	
-	// Attribute RPL constraints
+	// Attribute RPL constraints and check for validity
 	for (Pair<DPJRegionPathList,DPJRegionPathList> constraint : tree.rplConstraints) {
 	    attribTree(constraint.fst, localEnv, NIL, Type.noType);
 	    attribTree(constraint.snd, localEnv, NIL, Type.noType);	    
@@ -939,16 +946,16 @@ public class Attr extends JCTree.Visitor {
 	}
  
         // Enter RPL constraints
-	ListBuffer<Pair<RPL,RPL>> buf = ListBuffer.lb();
+	ListBuffer<Pair<RPL,RPL>> rplBuf = ListBuffer.lb();
 	for (Pair<DPJRegionPathList,DPJRegionPathList> treeConstraint : tree.rplConstraints) {
 	    Pair<RPL,RPL> constraint = 
 		new Pair<RPL,RPL>(treeConstraint.fst.rpl,
 				  treeConstraint.snd.rpl);
-	    buf.append(constraint);
+	    rplBuf.append(constraint);
 	}
-	List<Pair<RPL,RPL>> constraints = buf.toList();
+	List<Pair<RPL,RPL>> rplConstraints = rplBuf.toList();
 	localEnv.info.constraints.disjointRPLs =
-	    localEnv.info.constraints.disjointRPLs.appendList(constraints);
+	    localEnv.info.constraints.disjointRPLs.appendList(rplConstraints);
 
 	// Attribute effect constraints
 	for (Pair<DPJEffect,DPJEffect> constraint : tree.effectConstraints) {
@@ -956,9 +963,20 @@ public class Attr extends JCTree.Visitor {
 	    attribTree(constraint.snd, localEnv, NIL, Type.noType);
 	}
 
-	// TODO: Effect constraints
+	// Enter effect constraints
+	ListBuffer<Pair<Effects,Effects>> effectBuf = ListBuffer.lb();
+	for (Pair<DPJEffect,DPJEffect> treeConstraint : tree.effectConstraints) {
+	    Pair<Effects,Effects> constraint = 
+		new Pair<Effects,Effects>(treeConstraint.fst.effects,
+			treeConstraint.snd.effects);
+	    effectBuf.append(constraint);
+	}
+	List<Pair<Effects,Effects>> effectConstraints = effectBuf.toList();
+	localEnv.info.constraints.noninterferingEffects =
+	    localEnv.info.constraints.noninterferingEffects.appendList(effectConstraints);
 	
-	return constraints;
+	// Return constraints
+	return new Constraints(rplConstraints, effectConstraints);
     }
     
     public void visitMethodDef(JCMethodDecl tree) {
@@ -1767,7 +1785,7 @@ public class Attr extends JCTree.Visitor {
             // Check that constraints on rpl args are satisfied
             if (mtype instanceof MethodType && methSym.constraints != null) {
         	regionargs = ((MethodType) mtype).regionActuals;
-        	if (!rpls.disjointnessConstraintsAreSatisfied(methSym.constraints,
+        	if (!rpls.disjointnessConstraintsAreSatisfied(methSym.constraints.disjointRPLs,
         		methSym.rgnParams, regionargs, env.info.constraints.disjointRPLs)) {
         	    log.warning(tree, "rpl.constraints");        	    
         	}

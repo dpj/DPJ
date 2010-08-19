@@ -702,9 +702,9 @@ public abstract class Symbol implements Element {
      */
     public static class ClassSymbol extends TypeSymbol implements TypeElement {
 
-        /** The region param constraints
+        /** The constraints on region params and effect vars
          */
-        public List<Pair<RPL,RPL>> constraints;
+        public Constraints constraints;
 	
         /** a scope for all class members; variables, methods and inner classes
          *  type parameters are not part of this scope
@@ -1198,8 +1198,9 @@ public abstract class Symbol implements Element {
         /** The region parameters of the method. // DPJ */
         public List<RegionParameterSymbol> rgnParams = null;
         
-        /** The disjointness constraints on the region params */
-        public List<Pair<RPL,RPL>> constraints = null;
+        /** The disjointness constraints on the region params
+         *  and noninterference constraints on effect vars */
+        public Constraints constraints = null;
         
         /** The effect parameters of the method */
         public List<Effects> effectparams = null;

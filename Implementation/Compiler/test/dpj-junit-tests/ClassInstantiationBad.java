@@ -21,4 +21,8 @@ public class ClassInstantiationBad extends DPJTestCase {
     @Test public void testDisjoint() throws Throwable {
 	compileExpectingWarnings("Disjoint", 1);
     }
+    
+    @Test public void testEffectConstraintNotSatisfied() throws Throwable {
+	compileExpectingWarnings("EffectConstraintNotSatisfied", 1);
+    }
 }

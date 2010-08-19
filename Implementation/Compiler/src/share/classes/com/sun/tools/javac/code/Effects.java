@@ -76,15 +76,14 @@ public class Effects implements Iterable<Effect> {
 	return result;
     }
 
-    /** @return A new Effects set with no variable effects.  Variable effects are deleted 
-     *  recursively from invocation effects.
+    
+    /**
+     * Do all the RPL and effect parameter substitutions implied by the bindings of t
      */
-    public Effects deleteVariableEffects() {
+    public Effects substForAllParams(Type t) {
 	Effects result = new Effects();
-	for (Effect effect : effects) {
-	    Effect newEffect = effect.deleteVariableEffects();
-	    if (newEffect != null)
-		result.add(newEffect);
+	for (Effect e : effects) {
+	    result.addAll(e.substForAllParams(t));
 	}
 	return result;
     }
@@ -313,6 +312,21 @@ public class Effects implements Iterable<Effect> {
         	   constraints, atomicOK);
         }
         return result;
+    }
+    
+    /**
+     * Check whether noninterference constraints are satisfied
+     */
+    public static boolean nonintConstraintsAreSatisfied(List<Pair<Effects,Effects>> constraints,
+	    Type t, Constraints envConstraints) {
+	for (Pair<Effects,Effects> constraint : constraints) {
+	    Effects first = constraint.fst.substForAllParams(t);
+	    Effects second = constraint.snd.substForAllParams(t);
+	    if (!noninterferingEffects(first, second, envConstraints, false)) {
+		return false;
+	    }
+	}
+	return true;
     }
     
     /** Trim effects to minimal set

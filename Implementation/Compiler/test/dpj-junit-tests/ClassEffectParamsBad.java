@@ -18,6 +18,5 @@ public class ClassEffectParamsBad extends DPJTestCase {
     public void testUndefinedParam() throws Throwable {
 	compileExpectingErrors("UndefinedParam", 1);
     }
-
-
+    
 }
