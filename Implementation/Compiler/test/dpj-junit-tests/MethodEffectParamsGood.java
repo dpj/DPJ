@@ -25,4 +25,11 @@ public class MethodEffectParamsGood extends DPJTestCase {
 	compile("ClassAndMethodEffectParam");
     }
     
+    @Test public void testSubstArgsInType() throws Throwable {
+	compile("SubstArgsInType");
+    }
+    
+    @Test public void testSubstArgsInEffect() throws Throwable {
+	compile("SubstArgsInEffect");
+    }
 }

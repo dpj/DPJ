@@ -374,6 +374,7 @@ public class Resolve {
         List<RPL> rvars = env.info.rvars;
         if (typeargtypes == null) typeargtypes = List.nil();
         if (regionargs == null) regionargs = List.nil();
+        if (effectargs == null) effectargs = List.nil();
         Type mt_old = mt;
         if (mt.tag != FORALL && typeargtypes.nonEmpty()) {
             // This is not a polymorphic method, but typeargs are supplied
@@ -391,6 +392,7 @@ public class Resolve {
                                                 pmt.tvars, typeargtypes);
                 bounds = types.substRPL(bounds, formals, actuals, 
                 	rpls.toParams(pmt.rvars), regionargs);
+                bounds = types.substEffect(bounds, pmt.evars, effectargs);
                 for (; bounds.nonEmpty(); bounds = bounds.tail)
                     if (!types.isSubtypeUnchecked(actuals.head, bounds.head, warn)) {
                 	return null;
@@ -406,13 +408,14 @@ public class Resolve {
             mt = types.subst(pmt.qtype, pmt.tvars, tvars1);
         }
 
-        if (mt_old.tag == FORALL && regionargs.nonEmpty()) {
+        if (mt_old.tag == FORALL && (regionargs.nonEmpty() || effectargs.nonEmpty())) {
             ForAll pmt = new ForAll(List.<Type>nil(), ((ForAll) mt_old).rvars, 
         	    ((ForAll) mt_old).evars, mt);
             List<RegionParameterSymbol> formals = rpls.toParams(pmt.rvars);
-            List<RPL> actuals = regionargs;
-            mt = types.substRPL(pmt.qtype, pmt.tvars, typeargtypes,
-        	    formals, actuals);
+            mt = pmt.qtype;
+            mt = types.substRPL(mt, pmt.tvars, typeargtypes,
+        	    formals, regionargs);
+            mt = types.substEffect(mt, pmt.evars, effectargs);
         } else if (mt_old.tag == FORALL){
             ForAll pmt = new ForAll(List.<Type>nil(), ((ForAll) mt_old).rvars,
         	    ((ForAll) mt_old).evars, mt);
@@ -439,6 +442,7 @@ public class Resolve {
             }
         } else {
             ((MethodType) mt).regionActuals = regionargs;
+            ((MethodType) mt).effectactuals = effectargs;
         }
         
         if (instNeeded) {
@@ -465,7 +469,6 @@ public class Resolve {
             paramTypes = types.substIndices(paramTypes, params, env.info.actualArgs);
         }
         ((MethodType) mt).typeactuals = typeargtypes;
-        ((MethodType) mt).effectactuals = effectargs;
         return
             argumentsAcceptable(argtypes, paramTypes, //mt.getParameterTypes(),
                                 allowBoxing, useVarargs, warn)

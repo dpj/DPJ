@@ -481,6 +481,23 @@ public class Types {
                                            requireEqualRegions);
                 }
             }
+            
+            private boolean containsEffectsRecursive(Type t, Type s) {
+                TypePair pair = new TypePair(t, s);
+                if (cache.add(pair)) {
+                    try {
+                        return containsEffects(t.getEffectArguments(),
+                                               s.getEffectArguments(),
+                                               requireEqualRegions);
+                    } finally {
+                        cache.remove(pair);
+                    }
+                } else {
+                    return containsEffects(t.getEffectArguments(),
+                                           rewriteSupers(s).getEffectArguments(),
+                                           requireEqualRegions);
+                }
+            }
 
             private Type rewriteSupers(Type t) {
                 if (!t.isParameterized())
@@ -534,6 +551,7 @@ public class Types {
                     // here instead of same-type checking (via containsType).
                     && (!s.isParameterized() || containsTypeRecursive(s, sup))
                     && (!s.tsym.type.hasRegionParams() || containsRegionsRecursive(s, sup))
+                    && (!s.tsym.type.hasEffectParams() || containsEffectsRecursive(s, sup))
                     && isSubtypeNoCapture(sup.getEnclosingType(),
                                           s.getEnclosingType());
             }
@@ -854,7 +872,29 @@ public class Types {
         return ts.isEmpty() && ss.isEmpty();	
     }
     
+    boolean containsEffects(List<Effects> ts, List<Effects> ss, 
+	    boolean requireEqualRegions) {
+	if (requireEqualRegions) return equalEffects(ts, ss);
+	while (ts.nonEmpty() && ss.nonEmpty()
+		&& ss.head.areSubeffectsOf(ts.head)) {
+	    ts = ts.tail;
+	    ss = ss.tail;
+	}
+	if (ts.isEmpty() && ss.isEmpty())
+	    return true;
+	return false;
+    }
+    
     boolean equalRegions(List<RPL> ts, List<RPL> ss ) {
+	while (ts.nonEmpty() && ss.nonEmpty()
+		&& ss.head.equals(ts.head)) {
+	    ts = ts.tail;
+	    ss = ss.tail;
+	}
+	return ts.isEmpty() && ss.isEmpty();
+    }
+
+    boolean equalEffects(List<Effects> ts, List<Effects> ss) {
 	while (ts.nonEmpty() && ss.nonEmpty()
 		&& ss.head.equals(ts.head)) {
 	    ts = ts.tail;
@@ -1579,6 +1619,16 @@ public class Types {
                 	List<RegionParameterSymbol> from = owner.type.allrgnparams();
                         List<RPL> to = base.allrgnactuals();
                         result = substRPL(result, fromTypes, toTypes, from, to);
+                    }
+                }
+                if (((flags & STATIC) == 0) && owner.type.hasEffectParams()) {
+                    Type base = asOuterSuper(t, owner);
+                    if (base != null) {
+                	List<Effects> ownerParams = owner.type.alleffectparams();
+                	List<Effects> baseParams = base.alleffectparams();
+                	if (ownerParams.nonEmpty()) {
+                	    result = substEffect(result, ownerParams, baseParams);
+                	}
                     }
                 }
                 if (((flags & STATIC) == 0) && owner.type.isParameterized()) {

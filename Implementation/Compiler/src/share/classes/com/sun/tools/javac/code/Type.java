@@ -383,6 +383,16 @@ public class Type implements PrimitiveType {
 	return false;
     }
     
+    /**
+     * Does this type have effect parameters?
+     * A class type has region parameters if effect parameters appear in 
+     * its definition.
+     * All other types do not have effect parameters.
+     */
+    public boolean hasEffectParams() {
+	return false;
+    }
+    
     /** Is this type a raw type?
      *  A class type is a raw type if it misses some of its parameters.
      *  An array type is a raw type if its element type is raw.
@@ -891,6 +901,10 @@ public class Type implements PrimitiveType {
         
         public boolean hasRegionParams() {
             return allrgnparams().tail != null;
+        }
+        
+        public boolean hasEffectParams() {
+            return alleffectparams().tail != null;
         }
 
         /** A cache for the rank. */
