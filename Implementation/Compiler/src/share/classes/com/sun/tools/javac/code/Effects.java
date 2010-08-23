@@ -196,8 +196,8 @@ public class Effects implements Iterable<Effect> {
 	return effects.iterator();
     }
     
-    @Override public String toString() {
-	return effects.toString();
+    @Override public String toString() {	
+	return trim().effects.toString();
     }
     
     @Override
@@ -428,10 +428,10 @@ public class Effects implements Iterable<Effect> {
 	    Effects second = constraint.snd.translateMethodEffects(tree, types, attr, env);
 	    second = second.substForRegionParams(rplFormals, rplActuals);
 	    second = second.substForEffectVars(effectFormals, effectActuals);
-	    System.out.println("first="+first);
-	    System.out.println("second="+second);
-	    if (!noninterferingEffects(first, second, envConstraints, false))
+	    if (!noninterferingEffects(first, second, envConstraints, false)) {
+		System.out.println(first + " interferes with " +second);
 		return false;
+	    }
 	}
 
 	return true;
