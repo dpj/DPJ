@@ -29,4 +29,8 @@ public class MethodEffectParamsBad extends DPJTestCase {
 	compileExpectingWarnings("ConstraintsNotSatisfied", 1);
     }
 
+    @Test
+    public void testConstraintsNotSatisfied2() throws Throwable {
+	compileExpectingWarnings("ConstraintsNotSatisfied2", 1);
+    }
 }

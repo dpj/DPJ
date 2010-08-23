@@ -78,7 +78,7 @@ public class AttrContext {
     /** RPL and effect constraints active in the environment
      */
     List<Pair<RPL,RPL>> constraintsOld = List.nil();
-    Constraints constraints = new Constraints();
+    public Constraints constraints = new Constraints();
     
     /** A record of the lint/SuppressWarnings currently in effect
      */

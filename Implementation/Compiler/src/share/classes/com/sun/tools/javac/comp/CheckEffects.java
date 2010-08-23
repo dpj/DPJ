@@ -69,7 +69,6 @@ import com.sun.tools.javac.tree.JCTree.JCWhileLoop;
 import com.sun.tools.javac.tree.JCTree.LetExpr;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
 
@@ -619,7 +618,7 @@ public class CheckEffects extends EnvScanner { // DPJ
 	addAllWithRead(tree.truepart, tree);
 	addAllWithRead(tree.falsepart, tree);
     }
-        
+    
     @Override
     public void visitApply(JCMethodInvocation tree) {
 
@@ -631,7 +630,6 @@ public class CheckEffects extends EnvScanner { // DPJ
 	
 	// Accumulate any effects from evaluating e1, ..., en
 	for (JCExpression arg : tree.args) {
-	    // TODO:  Substitute for method region and effect args
 	    addAllWithRead(arg, tree);
 	}
 
@@ -639,74 +637,8 @@ public class CheckEffects extends EnvScanner { // DPJ
 	MethodSymbol sym = tree.getMethodSymbol();
 	
 	if (sym != null) {
-	    Effects effects = sym.effects;
-
-	    ListBuffer<RPL> actuals = ListBuffer.lb();
-
-            if (tree.meth instanceof JCFieldAccess) {
-        	// Translate to subclass and substitute for class 
-        	// region and effect params
-        	JCFieldAccess fa = (JCFieldAccess) tree.meth;
-        	if (fa.selected.type instanceof ClassType) {
-        	    ClassType ct = (ClassType) fa.selected.type;
-        	    effects = 
-        		effects.asMemberOf(types, ct.tsym.type, sym.owner);
-        	    if (ct.getRegionActuals().size() == 
-        		ct.tsym.type.getRegionParams().size()) {
-        		effects = 
-        		    effects.substForParams(ct.tsym.type.getRegionParams(),
-        			ct.getRegionActuals());
-        	    }
-        	    effects = 
-        		effects.substForEffectVars(ct.tsym.type.getEffectArguments(),
-        			ct.getEffectArguments());
-        	}
-                // Substitute for this
-        	RPL rpl = attr.exprToRPL(fa.selected);
-        	if (rpl != null) {
-        	    effects = effects.substForThis(rpl);
-        	}
-        	// Substitute for actual arg expressions
-        	effects = effects.substExpsForVars(sym.params, tree.args);
-            } else if (tree.meth instanceof JCIdent) {
-        	// Translate to subclass
-        	effects = effects.asMemberOf(types, parentEnv.enclClass.sym.type,
-        		sym.owner);
-            }
-
-            MethodSymbol methSym = tree.getMethodSymbol();
-            if (tree.mtype != null) {
-        	// Substitute for method region params
-        	if (sym.rgnParams != null) {
-        	    effects = effects.substForParams(sym.rgnParams, 
-        		    tree.mtype.regionActuals);
-        	}
-        	// Substitute for type region params
-        	if (sym.typarams != null) {
-        		effects = effects.substForTRParams(sym.typarams,
-        			tree.mtype.typeactuals);
-        	}
-        	if (methSym != null) {
-        	    List<Type> paramtypes = methSym.type.getParameterTypes();
-        	    ListBuffer<Type> argtypes = ListBuffer.lb();
-        	    for (JCExpression arg : tree.getArguments())
-        		argtypes.append(arg.type);
-        	    effects = effects.substForTRParams(paramtypes, argtypes.toList());
-        	}
-            }
-            
-            // Substitute for index exprs
-            if (methSym != null && methSym.params != null &&
-        	    !effects.isEmpty() && !tree.getArguments().isEmpty()) {
-        	effects = effects.substIndices(methSym.params, 
-        		tree.getArguments());
-            }
-
-            // Substitute for method effect params
-            if (sym.effectparams != null && tree.mtype != null) {
-        	effects = effects.substForEffectVars(sym.effectparams,
-        	    tree.mtype.effectactuals);
-            }
+	    Effects effects = 
+		sym.effects.translateMethodEffects(tree, types, attr, parentEnv);
             
             InvocationEffect ie = new InvocationEffect(rpls, sym, effects);
             if (inNonint) {

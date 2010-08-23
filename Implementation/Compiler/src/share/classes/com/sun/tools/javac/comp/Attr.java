@@ -1794,7 +1794,8 @@ public class Attr extends JCTree.Visitor {
         	    enter.log.error(tree, "atomic.constraints");
         	}
     	    	if (!Effects.nonintConstraintsAreSatisfied(methSym.constraints.noninterferingEffects,
-    		    methSym.effectparams, effectargs, env.info.constraints)) {
+    	    		tree, methSym.rgnParams, regionargs,
+    	    		methSym.effectparams, effectargs, types, this, env)) {
     	    	    enter.log.warning(tree, "effect.constraints");
     	    	}
             }

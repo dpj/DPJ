@@ -5,12 +5,18 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.sun.tools.javac.code.Effect.VariableEffect;
+import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.RegionParameterSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type.ClassType;
+import com.sun.tools.javac.comp.Attr;
 import com.sun.tools.javac.comp.AttrContext;
 import com.sun.tools.javac.comp.Env;
 import com.sun.tools.javac.comp.Resolve;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
+import com.sun.tools.javac.tree.JCTree.JCIdent;
+import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCTreeWithEffects;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
@@ -90,7 +96,7 @@ public class Effects implements Iterable<Effect> {
     
     /** @return a new Effects set where instances of the given RegionParameterSymbols
      * have been replaced respectively with the given RPLs */
-    public Effects substForParams(List<RegionParameterSymbol> from, List<RPL> to) {
+    public Effects substForRegionParams(List<RegionParameterSymbol> from, List<RPL> to) {
 	Effects result = new Effects();
 	for (Effect e : effects) {
 	    result.add(e.substForParams(from, to));
@@ -111,7 +117,7 @@ public class Effects implements Iterable<Effect> {
 		List<RPL> to) {
 	ListBuffer<Effects> buf = ListBuffer.lb();
 	for (Effects effects : list) {
-	    buf.append(effects.substForParams(from, to));
+	    buf.append(effects.substForRegionParams(from, to));
 	}
 	return buf.toList();
     }
@@ -242,6 +248,86 @@ public class Effects implements Iterable<Effect> {
 	}
 	return memberEffects;
     }
+
+    /**
+     * Translate effects from method signature context to method use context.  This
+     * is used both for declared effects and for method effect constraints.
+     * @return Translated effects
+     */    
+    public Effects translateMethodEffects(JCMethodInvocation tree, 
+	    Types types, Attr attr, Env<AttrContext> env) {
+	
+	MethodSymbol sym = tree.getMethodSymbol();
+	
+	Effects result = this;
+	if (sym != null) {
+	    if (tree.meth instanceof JCFieldAccess) {
+        	// Translate to subclass and substitute for class 
+        	// region and effect params
+        	JCFieldAccess fa = (JCFieldAccess) tree.meth;
+        	if (fa.selected.type instanceof ClassType) {
+        	    ClassType ct = (ClassType) fa.selected.type;
+        	    result = 
+        		result.asMemberOf(types, ct.tsym.type, sym.owner);
+        	    if (ct.getRegionActuals().size() == 
+        		ct.tsym.type.getRegionParams().size()) {
+        		result = 
+        		    result.substForRegionParams(ct.tsym.type.getRegionParams(),
+        			ct.getRegionActuals());
+        	    }
+        	    result = 
+        		result.substForEffectVars(ct.tsym.type.getEffectArguments(),
+        			ct.getEffectArguments());
+        	}
+                // Substitute for this
+        	RPL rpl = attr.exprToRPL(fa.selected);
+        	if (rpl != null) {
+        	    result = result.substForThis(rpl);
+        	}
+        	// Substitute for actual arg expressions
+        	result = result.substExpsForVars(sym.params, tree.args);
+            } else if (tree.meth instanceof JCIdent) {
+        	// Translate to subclass
+        	result = result.asMemberOf(types, env.enclClass.sym.type,
+        		sym.owner);
+            }
+
+            MethodSymbol methSym = tree.getMethodSymbol();
+            if (tree.mtype != null) {
+        	// Substitute for method region params
+        	if (sym.rgnParams != null) {
+        	    result = result.substForRegionParams(sym.rgnParams, 
+        		    tree.mtype.regionActuals);
+        	}
+        	// Substitute for type region params
+        	if (sym.typarams != null) {
+        		result = result.substForTRParams(sym.typarams,
+        			tree.mtype.typeactuals);
+        	}
+        	if (methSym != null) {
+        	    List<Type> paramtypes = methSym.type.getParameterTypes();
+        	    ListBuffer<Type> argtypes = ListBuffer.lb();
+        	    for (JCExpression arg : tree.getArguments())
+        		argtypes.append(arg.type);
+        	    result = result.substForTRParams(paramtypes, argtypes.toList());
+        	}
+            }
+            
+            // Substitute for index exprs
+            if (methSym != null && methSym.params != null &&
+        	    !effects.isEmpty() && !tree.getArguments().isEmpty()) {
+        	result = result.substIndices(methSym.params, 
+        		tree.getArguments());
+            }
+
+            // Substitute for method effect params
+            if (sym.effectparams != null && tree.mtype != null) {
+        	result = result.substForEffectVars(sym.effectparams,
+        	    tree.mtype.effectactuals);
+            }
+	}
+	return result;
+    }
     
     /**
      * The effect set as it appears in the environment env:
@@ -330,10 +416,20 @@ public class Effects implements Iterable<Effect> {
     }
 
     public static boolean nonintConstraintsAreSatisfied(List<Pair<Effects,Effects>> constraints,
-	    List<Effects> formals, List<Effects> actuals, Constraints envConstraints) {
+	    JCMethodInvocation tree, 
+	    List<RegionParameterSymbol> rplFormals, List<RPL> rplActuals,
+	    List<Effects> effectFormals, List<Effects> effectActuals, 
+	    Types types, Attr attr, Env<AttrContext> env) {
+	Constraints envConstraints = env.info.constraints;
 	for (Pair<Effects,Effects> constraint : constraints) {
-	    Effects first = constraint.fst.substForEffectVars(formals, actuals);
-	    Effects second = constraint.snd.substForEffectVars(formals, actuals);
+	    Effects first = constraint.fst.translateMethodEffects(tree, types, attr, env);
+	    first = first.substForRegionParams(rplFormals, rplActuals);
+	    first = first.substForEffectVars(effectFormals, effectActuals);
+	    Effects second = constraint.snd.translateMethodEffects(tree, types, attr, env);
+	    second = second.substForRegionParams(rplFormals, rplActuals);
+	    second = second.substForEffectVars(effectFormals, effectActuals);
+	    System.out.println("first="+first);
+	    System.out.println("second="+second);
 	    if (!noninterferingEffects(first, second, envConstraints, false))
 		return false;
 	}

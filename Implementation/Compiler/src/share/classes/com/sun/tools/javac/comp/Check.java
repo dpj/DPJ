@@ -1287,8 +1287,8 @@ public class Check {
 		    buf.append(new RPL(new RPLParameterElement(rps)));
 		}
 		List<RPL> rpls = buf.toList();
-		me = me.substForParams(m_rpl_params, rpls);
-		oe = oe.substForParams(o_rpl_params, rpls);
+		me = me.substForRegionParams(m_rpl_params, rpls);
+		oe = oe.substForRegionParams(o_rpl_params, rpls);
 	    }
 	    me = me.substForVars(m.params, other.params);
 	    me = me.substForEffectVars(m.effectparams, other.effectparams);

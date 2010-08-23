@@ -492,7 +492,7 @@ public abstract class Effect {
 	
 	@Override
 	public Effect substForParams(List<RegionParameterSymbol> from, List<RPL> to) {
-	    return new InvocationEffect(rpls, methSym, withEffects.substForParams(from, to));
+	    return new InvocationEffect(rpls, methSym, withEffects.substForRegionParams(from, to));
 	}
 	
 	@Override
