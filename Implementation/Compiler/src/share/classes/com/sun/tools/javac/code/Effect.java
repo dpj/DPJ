@@ -80,8 +80,6 @@ public abstract class Effect {
 	return this;
     }
     
-    public abstract int hashCode();
-    public abstract boolean equals(Object o);
     public Effects asMemberOf(Types types, Type t, Symbol owner) {
 	return new Effects(this);
     }
@@ -139,13 +137,22 @@ public abstract class Effect {
     /**
      * Return this effect as it appears in an atomic statement
      */
-    public abstract Effect inAtomic();
+    public  Effect inAtomic() {
+	return this;
+    }
     
     /**
      * Return this effect as it appears in a nonint statement
      */
-    public abstract Effect inNonint();
+    public Effect inNonint() {
+	return this;
+    }
 	    
+    /**
+     * Capture the effect
+     */
+    public Effect capture() { return new CapturedEffect(this); }
+    
     /** A class for read effects
      */
     public static class ReadEffect extends Effect {
@@ -643,20 +650,42 @@ public abstract class Effect {
 	    }
 	    return new Effects(this);
 	}
-
-	@Override
-	public Effect inAtomic() {
-	    // Effect variables don't change
-	    return this;
-	}
 	
 	@Override
-	public Effect inNonint() {
-	    return this;
-	}
+	public Effect capture() { return this; }
 
 	public String toString() {
 	    return "effect " + sym;
+	}
+    }
+    
+    /** A class for captured effects
+     */
+    public static class CapturedEffect extends Effect {
+
+	public Effect upperBound;
+	
+	protected CapturedEffect(Effect upperBound) {
+	    super(null, false, false);
+	    this.upperBound = upperBound;
+	}
+
+	@Override
+	public boolean isNoninterferingWith(Effect e, Constraints constraints,
+		boolean atomicOK) {
+	    return e.isNoninterferingWith(upperBound, constraints, atomicOK);
+	}
+
+	@Override
+	public boolean isSubeffectOf(Effect e) {
+	    return upperBound.isSubeffectOf(e);
+	}
+	
+	@Override
+	public Effect capture() { return this; }
+	
+	public String toString() {
+	    return "capture of " + upperBound;
 	}
     }
 }

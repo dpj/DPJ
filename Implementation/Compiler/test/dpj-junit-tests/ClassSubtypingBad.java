@@ -38,5 +38,9 @@ public class ClassSubtypingBad extends DPJTestCase {
 	// Warning disabled here
 	compile("UnsoundCast");
     }
+    
+    @Test public void testCaptureEffects() throws Throwable {
+	compileExpectingErrors("CaptureEffects", 1);
+    }
 
 }

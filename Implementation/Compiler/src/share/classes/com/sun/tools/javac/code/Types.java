@@ -3648,7 +3648,7 @@ public class Types {
     public Type capture(Type t, boolean captureRPL) {
 	
 	if (captureRPL)
-	    t = RPLCapture(t); // DPJ
+	    t = DPJCapture(t); // DPJ
 	
         if (t.tag != CLASS)
             return t;
@@ -3727,23 +3727,47 @@ public class Types {
     // </editor-fold>
 
     /**
-     * Compute the RPL capture of a type, i.e., the type with the capture
-     * of its actual region arguments substituted for the region params.
+     * Compute the DPJ capture of a type, i.e., the type with the capture
+     * of its actual region and effect arguments substituted for the region 
+     * and effect params.
+     * TODO:  Capture as described in the frameworks tech report isn't fully
+     * implemented here.  It's unclear what the implications are for
+     * soundness in the presence of type region params.
      */
-    public Type RPLCapture(Type t) {
+    public Type DPJCapture(Type t) {
 	if (!(t instanceof ClassType)) return t;
 	ClassType ct = (ClassType) t;
-	boolean captured = false;
-	ListBuffer<RPL> buf = ListBuffer.lb();
-	for (RPL rpl : ct.getRegionActuals()) {
+	
+	// Capture RPLs
+	boolean capturedRPLs = false;
+	List<RPL> rpls = ct.getRegionActuals();
+	ListBuffer<RPL> rplBuf = ListBuffer.lb();
+	for (RPL rpl : rpls) {
 	    RPL captureRPL = rpl.capture();
-	    buf.append(captureRPL);
-	    if (captureRPL != rpl) captured = true;
+	    rplBuf.append(captureRPL);
+	    if (captureRPL != rpl) capturedRPLs = true;
 	}
-	// TODO: Capture the effect args too
-	return captured ? new ClassType(ct.outer_field, ct.typarams_field, 
-		ct.rgnparams_field, buf.toList(), 
-		ct.effectparams_field, ct.tsym) : t;
+	if (capturedRPLs) {
+	    rpls = rplBuf.toList();
+	}
+	
+	// Capture effects
+	boolean capturedEffects = false;
+	List<Effects> effects = ct.effectparams_field;
+	ListBuffer<Effects> effectsBuf = ListBuffer.lb();
+	for (Effects e : effects) {
+	    Effects newEffects = e.capture();
+	    effectsBuf.append(newEffects);
+	    if (newEffects != e) capturedEffects = true;
+	}
+	if (capturedEffects) {
+	    effects = effectsBuf.toList();
+	}
+	
+	return (capturedRPLs || capturedEffects) ? 
+		new ClassType(ct.outer_field, ct.typarams_field, 
+		ct.rgnparams_field, rpls, effects,
+		ct.tsym) : t;
     }
     
     // <editor-fold defaultstate="collapsed" desc="Internal utility methods">

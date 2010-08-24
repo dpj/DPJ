@@ -1121,10 +1121,6 @@ public abstract class Symbol implements Element {
          */
         public int pos = Position.NOPOS;
         
-        /** RPL in which this parameter is included -- used for capture parameters
-         */
-        public RPL includedIn;
-        
         /** Whether the parameter is atomic
          */
         public boolean isAtomic;
@@ -1170,6 +1166,7 @@ public abstract class Symbol implements Element {
     /** A class for effect parameter symbols
      */
     public static class EffectParameterSymbol extends Symbol {
+	
 	public EffectParameterSymbol(Name name, Symbol owner) {
 	    super(Kinds.EFFECT, STATIC, name, Type.noType, owner);
 	}

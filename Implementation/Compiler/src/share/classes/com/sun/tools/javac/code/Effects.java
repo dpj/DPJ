@@ -385,6 +385,20 @@ public class Effects implements Iterable<Effect> {
     }
 
     /**
+     * Capture all effects
+     */
+    public Effects capture() {
+	Effects capturedEffects = new Effects();
+	boolean changed = false;
+	for (Effect e : effects) {
+	    Effect capturedEffect = e.capture();
+	    capturedEffects.add(capturedEffect);
+	    if (capturedEffect != e) changed = true;
+	}
+	return changed ? capturedEffects : this;
+    }
+    
+    /**
      * Check whether two effect sets are noninterfering
      */
     public static boolean noninterferingEffects(Effects effects1, Effects effects2, 
