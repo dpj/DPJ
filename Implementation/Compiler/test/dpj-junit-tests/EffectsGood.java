@@ -48,4 +48,8 @@ public class EffectsGood extends DPJTestCase {
 	compile("ZRegionArrayAccess");
     }
     
+    @Test public void testZRegionMethodInvocation() throws Throwable {
+	compile("ZRegionMethodInvocation");
+    }
+    
 }

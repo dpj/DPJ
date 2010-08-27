@@ -262,9 +262,14 @@ public class Effects implements Iterable<Effect> {
 	Effects result = this;
 	if (sym != null) {
 	    if (tree.meth instanceof JCFieldAccess) {
+        	JCFieldAccess fa = (JCFieldAccess) tree.meth;
+                // Substitute for this
+        	RPL rpl = attr.exprToRPL(fa.selected);
+        	if (rpl != null) {
+        	    result = result.substForThis(rpl);
+        	}
         	// Translate to subclass and substitute for class 
         	// region and effect params
-        	JCFieldAccess fa = (JCFieldAccess) tree.meth;
         	if (fa.selected.type instanceof ClassType) {
         	    ClassType ct = (ClassType) fa.selected.type;
         	    result = 
@@ -278,11 +283,6 @@ public class Effects implements Iterable<Effect> {
         	    result = 
         		result.substForEffectVars(ct.tsym.type.getEffectArguments(),
         			ct.getEffectArguments());
-        	}
-                // Substitute for this
-        	RPL rpl = attr.exprToRPL(fa.selected);
-        	if (rpl != null) {
-        	    result = result.substForThis(rpl);
         	}
         	// Substitute for actual arg expressions
         	result = result.substExpsForVars(sym.params, tree.args);
