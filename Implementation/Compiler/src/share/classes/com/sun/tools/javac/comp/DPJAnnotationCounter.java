@@ -55,7 +55,9 @@ public class DPJAnnotationCounter extends TreeScanner {
     
     public int annotatedLinesCount;
     public int fieldRegionDeclCount;
+    public int atomicFieldRegionDeclCount;
     public int localRegionDeclCount;
+    public int atomicLocalRegionDeclCount;
     public int classRegionParamCount;
     public int atomicClassRegionParamCount;
     public int typeRegionParamCount;
@@ -101,8 +103,10 @@ public class DPJAnnotationCounter extends TreeScanner {
 	System.out.println("Instanceof expressions: " + instanceofCount);
 	System.out.println("*** DPJ Annotations ***");
 	System.out.println("Annotated SLOC: "+ annotatedLinesCount);
-	System.out.println("Field region declarations: " + fieldRegionDeclCount);
-	System.out.println("Local region declarations: " + localRegionDeclCount);
+	System.out.println("Total field region declarations: " + fieldRegionDeclCount);
+	System.out.println("Atomic field region declarations: " + atomicFieldRegionDeclCount);
+	System.out.println("Total local region declarations: " + localRegionDeclCount);
+	System.out.println("Atomic local region declarations: " + atomicLocalRegionDeclCount);
 	System.out.println("Total class region parameters: " + classRegionParamCount);
 	System.out.println("Atomic class region parameters: " + atomicClassRegionParamCount);
 	System.out.println("Class RPL constraints: " + classRPLConstraintCount);
@@ -320,9 +324,13 @@ public class DPJAnnotationCounter extends TreeScanner {
 	switch (context) {
 	case CLASS:
 	    ++fieldRegionDeclCount;
+	    if (tree.isAtomic)
+		++atomicFieldRegionDeclCount;
 	    break;
 	case METHOD_DEF:
 	    ++localRegionDeclCount;
+	    if (tree.isAtomic)
+		++atomicLocalRegionDeclCount;
 	    break;
 	default:
 	    assert false;
