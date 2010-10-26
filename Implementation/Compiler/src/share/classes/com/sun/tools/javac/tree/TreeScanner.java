@@ -276,6 +276,9 @@ public class TreeScanner extends Visitor {
     public void visitRegionDecl(DPJRegionDecl tree) {	
     }
 
+    public void visitRegionParameter(DPJRegionParameter tree) {
+    }
+
     public void visitTypeArray(JCArrayTypeTree tree) {
 	scan(tree.elemtype);
 	scan(tree.rpl);
