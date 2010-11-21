@@ -55,13 +55,17 @@ public class DPJAnnotationCounter extends TreeScanner {
     
     public int annotatedLinesCount;
     public int fieldRegionDeclCount;
+    public int atomicFieldRegionDeclCount;
     public int localRegionDeclCount;
+    public int atomicLocalRegionDeclCount;
     public int classRegionParamCount;
+    public int atomicClassRegionParamCount;
     public int typeRegionParamCount;
     public int classEffectParamCount;
     public int classRPLConstraintCount;
     public int classEffectConstraintCount;
     public int methodRegionParamCount;
+    public int atomicMethodRegionParamCount;
     public int methodEffectParamCount;
     public int methodRPLConstraintCount;
     public int methodEffectConstraintCount;
@@ -73,8 +77,10 @@ public class DPJAnnotationCounter extends TreeScanner {
     public int methodEffectSummaryCount;
     public int readEffectCount;
     public int readEffectRPLCount;
+    public int atomicReadEffectRPLCount;
     public int writeEffectCount;
     public int writeEffectRPLCount;
+    public int atomicWriteEffectRPLCount;
     
     public void printStatistics(PrintWriter out) {
 	if (badLineMap) {
@@ -97,20 +103,28 @@ public class DPJAnnotationCounter extends TreeScanner {
 	System.out.println("Instanceof expressions: " + instanceofCount);
 	System.out.println("*** DPJ Annotations ***");
 	System.out.println("Annotated SLOC: "+ annotatedLinesCount);
-	System.out.println("Field region declarations: " + fieldRegionDeclCount);
-	System.out.println("Local region declarations: " + localRegionDeclCount);
-	System.out.println("Class region parameters: " + classRegionParamCount);
+	System.out.println("Total field region declarations: " + fieldRegionDeclCount);
+	System.out.println("Atomic field region declarations: " + atomicFieldRegionDeclCount);
+	System.out.println("Total local region declarations: " + localRegionDeclCount);
+	System.out.println("Atomic local region declarations: " + atomicLocalRegionDeclCount);
+	System.out.println("Total class region parameters: " + classRegionParamCount);
+	System.out.println("Atomic class region parameters: " + atomicClassRegionParamCount);
 	System.out.println("Class RPL constraints: " + classRPLConstraintCount);
 	System.out.println("Type region parameters: " + typeRegionParamCount);
 	System.out.println("Class effect parameters: " + classEffectParamCount);
 	System.out.println("Class effect constraints: " + classEffectConstraintCount);
-	System.out.println("Method region parameters: " + methodRegionParamCount);
+	System.out.println("Total method region parameters: " + methodRegionParamCount);
+	System.out.println("Atomic method region parameters: " + atomicMethodRegionParamCount);
 	System.out.println("Method RPL constraints: " + methodRPLConstraintCount);
 	System.out.println("Method effect parameters: " + methodEffectParamCount);
 	System.out.println("Method effect constraints: " + methodEffectConstraintCount);
 	System.out.println("Effect arguments to types: " + typeEffectArgCount);
 	System.out.println("Effect arguments to methods: " + methodEffectArgCount);
 	System.out.println("Method effect summaries: " + methodEffectSummaryCount);
+	System.out.println("Total RPLs in read effects: " + readEffectRPLCount);
+	System.out.println("Atomic RPLs in read effects: " + atomicReadEffectRPLCount);
+	System.out.println("Total RPLs in write effects: " + writeEffectRPLCount);
+	System.out.println("Atomic RPLs in write effects: " + atomicWriteEffectRPLCount);
 	System.out.println("RPL arguments to 'in': " + inRPLArgCount);
 	System.out.println("RPL arguments to types: " + typeRPLArgCount);
 	System.out.println("RPL arguments to methods: " + methodRPLArgCount);
@@ -254,9 +268,13 @@ public class DPJAnnotationCounter extends TreeScanner {
 	switch (context) {
 	case CLASS:
 	    ++classRegionParamCount;
+	    if (tree.isAtomic)
+		++atomicClassRegionParamCount;
 	    break;
 	case METHOD_DEF:
 	    ++methodRegionParamCount;
+	    if (tree.isAtomic)
+		++atomicMethodRegionParamCount;
 	    break;
 	default:
 	    assert false;
@@ -287,9 +305,13 @@ public class DPJAnnotationCounter extends TreeScanner {
 	    break;
 	case READ_EFFECT:
 	    ++readEffectRPLCount;
+	    if (tree.isAtomic)
+		++atomicReadEffectRPLCount;
 	    break;
 	case WRITE_EFFECT:
 	    ++writeEffectRPLCount;
+	    if (tree.isAtomic)
+		++atomicWriteEffectRPLCount;
 	    break;
 	default:
 	    assert false;
@@ -302,9 +324,13 @@ public class DPJAnnotationCounter extends TreeScanner {
 	switch (context) {
 	case CLASS:
 	    ++fieldRegionDeclCount;
+	    if (tree.isAtomic)
+		++atomicFieldRegionDeclCount;
 	    break;
 	case METHOD_DEF:
 	    ++localRegionDeclCount;
+	    if (tree.isAtomic)
+		++atomicLocalRegionDeclCount;
 	    break;
 	default:
 	    assert false;
