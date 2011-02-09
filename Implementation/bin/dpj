@@ -1,2 +1,1 @@
-RUNTIME=${DPJ_ROOT}/Implementation/Runtime/classes
-java -Xms1024m -Xmx1024m -ea -cp ${RUNTIME}:. $1
+addcp java "$@"

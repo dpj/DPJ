@@ -4,11 +4,17 @@ numthread ?= 1
 
 all: jgfutil-files dpj-files java-files original-code test-files
 
-jgfutil-files:
+jgfutil-files: classes
 	javac -d classes jgfutil/*.java
 
-dpj-files:
+classes :
+	mkdir $@
+
+dpj-files: java
 	dpjc -cp ${RUNTIME}/classes:. -d java dpj/*.java ${DPJ_ROOT}/Implementation/Runtime/dpj/*.java
+
+java :
+	mkdir $@
 
 java-files:
 	javac -cp ${DPJ_ROOT}/Implementation/Runtime/classes:. -d classes java/*.java

@@ -1,0 +1,38 @@
+#!/usr/bin/perl
+
+#
+# 'addcp [cmd] [args]': Add the DPJ runtime classes to the class path
+# specified in [args], then do [cmd] with the new [args]
+#
+use strict;
+
+my $RT_CLASSES="$ENV{DPJ_ROOT}/Implementation/Runtime/classes";
+my $in_cp=0;
+my $found_cp = 0;
+my $cmd;
+
+#
+# Look for a class path in the command.  If it's there, add the DPJ
+# runtime classes to it.
+#
+foreach(@ARGV) {
+    chomp;
+    if (/^(-cp)|(-classpath)$/) {
+	$in_cp = 1;
+	$found_cp = 1;
+    } elsif ($in_cp == 1) {
+	$cmd .= " $RT_CLASSES:";
+	$in_cp = 0;
+    }
+    $cmd .= "$_ ";
+}
+#
+# Otherwise, add the class path
+#
+if (!$found_cp) {
+    $cmd .= " -cp $RT_CLASSES";
+}
+
+print `$cmd\n`;
+
+

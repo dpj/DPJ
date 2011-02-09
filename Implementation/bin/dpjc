@@ -26,6 +26,7 @@
 #
 
 DPJ_COMPILER=${DPJ_ROOT}/Implementation/Compiler
+DPJ_RUNTIME=${DPJ_ROOT}/Implementation/Runtime
 mylib=${DPJ_COMPILER}/dist/bootstrap/lib
 
 # By default, put the jar file and its dependencies on the bootclasspath.
@@ -49,5 +50,5 @@ ea=-ea:com.sun.tools
 
 #"/Library/Java/Home/bin/java" 
 
-java ${bcp:+-Xbootclasspath/p:"$bcp"} ${ea} -jar "${mylib}"/javac.jar -dpj  "$@"
-#java ${bcp:+-Xbootclasspath/p:"$bcp"} ${ea} -jar "${mylib}"/javac.jar -printsource "$@"
+addcp java ${bcp:+-Xbootclasspath/p:"$bcp"} ${ea} -jar "${mylib}"/javac.jar -dpj "$@"
+
