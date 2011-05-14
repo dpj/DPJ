@@ -498,10 +498,11 @@
                        includes="@{includes}"
                        sourcepath=""
                        includeAntRuntime="no"
-                       target="@{javac.target}">
+                       target="@{javac.target}"
+                       source="@{javac.target}"> <!-- DPJ: Make source=target so it will build with later JDKs -->
                     <compilerarg value="-J-Xbootclasspath/p:@{javac.bootclasspath}"/>
                     <compilerarg line="${javac.version.opt}"/>
-                    <compilerarg line="-Xlint"/>
+                    <compilerarg line="-Xlint:all,-options"/>
                 </javac>
                 <javac fork="true"
                        srcdir="${src.classes.dir}"
@@ -513,7 +514,8 @@
                        target="@{javac.target}"
                        debug="${javac.debug}" 
                        debuglevel="${javac.debuglevel}"
-                       memorymaximumsize="${javac.memorymaximumsize}">
+                       memorymaximumsize="${javac.memorymaximumsize}"
+                       source="@{javac.target}">  <!-- DPJ: Make source=target so it will build with later JDKs -->
                     <compilerarg value="-J-Xbootclasspath/p:@{javac.bootclasspath}"/>
                     <compilerarg value="-Xbootclasspath/p:@{classes.dir}"/>
                     <compilerarg line="${javac.no.jdk.warnings}"/>

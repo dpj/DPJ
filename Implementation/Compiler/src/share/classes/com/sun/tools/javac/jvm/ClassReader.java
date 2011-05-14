@@ -1644,29 +1644,33 @@ public class ClassReader extends ClassFile implements Completer {
         int majorVersion = nextChar();
         int maxMajor = Target.MAX().majorVersion;
         int maxMinor = Target.MAX().minorVersion;
-        if (majorVersion > maxMajor ||
-            majorVersion * 1000 + minorVersion <
-            Target.MIN().majorVersion * 1000 + Target.MIN().minorVersion)
-        {
-            if (majorVersion == (maxMajor + 1)) 
-                log.warning("big.major.version",
-                            currentClassFile,
-                            majorVersion,
-                            maxMajor);
-            else
-                throw badClassFile("wrong.version",
-                                   Integer.toString(majorVersion),
-                                   Integer.toString(minorVersion),
-                                   Integer.toString(maxMajor),
-                                   Integer.toString(maxMinor));
-        }
-        else if (checkClassFile &&
-                 majorVersion == maxMajor &&
-                 minorVersion > maxMinor)
-        {
-            printCCF("found.later.version",
-                     Integer.toString(minorVersion));
-        }
+        // DPJ: Disable class file version checking so that dpjc can be used
+        // with JDK 7 or later.  If the class file actually contains features
+        // that the dpjc code can't understand, there will still be problems,
+        // but this seems to work OK with JDK 7.
+//      if (majorVersion > maxMajor ||
+//          majorVersion * 1000 + minorVersion <
+//          Target.MIN().majorVersion * 1000 + Target.MIN().minorVersion)
+//      {
+//          if (majorVersion == (maxMajor + 1)) 
+//              log.warning("big.major.version",
+//                          currentClassFile,
+//                          majorVersion,
+//                          maxMajor);
+//          else
+//              throw badClassFile("wrong.version",
+//                                 Integer.toString(majorVersion),
+//                                 Integer.toString(minorVersion),
+//                                 Integer.toString(maxMajor),
+//                                 Integer.toString(maxMinor));
+//      }
+//      else if (checkClassFile &&
+//               majorVersion == maxMajor &&
+//               minorVersion > maxMinor)
+//      {
+//          printCCF("found.later.version",
+//                   Integer.toString(minorVersion));
+//      }
         indexPool();
         if (signatureBuffer.length < bp) {
             int ns = Integer.highestOneBit(bp) << 1;
