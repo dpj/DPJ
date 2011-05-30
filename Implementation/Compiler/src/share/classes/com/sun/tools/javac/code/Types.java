@@ -1854,6 +1854,8 @@ public class Types {
                         List<RPL> rgnactuals = classBound(t).allrgnactuals();
                         List<RegionParameterSymbol> rgnformals = t.tsym.type.allrgnparams();
                         t.supertype_field = substRPL(t.supertype_field, rgnformals, rgnactuals);
+                        t.supertype_field = substEffect(t.supertype_field, 
+                        	t.tsym.type.alleffectparams(), classBound(t).alleffectparams());
                     }
                 }
                 return t.supertype_field;

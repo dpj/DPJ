@@ -31,6 +31,10 @@ public class ClassEffectParamsGood extends DPJTestCase {
 	compile("SubstitutionThroughInheritance");
     }
     
+    @Test public void testSubstitutionThroughMultipleInheritance() throws Throwable {
+	compile("SubstitutionThroughMultipleInheritance");
+    }
+    
     @Test public void testEffectArgToSuperclass() throws Throwable {
 	compile("EffectArgToSuperclass");
     }
