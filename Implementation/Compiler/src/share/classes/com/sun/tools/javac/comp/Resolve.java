@@ -436,7 +436,7 @@ public class Resolve {
 
         if (RPLInstNeeded) {
             mt = inferRPL.instantiateMethod(rvars, tvars, 
-        	    (MethodType) mt, argtypes, warn);
+        	    (MethodType) mt, argtypes, allowBoxing, warn);
             if (mt == null) {
         	return null;
             }

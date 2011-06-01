@@ -626,10 +626,10 @@ public class Types {
      * unchecked conversions?  If lists are of different length,
      * return false.
      **/
-    public boolean isSubtypesUnchecked(List<Type> ts, List<Type> ss, Warner warn) {
+    public boolean isSubtypesUnchecked(List<Type> ts, List<Type> ss, boolean allowBoxing, Warner warn) {
         while (ts.tail != null && ss.tail != null
                /*inlined: ts.nonEmpty() && ss.nonEmpty()*/ &&
-               isSubtypeUnchecked(ts.head, ss.head, warn)) {
+               (isSubtypeUnchecked(ts.head, ss.head, warn) || (allowBoxing && isConvertible(ts.head, ss.head, warn)))) {
             ts = ts.tail;
             ss = ss.tail;
         }

@@ -40,7 +40,7 @@ public class InferRPL {
     }
 
     public Type instantiateMethod(List<RPL> rvars, List<Type> tvars,
-	    MethodType mt, List<Type> actualtypes, Warner warn) {
+	    MethodType mt, List<Type> actualtypes, boolean allowBoxing, Warner warn) {
 	ListBuffer<RPL> buf = ListBuffer.lb();
 	for (RPL rvar : rvars) {
 	    if (rvar.size() == 1 && rvar.elts.head instanceof RPLParameterElement)
@@ -58,7 +58,7 @@ public class InferRPL {
 	// Note:  This step fills in the bounds on the undet variables.  See RPL.isIncludedIn
 	// for details.  This is kind of a hack, but it makes for a very lean coding of the
 	// algorithm, i.e., no extra machinery is required to fill in the bounds.
-	if (!types.isSubtypesUnchecked(actualtypes, formaltypes, warn)) {
+	if (!types.isSubtypesUnchecked(actualtypes, formaltypes, allowBoxing, warn)) {
 	    return null;
 	}
 	buf = ListBuffer.lb();

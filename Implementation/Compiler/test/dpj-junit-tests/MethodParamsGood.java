@@ -50,4 +50,7 @@ public class MethodParamsGood extends DPJTestCase {
 	compile("DisjointStar");
     }
 
+    @Test public void testDefaultInferredAutoboxing() throws Throwable {
+	compile("DefaultInferredAutoboxing");
+    }
 }
