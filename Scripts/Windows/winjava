@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+
+use strict;
+
+my $javabin = "$ENV{'JAVA_HOME'}/bin/";
+my @pathargs = ("-cp", "-classpath", "-d", "-jar");
+my @pathprefixes = ("-Xbootclasspath/p:");
+my $cmd = "$javabin".(shift @ARGV);
+my $patharg = 0;
+
+foreach (@ARGV) {
+    my $arg = $_;
+    if ($patharg) {
+	if (/^-/) {
+	    $patharg = 0;
+	} else {
+	    $arg = `cygpath -wp $arg`;
+	    chomp $arg;
+	}
+    }
+    if (!$patharg) {
+	foreach (@pathargs) {
+	    if ($arg eq $_) {
+		$patharg = 1;
+	    }
+	}
+	foreach (@pathprefixes) {
+	    if ($arg =~ /$_(.*)/) {
+		my $path = `cygpath -wp $1`;
+		chomp $path;
+		$arg = $_.$path;
+	    }
+	}
+    }
+    $cmd .= " \"$arg\"";
+}
+
+#print "$cmd\n";
+print `$cmd`;
+

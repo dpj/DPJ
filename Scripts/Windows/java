@@ -1,0 +1,7 @@
+#!/usr/bin/perl
+
+my $args = "java";
+foreach (@ARGV) {
+    $args .= " $_";
+}
+print `winjava $args`;
