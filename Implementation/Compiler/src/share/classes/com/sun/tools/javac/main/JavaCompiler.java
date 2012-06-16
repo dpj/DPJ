@@ -951,7 +951,7 @@ public class JavaCompiler implements ClassReader.SourceCompleter {
         
         // Scan all the trees and fill in their method effect declarations
         Attr.DPJAttrPrePass attribMethodEffects = 
-            new Attr.DPJAttrPrePass(context);
+            Attr.DPJAttrPrePass.instance(context);
         for (JCCompilationUnit tree : roots) {
             JavaFileObject prev = log.useSource(tree.sourcefile);
             attribMethodEffects.scan(tree);

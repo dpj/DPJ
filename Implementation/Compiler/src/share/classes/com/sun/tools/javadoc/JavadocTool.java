@@ -175,7 +175,7 @@ public class JavadocTool extends com.sun.tools.javac.main.JavaCompiler {
 	        enter.main(trees);
 	        // Scan all the trees and fill in their method effect declarations
 		Attr.DPJAttrPrePass attribMethodEffects = 
-	            new Attr.DPJAttrPrePass(context);
+	            Attr.DPJAttrPrePass.instance(context);
 		attribMethodEffects.setEnter(this.enter);
 	        for (JCCompilationUnit tree : trees) {
 	            JavaFileObject prev = log.useSource(tree.sourcefile);

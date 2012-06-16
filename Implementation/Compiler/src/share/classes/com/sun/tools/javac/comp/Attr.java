@@ -224,6 +224,7 @@ public class Attr extends JCTree.Visitor {
     final Types types;
     final Annotate annotate;
     final RPLs rpls;
+    final DPJAttrPrePass dpjAttrPrePass;
 
     /**
      * A small pass that happens after Enter and before Attr.  It scans the tree and
@@ -246,12 +247,22 @@ public class Attr extends JCTree.Visitor {
      * @author Rob Bocchino
      */    
     public static class DPJAttrPrePass extends EnvScanner {
+	protected static final Context.Key<DPJAttrPrePass> dpjAttrPrePassKey =
+	    new Context.Key<DPJAttrPrePass>();
 
 	Attr attr;
 	RPLs rpls;
 	
-	public DPJAttrPrePass(Context context) {
+	public static DPJAttrPrePass instance(Context context) {
+	    DPJAttrPrePass instance = context.get(dpjAttrPrePassKey);
+	    if (instance == null)
+		instance = new DPJAttrPrePass(context);
+	    return instance;
+	}
+	
+	protected DPJAttrPrePass(Context context) {
 	    super(context);
+	    context.put(dpjAttrPrePassKey, this);
 	    attr = Attr.instance(context);
 	    rpls = RPLs.instance(context);
 	}
@@ -294,7 +305,7 @@ public class Attr extends JCTree.Visitor {
 
 	    // Attribute and set the region param constraints here.
 	    Env<AttrContext> env = enter.typeEnvs.get(tree.sym);
-	    // Ignore local inner classes
+	    // Ignore local inner classes initially (they will be processed after they're entered during Attr)
 	    if (env == null) return;
 	    attr.enterClassParams(tree, env);
 	    
@@ -358,6 +369,7 @@ public class Attr extends JCTree.Visitor {
         types = Types.instance(context);
         annotate = Annotate.instance(context);
         rpls = RPLs.instance(context);
+        dpjAttrPrePass = DPJAttrPrePass.instance(context);
         
         Options options = Options.instance(context);
 
@@ -848,9 +860,12 @@ public class Attr extends JCTree.Visitor {
     }
 
     public void visitClassDef(JCClassDecl tree) {
+	boolean doPrePass = false;
         // Local classes have not been entered yet, so we need to do it now:
-        if ((env.info.scope.owner.kind & (VAR | MTH)) != 0)
+        if ((env.info.scope.owner.kind & (VAR | MTH)) != 0) {
             enter.classEnter(tree, env);
+            doPrePass = true;
+        }
 
         ClassSymbol c = tree.sym;
         if (c == null) {
@@ -871,6 +886,10 @@ public class Attr extends JCTree.Visitor {
             {
                 c.flags_field |= NOOUTERTHIS;
             }
+            
+            if (doPrePass)
+        	dpjAttrPrePass.scan(tree);
+            
             attribClass(tree.pos(), c);
             result = tree.type = c.type;
         }
