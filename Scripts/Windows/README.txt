@@ -20,3 +20,6 @@ export JAVA_HOME="\"/cygdrive/c/Program Files/Java/jdk1.7.0_05\""
 4. Do the DPJ user installation as described in the Installation Manual.
 
 5. Add the directory $DPJ_ROOT/Scripts/Windows to the beginning of your PATH. 
+(This directory must go before any other directory containing java or javac,
+so that the wrapper scripts in this directory are used when java and javac
+are invoked by the DPJ tools.)
