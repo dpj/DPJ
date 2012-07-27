@@ -44,7 +44,7 @@ public class RuntimeState {
      *
      * This variable may be set to value <i>n</i> at the start of
      * program execution by passing {@code
-     * --dpj-foreach-cutoff=}<i>n</i> as a command-line argument to
+     * --dpj-foreach-cutoff }<i>n</i> as a command-line argument to
      * the DPJ program.  All DPJ command-line arguments must come
      * first.  This variable may also be set directly in the DPJ
      * program, if a different cutoff is desired for different {@code
@@ -53,13 +53,15 @@ public class RuntimeState {
     public static int dpjForeachCutoff in Global = 128;
 
     /**
-     * The number of ways to split a {@code foreach} loop.  The loop
-     * is recursively split into this many branches, until the {@code
-     * dpjForeachCutoff} is reached.  The default is 2.
+     * The branching factor of the recursive splitting process for a
+     * {@code foreach} loop.  The loop is recursively split into this 
+     * many branches at each recursive step, until the {@code 
+     * dpjForeachCutoff} is reached.  
+     * The default is 2.
      *
      * <p>This variable may be set to value <i>n</i> at the start of
      * program execution by passing {@code
-     * --dpj-foreach-split=}<i>n</i> as a command-line argument to the
+     * --dpj-foreach-split }<i>n</i> as a command-line argument to the
      * DPJ program.  All DPJ command-line arguments must come first.
      * This variable may also be set directly in the DPJ program, if a
      * different splitting factor is desired for different {@code
@@ -73,7 +75,7 @@ public class RuntimeState {
      *
      * <p>This variable may be set to value <i>n</i> at the start of
      * program execution by passing {@code
-     * --dpj-foreach-split=}<i>n</i> as a command-line argument to the
+     * --dpj-num-threads }<i>n</i> as a command-line argument to the
      * DPJ program.  Thereafter it may not be changed.
      */
     public static int dpjNumThreads in Global =
@@ -96,15 +98,15 @@ public class RuntimeState {
      * Processes command-line arguments and initializes the runtime
      * parameters.  The command-line options are as follows:
      *
-     * <p><blockquote> {@code --dpj-foreach-split=}<i>n</i>: Set
+     * <p><blockquote> {@code --dpj-foreach-split }<i>n</i>: Set
      * {@link dpjForeachSplit} to <i>n</i>.  <br>{@code
-     * --dpj-foreach-cutoff=}<i>n</i>: Set {@link dpjForeachCutoff} to
-     * <i>n</i>.  <br>{@code --dpj-num-threads=}<i>n</i>: Set {@link
+     * --dpj-foreach-cutoff }<i>n</i>: Set {@link dpjForeachCutoff} to
+     * <i>n</i>.  <br>{@code --dpj-num-threads }<i>n</i>: Set {@link
      * dpjNumThreads} to <i>n</i>.  </blockquote>
      *
      * <p>The DPJ options may appear in any order, but they must
      * precede any command-line arguments to the program.  The rest of
-     * the arguments are passed to the DPJ program to be processed by
+     * the arguments are returned to the DPJ program to be processed by
      * it.
      */
     public static String[] initialize(String[] args) {
