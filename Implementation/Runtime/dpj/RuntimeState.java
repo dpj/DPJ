@@ -137,12 +137,6 @@ public class RuntimeState {
 	    }
 	}
 	
-	if(dpjForeachCutoff < dpjForeachSplit - 1) {
-	    error("DPJ foreach cutoff must be greater than or equal to DPJ foreach split\n" +
-		  "DPJ foreach cutoff="+dpjForeachCutoff+
-		  "\nDPJ foreach split="+dpjForeachSplit);
-	}
-	
 	//
 	// Return the rest of the arguments to the program
 	//
