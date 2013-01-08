@@ -36,7 +36,18 @@ public class RPLs {
 
     /** Single, global RPL for Root */
     public static final RPL ROOT = new RPL(RPLElement.ROOT_ELEMENT);
-;
+
+    /**                                                                         
+     * Capture a list of RPLs                                                   
+     */
+    public static List<RPL> captureRPLs(List<RPL> list) {
+        ListBuffer<RPL> lb = ListBuffer.lb();
+        for (RPL rpl : list) {
+            RPL captureRPL = rpl.capture();
+            lb.append(captureRPL);
+	}
+        return lb.toList();
+    }
 
     /**
      * Disjoint RPLs.  See Section 3.2 of the Tech Report

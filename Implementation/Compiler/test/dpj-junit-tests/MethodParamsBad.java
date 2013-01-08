@@ -31,4 +31,12 @@ public class MethodParamsBad extends DPJTestCase {
 	compileExpectingErrors("ConflictingParams", 1);
     }
     
+    @Test public void testErrorCaptureExplicitArgs() throws Throwable {
+	compileExpectingErrors("ErrorCaptureExplicitArgs", 1);
+    }
+    
+    @Test public void testErrorExplicitEffect() throws Throwable {
+	compileExpectingErrors("ErrorExplicitEffect", 1);
+    }
+    
 }

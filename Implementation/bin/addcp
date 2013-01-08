@@ -33,6 +33,6 @@ if (!$found_cp) {
     $cmd .= " -cp $RT_CLASSES";
 }
 
-print `$cmd\n`;
+print `$cmd`;
 
 

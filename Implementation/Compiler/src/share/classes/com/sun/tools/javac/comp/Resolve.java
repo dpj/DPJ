@@ -375,6 +375,21 @@ public class Resolve {
         if (typeargtypes == null) typeargtypes = List.nil();
         if (regionargs == null) regionargs = List.nil();
         if (effectargs == null) effectargs = List.nil();
+
+        // Capture explicit region args to prevent inconsistency.  For
+        // example, <region R>void foo(Data<R> x, Data<R> y) shouldn't
+        // be called like this: this.<*>foo(a,b), where a:Data<A>
+        // and b:Data<B>.
+        //
+        // As a practical matter, this means that if you want to bind
+        // a partially specified RPL to a method region parameter, and
+        // that parameter appears in one of the argument types, then
+        // you have to use region inference.
+        //
+        // (Java generics do something similar --- they don't allow you to
+        // use ? at all in a method type argument.)
+        regionargs = rpls.captureRPLs(regionargs);
+
         Type mt_old = mt;
         if (mt.tag != FORALL && typeargtypes.nonEmpty()) {
             // This is not a polymorphic method, but typeargs are supplied
@@ -388,13 +403,15 @@ public class Resolve {
             List<Type> formals = pmt.tvars;
             List<Type> actuals = typeargtypes;
             while (formals.nonEmpty() && actuals.nonEmpty()) {
-                List<Type> bounds = types.subst(types.getBounds((TypeVar)formals.head),
-                                                pmt.tvars, typeargtypes);
+                List<Type> bounds = 
+		    types.subst(types.getBounds((TypeVar)formals.head),
+				pmt.tvars, typeargtypes);
                 bounds = types.substRPL(bounds, formals, actuals, 
-                	rpls.toParams(pmt.rvars), regionargs);
+					rpls.toParams(pmt.rvars), regionargs);
                 bounds = types.substEffect(bounds, pmt.evars, effectargs);
                 for (; bounds.nonEmpty(); bounds = bounds.tail)
-                    if (!types.isSubtypeUnchecked(actuals.head, bounds.head, warn)) {
+                    if (!types.isSubtypeUnchecked(actuals.head, 
+						  bounds.head, warn)) {
                 	return null;
                     }
                 formals = formals.tail;
