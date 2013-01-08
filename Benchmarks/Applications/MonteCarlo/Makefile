@@ -6,6 +6,8 @@ NT ?=1
 
 include ../../Makefile.common
 
+DPJ += -Xmx1g
+
 run-inst :
 	${DPJ-INST} ${PROG} IDEAL ${SIZE}
 
