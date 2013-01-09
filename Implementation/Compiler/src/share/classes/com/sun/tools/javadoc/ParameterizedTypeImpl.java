@@ -69,7 +69,7 @@ public class ParameterizedTypeImpl
      * Return the actual region arguments of this type.
      */
     public List<RPL> regionArguments() {
-	return type.getRegionActuals();
+	return type.getRPLArguments();
     }
 
     /**

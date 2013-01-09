@@ -321,7 +321,7 @@ public class Attr extends JCTree.Visitor {
         	if (cs.constraints != null) {
         	    // Check that disjointness constraints on region args are satisfied
         	    if (!rpls.disjointnessConstraintsAreSatisfied(cs.constraints.disjointRPLs, 
-        		    ct.getRegionParams(), ct.getRegionActuals(), 
+        		    ct.tsym.type.getRPLArguments(), ct.getRPLArguments(), 
         		    parentEnv.info.constraints.disjointRPLs)) {
         		enter.log.warning(tree, "rpl.constraints");
         	    }
@@ -331,8 +331,8 @@ public class Attr extends JCTree.Visitor {
         		enter.log.warning(tree, "effect.constraints");
         	    }
         	}
-        	if (!rpls.atomicConstraintsAreSatisfied(ct.getRegionParams(),
-        		ct.getRegionActuals())) {
+        	if (!rpls.atomicConstraintsAreSatisfied(ct.tsym.type.getRPLArguments(),
+        		ct.getRPLArguments())) {
         	    enter.log.error(tree, "atomic.constraints");
         	}
 	    }
@@ -2335,7 +2335,7 @@ public class Attr extends JCTree.Visitor {
             // method type with the type of the call's arguments as parameters.
             env.info.varArgs = false;
             sym = rs.resolveMethod(tree.pos(), env, tree.name, pt.getParameterTypes(), 
-        	    		   pt.getTypeArguments(), pt.getRegionActuals(),
+        	    		   pt.getTypeArguments(), pt.getRPLArguments(),
         	    		   pt.getEffectArguments());
             varArgs = env.info.varArgs;
         } else if (tree.sym != null && tree.sym.kind != VAR) {
@@ -2569,7 +2569,7 @@ public class Attr extends JCTree.Visitor {
                 if (pt.tag == METHOD || pt.tag == FORALL) {
                     return rs.resolveQualifiedMethod(
                         pos, env, site, name, pt.getParameterTypes(), pt.getTypeArguments(),
-                        pt.getRegionActuals(), pt.getEffectArguments());
+                        pt.getRPLArguments(), pt.getEffectArguments());
                 } else if (name == names._this || name == names._super) {
                     return rs.resolveSelf(pos, env, site.tsym, name);
                 } else if (name == names._class) {
@@ -2671,16 +2671,16 @@ public class Attr extends JCTree.Visitor {
                 // except for two situations:
                 owntype = sym.type;
                 if (owntype.tag == CLASS) {
-                    int numParams = owntype.tsym.type.getRegionParams().size();
+                    int numParams = owntype.tsym.type.getRPLArguments().size();
                     Type ownOuter = owntype.getEnclosingType();
                     
                     // (a) If the symbol's type is parameterized, erase it
                     // because no type parameters were given.
                     // We recover generic outer type later in visitTypeApply.
                     if (owntype.tsym.type.getTypeArguments().nonEmpty() ||
-                	    owntype.tsym.type.getRegionParams().nonEmpty()) {
+                	    owntype.tsym.type.getRPLArguments().nonEmpty()) {
                 	List<RPL> regionParams = 
-                	    owntype.getRegionParams();
+                	    owntype.tsym.type.getRPLArguments();
                         owntype = types.erasure(owntype);
                         // Don't erase the region params!
                         ((ClassType) owntype).rplparams_field = regionParams;
@@ -2692,7 +2692,7 @@ public class Attr extends JCTree.Visitor {
                         for (int i = 0; i < numParams; ++i) {
                             buf.append(RPLs.ROOT);
                         }
-                        ((ClassType) owntype).rgnactuals_field = buf.toList();
+                        ((ClassType) owntype).rplparams_field = buf.toList();
                     }
 
                     // (b) If the symbol's type is an inner class, then
@@ -2778,7 +2778,7 @@ public class Attr extends JCTree.Visitor {
                 JCMethodInvocation app = (JCMethodInvocation)env.tree;
                 owntype = checkMethod(site, sym, env, app.args,
                                       pt.getParameterTypes(), pt.getTypeArguments(),
-                                      pt.getRegionActuals(), pt.getEffectArguments(),
+                                      pt.getRPLArguments(), pt.getEffectArguments(),
                                       env.info.varArgs);
                 break;
             }
@@ -2961,7 +2961,7 @@ public class Attr extends JCTree.Visitor {
                 log.error(env.tree.pos(),
                           "internal.error.cant.instantiate",
                           sym, site,
-                          RPL.toString(pt.getRegionActuals()) + Type.toString(pt.getParameterTypes()));
+                          RPL.toString(pt.getRPLArguments()) + Type.toString(pt.getParameterTypes()));
             owntype = syms.errType;
         } else {
             // System.out.println("call   : " + env.tree);
@@ -3154,7 +3154,7 @@ public class Attr extends JCTree.Visitor {
 
             // Get the formal region params
             List<RPL> rplFormals =
-        	functortype.tsym.type.getRegionParams();
+        	functortype.tsym.type.getRPLArguments();
 
             // Get the formal effect params
             List<Effects> effectFormals =
@@ -3232,7 +3232,7 @@ public class Attr extends JCTree.Visitor {
             List<RPL> rplActuals = null;
             if (tree.functor instanceof DPJRegionApply) {
         	// We did this already
-        	rplActuals = ct.getRegionActuals();
+        	rplActuals = ct.getRPLArguments();
             } else {
         	// OK, we need RPL args.  Attribute them.
         	rplActuals = attribRPLs(tree.rplArgs);
@@ -3808,7 +3808,7 @@ public class Attr extends JCTree.Visitor {
 
         if (clazztype.tag == CLASS) {
             List<RPL> formals = 
-        	clazztype.tsym.type.getRegionParams();
+        	clazztype.tsym.type.getRPLArguments();
             
             while (actuals.length() < formals.length()) {
         	actuals = actuals.append(RPLs.ROOT);

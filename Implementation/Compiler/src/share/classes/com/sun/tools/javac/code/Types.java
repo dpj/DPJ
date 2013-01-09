@@ -469,15 +469,15 @@ public class Types {
                 TypePair pair = new TypePair(t, s);
                 if (cache.add(pair)) {
                     try {
-                        return containsRegions(t.getRegionActuals(),
-                                               s.getRegionActuals(),
+                        return containsRegions(t.getRPLArguments(),
+                                               s.getRPLArguments(),
                                                requireEqualRegions);
                     } finally {
                         cache.remove(pair);
                     }
                 } else {
-                    return containsRegions(t.getRegionActuals(),
-                                           rewriteSupers(s).getRegionActuals(),
+                    return containsRegions(t.getRPLArguments(),
+                                           rewriteSupers(s).getRPLArguments(),
                                            requireEqualRegions);
                 }
             }
@@ -958,7 +958,7 @@ public class Types {
             }
 
             public Boolean visitType(Type t, Type s) {
-        	if (!containsRegions(t.getRegionActuals(),s.getRegionActuals(),true))
+        	if (!containsRegions(t.getRPLArguments(),s.getRPLArguments(),true))
         	    return false;
                 if (s.tag >= firstPartialTag)
                     return containedBy(s, t);
@@ -2063,7 +2063,8 @@ public class Types {
                 Type outer1 = classBound(t.getEnclosingType());
                 if (outer1 != t.getEnclosingType())
                     return new ClassType(outer1, t.getTypeArguments(), 
-                	    t.getRegionParams(), t.getEffectArguments(), t.tsym);
+                	    t.tsym.type.getRPLArguments(), 
+                	    t.getEffectArguments(), t.tsym);
                 else
                     return t;
             }
@@ -2240,7 +2241,7 @@ public class Types {
                      // If there are n region arguments to t, replace the first
                      // n RPL arguments of result with those region args
                      List<RPL> tArgs = t.rplargs;
-                     List<RPL> resultArgs = result.getRegionActuals();
+                     List<RPL> resultArgs = result.getRPLArguments();
                      ListBuffer<RPL> buf = ListBuffer.lb();
                      for (RPL arg : resultArgs) {
                 	 if (tArgs.nonEmpty()) {
@@ -2253,7 +2254,7 @@ public class Types {
                      if (result.tag == CLASS) {
                 	 ClassType ct = (ClassType) result;
                 	 result = new ClassType(ct.getEnclosingType(), ct.getTypeArguments(),
-                		 ct.getRegionParams(), 
+                		 ct.tsym.type.getRPLArguments(), 
                 		 buf.toList(), 
                 		 ct.getEffectArguments(),
                 		 ct.tsym);
@@ -2282,7 +2283,7 @@ public class Types {
                     return t;
                 else {
                     Type result = new ClassType(outer1, typarams1, 
-                	    t.getRegionParams(), t.getRegionActuals(),
+                	    t.tsym.type.getRPLArguments(), t.getRPLArguments(),
                     	    t.getEffectArguments(),
                 	    t.tsym);
                     return result;
@@ -2400,13 +2401,13 @@ public class Types {
             if (!t.isCompound()) {
                 List<Type> typarams = t.getTypeArguments();
                 List<Type> typarams1 = substForThis(typarams);
-                List<RPL> rgnactuals = t.getRegionActuals();
+                List<RPL> rgnactuals = t.getRPLArguments();
                 List<RPL> rgnactuals1 = rpls.substForThis(rgnactuals, rpl);
                 List<Effects> effectargs = t.getEffectArguments();
                 List<Effects> effectargs1 = Effects.substForThis(effectargs, rpl);
                 Type outer = t.getEnclosingType();
                 Type outer1 = substForThis(outer);
-                return new ClassType(outer1, typarams1, t.getRegionParams(), 
+                return new ClassType(outer1, typarams1, t.tsym.type.getRPLArguments(), 
                 	rgnactuals1, effectargs1, t.tsym);
             } else {
                 Type st = substForThis(supertype(t));
@@ -2535,7 +2536,7 @@ public class Types {
             if (!t.isCompound()) {
                 List<Type> typarams = t.getTypeArguments();
                 List<Type> typarams1 = substIndices(typarams);
-                List<RPL> rgnactuals = t.getRegionActuals();
+                List<RPL> rgnactuals = t.getRPLArguments();
                 List<RPL> rgnactuals1 = rpls.substIndices(rgnactuals, from, to);
                 List<Effects> effectparams = t.getEffectArguments();
                 List<Effects> effectparams1 = 
@@ -2547,7 +2548,7 @@ public class Types {
                 	effectparams1 == effectparams)
                     return t;
                 else
-                    return new ClassType(outer1, typarams1, t.getRegionParams(), 
+                    return new ClassType(outer1, typarams1, t.tsym.type.getRPLArguments(), 
                 	    rgnactuals1, effectparams1, t.tsym);
             } else {
                 Type st = substIndices(supertype(t));
@@ -2704,7 +2705,7 @@ public class Types {
             if (!t.isCompound()) {
                 List<Type> typarams = t.getTypeArguments();
                 List<Type> typarams1 = substRPL(typarams);
-                List<RPL> rgnactuals = t.getRegionActuals();
+                List<RPL> rgnactuals = t.getRPLArguments();
                 List<RPL> rgnactuals1 = RPLs.substForParams(rgnactuals, from, to);
                 rgnactuals1 = RPLs.substForTRParams(rgnactuals1, fromTypes, toTypes);
                 List<Effects> effectargs = t.getEffectArguments();
@@ -2712,7 +2713,7 @@ public class Types {
                 	from, to);
                 Type outer = t.getEnclosingType();
                 Type outer1 = substRPL(outer);
-                return new ClassType(outer1, typarams1, t.getRegionParams(), 
+                return new ClassType(outer1, typarams1, t.tsym.type.getRPLArguments(), 
                 	rgnactuals1, effectargs1, t.tsym);
             } else {
                 Type st = substRPL(supertype(t));
@@ -2843,8 +2844,8 @@ public class Types {
                 List<Effects> effectargs1 = Effects.substForEffectVars(effectargs, from, to);
                 Type outer = t.getEnclosingType();
                 Type outer1 = substEffect(outer);
-                return new ClassType(outer1, typarams1, t.getRegionParams(), 
-                	t.getRegionActuals(), effectargs1, t.tsym);
+                return new ClassType(outer1, typarams1, t.tsym.type.getRPLArguments(), 
+                	t.getRPLArguments(), effectargs1, t.tsym);
             } else {
                 Type st = substEffect(supertype(t));
                 List<Type> is = upperBounds(substEffect(interfaces(t)));
@@ -3741,7 +3742,7 @@ public class Types {
 	
 	// Capture RPLs
 	boolean capturedRPLs = false;
-	List<RPL> rpls = ct.getRegionActuals();
+	List<RPL> rpls = ct.getRPLArguments();
 	ListBuffer<RPL> rplBuf = ListBuffer.lb();
 	for (RPL rpl : rpls) {
 	    RPL captureRPL = rpl.capture();

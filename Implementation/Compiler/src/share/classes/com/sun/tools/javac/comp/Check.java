@@ -886,8 +886,8 @@ public class Check {
 	    if (tree.type.tag == CLASS) {
 		List<Type> formals = tree.type.tsym.type.getTypeArguments();
 		List<Type> actuals = tree.type.getTypeArguments();
-		List<RPL> rplformals = tree.type.tsym.type.getRegionParams();
-		List<RPL> rplactuals = tree.type.getRegionActuals();
+		List<RPL> rplformals = tree.type.tsym.type.getRPLArguments();
+		List<RPL> rplactuals = tree.type.getRPLArguments();
 		List<JCExpression> args = tree.typeArgs;
 		List<Type> forms = formals;
 		ListBuffer<TypeVar> tvars_buf = new ListBuffer<TypeVar>();

@@ -39,8 +39,8 @@ public abstract class Effect {
      * Do all the RPL and effect parameter substitutions implied by the bindings of t
      */
     public Effects substForAllParams(Type t) {
-	Effect e = this.substForParams(t.getRegionParams(), 
-		t.getRegionActuals());
+	Effect e = this.substForParams(t.tsym.type.getRPLArguments(),
+		t.getRPLArguments());
 	e = e.substForTRParams(t.tsym.type.getTypeArguments(),
 		t.getTypeArguments());
     	return e.substForEffectVars(t.tsym.type.getEffectArguments(), 

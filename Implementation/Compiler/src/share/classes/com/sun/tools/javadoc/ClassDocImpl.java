@@ -423,7 +423,7 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
 	if (env.legacyDoclet)
 	    return List.nil();
 	ListBuffer<RPL> lb = ListBuffer.lb();
-	for (RPL rpl : type.getRegionParams()) {
+	for (RPL rpl : type.tsym.type.getRPLArguments()) {
 	    lb.append(rpl);
 	}
 	return lb.toList();

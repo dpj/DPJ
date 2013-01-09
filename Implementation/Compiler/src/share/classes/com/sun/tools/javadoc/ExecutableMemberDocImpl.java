@@ -276,7 +276,7 @@ public abstract class ExecutableMemberDocImpl
 	    return List.nil();
 	}
 	ListBuffer<RPL> lb = ListBuffer.lb();
-	for (RPL rpl : sym.type.getRegionParams()) {
+	for (RPL rpl : sym.type.tsym.type.getRPLArguments()) {
 	    lb.append(rpl);
 	}
 	return lb.toList();

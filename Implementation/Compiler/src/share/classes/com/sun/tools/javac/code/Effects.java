@@ -273,11 +273,11 @@ public class Effects implements Iterable<Effect> {
         	    ClassType ct = (ClassType) fa.selected.type;
         	    result = 
         		result.asMemberOf(types, ct.tsym.type, sym.owner);
-        	    if (ct.getRegionActuals().size() == 
-        		ct.tsym.type.getRegionParams().size()) {
+        	    if (ct.getRPLArguments().size() == 
+        		ct.tsym.type.getRPLArguments().size()) {
         		result = 
-        		    result.substForRegionParams(ct.tsym.type.getRegionParams(),
-        			ct.getRegionActuals());
+        		    result.substForRegionParams(ct.tsym.type.getRPLArguments(),
+        			ct.getRPLArguments());
         	    }
         	    result = 
         		result.substForEffectVars(ct.tsym.type.getEffectArguments(),

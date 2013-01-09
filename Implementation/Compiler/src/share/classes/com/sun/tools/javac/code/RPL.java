@@ -215,8 +215,8 @@ public class RPL {
      */
     public RPL substForTRParams(Type from, Type to) {
 	if (!(from instanceof TypeVar)) return this;
-	List<RPL> params = from.tsym.type.getRegionParams();
-	List<RPL> args = to.getRegionActuals();
+	List<RPL> params = from.tsym.type.getRPLArguments();
+	List<RPL> args = to.getRPLArguments();
 	return this.substForParams(params, args);
     }
 
@@ -237,7 +237,8 @@ public class RPL {
      * Do all the RPL parameter substitutions implied by the bindings of t
      */
     public RPL substForAllParams(Type t) {
-	RPL result = this.substForParams(t.getRegionParams(), t.getRegionActuals());
+	RPL result = this.substForParams(t.tsym.type.getRPLArguments(), 
+		t.getRPLArguments());
 	result = result.substForTRParams(t.tsym.type.getTypeArguments(),
 		t.getTypeArguments());
 	return result;
@@ -464,7 +465,7 @@ public class RPL {
 	    if (!rs.isInScope(vrs.vsym, env)) {
 		if (vrs.vsym.type instanceof ClassType) {
 		    ClassType ct = (ClassType) vrs.vsym.type;
-		    List<RPL> actuals = ct.getRegionActuals();
+		    List<RPL> actuals = ct.getRPLArguments();
 		    RPL owner = actuals.isEmpty() ? RPLs.ROOT : actuals.head;
 			return new RPL(owner.elts.append(RPLElement.STAR).appendList(elts.tail)).inEnvironment(rs, env, pruneLocalEffects);
 		}		

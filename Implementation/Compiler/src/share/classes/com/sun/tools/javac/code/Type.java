@@ -308,8 +308,7 @@ public class Type implements PrimitiveType {
     /** Access methods.
      */
     public List<Type>        getTypeArguments()  { return List.nil(); }
-    public List<RPL>         getRegionParams() { return List.nil(); }
-    public List<RPL>         getRegionActuals()  { return List.nil(); }
+    public List<RPL>         getRPLArguments()  { return List.nil(); }
     public List<Effects>     getEffectArguments() { return List.nil(); }
     public Type              getEnclosingType()  { return null; }
     public List<Type>        getParameterTypes() { return List.nil(); }
@@ -318,7 +317,7 @@ public class Type implements PrimitiveType {
     public Type              getUpperBound()     { return null; }
     public Type              getLowerBound()     { return null; }
     public RPL               getOwner()          { 
-        List<RPL> rgnActuals = getRegionActuals();
+        List<RPL> rgnActuals = getRPLArguments();
         return (rgnActuals.nonEmpty()) ? rgnActuals.head : RPLs.ROOT;
     }
 
@@ -617,14 +616,10 @@ public class Type implements PrimitiveType {
          */
         public List<Type> typarams_field;
         
-        /** The actual arguments bound to the region parameters // DPJ
-         */
-        public List<RPL> rgnactuals_field;
-
         /** The RPL parameters of this type
          */
         public List<RPL> rplparams_field;
-        
+
         /** The effect parameters of this type
          */
         public List<Effects> effectparams_field;
@@ -666,7 +661,7 @@ public class Type implements PrimitiveType {
         		List<RPL> rgnactuals, List<Effects> effectparams,
         		TypeSymbol tsym) {
             this(outer, typarams, rgnparams, effectparams, tsym);
-            this.rgnactuals_field = rgnactuals;
+            this.rplparams_field = rgnactuals;
         }
         
         public ClassType(Type outer, List<Type> typarams, 
@@ -676,9 +671,8 @@ public class Type implements PrimitiveType {
             super(CLASS, tsym);
             this.outer_field = outer;
             this.typarams_field = typarams;
-            this.rplparams_field = rgnparams;
             this.effectparams_field = effectparams;
-            this.rgnactuals_field = null;
+            this.rplparams_field = null;
             this.alltyparams_field = null;
             this.supertype_field = null;
             this.interfaces_field = null;
@@ -725,14 +719,14 @@ public class Type implements PrimitiveType {
                 buf.append(className(tsym, true));
             }
             boolean typarams = getTypeArguments().nonEmpty();
-            boolean rplparams = Types.printDPJ && getRegionActuals().nonEmpty();
+            boolean rplparams = Types.printDPJ && getRPLArguments().nonEmpty();
             boolean effectparams = Types.printDPJ && getEffectArguments().nonEmpty();
             boolean params = typarams | rplparams | effectparams;
             if (params) buf.append('<');
             buf.append(getTypeArguments().toString());
             if (rplparams) {
         	if (typarams) buf.append(", ");
-        	buf.append(getRegionActuals().toString());
+        	buf.append(getRPLArguments().toString());
             }
             if (effectparams) {
         	if (typarams | rplparams) buf.append(", ");
@@ -781,40 +775,12 @@ public class Type implements PrimitiveType {
             return typarams_field;
         }
         
-        public List<Effects> getEffectArguments() {
-            if (effectparams_field == null) {
-        	complete();
-        	if (effectparams_field == null)
-        	    effectparams_field = List.nil();
-            }
-            return effectparams_field;
-        }
-        
-        public List<RPL> getRegionParams() {
+        public List<RPL> getRPLArguments() {
             if (rplparams_field == null) {
         	complete();
                 if (rplparams_field == null) {
                     rplparams_field = List.nil();                    
                 }
-            }
-            return rplparams_field;
-        }
-
-        public List<RPL> getRegionActuals() {
-            // This piece of code mimics what happens for generics when no params
-            // are instantiated, you just get the parameters as the "actuals."
-            // This happens, e.g., in the type of an enclosing class.  In our case,
-            // we need to wrap the parameters in RPLs, because our params are symbols
-            // and our actuals are RPLs.
-            if (rgnactuals_field == null) {
-        	complete();
-        	if (rgnactuals_field == null) {
-        	    ListBuffer<RPL> buf = new ListBuffer<RPL>();
-        	    for (RPL rpl : tsym.type.getRegionParams()) {
-        		buf.append(rpl);
-        	    }
-        	    rgnactuals_field = buf.toList();
-        	}
             }
             
             // This piece of code handles the case of default region parameters, e.g.,
@@ -823,25 +789,28 @@ public class Type implements PrimitiveType {
             // in tsym.type.getRegionParams().  So we need to fill in the 'actuals'
             // with Root.  We only do this if the type has not been erased -- if it has,
             // then we really want those empty actuals.  Whew!
-            if (!DPJerased && rgnactuals_field.isEmpty() && 
-        	    !tsym.type.getRegionParams().isEmpty()) {
+            if (!DPJerased && rplparams_field.isEmpty() && 
+        	    tsym.type != this &&
+        	    !tsym.type.getRPLArguments().isEmpty()) {
         	ListBuffer<RPL> buf = ListBuffer.lb();
-        	int size = tsym.type.getRegionParams().size();
+        	int size = tsym.type.getRPLArguments().size();
         	for (int i = 0; i < size; ++i) {
         	    buf.append(RPLs.ROOT);
         	}
-        	rgnactuals_field = buf.toList();
+        	rplparams_field = buf.toList();
             }
-            return rgnactuals_field;
+            return rplparams_field;
         }
         
-        /*
-        public RPL getOwner() {
-            List<RPL> rgnActuals = getRegionActuals();
-            return (rgnActuals.nonEmpty()) ? rgnActuals.head : RPLs.ROOT;
+        public List<Effects> getEffectArguments() {
+            if (effectparams_field == null) {
+        	complete();
+        	if (effectparams_field == null)
+        	    effectparams_field = List.nil();
+            }
+            return effectparams_field;
         }
-        */
-        
+                
         public Type getEnclosingType() {
             return outer_field;
         }
@@ -861,16 +830,17 @@ public class Type implements PrimitiveType {
         public List<RPL> allrgnparams() {
             if (allrplparams_field == null) {
         	allrplparams_field = 
-        		getRegionParams().prependList(getEnclosingType().allrgnparams());
+        		getRPLArguments().prependList(getEnclosingType().allrgnparams());
             }
             return allrplparams_field;
         }
 
         public List<RPL> allrgnactuals() {
             if (allrgnactuals_field == null) {
-        	allrgnactuals_field = getRegionActuals();
+        	allrgnactuals_field = getRPLArguments();
         	if (this != getEnclosingType()) {
-        	    allrgnactuals_field = allrgnactuals_field.prependList(getEnclosingType().allrgnactuals());
+        	    allrgnactuals_field = 
+        		    allrgnactuals_field.prependList(getEnclosingType().allrgnactuals());
         	}
             }
             return allrgnactuals_field;
@@ -1233,12 +1203,7 @@ public class Type implements PrimitiveType {
         }
 
         @Override
-        public List<RPL> getRegionParams() { 
-            return rplparams; 
-        }
-        
-        @Override
-        public List<RPL> getRegionActuals() { 
+        public List<RPL> getRPLArguments() { 
             if (rplargs.isEmpty() && rplparams.nonEmpty())
         	rplargs = rplparams;
             return rplargs; 
@@ -1275,9 +1240,9 @@ public class Type implements PrimitiveType {
         
         public String toString() {
             StringBuffer sb = new StringBuffer(super.toString());
-            if (Types.printDPJ && getRegionActuals().nonEmpty()) {
+            if (Types.printDPJ && getRPLArguments().nonEmpty()) {
         	sb.append('<');
-        	sb.append(getRegionActuals().toString());
+        	sb.append(getRPLArguments().toString());
         	sb.append('>');
             }
             return sb.toString();
@@ -1381,7 +1346,7 @@ public class Type implements PrimitiveType {
         }
 
         public List<Type> getTypeArguments()   { return tvars; }
-        public List<RPL> getRegionActuals() { return rvars; }
+        public List<RPL> getRPLArguments() { return rvars; }
         public List<Effects> getEffectArguments() { return evars; }
 
         public void setThrown(List<Type> t) {
@@ -1423,10 +1388,6 @@ public class Type implements PrimitiveType {
 
         public List<VariableEffect> getEffectVariables() {
             return List.convert(VariableEffect.class, getEffectArguments());
-        }
-        
-        public List<RPL> getRegionParams() {
-            return getRegionActuals();
         }
         
         public TypeKind getKind() {
@@ -1552,12 +1513,11 @@ public class Type implements PrimitiveType {
         public boolean isCompound()              { return false; }
         public boolean isInterface()             { return false; }
 
-        public List<Type> alltyparams()            { return List.nil(); }
-        public List<RPL> allrgnparams() { return List.nil(); }
+        public List<Type> alltyparams()          { return List.nil(); }
+        public List<RPL> allrgnparams()          { return List.nil(); }
         public List<Type> getTypeArguments()     { return List.nil(); }
         public List<Effects> getEffectArguments() { return List.nil(); }
-        public List<RPL> getRegionParams()       { return List.nil(); }
-        public List<RPL>         getRegionActuals()  { return List.nil(); }
+        public List<RPL>         getRPLArguments()  { return List.nil(); }
 
 
         public TypeKind getKind() {

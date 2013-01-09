@@ -201,8 +201,9 @@ public class RPLs {
     }
     
     public static List<RPL> substForAllParams(List<RPL> rpls, Type t) {
-	List<RPL> result = substForParams(rpls, t.tsym.type.getRegionParams(),
-		t.getRegionActuals());
+	List<RPL> result = substForParams(rpls, 
+		t.tsym.type.getRPLArguments(),
+		t.getRPLArguments());
 	result = substForTRParams(result, t.tsym.type.getTypeArguments(),
 		t.getTypeArguments());
 	return result;
