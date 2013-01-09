@@ -886,8 +886,7 @@ public class Check {
 	    if (tree.type.tag == CLASS) {
 		List<Type> formals = tree.type.tsym.type.getTypeArguments();
 		List<Type> actuals = tree.type.getTypeArguments();
-		List<RegionParameterSymbol> rplformals = 
-		    RPLs.toParams(tree.type.tsym.type.getRegionParams());
+		List<RPL> rplformals = tree.type.tsym.type.getRegionParams();
 		List<RPL> rplactuals = tree.type.getRegionActuals();
 		List<JCExpression> args = tree.typeArgs;
 		List<Type> forms = formals;
@@ -1279,12 +1278,12 @@ public class Check {
 	if (other.effects != Effects.UNKNOWN) {
 	    Effects me = m.effects.asMemberOf(types, origin.type, m.owner);
 	    Effects oe = other.effects.asMemberOf(types, origin.type, other.owner);
-	    List<RegionParameterSymbol> m_rpl_params = m.rgnParams;
-	    List<RegionParameterSymbol> o_rpl_params = other.rgnParams;
+	    List<RPL> m_rpl_params = RPLs.paramsToRPLs(m.rgnParams);
+	    List<RPL> o_rpl_params = RPLs.paramsToRPLs(other.rgnParams);
 	    if (m_rpl_params != null && o_rpl_params != null) {
 		ListBuffer<RPL> buf = ListBuffer.lb();
-		for (RegionParameterSymbol rps : m_rpl_params) {
-		    buf.append(new RPL(new RPLParameterElement(rps)));
+		for (RPL rps : m_rpl_params) {
+		    buf.append(rps);
 		}
 		List<RPL> rpls = buf.toList();
 		me = me.substForRegionParams(m_rpl_params, rpls);

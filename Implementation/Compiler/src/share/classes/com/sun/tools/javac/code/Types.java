@@ -1616,7 +1616,7 @@ public class Types {
                     if (base != null) {
                 	List<Type> fromTypes = owner.type.alltyparams();
                 	List<Type> toTypes = base.alltyparams();
-                	List<RegionParameterSymbol> from = RPLs.toParams(owner.type.allrgnparams());
+                	List<RPL> from = owner.type.allrgnparams();
                         List<RPL> to = base.allrgnactuals();
                         result = substRPL(result, fromTypes, toTypes, from, to);
                     }
@@ -1852,7 +1852,7 @@ public class Types {
                             t.supertype_field = subst(supertype, formals, actuals);
                         }
                         List<RPL> rgnactuals = classBound(t).allrgnactuals();
-                        List<RegionParameterSymbol> rgnformals = RPLs.toParams(t.tsym.type.allrgnparams());
+                        List<RPL> rgnformals = t.tsym.type.allrgnparams();
                         t.supertype_field = substRPL(t.supertype_field, rgnformals, rgnactuals);
                         t.supertype_field = substEffect(t.supertype_field, 
                         	t.tsym.type.alleffectparams(), classBound(t).alleffectparams());
@@ -1944,7 +1944,7 @@ public class Types {
                         }
                         t.interfaces_field = substRPL(t.interfaces_field,
                             formals, actuals,
-                    	    RPLs.toParams(t.tsym.type.allrgnparams()),
+                    	    t.tsym.type.allrgnparams(),
                     	    t.allrgnactuals());
                         t.interfaces_field = substEffect(t.interfaces_field,
                         	t.tsym.type.alleffectparams(),
@@ -2611,32 +2611,32 @@ public class Types {
      * Substitute all occurrences of parameter in `from' with the
      * corresponding RPL in `to' in 't'.
      */
-    public List<Type> substRPL(List<Type> ts, List<RegionParameterSymbol> from, 
+    public List<Type> substRPL(List<Type> ts, List<RPL> from, 
 	    List<RPL> to) {
 	return new SubstRPL(from, to).substRPL(ts);
     }
     public List<Type> substRPL(List<Type> ts, List<Type> fromTypes, List<Type> toTypes,
-	    List<RegionParameterSymbol> from, List<RPL> to) {
+	    List<RPL> from, List<RPL> to) {
 	return new SubstRPL(fromTypes, toTypes, from, to).substRPL(ts);
     }
-    public Type substRPL(Type t, List<RegionParameterSymbol> from, List<RPL> to) {
+    public Type substRPL(Type t, List<RPL> from, List<RPL> to) {
 	return new SubstRPL(from, to).substRPL(t);
     }
     public Type substRPL(Type t, List<Type> fromTypes, List<Type> toTypes,
-	    List<RegionParameterSymbol> from, List<RPL> to) {
+	    List<RPL> from, List<RPL> to) {
 	return new SubstRPL(fromTypes, toTypes, from, to).substRPL(t);
     }
-    public Type substRPL(Type t, RegionParameterSymbol from, RPL to) {
+    public Type substRPL(Type t, RPL from, RPL to) {
 	return substRPL(t, List.of(from), List.of(to));
     }
 
     private class SubstRPL extends UnaryVisitor<Type> {
 	List<Type> fromTypes;
 	List<Type> toTypes;
-	List<RegionParameterSymbol> from;
+	List<RPL> from;
         List<RPL> to;
 
-        public SubstRPL(List<RegionParameterSymbol> from, List<RPL> to) {
+        public SubstRPL(List<RPL> from, List<RPL> to) {
             this.fromTypes = List.nil();
             this.toTypes = List.nil();
             this.from = from;
@@ -2644,7 +2644,7 @@ public class Types {
         }
         
         public SubstRPL(List<Type> fromTypes, List<Type> toTypes,
-        	List<RegionParameterSymbol> from, List<RPL> to) {
+        	List<RPL> from, List<RPL> to) {
             this.fromTypes = fromTypes;
             this.toTypes = toTypes;
             this.from = from;
@@ -2937,13 +2937,12 @@ public class Types {
     }
 
     public List<Type> substBoundsRPL(List<Type> tvars,
-            List<RegionParameterSymbol> from,
-            List<RPL> to) {
+            List<RPL> from, List<RPL> to) {
 	if (tvars.isEmpty())
 	    return tvars;
 	if (tvars.tail.isEmpty())
 	    // fast common case
-	    return List.<Type>of(substBoundRPL((TypeVar)tvars.head, from, to));
+	    return List.<Type>of(substBoundRPL((TypeVar) tvars.head, from, to));
 	ListBuffer<Type> newBoundsBuf = lb();
 	boolean changed = false;
 	// calculate new bounds
@@ -2992,7 +2991,7 @@ public class Types {
 
     // <editor-fold defaultstate="collapsed" desc="hasSameBounds">
 
-    public TypeVar substBoundRPL(TypeVar t, List<RegionParameterSymbol> from, List<RPL> to) {
+    public TypeVar substBoundRPL(TypeVar t, List<RPL> from, List<RPL> to) {
         Type bound1 = substRPL(t.getUpperBound(), from, to);
         if (bound1 == t.getUpperBound())
             return t;

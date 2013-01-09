@@ -1,9 +1,8 @@
 package com.sun.tools.javac.code;
 
 import com.sun.tools.javac.code.RPLElement.ArrayIndexRPLElement;
-import com.sun.tools.javac.code.RPLElement.NameRPLElement;
 import com.sun.tools.javac.code.RPLElement.RPLCaptureParameter;
-import com.sun.tools.javac.code.RPLElement.StackRPLElement;
+import com.sun.tools.javac.code.RPLElement.RPLParameterElement;
 import com.sun.tools.javac.code.RPLElement.UndetRPLParameterElement;
 import com.sun.tools.javac.code.RPLElement.VarRPLElement;
 import com.sun.tools.javac.code.Symbol.RegionParameterSymbol;
@@ -190,14 +189,14 @@ public class RPL {
 	return new RPL(buf.toList());
     }
     
-    public RPL substForParam(RegionParameterSymbol param, RPL rpl) {
-	if (!this.elts.head.equals(param)) {
+    public RPL substForParam(RPL param, RPL rpl) {
+	if (!this.elts.head.equals(param.elts.head)) {
 	    return this;
 	}
 	return new RPL(rpl.elts.appendList(this.elts.tail));
     }
 
-    public RPL substForParams(List<RegionParameterSymbol> from,
+    public RPL substForParams(List<RPL> from,
 	             List<RPL> to) {
 	RPL result = this;
 	while (from.nonEmpty() && to.nonEmpty()) {
@@ -216,7 +215,7 @@ public class RPL {
      */
     public RPL substForTRParams(Type from, Type to) {
 	if (!(from instanceof TypeVar)) return this;
-	List<RegionParameterSymbol> params = RPLs.toParams(from.tsym.type.getRegionParams());
+	List<RPL> params = from.tsym.type.getRegionParams();
 	List<RPL> args = to.getRegionActuals();
 	return this.substForParams(params, args);
     }
@@ -238,7 +237,7 @@ public class RPL {
      * Do all the RPL parameter substitutions implied by the bindings of t
      */
     public RPL substForAllParams(Type t) {
-	RPL result = this.substForParams(RPLs.toParams(t.getRegionParams()), t.getRegionActuals());
+	RPL result = this.substForParams(t.getRegionParams(), t.getRegionActuals());
 	result = result.substForTRParams(t.tsym.type.getTypeArguments(),
 		t.getTypeArguments());
 	return result;
@@ -423,7 +422,7 @@ public class RPL {
 	if (owner.type.hasRegionParams()) {
             Type base = types.asOuterSuper(t, owner);
             if (base != null) {
-                List<RegionParameterSymbol> from = RPLs.toParams(owner.type.allrgnparams());
+                List<RPL> from = owner.type.allrgnparams();
                 List<RPL> to = base.allrgnactuals();
                 if (from.nonEmpty()) {
                     result = result.substForParams(from, to);

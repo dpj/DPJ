@@ -810,8 +810,8 @@ public class Type implements PrimitiveType {
         	complete();
         	if (rgnactuals_field == null) {
         	    ListBuffer<RPL> buf = new ListBuffer<RPL>();
-        	    for (RegionParameterSymbol sym : RPLs.toParams(tsym.type.getRegionParams())) {
-        		buf.append(new RPL(new RPLParameterElement(sym)));
+        	    for (RPL rpl : tsym.type.getRegionParams()) {
+        		buf.append(rpl);
         	    }
         	    rgnactuals_field = buf.toList();
         	}

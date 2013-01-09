@@ -50,7 +50,7 @@ public class InferRPL {
 		buf.append(rvar);
 	}
 	List<RPL> undetvars = buf.toList();
-	List<Type> formaltypes = types.substRPL(mt.argtypes, rpls.toParams(rvars), undetvars);
+	List<Type> formaltypes = types.substRPL(mt.argtypes, rvars, undetvars);
 	
 	for (Type t : tvars) {
 	    formaltypes = types.subst(formaltypes, List.of(t), List.<Type>of(new UndetVar(t)));
@@ -77,7 +77,7 @@ public class InferRPL {
 	//System.err.println("mt now ="+mt);
 	//System.err.println("rvars as params="+rpls.toParams(rvars));
 	//System.err.println("actuals="+buf.toList());
-	mt = (MethodType) types.substRPL(mt, rpls.toParams(rvars), buf.toList());
+	mt = (MethodType) types.substRPL(mt, rvars, buf.toList());
 	mt.regionActuals = buf.toList();
 	return mt;
     }

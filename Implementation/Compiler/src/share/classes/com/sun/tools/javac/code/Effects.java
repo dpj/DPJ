@@ -96,7 +96,7 @@ public class Effects implements Iterable<Effect> {
     
     /** @return a new Effects set where instances of the given RegionParameterSymbols
      * have been replaced respectively with the given RPLs */
-    public Effects substForRegionParams(List<RegionParameterSymbol> from, List<RPL> to) {
+    public Effects substForRegionParams(List<RPL> from, List<RPL> to) {
 	Effects result = new Effects();
 	for (Effect e : effects) {
 	    result.add(e.substForParams(from, to));
@@ -113,8 +113,7 @@ public class Effects implements Iterable<Effect> {
     }
     
     public static List<Effects> substForParams(List<Effects> list, 
-		List<RegionParameterSymbol> from, 
-		List<RPL> to) {
+		List<RPL> from, List<RPL> to) {
 	ListBuffer<Effects> buf = ListBuffer.lb();
 	for (Effects effects : list) {
 	    buf.append(effects.substForRegionParams(from, to));
@@ -277,7 +276,7 @@ public class Effects implements Iterable<Effect> {
         	    if (ct.getRegionActuals().size() == 
         		ct.tsym.type.getRegionParams().size()) {
         		result = 
-        		    result.substForRegionParams(RPLs.toParams(ct.tsym.type.getRegionParams()),
+        		    result.substForRegionParams(ct.tsym.type.getRegionParams(),
         			ct.getRegionActuals());
         	    }
         	    result = 
@@ -296,7 +295,7 @@ public class Effects implements Iterable<Effect> {
             if (tree.mtype != null) {
         	// Substitute for method region params
         	if (sym.rgnParams != null) {
-        	    result = result.substForRegionParams(sym.rgnParams, 
+        	    result = result.substForRegionParams(RPLs.paramsToRPLs(sym.rgnParams), 
         		    tree.mtype.regionActuals);
         	}
         	// Substitute for type region params
@@ -431,7 +430,7 @@ public class Effects implements Iterable<Effect> {
 
     public static boolean nonintConstraintsAreSatisfied(List<Pair<Effects,Effects>> constraints,
 	    JCMethodInvocation tree, 
-	    List<RegionParameterSymbol> rplFormals, List<RPL> rplActuals,
+	    List<RPL> rplFormals, List<RPL> rplActuals,
 	    List<Effects> effectFormals, List<Effects> effectActuals, 
 	    Types types, Attr attr, Env<AttrContext> env) {
 	Constraints envConstraints = env.info.constraints;

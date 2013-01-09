@@ -39,7 +39,7 @@ public abstract class Effect {
      * Do all the RPL and effect parameter substitutions implied by the bindings of t
      */
     public Effects substForAllParams(Type t) {
-	Effect e = this.substForParams(RPLs.toParams(t.getRegionParams()), 
+	Effect e = this.substForParams(t.getRegionParams(), 
 		t.getRegionActuals());
 	e = e.substForTRParams(t.tsym.type.getTypeArguments(),
 		t.getTypeArguments());
@@ -47,7 +47,7 @@ public abstract class Effect {
     		t.getEffectArguments());
     }
 
-    public Effect substForParams(List<RegionParameterSymbol> from, List<RPL> to) {
+    public Effect substForParams(List<RPL> from, List<RPL> to) {
 	return this;
     }
     
@@ -206,7 +206,7 @@ public abstract class Effect {
 	}
 	
 	@Override
-	public Effect substForParams(List<RegionParameterSymbol> from, List<RPL> to) {
+	public Effect substForParams(List<RPL> from, List<RPL> to) {
 	    return new ReadEffect(rpls, rpl.substForParams(from, to), 
 		    this.isAtomic(), this.isNonint());
 	}
@@ -347,7 +347,7 @@ public abstract class Effect {
 	}
 	
 	@Override
-	public Effect substForParams(List<RegionParameterSymbol> from, List<RPL> to) {
+	public Effect substForParams(List<RPL> from, List<RPL> to) {
 	    return new WriteEffect(rpls, rpl.substForParams(from, to), 
 		    this.isAtomic(), this.isNonint());
 	}
@@ -498,7 +498,7 @@ public abstract class Effect {
 	}
 	
 	@Override
-	public Effect substForParams(List<RegionParameterSymbol> from, List<RPL> to) {
+	public Effect substForParams(List<RPL> from, List<RPL> to) {
 	    return new InvocationEffect(rpls, methSym, withEffects.substForRegionParams(from, to));
 	}
 	

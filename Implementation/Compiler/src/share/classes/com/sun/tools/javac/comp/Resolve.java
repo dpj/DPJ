@@ -407,7 +407,7 @@ public class Resolve {
 		    types.subst(types.getBounds((TypeVar)formals.head),
 				pmt.tvars, typeargtypes);
                 bounds = types.substRPL(bounds, formals, actuals, 
-					rpls.toParams(pmt.rvars), regionargs);
+					pmt.rvars, regionargs);
                 bounds = types.substEffect(bounds, pmt.evars, effectargs);
                 for (; bounds.nonEmpty(); bounds = bounds.tail)
                     if (!types.isSubtypeUnchecked(actuals.head, 
@@ -428,7 +428,7 @@ public class Resolve {
         if (mt_old.tag == FORALL && (regionargs.nonEmpty() || effectargs.nonEmpty())) {
             ForAll pmt = new ForAll(List.<Type>nil(), ((ForAll) mt_old).rvars, 
         	    ((ForAll) mt_old).evars, mt);
-            List<RegionParameterSymbol> formals = rpls.toParams(pmt.rvars);
+            List<RPL> formals = pmt.rvars;
             mt = pmt.qtype;
             mt = types.substRPL(mt, pmt.tvars, typeargtypes,
         	    formals, regionargs);
@@ -439,7 +439,7 @@ public class Resolve {
             List<RPL> rvars1 = pmt.rvars;
             rvars = rvars.appendList(rvars1);
             mt = types.substRPL(pmt.qtype, pmt.tvars, typeargtypes,
-        	    rpls.toParams(pmt.rvars), rvars1);            
+        	    pmt.rvars, rvars1);            
         }
 
         // find out whether we need to go the slow route via infer

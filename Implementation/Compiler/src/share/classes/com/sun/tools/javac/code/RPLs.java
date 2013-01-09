@@ -142,7 +142,7 @@ public class RPLs {
      * @return                  Yes or no.
      */
     public boolean disjointnessConstraintsAreSatisfied(List<Pair<RPL,RPL>> constraints,
-	    List<RegionParameterSymbol> formals, List<RPL> actuals,
+	    List<RPL> formals, List<RPL> actuals,
 	    List<Pair<RPL,RPL>> envConstraints) {
 	for (Pair<RPL,RPL> constraint : constraints) {
 	    if (!areDisjoint(constraint.fst.substForParams(formals, actuals), 
@@ -156,10 +156,10 @@ public class RPLs {
     /**
      * Are regions being consistently bound to parameters, with regard to atomic?
      */
-    public boolean atomicConstraintsAreSatisfied(List<RegionParameterSymbol> formals,
+    public boolean atomicConstraintsAreSatisfied(List<RPL> formals,
 	    List<RPL> actuals) {
 	while (formals.nonEmpty() && actuals.nonEmpty()) {
-	    if (formals.head.isAtomic != actuals.head.isAtomic())
+	    if (formals.head.isAtomic() != actuals.head.isAtomic())
 		return false;
 	    formals = formals.tail;
 	    actuals = actuals.tail;
@@ -167,18 +167,8 @@ public class RPLs {
 	return true;
     }
     
-    public static List<RegionParameterSymbol> toParams(List<RPL> rpls) {
-	ListBuffer<RegionParameterSymbol> buf = ListBuffer.lb();
-	for (RPL rpl : rpls) {
-	    if (rpl.size() == 1 && rpl.elts.head instanceof RPLParameterElement)
-		buf.append(((RPLParameterElement) rpl.elts.head).sym);
-	    else
-		buf.append(DUMMY);
-	}
-	return buf.toList();
-    }
-    
     public static List<RPL> paramsToRPLs(List<RegionParameterSymbol> params) {
+	if (params == null) return null;
 	ListBuffer<RPL> buf = ListBuffer.lb();
 	for (RegionParameterSymbol param : params) {
 	    buf.append(new RPL(new RPLParameterElement(param)));
@@ -186,9 +176,6 @@ public class RPLs {
 	return buf.toList();
     }
     
-    static final RegionParameterSymbol DUMMY = new RegionParameterSymbol(0,null,null,false);
-
-
     /**
      * The RPL of a given VarSymbol, seen as a member of t
      */
@@ -203,7 +190,7 @@ public class RPLs {
     }
     
     public static List<RPL> substForParams(List<RPL> rpls, 
-		List<RegionParameterSymbol> from, List<RPL> to) {
+		List<RPL> from, List<RPL> to) {
 	ListBuffer<RPL> buf = new ListBuffer<RPL>();
 	while (rpls.nonEmpty()) {
 	    buf.append(rpls.head.substForParams(from, to));
@@ -223,7 +210,7 @@ public class RPLs {
     }
     
     public static List<RPL> substForAllParams(List<RPL> rpls, Type t) {
-	List<RPL> result = substForParams(rpls, RPLs.toParams(t.tsym.type.getRegionParams()),
+	List<RPL> result = substForParams(rpls, t.tsym.type.getRegionParams(),
 		t.getRegionActuals());
 	result = substForTRParams(result, t.tsym.type.getTypeArguments(),
 		t.getTypeArguments());
