@@ -1055,10 +1055,8 @@ public class Types {
             ClassType cs = (ClassType) s;
             ClassType ct = (ClassType) t;
             s = new ClassType(cs.outer_field, cs.typarams_field, 
-        	    List.<RPL>nil(),
         	    List.<RPL>nil(), List.<Effects>nil(), cs.tsym);
             t = new ClassType(ct.outer_field, ct.typarams_field, 
-        	    List.<RPL>nil(),
         	    List.<RPL>nil(), List.<Effects>nil(), ct.tsym);
         }
 
@@ -2254,7 +2252,6 @@ public class Types {
                      if (result.tag == CLASS) {
                 	 ClassType ct = (ClassType) result;
                 	 result = new ClassType(ct.getEnclosingType(), ct.getTypeArguments(),
-                		 ct.tsym.type.getRPLArguments(), 
                 		 buf.toList(), 
                 		 ct.getEffectArguments(),
                 		 ct.tsym);
@@ -2283,7 +2280,7 @@ public class Types {
                     return t;
                 else {
                     Type result = new ClassType(outer1, typarams1, 
-                	    t.tsym.type.getRPLArguments(), t.getRPLArguments(),
+                	    t.getRPLArguments(),
                     	    t.getEffectArguments(),
                 	    t.tsym);
                     return result;
@@ -2407,7 +2404,7 @@ public class Types {
                 List<Effects> effectargs1 = Effects.substForThis(effectargs, rpl);
                 Type outer = t.getEnclosingType();
                 Type outer1 = substForThis(outer);
-                return new ClassType(outer1, typarams1, t.tsym.type.getRPLArguments(), 
+                return new ClassType(outer1, typarams1, 
                 	rgnactuals1, effectargs1, t.tsym);
             } else {
                 Type st = substForThis(supertype(t));
@@ -2548,7 +2545,7 @@ public class Types {
                 	effectparams1 == effectparams)
                     return t;
                 else
-                    return new ClassType(outer1, typarams1, t.tsym.type.getRPLArguments(), 
+                    return new ClassType(outer1, typarams1, 
                 	    rgnactuals1, effectparams1, t.tsym);
             } else {
                 Type st = substIndices(supertype(t));
@@ -2713,7 +2710,7 @@ public class Types {
                 	from, to);
                 Type outer = t.getEnclosingType();
                 Type outer1 = substRPL(outer);
-                return new ClassType(outer1, typarams1, t.tsym.type.getRPLArguments(), 
+                return new ClassType(outer1, typarams1, 
                 	rgnactuals1, effectargs1, t.tsym);
             } else {
                 Type st = substRPL(supertype(t));
@@ -2844,7 +2841,7 @@ public class Types {
                 List<Effects> effectargs1 = Effects.substForEffectVars(effectargs, from, to);
                 Type outer = t.getEnclosingType();
                 Type outer1 = substEffect(outer);
-                return new ClassType(outer1, typarams1, t.tsym.type.getRPLArguments(), 
+                return new ClassType(outer1, typarams1, 
                 	t.getRPLArguments(), effectargs1, t.tsym);
             } else {
                 Type st = substEffect(supertype(t));
@@ -3768,8 +3765,7 @@ public class Types {
 	
 	return (capturedRPLs || capturedEffects) ? 
 		new ClassType(ct.outer_field, ct.typarams_field, 
-		ct.rplparams_field, rpls, effects,
-		ct.tsym) : t;
+		rpls, effects, ct.tsym) : t;
     }
     
     // <editor-fold defaultstate="collapsed" desc="Internal utility methods">

@@ -1088,7 +1088,6 @@ public abstract class Symbol implements Element {
         	ClassType ownerType = (ClassType) owner.type;
         	ClassType erasedType = 
         	    new ClassType(ownerType.outer_field, List.<Type>nil(), 
-        		    List.<RPL>nil(), 
         		    List.<RPL>nil(), List.<Effects>nil(), 
         		    owner.type.tsym);
         	erasedType.DPJerased = true;

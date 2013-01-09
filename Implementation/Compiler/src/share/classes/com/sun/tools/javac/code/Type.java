@@ -657,23 +657,17 @@ public class Type implements PrimitiveType {
         public List<Type> interfaces_field;
 
         public ClassType(Type outer, List<Type> typarams, 
-        		List<RPL> rgnparams,
-        		List<RPL> rgnactuals, List<Effects> effectparams,
-        		TypeSymbol tsym) {
-            this(outer, typarams, rgnparams, effectparams, tsym);
-            this.rplparams_field = rgnactuals;
-        }
-        
-        public ClassType(Type outer, List<Type> typarams, 
         	List<RPL> rgnparams, 
         	List<Effects> effectparams,
         	TypeSymbol tsym) {
             super(CLASS, tsym);
             this.outer_field = outer;
             this.typarams_field = typarams;
+            this.rplparams_field = rgnparams;
             this.effectparams_field = effectparams;
-            this.rplparams_field = null;
             this.alltyparams_field = null;
+            this.allrplparams_field = null;
+            this.alleffectparams_field = null;
             this.supertype_field = null;
             this.interfaces_field = null;
             /*

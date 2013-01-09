@@ -3279,7 +3279,7 @@ public class Attr extends JCTree.Visitor {
             
             // Construct the instantiated type with the type, RPL, and effect args
             owntype = new ClassType(clazzOuter, actuals, 
-        	    rplFormals, rplActuals, effectActuals,
+        	    rplActuals, effectActuals,
         	    functortype.tsym);
         }
         result = check(tree, owntype, TYP, pkind, pt);
@@ -3835,7 +3835,7 @@ public class Attr extends JCTree.Visitor {
                 }
                 ClassType ct = (ClassType) clazztype;
                 owntype = new ClassType(clazzOuter, ct.typarams_field, 
-                	formals, actuals, List.<Effects>nil(), clazztype.tsym);
+                	actuals, List.<Effects>nil(), clazztype.tsym);
 
             } else {
                 if (formals.length() != 0) {
