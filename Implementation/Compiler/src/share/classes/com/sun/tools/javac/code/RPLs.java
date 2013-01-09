@@ -175,7 +175,7 @@ public class RPLs {
         long flags = vsym.flags();
 	RPL result = vsym.rpl;
 	if (owner.kind == Kinds.TYP && result != null && ((flags & STATIC) == 0)) {
-	    result = result.asMemberOf(types, t, owner);
+	    result = result.asMemberOf(t, types);
         }
         return result;
     }

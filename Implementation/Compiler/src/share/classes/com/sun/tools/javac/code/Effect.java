@@ -5,6 +5,7 @@ package com.sun.tools.javac.code;
 import com.sun.tools.javac.code.Symbol.EffectParameterSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Translation.AsMemberOf;
 import com.sun.tools.javac.code.Translation.SubstRPLs;
 import com.sun.tools.javac.comp.AttrContext;
 import com.sun.tools.javac.comp.Env;
@@ -15,8 +16,9 @@ import com.sun.tools.javac.util.Pair;
 
 /** A class to represent a DPJ effect
  */
-public abstract class Effect 
-	implements SubstRPLs<Effect>
+public abstract class Effect implements
+	SubstRPLs<Effect>,
+	AsMemberOf<Effects>
 {
     
     /** Is this an atomic effect? */
@@ -81,7 +83,7 @@ public abstract class Effect
 	return this;
     }
     
-    public Effects asMemberOf(Types types, Type t, Symbol owner) {
+    public Effects asMemberOf(Type t, Types types) {
 	return new Effects(this);
     }
 
@@ -243,8 +245,8 @@ public abstract class Effect
 	}
 	
 	@Override
-	public Effects asMemberOf(Types types, Type t, Symbol owner) {
-	    RPL memberRPL = rpl.asMemberOf(types, t, owner);
+	public Effects asMemberOf(Type t, Types types) {
+	    RPL memberRPL = rpl.asMemberOf(t, types);
 	    return new Effects(memberRPL.equals(rpl) ? this : 
 		new ReadEffect(rpls, memberRPL, this.isAtomic(),
 			this.isNonint()));
@@ -385,8 +387,8 @@ public abstract class Effect
 	}
 	
 	@Override
-	public Effects asMemberOf(Types types, Type t, Symbol owner) {
-	    RPL memberRPL = rpl.asMemberOf(types, t, owner);
+	public Effects asMemberOf(Type t, Types types) {
+	    RPL memberRPL = rpl.asMemberOf(t, types);
 	    return new Effects(memberRPL.equals(rpl) ? this : 
 		new WriteEffect(rpls, memberRPL, this.isAtomic(),
 			this.isNonint()));
@@ -529,8 +531,8 @@ public abstract class Effect
 	}
 	
 	@Override
-	public Effects asMemberOf(Types types, Type t, Symbol owner) {
-	    Effects memberEffects = withEffects.asMemberOf(types, t, owner);
+	public Effects asMemberOf(Type t, Types types) {
+	    Effects memberEffects = withEffects.asMemberOf(t, types);
 	    return new Effects((memberEffects == withEffects) ? 
 		    this : new InvocationEffect(rpls, methSym, memberEffects));
 	}
@@ -626,7 +628,8 @@ public abstract class Effect
 	}
 	
 	@Override
-	public Effects asMemberOf(Types types, Type t, Symbol owner) {
+	public Effects asMemberOf(Type t, Types types) {
+	    Symbol owner = this.sym.enclClass();
 	    Type base = types.asOuterSuper(t, owner);
             return this.substForEffectVars(base.tsym.type.getEffectArguments(),
         	    base.getEffectArguments());

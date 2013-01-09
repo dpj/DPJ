@@ -7,6 +7,7 @@ import java.util.Set;
 import com.sun.tools.javac.code.Effect.VariableEffect;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Translation.AsMemberOf;
 import com.sun.tools.javac.code.Translation.SubstRPLs;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.comp.Attr;
@@ -27,7 +28,8 @@ import com.sun.tools.javac.util.Pair;
  */
 public class Effects implements 
 	Iterable<Effect>,
-	SubstRPLs<Effects>
+	SubstRPLs<Effects>,
+	AsMemberOf<Effects>
 {
     private Set<Effect> effects = new HashSet<Effect>();
     
@@ -234,10 +236,10 @@ public class Effects implements
     /**
      * The effects as a member of t
      */
-    public Effects asMemberOf(Types types, Type t, Symbol owner) {
+    public Effects asMemberOf(Type t, Types types) {
 	Effects memberEffects = new Effects();
 	for (Effect e : effects) {
-	    memberEffects.addAll(e.asMemberOf(types, t, owner));
+	    memberEffects.addAll(e.asMemberOf(t, types));
 	}
 	return memberEffects;
     }
@@ -266,7 +268,7 @@ public class Effects implements
         	if (fa.selected.type instanceof ClassType) {
         	    ClassType ct = (ClassType) fa.selected.type;
         	    result = 
-        		result.asMemberOf(types, ct.tsym.type, sym.owner);
+        		result.asMemberOf(ct.tsym.type, types);
         	    if (ct.getRPLArguments().size() == 
         		ct.tsym.type.getRPLArguments().size()) {
         		result = 
@@ -281,8 +283,7 @@ public class Effects implements
         	result = result.substExpsForVars(sym.params, tree.args);
             } else if (tree.meth instanceof JCIdent) {
         	// Translate to subclass
-        	result = result.asMemberOf(types, env.enclClass.sym.type,
-        		sym.owner);
+        	result = result.asMemberOf(env.enclClass.sym.type, types);
             }
 
             MethodSymbol methSym = tree.getMethodSymbol();

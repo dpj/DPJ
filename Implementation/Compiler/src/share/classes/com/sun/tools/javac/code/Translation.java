@@ -27,4 +27,21 @@ public class Translation {
 	return lb.toList();
     }
 
+    /** Interface for representing 'as member of' translation */
+    public interface AsMemberOf<T extends AsMemberOf<T>> {
+	
+	/** 'this' as a member of type t */
+	public T asMemberOf(Type t, Types types);
+	
+    }
+
+    /** Apply 'as member of' to a list of things */
+    public static <T extends AsMemberOf<T>> List<T>asMemberOf(List<T> list,
+	    Types types, Type t) {
+	ListBuffer<T> lb = ListBuffer.lb();
+	for (T elt : list) lb.append(elt.asMemberOf(t, types));
+	return lb.toList();
+    }
+
+    
 }

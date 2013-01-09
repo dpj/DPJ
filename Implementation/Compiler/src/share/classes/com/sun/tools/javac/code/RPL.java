@@ -2,9 +2,11 @@ package com.sun.tools.javac.code;
 
 import com.sun.tools.javac.code.RPLElement.ArrayIndexRPLElement;
 import com.sun.tools.javac.code.RPLElement.RPLCaptureParameter;
+import com.sun.tools.javac.code.RPLElement.RPLParameterElement;
 import com.sun.tools.javac.code.RPLElement.UndetRPLParameterElement;
 import com.sun.tools.javac.code.RPLElement.VarRPLElement;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Translation.AsMemberOf;
 import com.sun.tools.javac.code.Translation.SubstRPLs;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.TypeVar;
@@ -22,8 +24,9 @@ import com.sun.tools.javac.util.ListBuffer;
  *  of RPL elements.  Various operations on RPLs, pairs of RPLs, and lists
  *  of RPLs required by the DPJ type system are supported.
  */
-public class RPL
-	implements SubstRPLs<RPL>
+public class RPL implements 
+	SubstRPLs<RPL>,
+	AsMemberOf<RPL>
 {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -406,9 +409,19 @@ public class RPL
     /**
      * The RPL as a member of t
      * @param t     The type where we want this to be a member, after translation
-     * @param owner The symbol associated with the class where this was defined
      */
-    public RPL asMemberOf(Types types, Type t, Symbol owner) {
+    public RPL asMemberOf(Type t, Types types) {
+	RPLElement elt = this.elts.head;
+        if (elt instanceof RPLParameterElement) {
+            RPLParameterElement paramElt =
+                    (RPLParameterElement) elt;
+	    Symbol owner = paramElt.sym.enclClass();
+            return this.asMemberOf(types, t, owner);
+        }
+        return this;
+    }
+    //where
+    private RPL asMemberOf(Types types, Type t, Symbol owner) {
 	RPL result = this;
 	if (owner.type.hasRegionParams()) {
             Type base = types.asOuterSuper(t, owner);
@@ -425,6 +438,8 @@ public class RPL
 	return result;
 	
     }
+    
+
     
     /**
      * Conform the RPL to an enclosing environment.  An RPL may contain 

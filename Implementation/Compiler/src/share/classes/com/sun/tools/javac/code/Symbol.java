@@ -66,7 +66,7 @@ import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.tools.JavaFileObject;
 
-import com.sun.tools.javac.code.RPLElement.RPLParameterElement;
+import com.sun.tools.javac.code.Translation.AsMemberOf;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ErrorType;
 import com.sun.tools.javac.code.Type.ForAll;
@@ -85,7 +85,6 @@ import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.util.Pair;
 import com.sun.tools.javac.util.Position;
 import com.sun.tools.javac.util.Warner;
 
@@ -99,7 +98,10 @@ import com.sun.tools.javac.util.Warner;
  *  This code and its internal interfaces are subject to change or
  *  deletion without notice.</b>
  */
-public abstract class Symbol implements Element {
+public abstract class Symbol implements 
+	Element,
+	AsMemberOf<Symbol>
+{
     // public Throwable debug = new Throwable();
 
     /** The kind of this symbol.

@@ -1276,8 +1276,8 @@ public class Check {
 	
 	// Error if overriding effects not a subeffect of overridden effects (DPJ)
 	if (other.effects != Effects.UNKNOWN) {
-	    Effects me = m.effects.asMemberOf(types, origin.type, m.owner);
-	    Effects oe = other.effects.asMemberOf(types, origin.type, other.owner);
+	    Effects me = m.effects.asMemberOf(origin.type, types);
+	    Effects oe = other.effects.asMemberOf(origin.type, types);
 	    List<RPL> m_rpl_params = m.rgnParams;
 	    List<RPL> o_rpl_params = other.rgnParams;
 	    if (m_rpl_params != null && o_rpl_params != null) {
