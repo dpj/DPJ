@@ -4,19 +4,20 @@ package com.sun.tools.javac.code;
 
 import com.sun.tools.javac.code.Symbol.EffectParameterSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
-import com.sun.tools.javac.code.Symbol.RegionParameterSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Translation.SubstRPLs;
 import com.sun.tools.javac.comp.AttrContext;
 import com.sun.tools.javac.comp.Env;
 import com.sun.tools.javac.comp.Resolve;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Pair;
 
 /** A class to represent a DPJ effect
  */
-public abstract class Effect {
+public abstract class Effect 
+	implements SubstRPLs<Effect>
+{
     
     /** Is this an atomic effect? */
     protected boolean isAtomic;
@@ -39,7 +40,7 @@ public abstract class Effect {
      * Do all the RPL and effect parameter substitutions implied by the bindings of t
      */
     public Effects substForAllParams(Type t) {
-	Effect e = this.substForParams(t.tsym.type.getRPLArguments(),
+	Effect e = this.substRPLs(t.tsym.type.getRPLArguments(),
 		t.getRPLArguments());
 	e = e.substForTRParams(t.tsym.type.getTypeArguments(),
 		t.getTypeArguments());
@@ -47,7 +48,7 @@ public abstract class Effect {
     		t.getEffectArguments());
     }
 
-    public Effect substForParams(List<RPL> from, List<RPL> to) {
+    public Effect substRPLs(List<RPL> from, List<RPL> to) {
 	return this;
     }
     
@@ -206,8 +207,8 @@ public abstract class Effect {
 	}
 	
 	@Override
-	public Effect substForParams(List<RPL> from, List<RPL> to) {
-	    return new ReadEffect(rpls, rpl.substForParams(from, to), 
+	public Effect substRPLs(List<RPL> from, List<RPL> to) {
+	    return new ReadEffect(rpls, rpl.substRPLs(from, to),
 		    this.isAtomic(), this.isNonint());
 	}
 	
@@ -347,8 +348,8 @@ public abstract class Effect {
 	}
 	
 	@Override
-	public Effect substForParams(List<RPL> from, List<RPL> to) {
-	    return new WriteEffect(rpls, rpl.substForParams(from, to), 
+	public Effect substRPLs(List<RPL> from, List<RPL> to) {
+	    return new WriteEffect(rpls, rpl.substRPLs(from, to), 
 		    this.isAtomic(), this.isNonint());
 	}
 	
@@ -498,8 +499,8 @@ public abstract class Effect {
 	}
 	
 	@Override
-	public Effect substForParams(List<RPL> from, List<RPL> to) {
-	    return new InvocationEffect(rpls, methSym, withEffects.substForRegionParams(from, to));
+	public Effect substRPLs(List<RPL> from, List<RPL> to) {
+	    return new InvocationEffect(rpls, methSym, withEffects.substRPLs(from, to));
 	}
 	
 	@Override
@@ -555,14 +556,6 @@ public abstract class Effect {
 		new InvocationEffect(rpls, methSym, inAtomicEffects);
 	}
 	
-	@Override
-	public Effect inNonint() {
-	    if (this.isNonint()) return this;
-	    Effects inNonintEffects = withEffects.inNonint();
-	    return (inNonintEffects == withEffects) ? this :
-		new InvocationEffect(rpls, methSym, inNonintEffects);
-	}
-
 	@Override
 	public int hashCode() {
 	    return 11 * this.methSym.hashCode() + this.withEffects.hashCode();

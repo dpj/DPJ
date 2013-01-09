@@ -6,8 +6,8 @@ import java.util.Set;
 
 import com.sun.tools.javac.code.Effect.VariableEffect;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
-import com.sun.tools.javac.code.Symbol.RegionParameterSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Translation.SubstRPLs;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.comp.Attr;
 import com.sun.tools.javac.comp.AttrContext;
@@ -25,7 +25,10 @@ import com.sun.tools.javac.util.Pair;
 /**
  * A collection class representing a set of effects.
  */
-public class Effects implements Iterable<Effect> {
+public class Effects implements 
+	Iterable<Effect>,
+	SubstRPLs<Effects>
+{
     private Set<Effect> effects = new HashSet<Effect>();
     
     public static final Effects UNKNOWN = new Effects();
@@ -94,12 +97,12 @@ public class Effects implements Iterable<Effect> {
 	return result;
     }
     
-    /** @return a new Effects set where instances of the given RegionParameterSymbols
-     * have been replaced respectively with the given RPLs */
-    public Effects substForRegionParams(List<RPL> from, List<RPL> to) {
+    /** @return a new Effects set where the RPL parameters 'from' 
+     * have been replaced with the RPLs 'to' */
+    public Effects substRPLs(List<RPL> from, List<RPL> to) {
 	Effects result = new Effects();
 	for (Effect e : effects) {
-	    result.add(e.substForParams(from, to));
+	    result.add(e.substRPLs(from, to));
 	}
 	return result;
     }
@@ -112,15 +115,6 @@ public class Effects implements Iterable<Effect> {
 	return result;	
     }
     
-    public static List<Effects> substForParams(List<Effects> list, 
-		List<RPL> from, List<RPL> to) {
-	ListBuffer<Effects> buf = ListBuffer.lb();
-	for (Effects effects : list) {
-	    buf.append(effects.substForRegionParams(from, to));
-	}
-	return buf.toList();
-    }
-
     public Effects substForEffectVars(List<Effects> from, List<Effects> to) {
 	Effects result = new Effects();
 	for (Effect e : effects) {
@@ -276,7 +270,7 @@ public class Effects implements Iterable<Effect> {
         	    if (ct.getRPLArguments().size() == 
         		ct.tsym.type.getRPLArguments().size()) {
         		result = 
-        		    result.substForRegionParams(ct.tsym.type.getRPLArguments(),
+        		    result.substRPLs(ct.tsym.type.getRPLArguments(),
         			ct.getRPLArguments());
         	    }
         	    result = 
@@ -295,7 +289,7 @@ public class Effects implements Iterable<Effect> {
             if (tree.mtype != null) {
         	// Substitute for method region params
         	if (sym.rgnParams != null) {
-        	    result = result.substForRegionParams(sym.rgnParams, 
+        	    result = result.substRPLs(sym.rgnParams, 
         		    tree.mtype.regionActuals);
         	}
         	// Substitute for type region params
@@ -369,21 +363,6 @@ public class Effects implements Iterable<Effect> {
     }
     
     /**
-     * Return an effect set given by the argument effect set, occurring
-     * in a nonint statement.
-     */
-    public Effects inNonint() {
-	Effects newEffects = new Effects();
-	boolean changed = false;
-	for (Effect e : effects) {
-	    Effect newEffect = e.inNonint();
-	    newEffects.add(newEffect);
-	    if (newEffect != e) changed = true;
-	}
-	return changed ? newEffects : this;
-    }
-
-    /**
      * Capture all effects
      */
     public Effects capture() {
@@ -436,10 +415,10 @@ public class Effects implements Iterable<Effect> {
 	Constraints envConstraints = env.info.constraints;
 	for (Pair<Effects,Effects> constraint : constraints) {
 	    Effects first = constraint.fst.translateMethodEffects(tree, types, attr, env);
-	    first = first.substForRegionParams(rplFormals, rplActuals);
+	    first = first.substRPLs(rplFormals, rplActuals);
 	    first = first.substForEffectVars(effectFormals, effectActuals);
 	    Effects second = constraint.snd.translateMethodEffects(tree, types, attr, env);
-	    second = second.substForRegionParams(rplFormals, rplActuals);
+	    second = second.substRPLs(rplFormals, rplActuals);
 	    second = second.substForEffectVars(effectFormals, effectActuals);
 	    if (!noninterferingEffects(first, second, envConstraints, false)) {
 		System.out.println(first + " interferes with " +second);

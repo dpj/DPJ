@@ -2,11 +2,10 @@ package com.sun.tools.javac.code;
 
 import com.sun.tools.javac.code.RPLElement.ArrayIndexRPLElement;
 import com.sun.tools.javac.code.RPLElement.RPLCaptureParameter;
-import com.sun.tools.javac.code.RPLElement.RPLParameterElement;
 import com.sun.tools.javac.code.RPLElement.UndetRPLParameterElement;
 import com.sun.tools.javac.code.RPLElement.VarRPLElement;
-import com.sun.tools.javac.code.Symbol.RegionParameterSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Translation.SubstRPLs;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.comp.AttrContext;
@@ -23,9 +22,10 @@ import com.sun.tools.javac.util.ListBuffer;
  *  of RPL elements.  Various operations on RPLs, pairs of RPLs, and lists
  *  of RPLs required by the DPJ type system are supported.
  */
-public class RPL {
-    
-    
+public class RPL
+	implements SubstRPLs<RPL>
+{
+
     ///////////////////////////////////////////////////////////////////////////
     // Fields
     ///////////////////////////////////////////////////////////////////////////
@@ -189,25 +189,15 @@ public class RPL {
 	return new RPL(buf.toList());
     }
     
-    public RPL substForParam(RPL param, RPL rpl) {
-	if (!this.elts.head.equals(param.elts.head)) {
-	    return this;
+    public RPL substRPLs(List<RPL> from, List<RPL> to) {
+        while (from.nonEmpty() && to.nonEmpty()) {
+            if (this.elts.head.equals(from.head.elts.head)) {
+                return new RPL(to.head.elts.appendList(this.elts.tail));
+            }
+            from = from.tail;
+            to = to.tail;
 	}
-	return new RPL(rpl.elts.appendList(this.elts.tail));
-    }
-
-    public RPL substForParams(List<RPL> from,
-	             List<RPL> to) {
-	RPL result = this;
-	while (from.nonEmpty() && to.nonEmpty()) {
-	    result = this.substForParam(from.head, to.head);
-	    if (result != this) {
-		break;
-	    }
-	    from = from.tail;
-	    to = to.tail;
-	}
-	return result;
+        return this;
     }
     
     /**
@@ -217,7 +207,7 @@ public class RPL {
 	if (!(from instanceof TypeVar)) return this;
 	List<RPL> params = from.tsym.type.getRPLArguments();
 	List<RPL> args = to.getRPLArguments();
-	return this.substForParams(params, args);
+	return this.substRPLs(params, args);
     }
 
     public RPL substForTRParams(List<Type> from, List<Type> to) {
@@ -237,7 +227,7 @@ public class RPL {
      * Do all the RPL parameter substitutions implied by the bindings of t
      */
     public RPL substForAllParams(Type t) {
-	RPL result = this.substForParams(t.tsym.type.getRPLArguments(), 
+	RPL result = this.substRPLs(t.tsym.type.getRPLArguments(), 
 		t.getRPLArguments());
 	result = result.substForTRParams(t.tsym.type.getTypeArguments(),
 		t.getTypeArguments());
@@ -426,7 +416,7 @@ public class RPL {
                 List<RPL> from = owner.type.allrgnparams();
                 List<RPL> to = base.allrgnactuals();
                 if (from.nonEmpty()) {
-                    result = result.substForParams(from, to);
+                    result = result.substRPLs(from, to);
                 }
                 result = result.substForTRParams(owner.type.alltyparams(), 
                 	base.alltyparams());
@@ -479,14 +469,6 @@ public class RPL {
 		return this.truncateTo(elt);
 	    if (pruneLocalEffects && elt.isLocalName())
 		return this.truncateTo(elt);
-	    /*
-	    if (elt instanceof StackRPLElement) {
-		StackRPLElement sre = (StackRPLElement) elt;
-		if (!rs.isInScope(sre.sym, env)) return null;
-	    }
-	    if (elt.isLocalName() && pruneLocalEffects)
-		return null;
-		*/
 	}
 	// Otherwise, go through the elements and look for array index elements
 	// [e] where e is out of scope.  Replace every such [e] with [?].

@@ -145,8 +145,8 @@ public class RPLs {
 	    List<RPL> formals, List<RPL> actuals,
 	    List<Pair<RPL,RPL>> envConstraints) {
 	for (Pair<RPL,RPL> constraint : constraints) {
-	    if (!areDisjoint(constraint.fst.substForParams(formals, actuals), 
-		    constraint.snd.substForParams(formals, actuals),
+	    if (!areDisjoint(constraint.fst.substRPLs(formals, actuals), 
+		    constraint.snd.substRPLs(formals, actuals),
 		    envConstraints))
 		return false;
 	}
@@ -180,16 +180,6 @@ public class RPLs {
         return result;
     }
     
-    public static List<RPL> substForParams(List<RPL> rpls, 
-		List<RPL> from, List<RPL> to) {
-	ListBuffer<RPL> buf = new ListBuffer<RPL>();
-	while (rpls.nonEmpty()) {
-	    buf.append(rpls.head.substForParams(from, to));
-	    rpls = rpls.tail;
-	}
-	return buf.toList();
-    }
-    
     public static List<RPL> substForTRParams(List<RPL>rpls,
 	    List<Type> from, List<Type> to) {
 	ListBuffer<RPL> buf = new ListBuffer<RPL>();
@@ -201,7 +191,7 @@ public class RPLs {
     }
     
     public static List<RPL> substForAllParams(List<RPL> rpls, Type t) {
-	List<RPL> result = substForParams(rpls, 
+	List<RPL> result = Translation.substRPLs(rpls, 
 		t.tsym.type.getRPLArguments(),
 		t.getRPLArguments());
 	result = substForTRParams(result, t.tsym.type.getTypeArguments(),

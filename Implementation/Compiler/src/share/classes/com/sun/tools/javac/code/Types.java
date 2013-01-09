@@ -2692,7 +2692,7 @@ public class Types {
             TypeVar result = new TypeVar(t.tsym, t.getUpperBound(), t.lower);
             result.rplparams = t.rplparams;
             result.prototype = (t.prototype == null) ? t : t.prototype;
-            result.rplargs = RPLs.substForParams(t.rplargs, from, to);
+            result.rplargs = Translation.substRPLs(t.rplargs, from, to);
             result.rplargs = RPLs.substForTRParams(result.rplargs, fromTypes, toTypes);
             return result;
         }
@@ -2703,10 +2703,10 @@ public class Types {
                 List<Type> typarams = t.getTypeArguments();
                 List<Type> typarams1 = substRPL(typarams);
                 List<RPL> rgnactuals = t.getRPLArguments();
-                List<RPL> rgnactuals1 = RPLs.substForParams(rgnactuals, from, to);
+                List<RPL> rgnactuals1 = Translation.substRPLs(rgnactuals, from, to);
                 rgnactuals1 = RPLs.substForTRParams(rgnactuals1, fromTypes, toTypes);
                 List<Effects> effectargs = t.getEffectArguments();
-                List<Effects> effectargs1 = Effects.substForParams(effectargs,
+                List<Effects> effectargs1 = Translation.substRPLs(effectargs,
                 	from, to);
                 Type outer = t.getEnclosingType();
                 Type outer1 = substRPL(outer);
@@ -2739,7 +2739,7 @@ public class Types {
         @Override
         public Type visitArrayType(ArrayType t, Void ignored) {
             Type elemtype = substRPL(t.elemtype);
-            RPL rpl = t.rpl.substForParams(from, to);
+            RPL rpl = t.rpl.substRPLs(from, to);
             rpl = rpl.substForTRParams(fromTypes, toTypes);
             if (elemtype == t.elemtype && rpl == t.rpl)
                 return t;
