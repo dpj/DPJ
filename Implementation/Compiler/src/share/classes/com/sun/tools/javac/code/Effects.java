@@ -295,7 +295,7 @@ public class Effects implements Iterable<Effect> {
             if (tree.mtype != null) {
         	// Substitute for method region params
         	if (sym.rgnParams != null) {
-        	    result = result.substForRegionParams(RPLs.paramsToRPLs(sym.rgnParams), 
+        	    result = result.substForRegionParams(sym.rgnParams, 
         		    tree.mtype.regionActuals);
         	}
         	// Substitute for type region params

@@ -167,15 +167,6 @@ public class RPLs {
 	return true;
     }
     
-    public static List<RPL> paramsToRPLs(List<RegionParameterSymbol> params) {
-	if (params == null) return null;
-	ListBuffer<RPL> buf = ListBuffer.lb();
-	for (RegionParameterSymbol param : params) {
-	    buf.append(new RPL(new RPLParameterElement(param)));
-	}
-	return buf.toList();
-    }
-    
     /**
      * The RPL of a given VarSymbol, seen as a member of t
      */

@@ -1213,7 +1213,7 @@ public class Type implements PrimitiveType {
          */
         public Type bound = null;
         public Type lower;
-        public List<RegionParameterSymbol> rplparams = List.nil();
+        public List<RPL> rplparams = List.nil();
         public List<RPL> rplargs = List.nil();
         /** If this type var is an instantiated type, the prototype is the original
          *  type var.  Bounds will be set for that one.
@@ -1234,13 +1234,13 @@ public class Type implements PrimitiveType {
 
         @Override
         public List<RPL> getRegionParams() { 
-            return RPLs.paramsToRPLs(rplparams); 
+            return rplparams; 
         }
         
         @Override
         public List<RPL> getRegionActuals() { 
             if (rplargs.isEmpty() && rplparams.nonEmpty())
-        	rplargs = RPLs.paramsToRPLs(rplparams);
+        	rplargs = rplparams;
             return rplargs; 
         }
         

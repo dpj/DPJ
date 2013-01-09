@@ -2260,7 +2260,7 @@ public class Types {
                      } else if (result.tag == TYPEVAR && 
                 	     !(result instanceof CapturedType)) {
                 	 TypeVar tv = (TypeVar) result;
-                	 List<RegionParameterSymbol> params = tv.rplparams;
+                	 List<RPL> params = tv.rplparams;
                 	 result = tv = new TypeVar(tv.tsym, tv.getUpperBound(), tv.lower);
                 	 tv.rplparams = params;
                 	 tv.rplargs = buf.toList();

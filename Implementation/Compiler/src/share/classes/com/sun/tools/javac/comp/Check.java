@@ -1278,8 +1278,8 @@ public class Check {
 	if (other.effects != Effects.UNKNOWN) {
 	    Effects me = m.effects.asMemberOf(types, origin.type, m.owner);
 	    Effects oe = other.effects.asMemberOf(types, origin.type, other.owner);
-	    List<RPL> m_rpl_params = RPLs.paramsToRPLs(m.rgnParams);
-	    List<RPL> o_rpl_params = RPLs.paramsToRPLs(other.rgnParams);
+	    List<RPL> m_rpl_params = m.rgnParams;
+	    List<RPL> o_rpl_params = other.rgnParams;
 	    if (m_rpl_params != null && o_rpl_params != null) {
 		ListBuffer<RPL> buf = ListBuffer.lb();
 		for (RPL rps : m_rpl_params) {

@@ -697,14 +697,12 @@ public class MemberEnter extends JCTree.Visitor implements Completer {
         if (lastParam != null && (lastParam.mods.flags & Flags.VARARGS) != 0)
             m.flags_field |= Flags.VARARGS;
 
-        // DPJ BEGIN
- 
         if (tree.paramInfo != null) {
             // Set m.rgnParams
-            ListBuffer<RegionParameterSymbol> rgnParams = ListBuffer.lb();
+            ListBuffer<RPL> rgnParams = ListBuffer.lb();
             for (DPJRegionParameter param : tree.paramInfo.rplParams) {
                 assert(param.sym != null);
-                rgnParams.append(param.sym);
+                rgnParams.append(new RPL(new RPLParameterElement(param.sym)));
             }
             m.rgnParams = rgnParams.toList();
             // Set m.effectparams

@@ -1193,7 +1193,7 @@ public abstract class Symbol implements Element {
         public List<Type> typarams = null;
         
         /** The region parameters of the method. // DPJ */
-        public List<RegionParameterSymbol> rgnParams = null;
+        public List<RPL> rgnParams = null;
         
         /** The disjointness constraints on the region params
          *  and noninterference constraints on effect vars */
