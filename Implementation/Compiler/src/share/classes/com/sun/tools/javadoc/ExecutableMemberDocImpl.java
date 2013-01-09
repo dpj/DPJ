@@ -36,17 +36,18 @@ import com.sun.javadoc.SourcePosition;
 import com.sun.javadoc.ThrowsTag;
 import com.sun.javadoc.TypeVariable;
 import com.sun.tools.javac.code.Effect;
+import com.sun.tools.javac.code.Effect.ReadEffect;
+import com.sun.tools.javac.code.Effect.WriteEffect;
 import com.sun.tools.javac.code.Effects;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.RPL;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.Effect.ReadEffect;
-import com.sun.tools.javac.code.Effect.WriteEffect;
 import com.sun.tools.javac.code.RPLElement.RPLParameterElement;
+import com.sun.tools.javac.code.RPLs;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.RegionParameterSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
@@ -275,7 +276,7 @@ public abstract class ExecutableMemberDocImpl
 	    return List.nil();
 	}
 	ListBuffer<RPL> lb = ListBuffer.lb();
-	for (RegionParameterSymbol rsym : sym.type.getRegionParams()) {
+	for (RegionParameterSymbol rsym : RPLs.toParams(sym.type.getRegionParams())) {
 	    lb.append(new RPL(new RPLParameterElement(rsym)));
 	}
 	return lb.toList();

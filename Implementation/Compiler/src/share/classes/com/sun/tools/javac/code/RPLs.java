@@ -203,8 +203,7 @@ public class RPLs {
     }
     
     public static List<RPL> substForParams(List<RPL> rpls, 
-		List<RegionParameterSymbol> from, 
-		List<RPL> to) {
+		List<RegionParameterSymbol> from, List<RPL> to) {
 	ListBuffer<RPL> buf = new ListBuffer<RPL>();
 	while (rpls.nonEmpty()) {
 	    buf.append(rpls.head.substForParams(from, to));
@@ -224,7 +223,7 @@ public class RPLs {
     }
     
     public static List<RPL> substForAllParams(List<RPL> rpls, Type t) {
-	List<RPL> result = substForParams(rpls, t.tsym.type.getRegionParams(),
+	List<RPL> result = substForParams(rpls, RPLs.toParams(t.tsym.type.getRegionParams()),
 		t.getRegionActuals());
 	result = substForTRParams(result, t.tsym.type.getTypeArguments(),
 		t.getTypeArguments());

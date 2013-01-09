@@ -277,7 +277,7 @@ public class Effects implements Iterable<Effect> {
         	    if (ct.getRegionActuals().size() == 
         		ct.tsym.type.getRegionParams().size()) {
         		result = 
-        		    result.substForRegionParams(ct.tsym.type.getRegionParams(),
+        		    result.substForRegionParams(RPLs.toParams(ct.tsym.type.getRegionParams()),
         			ct.getRegionActuals());
         	    }
         	    result = 

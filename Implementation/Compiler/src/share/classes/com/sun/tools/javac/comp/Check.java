@@ -887,7 +887,7 @@ public class Check {
 		List<Type> formals = tree.type.tsym.type.getTypeArguments();
 		List<Type> actuals = tree.type.getTypeArguments();
 		List<RegionParameterSymbol> rplformals = 
-		    tree.type.tsym.type.getRegionParams();
+		    RPLs.toParams(tree.type.tsym.type.getRegionParams());
 		List<RPL> rplactuals = tree.type.getRegionActuals();
 		List<JCExpression> args = tree.typeArgs;
 		List<Type> forms = formals;

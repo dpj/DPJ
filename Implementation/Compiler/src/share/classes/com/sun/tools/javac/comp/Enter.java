@@ -449,7 +449,7 @@ public class Enter extends JCTree.Visitor {
 		classEnter(param, localEnv);
 		rplparams.append(param.sym);
 	    }
-	    ct.rgnparams_field = rplparams.toList();
+	    ct.rplparams_field = RPLs.paramsToRPLs(rplparams.toList());
 	    ListBuffer<Effects> effectparams = ListBuffer.lb();
 	    for (JCIdent param : tree.paramInfo.effectParams) {
 		classEnter(param, localEnv);
@@ -458,7 +458,7 @@ public class Enter extends JCTree.Visitor {
 	    }
 	    ct.effectparams_field = effectparams.toList();
 	} else {
-	    ct.rgnparams_field = List.nil();
+	    ct.rplparams_field = List.nil();
 	    ct.effectparams_field = List.nil();
 	}
 	

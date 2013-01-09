@@ -1055,10 +1055,10 @@ public class Types {
             ClassType cs = (ClassType) s;
             ClassType ct = (ClassType) t;
             s = new ClassType(cs.outer_field, cs.typarams_field, 
-        	    List.<RegionParameterSymbol>nil(),
+        	    List.<RPL>nil(),
         	    List.<RPL>nil(), List.<Effects>nil(), cs.tsym);
             t = new ClassType(ct.outer_field, ct.typarams_field, 
-        	    List.<RegionParameterSymbol>nil(),
+        	    List.<RPL>nil(),
         	    List.<RPL>nil(), List.<Effects>nil(), ct.tsym);
         }
 
@@ -1616,7 +1616,7 @@ public class Types {
                     if (base != null) {
                 	List<Type> fromTypes = owner.type.alltyparams();
                 	List<Type> toTypes = base.alltyparams();
-                	List<RegionParameterSymbol> from = owner.type.allrgnparams();
+                	List<RegionParameterSymbol> from = RPLs.toParams(owner.type.allrgnparams());
                         List<RPL> to = base.allrgnactuals();
                         result = substRPL(result, fromTypes, toTypes, from, to);
                     }
@@ -1852,7 +1852,7 @@ public class Types {
                             t.supertype_field = subst(supertype, formals, actuals);
                         }
                         List<RPL> rgnactuals = classBound(t).allrgnactuals();
-                        List<RegionParameterSymbol> rgnformals = t.tsym.type.allrgnparams();
+                        List<RegionParameterSymbol> rgnformals = RPLs.toParams(t.tsym.type.allrgnparams());
                         t.supertype_field = substRPL(t.supertype_field, rgnformals, rgnactuals);
                         t.supertype_field = substEffect(t.supertype_field, 
                         	t.tsym.type.alleffectparams(), classBound(t).alleffectparams());
@@ -1944,7 +1944,7 @@ public class Types {
                         }
                         t.interfaces_field = substRPL(t.interfaces_field,
                             formals, actuals,
-                    	    t.tsym.type.allrgnparams(),
+                    	    RPLs.toParams(t.tsym.type.allrgnparams()),
                     	    t.allrgnactuals());
                         t.interfaces_field = substEffect(t.interfaces_field,
                         	t.tsym.type.alleffectparams(),
@@ -3283,7 +3283,7 @@ public class Types {
             }
             assert(act1.isEmpty() && act2.isEmpty() && typarams.isEmpty());
             return new ClassType(class1.getEnclosingType(), merged.toList(), 
-        	    List.<RegionParameterSymbol>nil() /* Incorrect // DPJ */, 
+        	    List.<RPL>nil(), 
         	    List.<Effects>nil(), class1.tsym);
         }
 
@@ -3702,7 +3702,7 @@ public class Types {
             return erasure(t); // some "rare" type involved
 
         if (captured)
-            return new ClassType(cls.getEnclosingType(), S, cls.rgnparams_field, 
+            return new ClassType(cls.getEnclosingType(), S, cls.rplparams_field, 
         	    cls.effectparams_field, cls.tsym);
         else
             return t;
@@ -3768,7 +3768,7 @@ public class Types {
 	
 	return (capturedRPLs || capturedEffects) ? 
 		new ClassType(ct.outer_field, ct.typarams_field, 
-		ct.rgnparams_field, rpls, effects,
+		ct.rplparams_field, rpls, effects,
 		ct.tsym) : t;
     }
     

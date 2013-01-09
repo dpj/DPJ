@@ -321,7 +321,7 @@ public class Attr extends JCTree.Visitor {
         	if (cs.constraints != null) {
         	    // Check that disjointness constraints on region args are satisfied
         	    if (!rpls.disjointnessConstraintsAreSatisfied(cs.constraints.disjointRPLs, 
-        		    ct.getRegionParams(), ct.getRegionActuals(), 
+        		    RPLs.toParams(ct.getRegionParams()), ct.getRegionActuals(), 
         		    parentEnv.info.constraints.disjointRPLs)) {
         		enter.log.warning(tree, "rpl.constraints");
         	    }
@@ -331,7 +331,7 @@ public class Attr extends JCTree.Visitor {
         		enter.log.warning(tree, "effect.constraints");
         	    }
         	}
-        	if (!rpls.atomicConstraintsAreSatisfied(ct.getRegionParams(),
+        	if (!rpls.atomicConstraintsAreSatisfied(RPLs.toParams(ct.getRegionParams()),
         		ct.getRegionActuals())) {
         	    enter.log.error(tree, "atomic.constraints");
         	}
@@ -1780,7 +1780,7 @@ public class Attr extends JCTree.Visitor {
                               List.<Type>of(new WildcardType(types.erasure(qualifier),
                                                                BoundKind.EXTENDS,
                                                                syms.boundClass)),
-                              List.<RegionParameterSymbol>nil(),
+                              List.<RPL>nil(),
                               List.<Effects>nil(),
                               restype.tsym);
             }
@@ -1805,7 +1805,8 @@ public class Attr extends JCTree.Visitor {
             if (mtype instanceof MethodType && methSym.constraints != null) {
         	regionargs = ((MethodType) mtype).regionActuals;
         	if (!rpls.disjointnessConstraintsAreSatisfied(methSym.constraints.disjointRPLs,
-        		methSym.rgnParams, regionargs, env.info.constraints.disjointRPLs)) {
+        		methSym.rgnParams, 
+        		regionargs, env.info.constraints.disjointRPLs)) {
         	    log.warning(tree, "rpl.constraints");        	    
         	}
         	if (!rpls.atomicConstraintsAreSatisfied(methSym.rgnParams,
@@ -2579,7 +2580,7 @@ public class Attr extends JCTree.Visitor {
                         ? List.of(types.erasure(site))
                         : List.<Type>nil();
                     t = new ClassType(t.getEnclosingType(), typeargs, 
-                	    List.<RegionParameterSymbol>nil(), 
+                	    List.<RPL>nil(), 
                 	    List.<Effects>nil(), t.tsym);
                     return new VarSymbol(
                         STATIC | PUBLIC | FINAL, names._class, t, site.tsym);
@@ -2620,7 +2621,7 @@ public class Attr extends JCTree.Visitor {
                     Type t = syms.classType;
                     Type arg = types.boxedClass(site).type;
                     t = new ClassType(t.getEnclosingType(), List.of(arg), 
-                	    List.<RegionParameterSymbol>nil(), 
+                	    List.<RPL>nil(), 
                 	    List.<Effects>nil(), t.tsym);
                     return new VarSymbol(
                         STATIC | PUBLIC | FINAL, names._class, t, site.tsym);
@@ -2679,10 +2680,10 @@ public class Attr extends JCTree.Visitor {
                     if (owntype.tsym.type.getTypeArguments().nonEmpty() ||
                 	    owntype.tsym.type.getRegionParams().nonEmpty()) {
                 	List<RegionParameterSymbol> regionParams = 
-                	    owntype.getRegionParams();
+                	    RPLs.toParams(owntype.getRegionParams());
                         owntype = types.erasure(owntype);
                         // Don't erase the region params!
-                        ((ClassType) owntype).rgnparams_field = regionParams;
+                        ((ClassType) owntype).rplparams_field = RPLs.paramsToRPLs(regionParams);
                         // Put the default region of ROOT in for each param position.
                         // If this type is subject to a region apply, the ROOT's will
                         // get replaced.  Otherwise, we have a type instantiated
@@ -2713,7 +2714,7 @@ public class Attr extends JCTree.Visitor {
                         if (normOuter != ownOuter)
                             owntype = new ClassType(
                                 normOuter, List.<Type>nil(), 
-                                List.<RegionParameterSymbol>nil(), 
+                                List.<RPL>nil(), 
                                 List.<Effects>nil(), owntype.tsym);
                     }
                 }
@@ -3153,7 +3154,7 @@ public class Attr extends JCTree.Visitor {
 
             // Get the formal region params
             List<RegionParameterSymbol> rplFormals =
-        	functortype.tsym.type.getRegionParams();
+        	RPLs.toParams(functortype.tsym.type.getRegionParams());
 
             // Get the formal effect params
             List<Effects> effectFormals =
@@ -3278,7 +3279,7 @@ public class Attr extends JCTree.Visitor {
             
             // Construct the instantiated type with the type, RPL, and effect args
             owntype = new ClassType(clazzOuter, actuals, 
-        	    rplFormals, rplActuals, effectActuals,
+        	    RPLs.paramsToRPLs(rplFormals), rplActuals, effectActuals,
         	    functortype.tsym);
         }
         result = check(tree, owntype, TYP, pkind, pt);
@@ -3807,7 +3808,7 @@ public class Attr extends JCTree.Visitor {
 
         if (clazztype.tag == CLASS) {
             List<RegionParameterSymbol> formals = 
-        	clazztype.tsym.type.getRegionParams();
+        	RPLs.toParams(clazztype.tsym.type.getRegionParams());
             
             while (actuals.length() < formals.length()) {
         	actuals = actuals.append(RPLs.ROOT);
@@ -3834,7 +3835,7 @@ public class Attr extends JCTree.Visitor {
                 }
                 ClassType ct = (ClassType) clazztype;
                 owntype = new ClassType(clazzOuter, ct.typarams_field, 
-                	formals, actuals, List.<Effects>nil(), clazztype.tsym);
+                	RPLs.paramsToRPLs(formals), actuals, List.<Effects>nil(), clazztype.tsym);
 
             } else {
                 if (formals.length() != 0) {

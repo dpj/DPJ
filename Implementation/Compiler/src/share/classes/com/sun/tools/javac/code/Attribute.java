@@ -116,7 +116,7 @@ public abstract class Attribute implements AnnotationValue {
                 : types.erasure(type);
             return new Type.ClassType(types.syms.classType.getEnclosingType(),
                                       List.of(arg),
-                                      List.<RegionParameterSymbol>nil(), 
+                                      List.<RPL>nil(), 
                                       List.<Effects>nil(),
                                       types.syms.classType.tsym);
         }

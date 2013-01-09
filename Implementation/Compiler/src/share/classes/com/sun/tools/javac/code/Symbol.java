@@ -749,7 +749,7 @@ public abstract class Symbol implements Element {
             this(
                 flags,
                 name,
-                new ClassType(Type.noType, null, List.<RegionParameterSymbol>nil(), 
+                new ClassType(Type.noType, null, List.<RPL>nil(), 
                 	List.<Effects>nil(), null),
                 owner);
             this.type.tsym = this;
@@ -781,7 +781,7 @@ public abstract class Symbol implements Element {
             if (erasure_field == null)
                 erasure_field = new ClassType(types.erasure(type.getEnclosingType()),
                                               List.<Type>nil(),
-                                              List.<RegionParameterSymbol>nil(),
+                                              List.<RPL>nil(),
                                               List.<Effects>nil(),
                                               this);
             return erasure_field;
@@ -1088,7 +1088,7 @@ public abstract class Symbol implements Element {
         	ClassType ownerType = (ClassType) owner.type;
         	ClassType erasedType = 
         	    new ClassType(ownerType.outer_field, List.<Type>nil(), 
-        		    List.<RegionParameterSymbol>nil(), 
+        		    List.<RPL>nil(), 
         		    List.<RPL>nil(), List.<Effects>nil(), 
         		    owner.type.tsym);
         	erasedType.DPJerased = true;

@@ -46,24 +46,25 @@ import com.sun.javadoc.WildcardType;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.RPL;
+import com.sun.tools.javac.code.RPLElement.RPLParameterElement;
+import com.sun.tools.javac.code.RPLs;
 import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.TypeTags;
-import com.sun.tools.javac.code.RPLElement.RPLParameterElement;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.CompletionFailure;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.RegionParameterSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ClassType;
+import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.comp.AttrContext;
 import com.sun.tools.javac.comp.Env;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCImport;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
@@ -422,7 +423,7 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
 	if (env.legacyDoclet)
 	    return List.nil();
 	ListBuffer<RPL> lb = ListBuffer.lb();
-	for (RegionParameterSymbol sym : type.getRegionParams()) {
+	for (RegionParameterSymbol sym : RPLs.toParams(type.getRegionParams())) {
 	    lb.append(new RPL(new RPLParameterElement(sym)));
 	}
 	return lb.toList();

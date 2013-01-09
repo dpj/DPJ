@@ -45,9 +45,9 @@ import com.sun.tools.apt.mirror.declaration.TypeDeclarationImpl;
 import com.sun.tools.apt.mirror.type.TypeMirrorImpl;
 import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.code.Effects;
-import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.code.RPL;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import com.sun.tools.javac.code.Symbol.RegionParameterSymbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
@@ -237,7 +237,7 @@ public class TypesImpl implements Types {
 
 	return (DeclaredType) env.typeMaker.getType(
 		new Type.ClassType(outer, targs.toList(), 
-			List.<RegionParameterSymbol>nil(), 
+			List.<RPL>nil(), 
 			List.<Effects>nil(), sym));
     }
 }

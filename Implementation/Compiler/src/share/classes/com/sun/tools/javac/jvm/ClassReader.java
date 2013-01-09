@@ -645,7 +645,7 @@ public class ClassReader extends ClassFile implements Completer {
                     outer = t.erasure(types);
                 else
                     outer = new ClassType(outer, List.<Type>nil(), 
-                	    List.<RegionParameterSymbol>nil(), List.<Effects>nil(), t);
+                	    List.<RPL>nil(), List.<Effects>nil(), t);
                 sbp = startSbp;
                 return outer;
             }
@@ -654,7 +654,7 @@ public class ClassReader extends ClassFile implements Completer {
                 ClassSymbol t = enterClass(names.fromUtf(signatureBuffer,
                                                          startSbp,
                                                          sbp - startSbp));
-                outer = new ClassType(outer, sigToTypes('>'), List.<RegionParameterSymbol>nil(), 
+                outer = new ClassType(outer, sigToTypes('>'), List.<RPL>nil(), 
                 	List.<Effects>nil(), t) {
                         boolean completed = false;
                         public Type getEnclosingType() {

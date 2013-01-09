@@ -1234,7 +1234,7 @@ public class InsertBarriers extends TreeTranslator {
     				new PackageSymbol(org,
     				syms.unnamedPackage))));
 	    Type contextType = new ClassType(Type.noType, List.<Type>nil(), 
-            			List.<RegionParameterSymbol>nil(), 
+            			List.<RPL>nil(), 
             			List.<Effects>nil(),  tsym);
 	    JCVariableDecl contextParam = 
 		make.VarDef(new VarSymbol(Flags.FINAL, contextVar, contextType, enclMethod.sym), null);
@@ -1247,7 +1247,7 @@ public class InsertBarriers extends TreeTranslator {
 			new PackageSymbol(org,
 			syms.unnamedPackage))));
 	    contextType = new ClassType(Type.noType, List.<Type>nil(), 
-			List.<RegionParameterSymbol>nil(), 
+			List.<RPL>nil(), 
 			List.<Effects>nil(),  tsym);	    
 	    contextParam = 
 		make.VarDef(new VarSymbol(Flags.FINAL, contextVar, contextType, enclMethod.sym), null);
@@ -1257,7 +1257,7 @@ public class InsertBarriers extends TreeTranslator {
 	    tsym = new TypeSymbol(0, nonintFlagClass, Type.noType, 
 			new PackageSymbol(dpjruntime, syms.unnamedPackage));
 	    contextType = new ClassType(Type.noType, List.<Type>nil(), 
-			List.<RegionParameterSymbol>nil(), 
+			List.<RPL>nil(), 
 			List.<Effects>nil(),  tsym);	    
 	    contextParam = 
 		make.VarDef(new VarSymbol(Flags.FINAL, nonintFlagVar, contextType, enclMethod.sym), null);

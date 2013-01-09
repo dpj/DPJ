@@ -308,9 +308,9 @@ public class Type implements PrimitiveType {
     /** Access methods.
      */
     public List<Type>        getTypeArguments()  { return List.nil(); }
-    public List<RegionParameterSymbol> getRegionParams() { return List.nil(); }
+    public List<RPL>         getRegionParams() { return List.nil(); }
     public List<RPL>         getRegionActuals()  { return List.nil(); }
-    public List<Effects>      getEffectArguments() { return List.nil(); }
+    public List<Effects>     getEffectArguments() { return List.nil(); }
     public Type              getEnclosingType()  { return null; }
     public List<Type>        getParameterTypes() { return List.nil(); }
     public Type              getReturnType()     { return null; }
@@ -338,7 +338,7 @@ public class Type implements PrimitiveType {
     /** Return all region parameters of this type and all its outer types
      *  in order outer (first) to inner (last)
      */
-    public List<RegionParameterSymbol> allrgnparams() { return List.nil(); }
+    public List<RPL> allrgnparams() { return List.nil(); }
     
     /** Return all region arguments of this type and all its outer types
      *  in order outer (first) to inner (last)
@@ -617,15 +617,13 @@ public class Type implements PrimitiveType {
          */
         public List<Type> typarams_field;
         
-        // TODO: Make this work the way typarams and effect params do, so we
-        // don't need separate formals and actuals.
-        /** The region parameters of this type // DPJ
-	 */
-        public List<RegionParameterSymbol> rgnparams_field;
-        
         /** The actual arguments bound to the region parameters // DPJ
          */
         public List<RPL> rgnactuals_field;
+
+        /** The RPL parameters of this type
+         */
+        public List<RPL> rplparams_field;
         
         /** The effect parameters of this type
          */
@@ -637,11 +635,11 @@ public class Type implements PrimitiveType {
          */
         public List<Type> alltyparams_field;
         
-        /** A cache variable for the region parameters of this type,
+        /** A cache variable for the RPL parameters of this type,
          *  appended to all parameters of its enclosing class.
          *  @see #allregionparams
          */
-        public List<RegionParameterSymbol> allrgnparams_field;
+        public List<RPL> allrplparams_field;
         
         /** A cache variable for the region parameters of this type,
          *  appended to all parameters of its enclosing class.
@@ -664,7 +662,7 @@ public class Type implements PrimitiveType {
         public List<Type> interfaces_field;
 
         public ClassType(Type outer, List<Type> typarams, 
-        		List<RegionParameterSymbol> rgnparams,
+        		List<RPL> rgnparams,
         		List<RPL> rgnactuals, List<Effects> effectparams,
         		TypeSymbol tsym) {
             this(outer, typarams, rgnparams, effectparams, tsym);
@@ -672,13 +670,13 @@ public class Type implements PrimitiveType {
         }
         
         public ClassType(Type outer, List<Type> typarams, 
-        	List<RegionParameterSymbol> rgnparams, 
+        	List<RPL> rgnparams, 
         	List<Effects> effectparams,
         	TypeSymbol tsym) {
             super(CLASS, tsym);
             this.outer_field = outer;
             this.typarams_field = typarams;
-            this.rgnparams_field = rgnparams;
+            this.rplparams_field = rgnparams;
             this.effectparams_field = effectparams;
             this.rgnactuals_field = null;
             this.alltyparams_field = null;
@@ -703,7 +701,7 @@ public class Type implements PrimitiveType {
         public Type constType(Object constValue) {
             final Object value = constValue;
             return new ClassType(getEnclosingType(), typarams_field, 
-        	    rgnparams_field, effectparams_field, tsym) {
+        	    rplparams_field, effectparams_field, tsym) {
                     @Override
                     public Object constValue() {
                         return value;
@@ -792,14 +790,14 @@ public class Type implements PrimitiveType {
             return effectparams_field;
         }
         
-        public List<RegionParameterSymbol> getRegionParams() {
-            if (rgnparams_field == null) {
+        public List<RPL> getRegionParams() {
+            if (rplparams_field == null) {
         	complete();
-                if (rgnparams_field == null) {
-                    rgnparams_field = List.nil();                    
+                if (rplparams_field == null) {
+                    rplparams_field = List.nil();                    
                 }
             }
-            return rgnparams_field;
+            return rplparams_field;
         }
 
         public List<RPL> getRegionActuals() {
@@ -812,7 +810,7 @@ public class Type implements PrimitiveType {
         	complete();
         	if (rgnactuals_field == null) {
         	    ListBuffer<RPL> buf = new ListBuffer<RPL>();
-        	    for (RegionParameterSymbol sym : tsym.type.getRegionParams()) {
+        	    for (RegionParameterSymbol sym : RPLs.toParams(tsym.type.getRegionParams())) {
         		buf.append(new RPL(new RPLParameterElement(sym)));
         	    }
         	    rgnactuals_field = buf.toList();
@@ -860,12 +858,12 @@ public class Type implements PrimitiveType {
             return alltyparams_field;
         }
 
-        public List<RegionParameterSymbol> allrgnparams() {
-            if (allrgnparams_field == null) {
-        	allrgnparams_field = 
-        	    getRegionParams().prependList(getEnclosingType().allrgnparams());
+        public List<RPL> allrgnparams() {
+            if (allrplparams_field == null) {
+        	allrplparams_field = 
+        		getRegionParams().prependList(getEnclosingType().allrgnparams());
             }
-            return allrgnparams_field;
+            return allrplparams_field;
         }
 
         public List<RPL> allrgnactuals() {
@@ -928,7 +926,7 @@ public class Type implements PrimitiveType {
             List<Type> typarams = getTypeArguments();
             List<Type> typarams1 = map(typarams, f);
             if (outer1 == outer && typarams1 == typarams) return this;
-            else return new ClassType(outer1, typarams1, rgnparams_field, 
+            else return new ClassType(outer1, typarams1, rplparams_field, 
         	    effectparams_field, tsym);
         }
 
@@ -1235,8 +1233,8 @@ public class Type implements PrimitiveType {
         }
 
         @Override
-        public List<RegionParameterSymbol> getRegionParams() { 
-            return rplparams; 
+        public List<RPL> getRegionParams() { 
+            return RPLs.paramsToRPLs(rplparams); 
         }
         
         @Override
@@ -1427,8 +1425,8 @@ public class Type implements PrimitiveType {
             return List.convert(VariableEffect.class, getEffectArguments());
         }
         
-        public List<RegionParameterSymbol> getRegionParams() {
-            return RPLs.toParams(getRegionActuals());
+        public List<RPL> getRegionParams() {
+            return getRegionActuals();
         }
         
         public TypeKind getKind() {
@@ -1521,7 +1519,7 @@ public class Type implements PrimitiveType {
             implements javax.lang.model.type.ErrorType {
 
         public ErrorType() {
-            super(noType, List.<Type>nil(), List.<RegionParameterSymbol>nil(), 
+            super(noType, List.<Type>nil(), List.<RPL>nil(), 
         	    List.<Effects>nil(), null);
             tag = ERROR;
         }
@@ -1555,10 +1553,10 @@ public class Type implements PrimitiveType {
         public boolean isInterface()             { return false; }
 
         public List<Type> alltyparams()            { return List.nil(); }
-        public List<RegionParameterSymbol> allrgnparams() { return List.nil(); }
+        public List<RPL> allrgnparams() { return List.nil(); }
         public List<Type> getTypeArguments()     { return List.nil(); }
         public List<Effects> getEffectArguments() { return List.nil(); }
-        public List<RegionParameterSymbol> getRegionParams() { return List.nil(); }
+        public List<RPL> getRegionParams()       { return List.nil(); }
         public List<RPL>         getRegionActuals()  { return List.nil(); }
 
 
