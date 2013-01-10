@@ -223,13 +223,6 @@ public class RPL implements
 	return result;
     }
     
-    public RPL substForThis(RPL rpl) {
-	if (!(this.elts.head instanceof RPLElement.VarRPLElement)) return this;
-	RPLElement.VarRPLElement vrs = (RPLElement.VarRPLElement) this.elts.head;
-	if (!vrs.vsym.name.toString().equals("this")) return this;
-	return new RPL(rpl.elts.appendList(this.elts.tail));
-    }
-
     public static RPL exprToRPL(JCExpression tree) {
 	Symbol sym = tree.getSymbol();
 	if (sym != null) return symToRPL(sym);
@@ -269,9 +262,6 @@ public class RPL implements
 	RPL result = this;
 	while (from.nonEmpty()) {
 	    result = this.substVar(from.head, to.head);
-	    if (result != this) {
-		break;
-	    }
 	    from = from.tail;
 	    to = to.tail;
 	}

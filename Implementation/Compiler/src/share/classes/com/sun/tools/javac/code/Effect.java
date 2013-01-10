@@ -59,10 +59,6 @@ public abstract class Effect implements
 	return new Effects(this);
     }
     
-    public Effect substForThis(RPL rpl) {
-	return this;
-    }
-
     public Effect substRPLForVar(VarSymbol from, RPL to) {
 	return this;
     }
@@ -234,12 +230,6 @@ public abstract class Effect implements
 	}
 	
 	@Override
-	public Effect substForThis(RPL rpl) {
-	    return new ReadEffect(rpls, this.rpl.substForThis(rpl), 
-		    this.isAtomic(), this.isNonint());
-	}
-	
-	@Override
 	public Effect substRPLForVar(VarSymbol from, RPL to) {
 	    return new ReadEffect(rpls, this.rpl.substRPLForVar(from, to), 
 		    this.isAtomic(), this.isNonint());
@@ -377,12 +367,6 @@ public abstract class Effect implements
 	@Override
 	public Effect substExpsForVars(List<VarSymbol> from, List<JCExpression> to) {
 	    return new WriteEffect(rpls, rpl.substExpsForVars(from, to), 
-		    this.isAtomic(), this.isNonint());
-	}
-	
-	@Override
-	public Effect substForThis(RPL rpl) {
-	    return new WriteEffect(rpls, this.rpl.substForThis(rpl), 
 		    this.isAtomic(), this.isNonint());
 	}
 	
@@ -531,11 +515,6 @@ public abstract class Effect implements
 	@Override
 	public Effect substExpsForVars(List<VarSymbol> from, List<JCExpression> to) {
 	    return new InvocationEffect(rpls, methSym, withEffects.substExpsForVars(from, to));
-	}
-	
-	@Override
-	public Effect substForThis(RPL rpl) {
-	    return new InvocationEffect(rpls, methSym, withEffects.substForThis(rpl));
 	}
 	
 	@Override

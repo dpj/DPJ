@@ -14,6 +14,7 @@ import com.sun.tools.javac.comp.Attr;
 import com.sun.tools.javac.comp.AttrContext;
 import com.sun.tools.javac.comp.Env;
 import com.sun.tools.javac.comp.Resolve;
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
@@ -135,15 +136,7 @@ public class Effects implements
 	return buf.toList();
     }
 
-    public Effects substForThis(RPL rpl) {
-	Effects result = new Effects();
-	for (Effect e : effects) {
-	    result.add(e.substForThis(rpl));
-	}
-	return result;
-    }
-    
-    public Effects substRPLForVar(VarSymbol from, RPL to) {
+     public Effects substRPLForVar(VarSymbol from, RPL to) {
 	Effects result = new Effects();
 	for (Effect e : effects) {
 	    result.add(e.substRPLForVar(from, to));
@@ -151,15 +144,6 @@ public class Effects implements
 	return result;	
     }
     
-    public static List<Effects> substForThis(List<Effects> list, RPL rpl) {
-	ListBuffer<Effects> buf = ListBuffer.lb();
-	for (Effects effects : list) {
-	    buf.append(effects.substForThis(rpl));
-	}	
-	return buf.toList();
-
-    }
-
     public Effects substForVars(List<VarSymbol> from, List<VarSymbol> to) {
 	Effects result = new Effects();
 	for (Effect e : effects) {
@@ -251,6 +235,7 @@ public class Effects implements
 	return memberEffects;
     }
 
+    
     /**
      * Translate effects from method signature context to method use context.  This
      * is used both for declared effects and for method effect constraints.
@@ -260,38 +245,32 @@ public class Effects implements
 	    Types types, Attr attr, Env<AttrContext> env) {
 	
 	MethodSymbol sym = tree.getMethodSymbol();
+	JCExpression thisArg = attr.rs.explicitSelector(tree.meth,env);
 	
 	Effects result = this;
 	if (sym != null) {
-	    if (tree.meth instanceof JCFieldAccess) {
-        	JCFieldAccess fa = (JCFieldAccess) tree.meth;
-                // Substitute for this
-        	RPL rpl = attr.exprToRPL(fa.selected);
-        	if (rpl != null) {
-        	    result = result.substForThis(rpl);
-        	}
-        	// Translate to subclass and substitute for class 
-        	// region and effect params
-        	if (fa.selected.type instanceof ClassType) {
-        	    ClassType ct = (ClassType) fa.selected.type;
-        	    result = 
-        		result.asMemberOf(ct.tsym.type, types);
-        	    if (ct.getRPLArguments().size() == 
-        		ct.tsym.type.getRPLArguments().size()) {
-        		result = 
-        		    result.substRPLParams(ct.tsym.type.getRPLArguments(),
-        			ct.getRPLArguments());
-        	    }
-        	    result = 
-        		result.substForEffectVars(ct.tsym.type.getEffectArguments(),
-        			ct.getEffectArguments());
-        	}
-        	// Substitute for actual arg expressions
-        	result = result.substExpsForVars(sym.params, tree.args);
-            } else if (tree.meth instanceof JCIdent) {
-        	// Translate to subclass
-        	result = result.asMemberOf(env.enclClass.sym.type, types);
-            }
+	    // Translate to subclass and substitute for class 
+	    // region and effect params
+	    if (thisArg.type instanceof ClassType) {
+		ClassType ct = (ClassType) thisArg.type;
+		result = 
+			result.asMemberOf(ct.tsym.type, types);
+		if (ct.getRPLArguments().size() == 
+			ct.tsym.type.getRPLArguments().size()) {
+		    result = 
+			    result.substRPLParams(ct.tsym.type.getRPLArguments(),
+				    ct.getRPLArguments());
+		}
+		result = 
+			result.substForEffectVars(ct.tsym.type.getEffectArguments(),
+				ct.getEffectArguments());
+	    }
+	    // Substitute for actual arg expressions
+	    RPL rpl = attr.exprToRPL(thisArg);
+	    if (rpl != null) {
+		result = result.substRPLForVar(tree.getThisSymbol(), rpl);
+	    }
+	    result = result.substExpsForVars(sym.params, tree.args);
 
             MethodSymbol methSym = tree.getMethodSymbol();
             if (tree.mtype != null) {

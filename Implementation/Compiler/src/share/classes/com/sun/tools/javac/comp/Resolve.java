@@ -484,8 +484,7 @@ public class Resolve {
         List<Type> paramTypes = mt.getParameterTypes();
         if (env.info.siteExp != null) {
             RPL rpl = attr.exprToRPL(env.info.siteExp);
-            if (rpl != null)
-        	paramTypes = types.substForThis(paramTypes, rpl);
+            paramTypes = types.substRPLForVar(paramTypes, m.enclThis(), rpl);
         }
         if (env.info.actualArgs != null && params != null) {
             paramTypes = types.substIndices(paramTypes, params, env.info.actualArgs);
@@ -659,8 +658,11 @@ public class Resolve {
     /**                                                                         
      * Find symbol for 'this' in env                                            
      */
-    public Symbol findThis(Env<AttrContext> env) {
-        return findVar(env, names._this);
+    public VarSymbol findThis(Env<AttrContext> env) {
+	Symbol sym = findVar(env, names._this);
+	if (sym instanceof VarSymbol)
+	    return (VarSymbol) sym;
+	return null;
     }
     
     /**
@@ -671,17 +673,19 @@ public class Resolve {
     }
     
     /**
-     * Get the explicit or implied argument to the 'this' parameter 
-     * at a selection.
+     * Get the explicit argument to a selection.
      */
-    JCExpression argToThis(JCTree selectExp, Env<AttrContext> env)
+    public JCExpression explicitSelector(JCTree selectExp, Env<AttrContext> env)
     {
 	JCExpression result = null;
 	if (selectExp instanceof JCFieldAccess) {
 	    result = ((JCFieldAccess) selectExp).selected;
 	}
 	else {
-	    result = maker.Ident(findThis(env));
+	    Symbol thisSym = findThis(env);
+	    if (thisSym == null)
+		return maker.Ident(env.enclClass.sym);
+	    return maker.Ident(thisSym);
 	}
 	return result;
     }
@@ -1449,9 +1453,6 @@ public class Resolve {
      * Is the given variable symbol in scope in the given environment? (DPJ)
      */
     public boolean isInScope(VarSymbol sym, Env<AttrContext> env) {
-	// FIXME: 'this' doesn't work normally because substitution for 'this'
-	// isn't handled right elsewhere
-	if (sym.name.toString().equals("this")) return true;
 	Symbol sym1 = findVar(env, sym.name);
 	return (sym1 == sym);
     }
@@ -1463,6 +1464,7 @@ public class Resolve {
     }
     
     public boolean isInScope(Symbol sym, Env<AttrContext> env) {
+	if (sym.name.equals(names._this)) return true;
 	if (sym instanceof VarSymbol)
 	    return isInScope((VarSymbol) sym, env);
 	else if (sym instanceof RegionNameSymbol)

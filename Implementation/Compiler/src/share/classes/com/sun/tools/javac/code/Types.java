@@ -2341,29 +2341,41 @@ public class Types {
         }
     }
 
-    public Type substForThis(Type t, RPL rpl) {
-	return new SubstForThis(rpl).substForThis(t);
-    }
-
-    public List<Type> substForThis(List<Type> ts, RPL rpl) {
-	return new SubstForThis(rpl).substForThis(ts);
+    public Type substRPLForVar(Type t, VarSymbol from, RPL to) {
+	return substRPLsForVars(t, List.of(from), List.of(to));
     }
     
-    private class SubstForThis extends UnaryVisitor<Type> {
-        RPL rpl;
+    public Type substRPLsForVars(Type t, List<VarSymbol> from, List<RPL> to) {
+	if (from == null || to == null) return t;
+	return new SubstRPLsForVars(from, to).transformType(t);
+    }
 
-        public SubstForThis(RPL rpl) {
-            this.rpl = rpl;
+    public List<Type> substRPLForVar(List<Type> ts, VarSymbol from, RPL to) {
+	return substRPLsForVars(ts, List.of(from), List.of(to));
+    }
+    
+    public List<Type> substRPLsForVars(List<Type> ts, List<VarSymbol> from, List<RPL> to) {
+	if (from == null || to == null) return ts;
+	return new SubstRPLsForVars(from, to).transformTypes(ts);
+    }
+        
+    private class SubstRPLsForVars extends UnaryVisitor<Type> {
+	List<VarSymbol> from;
+	List<RPL> to;
+
+        public SubstRPLsForVars(List<VarSymbol> from, List<RPL> to) {
+            this.from = from;
+            this.to = to;
         }
 
-        Type substForThis(Type t) {
+        Type transformType(Type t) {
             return visit(t);
         }
 
-        List<Type> substForThis(List<Type> ts) {
+        List<Type> transformTypes(List<Type> ts) {
             if (ts.nonEmpty()) {
-        	Type head1 = substForThis(ts.head);
-                List<Type> tail1 = substForThis(ts.tail);
+        	Type head1 = transformType(ts.head);
+                List<Type> tail1 = transformTypes(ts.tail);
                 if (head1 != ts.head || tail1 != ts.tail)
                     ts = tail1.prepend(head1);
             }
@@ -2376,9 +2388,9 @@ public class Types {
 
         @Override
         public Type visitMethodType(MethodType t, Void ignored) {
-            List<Type> argtypes = substForThis(t.argtypes);
-            Type restype = substForThis(t.restype);
-            List<Type> thrown = substForThis(t.thrown);
+            List<Type> argtypes = transformTypes(t.argtypes);
+            Type restype = transformType(t.restype);
+            List<Type> thrown = transformTypes(t.thrown);
             boolean isPure = false;
            if (argtypes == t.argtypes &&
                 restype == t.restype &&
@@ -2397,18 +2409,20 @@ public class Types {
         public Type visitClassType(ClassType t, Void ignored) {
             if (!t.isCompound()) {
                 List<Type> typarams = t.getTypeArguments();
-                List<Type> typarams1 = substForThis(typarams);
+                List<Type> typarams1 = transformTypes(typarams);
                 List<RPL> rgnactuals = t.getRPLArguments();
-                List<RPL> rgnactuals1 = rpls.substForThis(rgnactuals, rpl);
+                List<RPL> rgnactuals1 = 
+                	Translation.substRPLsForVars(rgnactuals, from, to);
                 List<Effects> effectargs = t.getEffectArguments();
-                List<Effects> effectargs1 = Effects.substForThis(effectargs, rpl);
+                List<Effects> effectargs1 = 
+                	Translation.substRPLsForVars(effectargs, from, to);
                 Type outer = t.getEnclosingType();
-                Type outer1 = substForThis(outer);
+                Type outer1 = transformType(outer);
                 return new ClassType(outer1, typarams1, 
                 	rgnactuals1, effectargs1, t.tsym);
             } else {
-                Type st = substForThis(supertype(t));
-                List<Type> is = upperBounds(substForThis(interfaces(t)));
+                Type st = transformType(supertype(t));
+                List<Type> is = upperBounds(transformTypes(interfaces(t)));
                 if (st == supertype(t) && is == interfaces(t))
                     return t;
                 else
@@ -2421,7 +2435,7 @@ public class Types {
         public Type visitWildcardType(WildcardType t, Void ignored) {
             Type bound = t.type;
             if (t.kind != BoundKind.UNBOUND)
-                bound = substForThis(bound);
+                bound = transformType(bound);
             if (bound == t.type) {
                 return t;
             } else {
@@ -2433,7 +2447,7 @@ public class Types {
 
         @Override
         public Type visitArrayType(ArrayType t, Void ignored) {
-            Type elemtype = substForThis(t.elemtype);
+            Type elemtype = transformType(t.elemtype);
             if (elemtype == t.elemtype)
                 return t;
             else
@@ -2446,7 +2460,7 @@ public class Types {
             // TODO:  Substitute into the region args
             //List<Type> tvars1 = substBoundsForThis(t.tvars, from, to); // TODO
             List<Type> tvars1 = t.tvars; 
-            Type qtype1 = substForThis(t.qtype);
+            Type qtype1 = transformType(t.qtype);
             if (tvars1 == t.tvars && qtype1 == t.qtype) {
                 return t;
             } else if (tvars1 == t.tvars) {

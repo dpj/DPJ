@@ -25,6 +25,19 @@ public class Translation {
 	public T substRPLForVar(VarSymbol from, RPL to);
     }
 
+    public static <T extends SubstRPLs<T>> List<T>substRPLsForVars
+    	(List<T> in, List<VarSymbol> from, List<RPL> to)
+    {
+	ListBuffer<T> lb = ListBuffer.lb();
+	for (T elt : in) {
+	    for (VarSymbol var : from) {
+		lb.append(elt.substRPLForVar(var, to.head));
+		to = to.tail;
+	    }
+	}	
+	return lb.toList();
+    }
+    
     /** Apply RPL substitution to a list */
     public static <T extends SubstRPLs<T>> List<T>substRPLs(List<T> list,
 	    List<RPL> from, List<RPL> to) {

@@ -1755,6 +1755,10 @@ public abstract class JCTree implements Tree, Cloneable, DiagnosticPosition {
         	return (MethodSymbol) sym;
             return null;
         }
+        public VarSymbol getThisSymbol() {
+            Symbol sym = getMethodSymbol();
+            return (sym == null) ? null : sym.enclThis();
+        }
     }
 
     /**

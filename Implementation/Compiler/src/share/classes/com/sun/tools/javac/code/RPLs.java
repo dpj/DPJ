@@ -179,15 +179,6 @@ public class RPLs {
         return result;
     }
     
-    public List<RPL> substForThis(List<RPL> rpls, RPL rpl) {
-	ListBuffer<RPL> buf = new ListBuffer<RPL>();
-	while (rpls.nonEmpty()) {
-	    buf.append(rpls.head.substForThis(rpl));
-	    rpls = rpls.tail;
-	}
-	return buf.toList();
-    }
-
     public List<RPL> substIndices(List<RPL> rpls, List<VarSymbol> from, 
 	    List<JCExpression> to) {
 	ListBuffer<RPL> buf = ListBuffer.<RPL>lb();

@@ -216,8 +216,9 @@ public class CheckEffects extends EnvScanner { // DPJ
 		result = Translation.substAllRPLParams(rpls.memberRPL(types, ct, 
 			vsym), ct);
 		RPL rpl = attr.exprToRPL(tree.selected);
-		if (rpl != null)
-		    result = result.substForThis(rpl);
+		if (rpl != null) {
+		    result = result.substRPLForVar(tree.sym.enclThis(), rpl);
+		}
 	    }
         }
 	
@@ -232,18 +233,6 @@ public class CheckEffects extends EnvScanner { // DPJ
             }
         }
 
-	private RPL selectedRPL(JCFieldAccess tree) {
-	    RPL rpl = null;
-	    if (tree.selected.type instanceof ClassType &&
-		    tree.sym instanceof VarSymbol) {
-		ClassType ct = (ClassType) tree.selected.type;
-		VarSymbol vsym = (VarSymbol) tree.sym;
-		if (vsym.rpl == null) return null;
-		rpl = attr.exprToRPL(tree.selected);
-	    }
-	    return rpl;
-	}
-	
 	public void visitIndexed(JCArrayAccess tree) {
             Type atype = tree.indexed.type;
             if (types.isArray(atype)) {
@@ -253,10 +242,12 @@ public class CheckEffects extends EnvScanner { // DPJ
                 if (result != null) {
                     if (at.indexVar != null) {
                 	result = result.substIndex(at.indexVar, tree.index);
-                	if (tree.indexed instanceof JCFieldAccess) {
-                	    RPL rpl = selectedRPL((JCFieldAccess) tree.indexed);
-                	    if (rpl != null)
-                		result = result.substForThis(rpl);
+                	JCExpression thisArg = rs.explicitSelector(tree.indexed, parentEnv);                	
+                	RPL rpl = attr.exprToRPL(thisArg);
+                	Symbol sym = tree.indexed.getSymbol();
+                	if (rpl != null && sym != null) {
+                	    VarSymbol thisSym = sym.enclThis();
+                	    result = result.substRPLForVar(thisSym, rpl);
                 	}
                 	return;
                     }

@@ -214,7 +214,7 @@ public class Attr extends JCTree.Visitor {
     final Name.Table names;
     final Log log;
     final protected Symtab syms;
-    final Resolve rs;
+    public final Resolve rs;
     final Check chk;
     final MemberEnter memberEnter;
     final TreeMaker make;
@@ -225,7 +225,7 @@ public class Attr extends JCTree.Visitor {
     final Annotate annotate;
     final RPLs rpls;
     final DPJAttrPrePass dpjAttrPrePass;
-
+    
     /**
      * A small pass that happens after Enter and before Attr.  It scans the tree and
      * does the following: 
@@ -611,6 +611,7 @@ public class Attr extends JCTree.Visitor {
      * like e.f, where f is declared in region this.
      */
     public RPL exprToRPL(JCExpression tree) {
+	if (tree == null) return null;
 	// Conversion only makes sense for class types
 	if (!(tree.type instanceof ClassType)) return null;
 	Symbol sym = tree.getSymbol();
@@ -1786,17 +1787,12 @@ public class Attr extends JCTree.Visitor {
             }
 
             // Substitutions required by DPJ type system
-            if (tree.meth instanceof JCFieldAccess) {
-                JCFieldAccess fa = (JCFieldAccess) tree.meth;
-                RPL rpl = exprToRPL(fa.selected);
-                if (rpl != null) {
-                    restype = types.substForThis(restype, rpl);
-                }
-            }
 
             // Substitute actual arguments for argument variables
             MethodSymbol methSym = tree.getMethodSymbol();
             if (methSym != null && methSym.params != null) {
+                RPL thisRPL = exprToRPL(rs.explicitSelector(tree.meth, env));
+                restype = types.substRPLForVar(restype, methSym.enclThis(), thisRPL);
         	restype = types.substIndices(restype, methSym.params, 
         		tree.getArguments());
             }
@@ -2757,8 +2753,8 @@ public class Attr extends JCTree.Visitor {
                 }
 
                 // Substitutions required by DPJ type system
-                RPL thisRPL = exprToRPL(rs.argToThis(tree, env));
-                owntype = types.substForThis(owntype, thisRPL);
+                RPL thisRPL = exprToRPL(rs.explicitSelector(tree, env));
+                owntype = types.substRPLForVar(owntype, rs.findThis(env), thisRPL);
                 
                 // If the variable is a constant, record constant value in
                 // computed type.
