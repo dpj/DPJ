@@ -1105,6 +1105,7 @@ public class MemberEnter extends JCTree.Visitor implements Completer {
                     new VarSymbol(FINAL | HASINIT, names._this, c.type, c);
                 thisSym.pos = Position.FIRSTPOS;
                 env.info.scope.enter(thisSym);
+                sym.thisSym = thisSym;
                 if (ct.supertype_field.tag == CLASS) {
                     VarSymbol superSym =
                         new VarSymbol(FINAL | HASINIT, names._super,

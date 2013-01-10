@@ -1286,8 +1286,8 @@ public class Check {
 		    buf.append(rps);
 		}
 		List<RPL> rpls = buf.toList();
-		me = me.substRPLs(m_rpl_params, rpls);
-		oe = oe.substRPLs(o_rpl_params, rpls);
+		me = me.substRPLParams(m_rpl_params, rpls);
+		oe = oe.substRPLParams(o_rpl_params, rpls);
 	    }
 	    me = me.substForVars(m.params, other.params);
 	    me = me.substForEffectVars(m.effectparams, other.effectparams);

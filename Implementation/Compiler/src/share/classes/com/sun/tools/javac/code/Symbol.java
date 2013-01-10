@@ -159,6 +159,11 @@ public abstract class Symbol implements
      */
     public Type erasure_field;
 
+    /**                                                                                                              
+     * The symbol, if any, associated with 'this' for this symbol                                                    
+     */
+    public VarSymbol thisSym;
+
     /** Construct a symbol with given kind, flags, name, type and owner.
      */
     public Symbol(int kind, long flags, Name name, Type type, Symbol owner) {

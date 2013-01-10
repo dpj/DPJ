@@ -7,19 +7,20 @@ import static com.sun.tools.javac.code.TypeTags.CLASS;
 import static com.sun.tools.javac.code.TypeTags.TYPEVAR;
 
 import com.sun.tools.javac.code.Effect;
+import com.sun.tools.javac.code.Effect.InvocationEffect;
 import com.sun.tools.javac.code.Effects;
 import com.sun.tools.javac.code.Lint;
 import com.sun.tools.javac.code.RPL;
 import com.sun.tools.javac.code.RPLs;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.Types;
-import com.sun.tools.javac.code.Effect.InvocationEffect;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.OperatorSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Translation;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
+import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.DPJAtomic;
 import com.sun.tools.javac.tree.JCTree.DPJCobegin;
@@ -212,8 +213,8 @@ public class CheckEffects extends EnvScanner { // DPJ
 		VarSymbol vsym = (VarSymbol) tree.sym;
 		if (inConstructor && isInstanceField(vsym)) return;
 		if (vsym.rpl == null) return;
-		result = rpls.memberRPL(types, ct, 
-			vsym).substForAllParams(ct);
+		result = Translation.substAllRPLParams(rpls.memberRPL(types, ct, 
+			vsym), ct);
 		RPL rpl = attr.exprToRPL(tree.selected);
 		if (rpl != null)
 		    result = result.substForThis(rpl);

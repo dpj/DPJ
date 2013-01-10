@@ -2,8 +2,7 @@ package com.sun.tools.javac.code;
 
 import static com.sun.tools.javac.code.Flags.STATIC;
 
-import com.sun.tools.javac.code.RPLElement.RPLParameterElement;
-import com.sun.tools.javac.code.Symbol.RegionParameterSymbol;
+import com.sun.tools.javac.code.RPLElement.VarRPLElement;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.util.Context;
@@ -145,8 +144,8 @@ public class RPLs {
 	    List<RPL> formals, List<RPL> actuals,
 	    List<Pair<RPL,RPL>> envConstraints) {
 	for (Pair<RPL,RPL> constraint : constraints) {
-	    if (!areDisjoint(constraint.fst.substRPLs(formals, actuals), 
-		    constraint.snd.substRPLs(formals, actuals),
+	    if (!areDisjoint(constraint.fst.substRPLParams(formals, actuals), 
+		    constraint.snd.substRPLParams(formals, actuals),
 		    envConstraints))
 		return false;
 	}
@@ -180,25 +179,6 @@ public class RPLs {
         return result;
     }
     
-    public static List<RPL> substForTRParams(List<RPL>rpls,
-	    List<Type> from, List<Type> to) {
-	ListBuffer<RPL> buf = new ListBuffer<RPL>();
-	while (rpls.nonEmpty()) {
-	    buf.append(rpls.head.substForTRParams(from, to));
-	    rpls = rpls.tail;
-	}
-	return buf.toList();	
-    }
-    
-    public static List<RPL> substForAllParams(List<RPL> rpls, Type t) {
-	List<RPL> result = Translation.substRPLs(rpls, 
-		t.tsym.type.getRPLArguments(),
-		t.getRPLArguments());
-	result = substForTRParams(result, t.tsym.type.getTypeArguments(),
-		t.getTypeArguments());
-	return result;
-    }
-
     public List<RPL> substForThis(List<RPL> rpls, RPL rpl) {
 	ListBuffer<RPL> buf = new ListBuffer<RPL>();
 	while (rpls.nonEmpty()) {

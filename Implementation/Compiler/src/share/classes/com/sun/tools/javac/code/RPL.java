@@ -192,7 +192,8 @@ public class RPL implements
 	return new RPL(buf.toList());
     }
     
-    public RPL substRPLs(List<RPL> from, List<RPL> to) {
+    /** Replace 'from' RPL params with 'to' RPLs */
+    public RPL substRPLParams(List<RPL> from, List<RPL> to) {
         while (from.nonEmpty() && to.nonEmpty()) {
             if (this.elts.head.equals(from.head.elts.head)) {
                 return new RPL(to.head.elts.appendList(this.elts.tail));
@@ -204,36 +205,21 @@ public class RPL implements
     }
     
     /**
-     * Substitute for type region params
+     * Do TR substitutions implied by type bindings
      */
-    public RPL substForTRParams(Type from, Type to) {
-	if (!(from instanceof TypeVar)) return this;
-	List<RPL> params = from.tsym.type.getRPLArguments();
-	List<RPL> args = to.getRPLArguments();
-	return this.substRPLs(params, args);
-    }
-
-    public RPL substForTRParams(List<Type> from, List<Type> to) {
+    public RPL substTRParams(List<Type> from, List<Type> to) {
 	RPL result = this;
 	while (from.nonEmpty() && to.nonEmpty()) {
-	    result = this.substForTRParams(from.head, to.head);
-	    if (result != this) {
-		break;
+	    if (from.head instanceof TypeVar) {
+		List<RPL> params = from.head.tsym.type.getRPLArguments();
+		List<RPL> args = to.head.getRPLArguments();
+		result = this.substRPLParams(params, args);
+		if (result != this)
+		    return result;
 	    }
 	    from = from.tail;
 	    to = to.tail;
 	}
-	return result;
-    }
-    
-    /**
-     * Do all the RPL parameter substitutions implied by the bindings of t
-     */
-    public RPL substForAllParams(Type t) {
-	RPL result = this.substRPLs(t.tsym.type.getRPLArguments(), 
-		t.getRPLArguments());
-	result = result.substForTRParams(t.tsym.type.getTypeArguments(),
-		t.getTypeArguments());
 	return result;
     }
     
@@ -275,22 +261,22 @@ public class RPL implements
 	return result;	
     }
 
-    public RPL substForVar(VarSymbol from, RPL to) {
+    public RPL substRPLForVar(VarSymbol from, RPL to) {
 	if (!(this.elts.head instanceof RPLElement.VarRPLElement)) return this;
 	RPLElement.VarRPLElement vrs = (RPLElement.VarRPLElement) this.elts.head;
 	if (vrs.vsym != from) return this;
 	return new RPL(to.elts.appendList(this.elts.tail));
     }
 
-    public RPL substForVar(VarSymbol from, VarSymbol to) {
+    public RPL substVar(VarSymbol from, VarSymbol to) {
 	RPL toRPL = symToRPL(to);
-	return (toRPL == null) ? this : substForVar(from, toRPL);	
+	return (toRPL == null) ? this : substRPLForVar(from, toRPL);	
     }
 
-    public RPL substForVars(List<VarSymbol> from, List<VarSymbol> to) {
+    public RPL substVars(List<VarSymbol> from, List<VarSymbol> to) {
 	RPL result = this;
 	while (from.nonEmpty()) {
-	    result = this.substForVar(from.head, to.head);
+	    result = this.substVar(from.head, to.head);
 	    if (result != this) {
 		break;
 	    }
@@ -302,7 +288,7 @@ public class RPL implements
     
     public RPL substExpForVar(VarSymbol from, JCExpression to) {
 	RPL toRPL = exprToRPL(to);
-	return (toRPL == null) ? this : substForVar(from, toRPL);
+	return (toRPL == null) ? this : substRPLForVar(from, toRPL);
     }
 
     public RPL substExpsForVars(List<VarSymbol> from, List<JCExpression> to) {
@@ -429,9 +415,9 @@ public class RPL implements
                 List<RPL> from = owner.type.allrgnparams();
                 List<RPL> to = base.allrgnactuals();
                 if (from.nonEmpty()) {
-                    result = result.substRPLs(from, to);
+                    result = result.substRPLParams(from, to);
                 }
-                result = result.substForTRParams(owner.type.alltyparams(), 
+                result = result.substTRParams(owner.type.alltyparams(), 
                 	base.alltyparams());
             }
         }

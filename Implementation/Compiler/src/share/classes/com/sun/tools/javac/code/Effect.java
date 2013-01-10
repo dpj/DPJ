@@ -41,28 +41,29 @@ public abstract class Effect implements
     /**
      * Do all the RPL and effect parameter substitutions implied by the bindings of t
      */
-    public Effects substForAllParams(Type t) {
-	Effect e = this.substRPLs(t.tsym.type.getRPLArguments(),
-		t.getRPLArguments());
-	e = e.substForTRParams(t.tsym.type.getTypeArguments(),
-		t.getTypeArguments());
-    	return e.substForEffectVars(t.tsym.type.getEffectArguments(), 
+    public Effects substAllParams(Type t) {
+	Effect e = Translation.substAllRPLParams(this, t);
+    	return e.substEffectVars(t.tsym.type.getEffectArguments(), 
     		t.getEffectArguments());
     }
 
-    public Effect substRPLs(List<RPL> from, List<RPL> to) {
+    public Effect substRPLParams(List<RPL> from, List<RPL> to) {
 	return this;
     }
     
-    public Effect substForTRParams(List<Type> from, List<Type> to) {
+    public Effect substTRParams(List<Type> from, List<Type> to) {
 	return this;
     }
     
-    public Effects substForEffectVars(List<Effects> from, List<Effects> to) {
+    public Effects substEffectVars(List<Effects> from, List<Effects> to) {
 	return new Effects(this);
     }
     
     public Effect substForThis(RPL rpl) {
+	return this;
+    }
+
+    public Effect substRPLForVar(VarSymbol from, RPL to) {
 	return this;
     }
     
@@ -209,20 +210,20 @@ public abstract class Effect implements
 	}
 	
 	@Override
-	public Effect substRPLs(List<RPL> from, List<RPL> to) {
-	    return new ReadEffect(rpls, rpl.substRPLs(from, to),
+	public Effect substRPLParams(List<RPL> from, List<RPL> to) {
+	    return new ReadEffect(rpls, rpl.substRPLParams(from, to),
 		    this.isAtomic(), this.isNonint());
 	}
 	
 	@Override
-	public Effect substForTRParams(List<Type> from, List<Type> to) {
-	    return new ReadEffect(rpls, rpl.substForTRParams(from, to), 
+	public Effect substTRParams(List<Type> from, List<Type> to) {
+	    return new ReadEffect(rpls, rpl.substTRParams(from, to), 
 		    this.isAtomic(), this.isNonint());
 	}	    
 	
 	@Override
 	public Effect substForVars(List<VarSymbol> from, List<VarSymbol> to) {
-	    return new ReadEffect(rpls, rpl.substForVars(from, to), 
+	    return new ReadEffect(rpls, rpl.substVars(from, to), 
 		    this.isAtomic(), this.isNonint());
 	}
 	
@@ -238,6 +239,12 @@ public abstract class Effect implements
 		    this.isAtomic(), this.isNonint());
 	}
 	
+	@Override
+	public Effect substRPLForVar(VarSymbol from, RPL to) {
+	    return new ReadEffect(rpls, this.rpl.substRPLForVar(from, to), 
+		    this.isAtomic(), this.isNonint());
+	}
+		
 	@Override
 	public Effect substIndices(List<VarSymbol> from, List<JCExpression> to) {
 	    return new ReadEffect(rpls, rpl.substIndices(from, to), 
@@ -350,20 +357,20 @@ public abstract class Effect implements
 	}
 	
 	@Override
-	public Effect substRPLs(List<RPL> from, List<RPL> to) {
-	    return new WriteEffect(rpls, rpl.substRPLs(from, to), 
+	public Effect substRPLParams(List<RPL> from, List<RPL> to) {
+	    return new WriteEffect(rpls, rpl.substRPLParams(from, to), 
 		    this.isAtomic(), this.isNonint());
 	}
 	
 	@Override
-	public Effect substForTRParams(List<Type> from, List<Type> to) {
-	    return new WriteEffect(rpls, rpl.substForTRParams(from, to), 
+	public Effect substTRParams(List<Type> from, List<Type> to) {
+	    return new WriteEffect(rpls, rpl.substTRParams(from, to), 
 		    this.isAtomic(), this.isNonint());
 	}	    
 
 	@Override
 	public Effect substForVars(List<VarSymbol> from, List<VarSymbol> to) {
-	    return new WriteEffect(rpls, rpl.substForVars(from, to), 
+	    return new WriteEffect(rpls, rpl.substVars(from, to), 
 		    this.isAtomic(), this.isNonint());
 	}
 	
@@ -379,6 +386,12 @@ public abstract class Effect implements
 		    this.isAtomic(), this.isNonint());
 	}
 	
+	@Override
+	public Effect substRPLForVar(VarSymbol from, RPL to) {
+	    return new WriteEffect(rpls, this.rpl.substRPLForVar(from, to), 
+		    this.isAtomic(), this.isNonint());
+	}
+
 	@Override
 	public Effect substIndices(List<VarSymbol> from, List<JCExpression> to) {
 	    Effect result = new WriteEffect(rpls, rpl.substIndices(from, to),
@@ -501,13 +514,13 @@ public abstract class Effect implements
 	}
 	
 	@Override
-	public Effect substRPLs(List<RPL> from, List<RPL> to) {
-	    return new InvocationEffect(rpls, methSym, withEffects.substRPLs(from, to));
+	public Effect substRPLParams(List<RPL> from, List<RPL> to) {
+	    return new InvocationEffect(rpls, methSym, withEffects.substRPLParams(from, to));
 	}
 	
 	@Override
-	public Effect substForTRParams(List<Type> from, List<Type> to) {
-	    return new InvocationEffect(rpls, methSym, withEffects.substForTRParams(from, to));
+	public Effect substTRParams(List<Type> from, List<Type> to) {
+	    return new InvocationEffect(rpls, methSym, withEffects.substTRParams(from, to));
 	}
 	
 	@Override
@@ -523,6 +536,11 @@ public abstract class Effect implements
 	@Override
 	public Effect substForThis(RPL rpl) {
 	    return new InvocationEffect(rpls, methSym, withEffects.substForThis(rpl));
+	}
+	
+	@Override
+	public Effect substRPLForVar(VarSymbol from, RPL to) {
+	    return new InvocationEffect(rpls, methSym, withEffects.substRPLForVar(from, to));
 	}
 	
 	@Override
@@ -545,7 +563,7 @@ public abstract class Effect implements
 	}
 	
 	@Override
-	public Effects substForEffectVars(List<Effects> from, List<Effects> to) {
+	public Effects substEffectVars(List<Effects> from, List<Effects> to) {
 	    Effects newEffects = withEffects.substForEffectVars(from, to);
 	    return new Effects(new InvocationEffect(rpls, methSym, newEffects));
 	}
@@ -631,12 +649,12 @@ public abstract class Effect implements
 	public Effects asMemberOf(Type t, Types types) {
 	    Symbol owner = this.sym.enclClass();
 	    Type base = types.asOuterSuper(t, owner);
-            return this.substForEffectVars(base.tsym.type.getEffectArguments(),
+            return this.substEffectVars(base.tsym.type.getEffectArguments(),
         	    base.getEffectArguments());
 	}
 	
 	@Override
-	public Effects substForEffectVars(List<Effects> from, List<Effects> to) {
+	public Effects substEffectVars(List<Effects> from, List<Effects> to) {
 	    while (from.nonEmpty() && to.nonEmpty()) {
 		VariableEffect ve = from.head.asVariableEffect();
 		assert(ve != null);

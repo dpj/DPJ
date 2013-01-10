@@ -94,25 +94,25 @@ public class Effects implements
     public Effects substForAllParams(Type t) {
 	Effects result = new Effects();
 	for (Effect e : effects) {
-	    result.addAll(e.substForAllParams(t));
+	    result.addAll(e.substAllParams(t));
 	}
 	return result;
     }
     
     /** @return a new Effects set where the RPL parameters 'from' 
      * have been replaced with the RPLs 'to' */
-    public Effects substRPLs(List<RPL> from, List<RPL> to) {
+    public Effects substRPLParams(List<RPL> from, List<RPL> to) {
 	Effects result = new Effects();
 	for (Effect e : effects) {
-	    result.add(e.substRPLs(from, to));
+	    result.add(e.substRPLParams(from, to));
 	}
 	return result;
     }
     
-    public Effects substForTRParams(List<Type> from, List<Type> to) {
+    public Effects substTRParams(List<Type> from, List<Type> to) {
 	Effects result = new Effects();
 	for (Effect e : effects) {
-	    result.add(e.substForTRParams(from, to));
+	    result.add(e.substTRParams(from, to));
 	}
 	return result;	
     }
@@ -120,7 +120,7 @@ public class Effects implements
     public Effects substForEffectVars(List<Effects> from, List<Effects> to) {
 	Effects result = new Effects();
 	for (Effect e : effects) {
-	    result.addAll(e.substForEffectVars(from, to));
+	    result.addAll(e.substEffectVars(from, to));
 	}
 	return result;
     }
@@ -135,13 +135,20 @@ public class Effects implements
 	return buf.toList();
     }
 
-    
     public Effects substForThis(RPL rpl) {
 	Effects result = new Effects();
 	for (Effect e : effects) {
 	    result.add(e.substForThis(rpl));
 	}
 	return result;
+    }
+    
+    public Effects substRPLForVar(VarSymbol from, RPL to) {
+	Effects result = new Effects();
+	for (Effect e : effects) {
+	    result.add(e.substRPLForVar(from, to));
+	}
+	return result;	
     }
     
     public static List<Effects> substForThis(List<Effects> list, RPL rpl) {
@@ -272,7 +279,7 @@ public class Effects implements
         	    if (ct.getRPLArguments().size() == 
         		ct.tsym.type.getRPLArguments().size()) {
         		result = 
-        		    result.substRPLs(ct.tsym.type.getRPLArguments(),
+        		    result.substRPLParams(ct.tsym.type.getRPLArguments(),
         			ct.getRPLArguments());
         	    }
         	    result = 
@@ -290,12 +297,12 @@ public class Effects implements
             if (tree.mtype != null) {
         	// Substitute for method region params
         	if (sym.rgnParams != null) {
-        	    result = result.substRPLs(sym.rgnParams, 
+        	    result = result.substRPLParams(sym.rgnParams, 
         		    tree.mtype.regionActuals);
         	}
         	// Substitute for type region params
         	if (sym.typarams != null) {
-        		result = result.substForTRParams(sym.typarams,
+        		result = result.substTRParams(sym.typarams,
         			tree.mtype.typeactuals);
         	}
         	if (methSym != null) {
@@ -303,7 +310,7 @@ public class Effects implements
         	    ListBuffer<Type> argtypes = ListBuffer.lb();
         	    for (JCExpression arg : tree.getArguments())
         		argtypes.append(arg.type);
-        	    result = result.substForTRParams(paramtypes, argtypes.toList());
+        	    result = result.substTRParams(paramtypes, argtypes.toList());
         	}
             }
             
@@ -416,10 +423,10 @@ public class Effects implements
 	Constraints envConstraints = env.info.constraints;
 	for (Pair<Effects,Effects> constraint : constraints) {
 	    Effects first = constraint.fst.translateMethodEffects(tree, types, attr, env);
-	    first = first.substRPLs(rplFormals, rplActuals);
+	    first = first.substRPLParams(rplFormals, rplActuals);
 	    first = first.substForEffectVars(effectFormals, effectActuals);
 	    Effects second = constraint.snd.translateMethodEffects(tree, types, attr, env);
-	    second = second.substRPLs(rplFormals, rplActuals);
+	    second = second.substRPLParams(rplFormals, rplActuals);
 	    second = second.substForEffectVars(effectFormals, effectActuals);
 	    if (!noninterferingEffects(first, second, envConstraints, false)) {
 		System.out.println(first + " interferes with " +second);
