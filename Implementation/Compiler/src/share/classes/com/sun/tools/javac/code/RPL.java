@@ -234,7 +234,7 @@ public class RPL implements
     public static RPL symToRPL(Symbol sym) {
 	RPL result = null;
 	if ((sym instanceof VarSymbol) &&
-		(sym.owner.kind == Kinds.MTH || sym.name.equals("this"))
+		(sym.owner.kind == Kinds.MTH || sym.name.toString().equals("this"))
 	    && (sym.flags() & Flags.FINAL) != 0) {
 	    // If the variable is a final local variable, use it as the RPL
 	    result = new RPL(List.<RPLElement>of(new RPLElement.VarRPLElement((VarSymbol) sym)));

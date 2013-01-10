@@ -245,14 +245,14 @@ public class Effects implements
 	    Types types, Attr attr, Env<AttrContext> env) {
 	
 	MethodSymbol sym = tree.getMethodSymbol();
-	JCExpression thisArg = attr.rs.explicitSelector(tree.meth,env);
+	JCExpression selectedExp = attr.rs.selectedExp(tree.meth,env);
 	
 	Effects result = this;
 	if (sym != null) {
 	    // Translate to subclass and substitute for class 
 	    // region and effect params
-	    if (thisArg.type instanceof ClassType) {
-		ClassType ct = (ClassType) thisArg.type;
+	    if (selectedExp.type instanceof ClassType) {
+		ClassType ct = (ClassType) selectedExp.type;
 		result = 
 			result.asMemberOf(ct.tsym.type, types);
 		if (ct.getRPLArguments().size() == 
@@ -266,7 +266,7 @@ public class Effects implements
 				ct.getEffectArguments());
 	    }
 	    // Substitute for actual arg expressions
-	    RPL rpl = attr.exprToRPL(thisArg);
+	    RPL rpl = attr.exprToRPL(selectedExp);
 	    if (rpl != null) {
 		result = result.substRPLForVar(tree.getThisSymbol(), rpl);
 	    }

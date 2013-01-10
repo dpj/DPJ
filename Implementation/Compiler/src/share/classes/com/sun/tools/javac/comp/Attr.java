@@ -1791,8 +1791,8 @@ public class Attr extends JCTree.Visitor {
             // Substitute actual arguments for argument variables
             MethodSymbol methSym = tree.getMethodSymbol();
             if (methSym != null && methSym.params != null) {
-                RPL thisRPL = exprToRPL(rs.explicitSelector(tree.meth, env));
-                restype = types.substRPLForVar(restype, methSym.enclThis(), thisRPL);
+                RPL selectedRPL = exprToRPL(rs.selectedExp(tree.meth, env));
+                restype = types.substRPLForVar(restype, methSym.enclThis(), selectedRPL);
         	restype = types.substIndices(restype, methSym.params, 
         		tree.getArguments());
             }
@@ -2753,8 +2753,8 @@ public class Attr extends JCTree.Visitor {
                 }
 
                 // Substitutions required by DPJ type system
-                RPL thisRPL = exprToRPL(rs.explicitSelector(tree, env));
-                owntype = types.substRPLForVar(owntype, rs.findThis(env), thisRPL);
+                RPL selectedRPL = exprToRPL(rs.selectedExp(tree, env));
+                owntype = types.substRPLForVar(owntype, rs.findThis(env), selectedRPL);
                 
                 // If the variable is a constant, record constant value in
                 // computed type.

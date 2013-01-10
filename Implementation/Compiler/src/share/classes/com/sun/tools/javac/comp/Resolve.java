@@ -673,18 +673,26 @@ public class Resolve {
     }
     
     /**
-     * Get the explicit argument to a selection.
+     * Get the selected expression in a field access or method invocation.
+     * The expression may be implicit: e.g., in the invocation 'm()' the
+     * selected expression may be 'this'.
      */
-    public JCExpression explicitSelector(JCTree selectExp, Env<AttrContext> env)
+    public JCExpression selectedExp(JCTree exp, Env<AttrContext> env)
     {
 	JCExpression result = null;
-	if (selectExp instanceof JCFieldAccess) {
-	    result = ((JCFieldAccess) selectExp).selected;
+	if (exp instanceof JCFieldAccess) {
+	    // Explicit selection
+	    result = ((JCFieldAccess) exp).selected;
 	}
 	else {
+	    // Implicit selection
 	    Symbol thisSym = findThis(env);
-	    if (thisSym == null)
+	    if (thisSym == null) {
+		// No 'this' in scope, so implicitly selected exp
+		// must be enclosing class.
 		return maker.Ident(env.enclClass.sym);
+	    }
+	    // Implicitly selected exp is 'this'
 	    return maker.Ident(thisSym);
 	}
 	return result;

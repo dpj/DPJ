@@ -242,12 +242,13 @@ public class CheckEffects extends EnvScanner { // DPJ
                 if (result != null) {
                     if (at.indexVar != null) {
                 	result = result.substIndex(at.indexVar, tree.index);
-                	JCExpression thisArg = rs.explicitSelector(tree.indexed, parentEnv);                	
-                	RPL rpl = attr.exprToRPL(thisArg);
+                	JCExpression selectedExp = 
+                		rs.selectedExp(tree.indexed, parentEnv);                	
+                	RPL selectedRPL = attr.exprToRPL(selectedExp);
                 	Symbol sym = tree.indexed.getSymbol();
-                	if (rpl != null && sym != null) {
+                	if (selectedRPL != null && sym != null) {
                 	    VarSymbol thisSym = sym.enclThis();
-                	    result = result.substRPLForVar(thisSym, rpl);
+                	    result = result.substRPLForVar(thisSym, selectedRPL);
                 	}
                 	return;
                     }
