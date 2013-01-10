@@ -137,7 +137,7 @@ public abstract class DPJTestCase extends TestCase {
      */
     private File loadFile(String filename) {
 	String curdir = new File(".").getAbsolutePath();
-	String target = "Compiler/";
+	String target = "Compiler" + System.getProperty("file.separator");
 	int index = curdir.lastIndexOf(target);
 	if (index < 0) {
 	    throw new Error("Cannot locate directory " + target + "test/dpj-programs");
