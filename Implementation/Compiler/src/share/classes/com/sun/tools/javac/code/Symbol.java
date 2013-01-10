@@ -317,6 +317,13 @@ public abstract class Symbol implements
         return (ClassSymbol)c;
     }
 
+    /** The symbol 'this' for the enclosing class, if any.
+     */
+    public VarSymbol enclThis() {
+	ClassSymbol c = enclClass();
+	return (c == null) ? null : c.thisSym;
+    }
+    
     /** The outermost class which indirectly owns this symbol.
      */
     public ClassSymbol outermostClass() {

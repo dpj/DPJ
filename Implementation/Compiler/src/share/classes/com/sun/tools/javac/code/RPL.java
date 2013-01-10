@@ -223,14 +223,6 @@ public class RPL implements
 	return result;
     }
     
-    public RPL substForThis(VarSymbol vsym) {
-	if (!(this.elts.head instanceof RPLElement.VarRPLElement)) return this;
-	RPLElement.VarRPLElement vrs = (RPLElement.VarRPLElement) this.elts.head;
-	if (!vrs.vsym.name.toString().equals("this")) return this;
-	return new RPL(List.<RPLElement>of(new 
-		RPLElement.VarRPLElement(vsym)).appendList(this.elts.tail));
-    }
-
     public RPL substForThis(RPL rpl) {
 	if (!(this.elts.head instanceof RPLElement.VarRPLElement)) return this;
 	RPLElement.VarRPLElement vrs = (RPLElement.VarRPLElement) this.elts.head;

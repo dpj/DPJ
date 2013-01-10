@@ -2757,13 +2757,8 @@ public class Attr extends JCTree.Visitor {
                 }
 
                 // Substitutions required by DPJ type system
-                if (tree instanceof JCFieldAccess) {
-                    JCFieldAccess fa = (JCFieldAccess) tree;
-                    RPL rpl = exprToRPL(fa.selected);
-                    if (rpl != null) {
-                	owntype = types.substForThis(owntype, rpl);
-                    }
-               	}
+                RPL thisRPL = exprToRPL(rs.argToThis(tree, env));
+                owntype = types.substForThis(owntype, thisRPL);
                 
                 // If the variable is a constant, record constant value in
                 // computed type.

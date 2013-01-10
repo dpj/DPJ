@@ -75,9 +75,6 @@ import com.sun.tools.javac.code.RPLs;
 import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Source;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symtab;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.CompletionFailure;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
@@ -86,27 +83,32 @@ import com.sun.tools.javac.code.Symbol.RegionNameSymbol;
 import com.sun.tools.javac.code.Symbol.RegionParameterSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Symtab;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ErrorType;
 import com.sun.tools.javac.code.Type.ForAll;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.TypeVar;
+import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.jvm.ClassReader;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.JCTree.JCBinary;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCLiteral;
+import com.sun.tools.javac.tree.TreeInfo;
+import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.FatalError;
 import com.sun.tools.javac.util.JCDiagnostic;
+import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Options;
 import com.sun.tools.javac.util.Warner;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 
 /** Helper class for name resolution, used mostly by the attribution phase.
  *
@@ -130,6 +132,8 @@ public class Resolve {
     Types types;
     RPLs rpls;
     Attr attr;
+    TreeMaker maker;
+    
     public final boolean boxingEnabled; // = source.allowBoxing();
     public final boolean varargsEnabled; // = source.allowVarargs();
     private final boolean debugResolve;
@@ -170,6 +174,7 @@ public class Resolve {
         types = Types.instance(context);
         rpls = RPLs.instance(context);
         attr = Attr.instance(context);
+        maker = TreeMaker.instance(context);
         Source source = Source.instance(context);
         boxingEnabled = source.allowBoxing();
         varargsEnabled = source.allowVarargs();
@@ -651,6 +656,36 @@ public class Resolve {
                                 name));
     }
 
+    /**                                                                         
+     * Find symbol for 'this' in env                                            
+     */
+    public Symbol findThis(Env<AttrContext> env) {
+        return findVar(env, names._this);
+    }
+    
+    /**
+     * Get an expression representing 'this' in env
+     */
+    public JCIdent thisExp(Env<AttrContext> env) {
+	return maker.Ident(findThis(env));
+    }
+    
+    /**
+     * Get the explicit or implied argument to the 'this' parameter 
+     * at a selection.
+     */
+    JCExpression argToThis(JCTree selectExp, Env<AttrContext> env)
+    {
+	JCExpression result = null;
+	if (selectExp instanceof JCFieldAccess) {
+	    result = ((JCFieldAccess) selectExp).selected;
+	}
+	else {
+	    result = maker.Ident(findThis(env));
+	}
+	return result;
+    }
+    
     /** Find unqualified variable or field with given name.
      *  Synthetic fields always skipped.
      *  @param env     The current environment.
