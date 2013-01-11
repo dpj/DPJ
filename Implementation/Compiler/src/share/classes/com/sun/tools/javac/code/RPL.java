@@ -256,14 +256,8 @@ public class RPL implements
 	return (toRPL == null) ? this : substRPLForVar(from, toRPL);	
     }
 
-    public RPL substVars(List<VarSymbol> from, List<VarSymbol> to) {
-	RPL result = this;
-	while (from.nonEmpty()) {
-	    result = this.substVar(from.head, to.head);
-	    from = from.tail;
-	    to = to.tail;
-	}
-	return result;		
+    public RPL substVars(Iterable<VarSymbol> from, Iterable<VarSymbol> to) {
+	return Substitute.iterable(RPLs.substVars, this, from, to);
     }
     
     public RPL substExpForVar(VarSymbol from, JCExpression to) {
@@ -271,17 +265,8 @@ public class RPL implements
 	return (toRPL == null) ? this : substRPLForVar(from, toRPL);
     }
 
-    public RPL substExpsForVars(List<VarSymbol> from, List<JCExpression> to) {
-	RPL result = this;
-	while (from.nonEmpty() && to.nonEmpty()) {
-	    result = this.substExpForVar(from.head, to.head);
-	    if (result != this) {
-		break;
-	    }
-	    from = from.tail;
-	    to = to.tail;
-	}
-	return result;	
+    public RPL substExpsForVars(Iterable<VarSymbol> from, Iterable<JCExpression> to) {
+	return Substitute.iterable(RPLs.substExpsForVars, this, from, to);
     }
     
     public RPL substIndices(List<VarSymbol> from, List<JCExpression> to) {
@@ -299,7 +284,7 @@ public class RPL implements
 	for (RPLElement e : elts) {
 	    if (e instanceof ArrayIndexRPLElement) {
 		ArrayIndexRPLElement ai = (ArrayIndexRPLElement) e;
-		JCExpression subst = substIndex(ai.indexExp, from, to);
+		JCExpression subst = substIndexHelper(ai.indexExp, from, to);
 		if (subst != ai.indexExp)
 		    e = new ArrayIndexRPLElement(subst);
 	    }
@@ -307,9 +292,8 @@ public class RPL implements
 	}
 	return new RPL(buf.toList());
     }
-
-    
-    protected JCExpression substIndex(JCExpression tree, VarSymbol from,
+    // where
+    private JCExpression substIndexHelper(JCExpression tree, VarSymbol from,
 	    JCExpression to) {
 	return (new SubstIndexVisitor(from, to)).substIndex(tree);
     }

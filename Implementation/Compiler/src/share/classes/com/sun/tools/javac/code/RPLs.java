@@ -209,6 +209,17 @@ public class RPLs {
 	    return rpl.substRPLForVar(from, to);
 	}
     };
+    public static final Subst substVars = new Subst<RPL,VarSymbol,VarSymbol>() {
+	public RPL basic(RPL rpl, VarSymbol from, VarSymbol to) {
+	    return rpl.substVar(from, to);
+	}
+    };
+    public static final Subst substExpsForVars =
+	    new Subst<RPL,VarSymbol,JCExpression>() {
+	public RPL basic(RPL rpl, VarSymbol from, JCExpression to) {
+	    return rpl.substExpForVar(from, to);
+	}
+    };
 
 }
     
