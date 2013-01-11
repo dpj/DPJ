@@ -2,8 +2,10 @@ package com.sun.tools.javac.code;
 
 import static com.sun.tools.javac.code.Flags.STATIC;
 
-import com.sun.tools.javac.code.RPLElement.VarRPLElement;
+import java.util.Iterator;
+
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Translation.Subst;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
@@ -187,5 +189,15 @@ public class RPLs {
 	}	
 	return buf.toList();
     }
-    
+ 
+    /**
+     * Substitution classes
+     */
+    public static final Subst substRPLParams = new Subst<RPL,RPL,RPL>() {
+	public RPL subst(RPL rpl, RPL from, RPL to) {
+	    return rpl.substRPLParam(from, to);
+	}
+    };
+
 }
+    

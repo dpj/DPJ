@@ -8,6 +8,7 @@ import com.sun.tools.javac.code.RPLElement.VarRPLElement;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Translation.AsMemberOf;
 import com.sun.tools.javac.code.Translation.SubstRPLs;
+import com.sun.tools.javac.code.Translation.Subst;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.comp.AttrContext;
@@ -193,15 +194,14 @@ public class RPL implements
     }
     
     /** Replace 'from' RPL params with 'to' RPLs */
-    public RPL substRPLParams(List<RPL> from, List<RPL> to) {
-        while (from.nonEmpty() && to.nonEmpty()) {
-            if (this.elts.head.equals(from.head.elts.head)) {
-                return new RPL(to.head.elts.appendList(this.elts.tail));
-            }
-            from = from.tail;
-            to = to.tail;
-	}
-        return this;
+    public RPL substRPLParams(Iterable<RPL> from, Iterable<RPL> to) {
+	return Translation.substIterable(RPLs.substRPLParams, this, from, to);
+    }
+
+    public RPL substRPLParam(RPL from, RPL to) {
+	if (this.elts.head.equals(from.elts.head))
+	    return new RPL(to.elts.appendList(this.elts.tail));
+	return this;
     }
     
     /**

@@ -2706,7 +2706,8 @@ public class Types {
             TypeVar result = new TypeVar(t.tsym, t.getUpperBound(), t.lower);
             result.rplparams = t.rplparams;
             result.prototype = (t.prototype == null) ? t : t.prototype;
-            result.rplargs = Translation.substRPLs(t.rplargs, from, to);
+            result.rplargs = Translation.substListIntoList(RPLs.substRPLParams, 
+        	    t.rplargs, from, to);
             result.rplargs = Translation.substTRParams(result.rplargs, fromTypes, toTypes);
             return result;
         }
@@ -2717,11 +2718,13 @@ public class Types {
                 List<Type> typarams = t.getTypeArguments();
                 List<Type> typarams1 = substRPL(typarams);
                 List<RPL> rgnactuals = t.getRPLArguments();
-                List<RPL> rgnactuals1 = Translation.substRPLs(rgnactuals, from, to);
+                List<RPL> rgnactuals1 = Translation.substListIntoList(RPLs.substRPLParams,
+                	rgnactuals, from, to);
                 rgnactuals1 = Translation.substTRParams(rgnactuals1, fromTypes, toTypes);
                 List<Effects> effectargs = t.getEffectArguments();
-                List<Effects> effectargs1 = Translation.substRPLs(effectargs,
-                	from, to);
+                List<Effects> effectargs1 = 
+                	Translation.substListIntoList(Effects.substRPLParams,
+                		effectargs, from, to);
                 Type outer = t.getEnclosingType();
                 Type outer1 = substRPL(outer);
                 return new ClassType(outer1, typarams1, 

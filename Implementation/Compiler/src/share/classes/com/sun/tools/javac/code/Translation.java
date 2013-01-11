@@ -1,24 +1,70 @@
 package com.sun.tools.javac.code;
 
-import com.sun.tools.javac.code.RPLElement.VarRPLElement;
+import java.util.Iterator;
+
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 
 /**
- * Interfaces for translation via type, region, and ref group 
+ * Interfaces for translation via type, region, and effect 
  * substitution.
  * 
  * @author Rob Bocchino
  */
 public class Translation {
 
+    public static abstract class Subst<Elt,From,To> {
+	public abstract Elt subst(Elt elt, From from, To to);
+	public Elt substIterable(Elt elt, Iterable<From> from, Iterable<To> to) {
+	    Iterator<From> fromIterator = from.iterator();
+	    Iterator<To> toIterator = to.iterator();
+	    while (fromIterator.hasNext() && toIterator.hasNext()) {
+		elt = subst (elt, fromIterator.next(), toIterator.next());
+	    }
+	    return elt;
+	}
+    }
+
+    public static <Elt,From,To> Elt 
+    	subst(Subst<Elt,From,To> s, Elt elt, From from, To to) 
+    {
+	return s.subst(elt,from,to);
+    }
+    
+    public static <Elt,From,To> Elt 
+	substIterable(Subst<Elt,From,To> s, Elt elt, 
+		Iterable<From> from, Iterable<To> to) 
+    {
+	return s.substIterable(elt,from,to);
+    }
+    
+    public static <Elt,From,To> List<Elt> substIntoList
+    	(Subst<Elt,From,To> s, List<Elt> elts, From from, To to) 
+    {
+	ListBuffer<Elt> lb = ListBuffer.lb();
+	for (Elt elt : elts) {
+	    lb.append(s.subst(elt, from, to));
+	}
+	return lb.toList();
+    }
+
+    public static <Elt,From,To> List<Elt> substListIntoList
+    	(Subst<Elt,From,To> s, List<Elt> elts, List<From> from, List<To> to)
+    {
+	ListBuffer<Elt> lb = ListBuffer.lb();
+	for (Elt elt : elts) {
+	    lb.append(s.substIterable(elt, from, to));
+	}
+	return lb.toList();
+    }
+
     /** Interface for representing RPL substitutions */
     public interface SubstRPLs<T extends SubstRPLs<T>> {
 	
 	/** Substitute 'to' RPLs for 'from' RPLs */
-	public T substRPLParams(List<RPL> from, List<RPL> to);
+	public T substRPLParams(Iterable<RPL> from, Iterable<RPL> to);
 	/** Do TR param substitutions implied by type bindings */
 	public T substTRParams(List<Type> from, List<Type> to);
 	/** Substitute an RPL for a variable */
@@ -35,14 +81,6 @@ public class Translation {
 		to = to.tail;
 	    }
 	}	
-	return lb.toList();
-    }
-    
-    /** Apply RPL substitution to a list */
-    public static <T extends SubstRPLs<T>> List<T>substRPLs(List<T> list,
-	    List<RPL> from, List<RPL> to) {
-	ListBuffer<T> lb = ListBuffer.lb();
-	for (T elt : list) lb.append(elt.substRPLParams(from, to));
 	return lb.toList();
     }
     

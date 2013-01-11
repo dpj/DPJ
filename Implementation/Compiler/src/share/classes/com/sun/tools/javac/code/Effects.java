@@ -8,6 +8,7 @@ import com.sun.tools.javac.code.Effect.VariableEffect;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Translation.AsMemberOf;
+import com.sun.tools.javac.code.Translation.Subst;
 import com.sun.tools.javac.code.Translation.SubstRPLs;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.comp.Attr;
@@ -102,7 +103,7 @@ public class Effects implements
     
     /** @return a new Effects set where the RPL parameters 'from' 
      * have been replaced with the RPLs 'to' */
-    public Effects substRPLParams(List<RPL> from, List<RPL> to) {
+    public Effects substRPLParams(Iterable<RPL> from, Iterable<RPL> to) {
 	Effects result = new Effects();
 	for (Effect e : effects) {
 	    result.add(e.substRPLParams(from, to));
@@ -432,5 +433,19 @@ public class Effects implements
 	}
 	return changed ? newEffects : this;
     }
+    
+    /**
+     * Substitution classes
+     */
+    public static final Subst substRPLParams = new Subst<Effects,RPL,RPL>() {
+	public Effects subst(Effects effects, RPL from, RPL to) {
+	    return effects.substRPLParams(List.of(from), List.of(to));
+	}
+	public Effects substIterable(Effects effects, Iterable<RPL> from,
+		Iterable<RPL> to) {
+	    return effects.substRPLParams(from, to);
+	}
+    };
+
     
 }

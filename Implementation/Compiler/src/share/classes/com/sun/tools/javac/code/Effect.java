@@ -47,7 +47,7 @@ public abstract class Effect implements
     		t.getEffectArguments());
     }
 
-    public Effect substRPLParams(List<RPL> from, List<RPL> to) {
+    public Effect substRPLParams(Iterable<RPL> from, Iterable<RPL> to) {
 	return this;
     }
     
@@ -206,7 +206,7 @@ public abstract class Effect implements
 	}
 	
 	@Override
-	public Effect substRPLParams(List<RPL> from, List<RPL> to) {
+	public Effect substRPLParams(Iterable<RPL> from, Iterable<RPL> to) {
 	    return new ReadEffect(rpls, rpl.substRPLParams(from, to),
 		    this.isAtomic(), this.isNonint());
 	}
@@ -347,7 +347,7 @@ public abstract class Effect implements
 	}
 	
 	@Override
-	public Effect substRPLParams(List<RPL> from, List<RPL> to) {
+	public Effect substRPLParams(Iterable<RPL> from, Iterable<RPL> to) {
 	    return new WriteEffect(rpls, rpl.substRPLParams(from, to), 
 		    this.isAtomic(), this.isNonint());
 	}
@@ -498,7 +498,7 @@ public abstract class Effect implements
 	}
 	
 	@Override
-	public Effect substRPLParams(List<RPL> from, List<RPL> to) {
+	public Effect substRPLParams(Iterable<RPL> from, Iterable<RPL> to) {
 	    return new InvocationEffect(rpls, methSym, withEffects.substRPLParams(from, to));
 	}
 	
