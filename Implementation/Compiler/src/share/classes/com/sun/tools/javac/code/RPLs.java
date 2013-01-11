@@ -220,6 +220,12 @@ public class RPLs {
 	    return rpl.substExpForVar(from, to);
 	}
     };
+    public static final Subst substIndices =
+	    new Subst<RPL,VarSymbol,JCExpression>() {
+	public RPL basic(RPL rpl, VarSymbol from, JCExpression to) {
+	    return rpl.substIndex(from, to);
+	}
+    };
 
 }
     

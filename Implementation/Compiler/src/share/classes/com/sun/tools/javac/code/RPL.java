@@ -1,15 +1,13 @@
 package com.sun.tools.javac.code;
 
-import java.util.Iterator;
-
 import com.sun.tools.javac.code.RPLElement.ArrayIndexRPLElement;
 import com.sun.tools.javac.code.RPLElement.RPLCaptureParameter;
 import com.sun.tools.javac.code.RPLElement.RPLParameterElement;
 import com.sun.tools.javac.code.RPLElement.UndetRPLParameterElement;
 import com.sun.tools.javac.code.RPLElement.VarRPLElement;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Substitute.AsMemberOf;
 import com.sun.tools.javac.code.Substitute.SubstRPLs;
+import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.comp.AttrContext;
@@ -270,13 +268,7 @@ public class RPL implements
     }
     
     public RPL substIndices(List<VarSymbol> from, List<JCExpression> to) {
-	RPL result = this;
-	while (!from.isEmpty() && !to.isEmpty()) {
-	    result = result.substIndex(from.head, to.head);
-	    from = from.tail;
-	    to = to.tail;
-	}
-	return result;
+	return Substitute.iterable(RPLs.substIndices, this, from, to);
     }
 
     public RPL substIndex(VarSymbol from, JCExpression to) {
