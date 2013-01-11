@@ -201,7 +201,7 @@ public class RPLs {
     };
     public static final Subst substTRParams = new Subst<RPL,Type,Type>() {
 	public RPL basic(RPL rpl, Type from, Type to) {
-	    return rpl.substTRParams(List.of(from),List.of(to));
+	    return rpl.substTRParam(from, to);
 	}
     };
     public static final Subst substRPLsForVars = new Subst<RPL,VarSymbol,RPL>() {

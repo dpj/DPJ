@@ -196,7 +196,7 @@ public class RPL implements
     
     /** Replace 'from' RPL params with 'to' RPLs */
     public RPL substRPLParams(Iterable<RPL> from, Iterable<RPL> to) {
-	return Substitute.substIterable(RPLs.substRPLParams, this, from, to);
+	return Substitute.iterable(RPLs.substRPLParams, this, from, to);
     }
 
     public RPL substRPLParam(RPL from, RPL to) {
@@ -209,19 +209,14 @@ public class RPL implements
      * Do TR substitutions implied by type bindings
      */
     public RPL substTRParams(Iterable<Type> from, Iterable<Type> to) {
+	return Substitute.iterable(RPLs.substTRParams, this, from, to);
+    }
+    public RPL substTRParam(Type fromType, Type toType) {
 	RPL result = this;
-	Iterator<Type> fromIterator = from.iterator();
-	Iterator<Type> toIterator = to.iterator();
-	while (fromIterator.hasNext() && toIterator.hasNext()) {
-	    Type fromType = fromIterator.next();
-	    Type toType = toIterator.next();
-	    if (fromType instanceof TypeVar) {
-		List<RPL> params = fromType.tsym.type.getRPLArguments();
-		List<RPL> args = toType.getRPLArguments();
-		result = this.substRPLParams(params, args);
-		if (result != this)
-		    return result;
-	    }
+	if (fromType instanceof TypeVar) {
+	    List<RPL> params = fromType.tsym.type.getRPLArguments();
+	    List<RPL> args = toType.getRPLArguments();
+	    result = this.substRPLParams(params, args);
 	}
 	return result;
     }
@@ -409,8 +404,6 @@ public class RPL implements
 	return result;
 	
     }
-    
-
     
     /**
      * Conform the RPL to an enclosing environment.  An RPL may contain 
