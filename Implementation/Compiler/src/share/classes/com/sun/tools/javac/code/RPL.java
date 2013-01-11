@@ -1,14 +1,15 @@
 package com.sun.tools.javac.code;
 
+import java.util.Iterator;
+
 import com.sun.tools.javac.code.RPLElement.ArrayIndexRPLElement;
 import com.sun.tools.javac.code.RPLElement.RPLCaptureParameter;
 import com.sun.tools.javac.code.RPLElement.RPLParameterElement;
 import com.sun.tools.javac.code.RPLElement.UndetRPLParameterElement;
 import com.sun.tools.javac.code.RPLElement.VarRPLElement;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Translation.AsMemberOf;
-import com.sun.tools.javac.code.Translation.SubstRPLs;
-import com.sun.tools.javac.code.Translation.Subst;
+import com.sun.tools.javac.code.Substitute.AsMemberOf;
+import com.sun.tools.javac.code.Substitute.SubstRPLs;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.comp.AttrContext;
@@ -195,7 +196,7 @@ public class RPL implements
     
     /** Replace 'from' RPL params with 'to' RPLs */
     public RPL substRPLParams(Iterable<RPL> from, Iterable<RPL> to) {
-	return Translation.substIterable(RPLs.substRPLParams, this, from, to);
+	return Substitute.substIterable(RPLs.substRPLParams, this, from, to);
     }
 
     public RPL substRPLParam(RPL from, RPL to) {
@@ -207,18 +208,20 @@ public class RPL implements
     /**
      * Do TR substitutions implied by type bindings
      */
-    public RPL substTRParams(List<Type> from, List<Type> to) {
+    public RPL substTRParams(Iterable<Type> from, Iterable<Type> to) {
 	RPL result = this;
-	while (from.nonEmpty() && to.nonEmpty()) {
-	    if (from.head instanceof TypeVar) {
-		List<RPL> params = from.head.tsym.type.getRPLArguments();
-		List<RPL> args = to.head.getRPLArguments();
+	Iterator<Type> fromIterator = from.iterator();
+	Iterator<Type> toIterator = to.iterator();
+	while (fromIterator.hasNext() && toIterator.hasNext()) {
+	    Type fromType = fromIterator.next();
+	    Type toType = toIterator.next();
+	    if (fromType instanceof TypeVar) {
+		List<RPL> params = fromType.tsym.type.getRPLArguments();
+		List<RPL> args = toType.getRPLArguments();
 		result = this.substRPLParams(params, args);
 		if (result != this)
 		    return result;
 	    }
-	    from = from.tail;
-	    to = to.tail;
 	}
 	return result;
     }

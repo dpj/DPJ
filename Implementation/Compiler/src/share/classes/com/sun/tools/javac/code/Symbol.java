@@ -66,7 +66,7 @@ import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.tools.JavaFileObject;
 
-import com.sun.tools.javac.code.Translation.AsMemberOf;
+import com.sun.tools.javac.code.Substitute.AsMemberOf;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ErrorType;
 import com.sun.tools.javac.code.Type.ForAll;

@@ -7,9 +7,9 @@ import java.util.Set;
 import com.sun.tools.javac.code.Effect.VariableEffect;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Translation.AsMemberOf;
-import com.sun.tools.javac.code.Translation.Subst;
-import com.sun.tools.javac.code.Translation.SubstRPLs;
+import com.sun.tools.javac.code.Substitute.AsMemberOf;
+import com.sun.tools.javac.code.Substitute.Subst;
+import com.sun.tools.javac.code.Substitute.SubstRPLs;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.comp.Attr;
 import com.sun.tools.javac.comp.AttrContext;
@@ -111,7 +111,7 @@ public class Effects implements
 	return result;
     }
     
-    public Effects substTRParams(List<Type> from, List<Type> to) {
+    public Effects substTRParams(Iterable<Type> from, Iterable<Type> to) {
 	Effects result = new Effects();
 	for (Effect e : effects) {
 	    result.add(e.substTRParams(from, to));
@@ -438,7 +438,7 @@ public class Effects implements
      * Substitution classes
      */
     public static final Subst substRPLParams = new Subst<Effects,RPL,RPL>() {
-	public Effects subst(Effects effects, RPL from, RPL to) {
+	public Effects basic(Effects effects, RPL from, RPL to) {
 	    return effects.substRPLParams(List.of(from), List.of(to));
 	}
 	public Effects substIterable(Effects effects, Iterable<RPL> from,
@@ -446,6 +446,10 @@ public class Effects implements
 	    return effects.substRPLParams(from, to);
 	}
     };
+    public static final Subst substRPLsForVars = new Subst<Effects,VarSymbol,RPL>() {
+	public Effects basic(Effects effects, VarSymbol from, RPL to) {
+	    return effects.substRPLForVar(from, to);
+	}
+    };
 
-    
 }

@@ -5,8 +5,8 @@ package com.sun.tools.javac.code;
 import com.sun.tools.javac.code.Symbol.EffectParameterSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Translation.AsMemberOf;
-import com.sun.tools.javac.code.Translation.SubstRPLs;
+import com.sun.tools.javac.code.Substitute.AsMemberOf;
+import com.sun.tools.javac.code.Substitute.SubstRPLs;
 import com.sun.tools.javac.comp.AttrContext;
 import com.sun.tools.javac.comp.Env;
 import com.sun.tools.javac.comp.Resolve;
@@ -42,7 +42,7 @@ public abstract class Effect implements
      * Do all the RPL and effect parameter substitutions implied by the bindings of t
      */
     public Effects substAllParams(Type t) {
-	Effect e = Translation.substAllRPLParams(this, t);
+	Effect e = Substitute.allRPLParams(this, t);
     	return e.substEffectVars(t.tsym.type.getEffectArguments(), 
     		t.getEffectArguments());
     }
@@ -51,7 +51,7 @@ public abstract class Effect implements
 	return this;
     }
     
-    public Effect substTRParams(List<Type> from, List<Type> to) {
+    public Effect substTRParams(Iterable<Type> from, Iterable<Type> to) {
 	return this;
     }
     
@@ -212,7 +212,7 @@ public abstract class Effect implements
 	}
 	
 	@Override
-	public Effect substTRParams(List<Type> from, List<Type> to) {
+	public Effect substTRParams(Iterable<Type> from, Iterable<Type> to) {
 	    return new ReadEffect(rpls, rpl.substTRParams(from, to), 
 		    this.isAtomic(), this.isNonint());
 	}	    
@@ -353,7 +353,7 @@ public abstract class Effect implements
 	}
 	
 	@Override
-	public Effect substTRParams(List<Type> from, List<Type> to) {
+	public Effect substTRParams(Iterable<Type> from, Iterable<Type> to) {
 	    return new WriteEffect(rpls, rpl.substTRParams(from, to), 
 		    this.isAtomic(), this.isNonint());
 	}	    
@@ -503,7 +503,7 @@ public abstract class Effect implements
 	}
 	
 	@Override
-	public Effect substTRParams(List<Type> from, List<Type> to) {
+	public Effect substTRParams(Iterable<Type> from, Iterable<Type> to) {
 	    return new InvocationEffect(rpls, methSym, withEffects.substTRParams(from, to));
 	}
 	

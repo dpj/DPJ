@@ -5,7 +5,8 @@ import static com.sun.tools.javac.code.Flags.STATIC;
 import java.util.Iterator;
 
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Translation.Subst;
+import com.sun.tools.javac.code.Substitute.Subst;
+import com.sun.tools.javac.code.Substitute.SubstRPLs;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
@@ -194,8 +195,18 @@ public class RPLs {
      * Substitution classes
      */
     public static final Subst substRPLParams = new Subst<RPL,RPL,RPL>() {
-	public RPL subst(RPL rpl, RPL from, RPL to) {
+	public RPL basic(RPL rpl, RPL from, RPL to) {
 	    return rpl.substRPLParam(from, to);
+	}
+    };
+    public static final Subst substTRParams = new Subst<RPL,Type,Type>() {
+	public RPL basic(RPL rpl, Type from, Type to) {
+	    return rpl.substTRParams(List.of(from),List.of(to));
+	}
+    };
+    public static final Subst substRPLsForVars = new Subst<RPL,VarSymbol,RPL>() {
+	public RPL basic(RPL rpl, VarSymbol from, RPL to) {
+	    return rpl.substRPLForVar(from, to);
 	}
     };
 

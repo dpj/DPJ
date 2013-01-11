@@ -16,7 +16,7 @@ import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.OperatorSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Translation;
+import com.sun.tools.javac.code.Substitute;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
@@ -213,7 +213,7 @@ public class CheckEffects extends EnvScanner { // DPJ
 		VarSymbol vsym = (VarSymbol) tree.sym;
 		if (inConstructor && isInstanceField(vsym)) return;
 		if (vsym.rpl == null) return;
-		result = Translation.substAllRPLParams(rpls.memberRPL(types, ct, 
+		result = Substitute.allRPLParams(rpls.memberRPL(types, ct, 
 			vsym), ct);
 		RPL rpl = attr.exprToRPL(tree.selected);
 		if (rpl != null) {

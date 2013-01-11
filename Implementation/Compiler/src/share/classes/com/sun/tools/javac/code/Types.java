@@ -2412,10 +2412,12 @@ public class Types {
                 List<Type> typarams1 = transformTypes(typarams);
                 List<RPL> rgnactuals = t.getRPLArguments();
                 List<RPL> rgnactuals1 = 
-                	Translation.substRPLsForVars(rgnactuals, from, to);
+                	Substitute.listIntoList(RPLs.substRPLsForVars,
+                		rgnactuals, from, to);
                 List<Effects> effectargs = t.getEffectArguments();
                 List<Effects> effectargs1 = 
-                	Translation.substRPLsForVars(effectargs, from, to);
+                	Substitute.listIntoList(Effects.substRPLsForVars,
+                		effectargs, from, to);
                 Type outer = t.getEnclosingType();
                 Type outer1 = transformType(outer);
                 return new ClassType(outer1, typarams1, 
@@ -2706,9 +2708,10 @@ public class Types {
             TypeVar result = new TypeVar(t.tsym, t.getUpperBound(), t.lower);
             result.rplparams = t.rplparams;
             result.prototype = (t.prototype == null) ? t : t.prototype;
-            result.rplargs = Translation.substListIntoList(RPLs.substRPLParams, 
+            result.rplargs = Substitute.listIntoList(RPLs.substRPLParams, 
         	    t.rplargs, from, to);
-            result.rplargs = Translation.substTRParams(result.rplargs, fromTypes, toTypes);
+            result.rplargs = Substitute.listIntoList(RPLs.substTRParams,
+        	    result.rplargs, fromTypes, toTypes);
             return result;
         }
 
@@ -2718,12 +2721,13 @@ public class Types {
                 List<Type> typarams = t.getTypeArguments();
                 List<Type> typarams1 = substRPL(typarams);
                 List<RPL> rgnactuals = t.getRPLArguments();
-                List<RPL> rgnactuals1 = Translation.substListIntoList(RPLs.substRPLParams,
+                List<RPL> rgnactuals1 = Substitute.listIntoList(RPLs.substRPLParams,
                 	rgnactuals, from, to);
-                rgnactuals1 = Translation.substTRParams(rgnactuals1, fromTypes, toTypes);
+                rgnactuals1 = Substitute.listIntoList(RPLs.substTRParams,
+                	rgnactuals1, fromTypes, toTypes);
                 List<Effects> effectargs = t.getEffectArguments();
                 List<Effects> effectargs1 = 
-                	Translation.substListIntoList(Effects.substRPLParams,
+                	Substitute.listIntoList(Effects.substRPLParams,
                 		effectargs, from, to);
                 Type outer = t.getEnclosingType();
                 Type outer1 = substRPL(outer);
