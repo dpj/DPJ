@@ -6,17 +6,19 @@ import static com.sun.tools.javac.code.Kinds.TYP;
 import static com.sun.tools.javac.code.TypeTags.CLASS;
 import static com.sun.tools.javac.code.TypeTags.TYPEVAR;
 
+import java.util.LinkedList;
+
 import com.sun.tools.javac.code.Effect;
 import com.sun.tools.javac.code.Effect.InvocationEffect;
 import com.sun.tools.javac.code.Effects;
 import com.sun.tools.javac.code.Lint;
 import com.sun.tools.javac.code.RPL;
 import com.sun.tools.javac.code.RPLs;
+import com.sun.tools.javac.code.Substitute;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.OperatorSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Substitute;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
@@ -38,6 +40,7 @@ import com.sun.tools.javac.tree.JCTree.JCBinary;
 import com.sun.tools.javac.tree.JCTree.JCBlock;
 import com.sun.tools.javac.tree.JCTree.JCCase;
 import com.sun.tools.javac.tree.JCTree.JCCatch;
+import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCConditional;
 import com.sun.tools.javac.tree.JCTree.JCDoWhileLoop;
 import com.sun.tools.javac.tree.JCTree.JCEnhancedForLoop;
@@ -69,9 +72,11 @@ import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.JCTree.JCWhileLoop;
 import com.sun.tools.javac.tree.JCTree.LetExpr;
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
+import com.sun.tools.javac.util.Pair;
 
 /**
  * Tree scanner that walks the AST, infers effects, and performs the following 
@@ -133,6 +138,14 @@ public class CheckEffects extends EnvScanner { // DPJ
     private boolean inConstructor(Env<AttrContext> env) {
 	Symbol owner = env.info.scope.owner;
 	return (owner.kind == MTH) && (owner.name == names.init);
+    }
+    
+    /**
+     * Are we inside a class definition?
+     */
+    private boolean inClassDef(Env<AttrContext> env) {
+	Symbol owner = env.info.scope.owner;
+	return (owner.kind == TYP);
     }
     
     /** Are we in an atomic statement? */
@@ -342,6 +355,34 @@ public class CheckEffects extends EnvScanner { // DPJ
     // Visitor Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    private Effects initEffects;
+    private LinkedList<Pair<Effects, DiagnosticPosition>> ctorEffects;
+
+    @Override
+    public void visitClassDef(JCClassDecl tree) {
+	Effects savedInitEffects = initEffects;
+        LinkedList<Pair<Effects, DiagnosticPosition>> 
+        	savedCtorEffects = ctorEffects;
+        initEffects = new Effects();
+        ctorEffects = new LinkedList<Pair<Effects, DiagnosticPosition>>();
+	super.visitClassDef(tree);
+        // Check declared constructor effects against initializers                               
+        Env<AttrContext> env = childEnvs.head;
+        if (env != null) {
+            initEffects = initEffects.inEnvironment(rs, env, true);
+            for (Pair<Effects, DiagnosticPosition> pair : ctorEffects) {
+                Effects declaredEffects = pair.fst.inEnvironment(rs, env, true);
+                if (!initEffects.areSubeffectsOf(declaredEffects)) {
+                    log.error(pair.snd, "bad.effect.summary");
+                    System.err.println("Missing " +
+                            initEffects.missingFrom(declaredEffects).trim());
+                }
+            }
+        }
+        initEffects = savedInitEffects;
+        ctorEffects = savedCtorEffects;
+    }
+    
     @Override
     public void visitMethodDef(JCMethodDecl tree) {
 	super.visitMethodDef(tree);
@@ -354,6 +395,9 @@ public class CheckEffects extends EnvScanner { // DPJ
 	    } else {
 		actualEffects =
 		    tree.body.getConstructorEffects().inEnvironment(rs, childEnvs.head, true);
+		// Add in constructor effects for later checking against initializers            
+                ctorEffects.add(new Pair<Effects, DiagnosticPosition>(m.effects,
+                        (tree.effects == null) ? tree.pos() : tree.effects.pos()));
 	    }
 	}
 	if (!actualEffects.areSubeffectsOf(m.effects)) {
@@ -570,10 +614,12 @@ public class CheckEffects extends EnvScanner { // DPJ
 
 	if (tree.init != null) {
 	    addAllWithRead(tree.init, tree);
-	    // TODO:  If VarDef is a field, make sure these effects 
-	    // get into the constructor
+            if (tree.sym.owner.kind == TYP) {
+                // Record field initializer effects for checking against                         
+                // constructors                                                                  
+                initEffects.addAll(tree.init.effects);
+            }
 	}
-
     }
 
     @Override public void visitParens(JCParens tree) {
@@ -681,6 +727,11 @@ public class CheckEffects extends EnvScanner { // DPJ
 	for (JCTree.JCStatement stat : tree.stats) {
 	    addAll(stat, tree);
 	}
+        if (inClassDef(parentEnv)) {
+            // Record instance initializer effects for checking against                         
+            // constructors                                                                  
+            initEffects.addAll(tree.effects);
+        }
     }
     
     @Override public void visitCobegin(DPJCobegin tree) {
