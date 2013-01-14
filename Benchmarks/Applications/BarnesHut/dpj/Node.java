@@ -29,7 +29,7 @@ public abstract class Node {
     /**
      * Constructor
      */
-    public Node() {}
+    public Node() pure {}
 
     /**
      * Copy Constructor

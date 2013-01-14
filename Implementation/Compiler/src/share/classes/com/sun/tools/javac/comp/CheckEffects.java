@@ -388,6 +388,12 @@ public class CheckEffects extends EnvScanner { // DPJ
 	super.visitMethodDef(tree);
 	MethodSymbol m = tree.sym;
 	Effects actualEffects = Effects.UNKNOWN;
+	Effects declaredEffects = m.effects;
+	DiagnosticPosition pos = (tree.effects == null) ?
+		tree.pos() : tree.effects.pos();
+	// Add 'pure' effects for implicit constructors
+	if (inConstructor(childEnvs.head) && declaredEffects == Effects.UNKNOWN)
+	    declaredEffects = new Effects();
 	if (tree.body != null) {
 	    if (!inConstructor(childEnvs.head)) {
 		actualEffects = 
@@ -396,14 +402,13 @@ public class CheckEffects extends EnvScanner { // DPJ
 		actualEffects =
 		    tree.body.getConstructorEffects().inEnvironment(rs, childEnvs.head, true);
 		// Add in constructor effects for later checking against initializers            
-                ctorEffects.add(new Pair<Effects, DiagnosticPosition>(m.effects,
-                        (tree.effects == null) ? tree.pos() : tree.effects.pos()));
+                ctorEffects.add(new Pair<Effects, DiagnosticPosition>(declaredEffects,pos));
 	    }
 	}
-	if (!actualEffects.areSubeffectsOf(m.effects)) {
+	if (!actualEffects.areSubeffectsOf(declaredEffects)) {
 	    System.err.println("Effect summary does not cover " + 
-		    actualEffects.missingFrom(m.effects));
-	    log.error(tree.effects.pos(), "bad.effect.summary");
+		    actualEffects.missingFrom(declaredEffects));
+	    log.error(pos, "bad.effect.summary");
 	}
     }
 	

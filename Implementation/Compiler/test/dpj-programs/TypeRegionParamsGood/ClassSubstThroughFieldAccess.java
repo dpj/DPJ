@@ -10,5 +10,6 @@ class B<region R2> {
     // B.r gets changed to A.r by the type of A#t
     A<B<B.r>> a;
     B<A.r> c = a.t;
+    B() reads Root {}
 }
 

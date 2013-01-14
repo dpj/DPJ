@@ -70,4 +70,10 @@ public class EffectsBad extends DPJTestCase {
     public void testBadInstanceInit() throws Throwable {
 	compileExpectingErrors("BadInstanceInit", 1);
     }
+    
+    @Test
+    public void testBadInstanceInitImplicit() throws Throwable {
+	compileExpectingErrors("BadInstanceInitImplicit", 1);
+    }
+
 }
