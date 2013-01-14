@@ -614,7 +614,7 @@ public class CheckEffects extends EnvScanner { // DPJ
 
 	if (tree.init != null) {
 	    addAllWithRead(tree.init, tree);
-            if (tree.sym.owner.kind == TYP) {
+            if (inClassDef(parentEnv) && !tree.mods.areStatic()) {
                 // Record field initializer effects for checking against                         
                 // constructors                                                                  
                 initEffects.addAll(tree.init.effects);
@@ -727,7 +727,7 @@ public class CheckEffects extends EnvScanner { // DPJ
 	for (JCTree.JCStatement stat : tree.stats) {
 	    addAll(stat, tree);
 	}
-        if (inClassDef(parentEnv)) {
+        if (inClassDef(parentEnv) && !tree.isStatic()) {
             // Record instance initializer effects for checking against                         
             // constructors                                                                  
             initEffects.addAll(tree.effects);

@@ -2726,6 +2726,9 @@ public abstract class JCTree implements Tree, Cloneable, DiagnosticPosition {
         public int getTag() {
             return MODIFIERS;
         }
+        public boolean areStatic() {
+            return (flags & Flags.STATIC) != 0; 
+        }
     }
 
     public static class JCErroneous extends JCExpression

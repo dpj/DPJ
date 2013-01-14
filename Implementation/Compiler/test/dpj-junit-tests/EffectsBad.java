@@ -67,17 +67,7 @@ public class EffectsBad extends DPJTestCase {
     }
     
     @Test
-    public void testBadStaticFieldInit() throws Throwable {
-	compileExpectingErrors("BadStaticFieldInit", 1);
-    }
-
-    @Test
     public void testBadInstanceInit() throws Throwable {
 	compileExpectingErrors("BadInstanceInit", 1);
-    }
-    
-    @Test
-    public void testBadStaticInit() throws Throwable {
-	compileExpectingErrors("BadStaticInit", 1);
     }
 }

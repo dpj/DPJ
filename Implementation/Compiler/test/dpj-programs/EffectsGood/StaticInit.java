@@ -1,11 +1,11 @@
-abstract class BadStaticInit {
+abstract class StaticInit {
     region r;
     static int y in r;
     // Initializer writes r
-    {
+    static {
 	init();
     }
     public static void init() writes r { y = 5; }
-    // Effect must be reported in constructor
-    public BadStaticInit() pure {}
+    // OK, don't need to report static initializer effect
+    public StaticInit() pure {}
 }

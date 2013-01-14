@@ -51,5 +51,15 @@ public class EffectsGood extends DPJTestCase {
     @Test public void testZRegionMethodInvocation() throws Throwable {
 	compile("ZRegionMethodInvocation");
     }
+     
+    @Test
+    public void testStaticInit() throws Throwable {
+	compile("StaticInit");
+    }
     
+    @Test
+    public void testStaticFieldInit() throws Throwable {
+	compile("StaticFieldInit");
+    }
+
 }
