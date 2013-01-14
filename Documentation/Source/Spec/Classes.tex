@@ -1,0 +1,251 @@
+\section{Class and Interface Definitions}
+\label{section:class-def}
+
+This section describes DPJ's extensions to Java class and interface
+definitions.
+
+\subsection{Class Region Name Declarations}
+\label{section:class-def:class-rgn-decl}
+
+A region name declaration as defined immediately below may appear as a
+class member (JLS \S~8.1.6).
+
+A region name declaration has the form \kwd{region}
+\emph{region-decls}, where \emph{region-decls} is a comma-separated
+list of identifiers.  The declared names are available within the
+enclosing class scope and via inheritance and/or class selection (as
+for an ordinary Java static member, JLS \S~8.2), subject to visibility
+restrictions.  The declared names may be used as name RPL elements
+(\S~\ref{section:rpls:elts:name-elts}) wherever they are available.
+
+Every region name declaration appearing in a particular class must
+have a unique name.  Otherwise, if two region declarations with the
+same name appear in the same scope, the innermost declaration hides
+all the others.
+
+\subsection{Fields}
+\label{section:class-def:fields}
+
+Any field declaration may include an \emph{RPL specifier} with the
+syntax \kwd{in} \emph{rpl}, where \emph{rpl} is a valid RPL
+(\S~\ref{section:rpls:valid}). If the RPL specifier appears in a field
+declaration, it must appear after the field name and before the
+initializer expression, if any.  The RPL specifier is meaningful only
+for non-\kwd{final} fields; if an RPL specifier appears in a
+\kwd{final} field, it is allowed but silently ignored.  RPL specifiers
+are not allowed for local variable declarations or formal method
+parameter definitions, because those variables reside in stack regions
+(see \S~\ref{section:effects:inference}).
+
+
+\subsection{Methods}
+\label{section:class-def:methods}
+
+\subsubsection{Method Effect Summaries}
+\label{section:class-def:methods:effect-summaries}
+
+Every method may optionally declare its effects via an \emph{effect
+  summary} (\S~\ref{section:effects:summaries}).  If an effect summary
+is present, it must appear after the method arguments, before the
+method body, and before the \kwd{throws} clause, if any.  The compiler
+internally converts each method effect summary to an effect set
+(\S~\ref{section:effects:basic}), called the \emph{declared effect set}
+of the method.  If there is no explicit effect summary, then the
+compiler inserts a \emph{default effect set} containing \kwd{writes
+  Root:*}.  In particular, an ordinary Java 1.6 method (with no DPJ
+annotations) is a valid DPJ method, whose effect summary is
+\kwd{writes Root:*}.
+
+The compiler infers the effects of the method body
+(\S~\ref{section:effects:inference}) and checks the following, after
+deleting all local effects (\S~\ref{section:effects:basic}):
+%
+\begin{itemize}
+%
+\item The inferred effects are a subeffect
+  (\S~\ref{section:effects:subeffects}) of the declared effects.
+%
+\item The declared effects are a subeffect
+  (\S~\ref{section:effects:subeffects}) of the declared effects of all
+  methods overridden by this one.
+%
+\end{itemize}
+%
+If either of these requirements is not met, the compiler generates an
+error.
+
+\bfhead{Constructors:} The following rules apply to the method effect
+summaries of constructors:
+%
+\begin{itemize}
+%
+\item The effect of writing into a field of the object being
+  constructed does not have to be reported in the constructor's effect
+  summary, even if the field is not declared \kwd{final}.  This is
+  because in DPJ, the effect of initializing an object in a task is
+  not seen until after all concurrent tasks have completed.
+%
+\item All instance initializer effects for a class must be included in
+  the method summaries of all constructors of the class.
+%
+\end{itemize}
+
+\subsubsection{Local Region Name Declarations}
+\label{section:class-def:methods:local-rgn-decl}
+
+A region declaration may appear as a statement in a method body (JLS
+\S~ 8.4.7).  The declaration has the same form as for class region
+name declarations (\S~\ref{section:class-def:class-rgn-decl}).  The
+declared names are available as name RPL elements in the innermost
+enclosing statement block.
+
+\subsubsection{Commutativity Annotations}
+\label{section:class-def:methods:commutativity}
+
+The keyword \kwd{commutative} may optionally appear as a method
+qualifier, before the return type and before the method parameters, if
+any.  The \kwd{commutative} annotation is a programmer-specified
+guarantee that the method commutes with itself, i.e., any pair of
+\kwd{invokes} effects (\S~\ref{section:effects:basic}) using this
+method are treated as noninterfering.  If \kwd{commutative} appears in
+the definition of a method $M$, then it must also appear in the
+definitions of all methods overriding $M$.
+
+When using \kwd{commutative}, the programmer is responsible for
+ensuring two things:
+%
+\begin{enumerate}
+%
+\item The method is properly synchronized so that concurrent
+  invocations of the method behave as though they have occurred in
+  sequence (i.e., the invocations have serializable
+  semantics~\cite{Papadimitriou:Database}).
+
+\item The semantics of the method is such that either order of a pair
+  of invocations produces the same result.
+%
+\end{enumerate}
+%
+Note that ``same result'' in condition (2) generally has an
+application-specific meaning.  For instance, two insert operations on
+a set may commute with each other, because they produce the ``same''
+set (i.e., the two sets are indistinguishable as far as future set
+operations like find are concerned), even though the sets may have
+different internal representations.  However, two append operations on
+an ordered list generally do not commute.
+
+\subsection{Type and RPL Parameters}
+\label{section:class-def:params}
+
+
+\subsubsection{Class Parameters}
+\label{section:class-def:params:class}
+
+As part of a class or interface definition, a list of generic type
+and/or RPL parameter declarations may appear directly after the class
+or interface name, which follows the keyword \kwd{class} or
+\kwd{interface}.  A parameter declaration extends the generic
+parameter declaration of Java 1.6 and has the form
+\kwd{<}\emph{params}\kwd{>} or
+\kwd{<}\emph{params}\kwd{|}\emph{constraints}\kwd{>}, where
+\begin{itemize}
+\item \emph{params} is a comma-separated nonempty list of identifiers
+  stating the parameters being declared.  The generic type parameters,
+  if any, must come first; followed by the RPL parameters, if any.
+  Any of the type parameters may be preceded by the keyword
+  \kwd{type}.  At least the first RPL parameter must be preceded by
+  the keyword \kwd{region}, and the other RPL parameters may be
+  preceded by the keyword \kwd{region}.
+\item \emph{constraints} is a comma-separated list of \emph{RPL
+  constraints}.  An RPL constraint has the form \emph{rpl-1} \kwd{\#}
+  \emph{rpl-2}, where \emph{rpl-1} and \emph{rpl-2} are legal RPLs
+  (\S~\ref{section:rpls:valid}) in the scope of the class definition.
+\end{itemize}
+The type parameters function exactly as in Java 1.6 (notice that if
+only type parameters appear, and the optional \kwd{type} keyword is
+not used, the syntax corresponds exactly to Java 1.6).  The RPL
+parameters may be used as RPL elements (\S~\ref{section:rpls:elts}) in
+the scope of the class definition, including in any type constraints
+appearing in any generic parameter declarations.  As with type
+parameters in Java 1.6, the type and RPL parameters are available only
+in an instance context (i.e., in any scope where \kwd{this} is in
+scope).
+
+The RPL parameter constraints, if present, impose disjointness
+constraints (\S~\ref{section:rpls:relations:disjoint}) that are
+enforced when RPL arguments are bound to the parameters in a type that
+instantiates the class (\S~\ref{section:types:class:args}).  Each
+constraint \emph{rpl-1}\kwd{ \# }\emph{rpl-2} is also recorded in the
+environment, so that the compiler can prove that \emph{rpl-3} and
+\emph{rpl-4} are disjoint, if \emph{rpl-3} is included in
+(\S~\ref{section:rpls:relations:inclusion}) \emph{rpl-1} and
+\emph{rpl-4} is included in \emph{rpl-2}.  It is an error to write a
+constraint \emph{rpl-1}\kwd{ \# }\emph{rpl-2} such that \emph{rpl-1}
+is included in \emph{rpl-2} or vice versa.
+
+\subsubsection{Method Parameters}
+\label{section:class-def:params:method}
+
+\noindent
+\textbf{Declaring method parameters:} As part of a method definition
+(including constructors), a list of type and RPL parameter
+declarations may appear inside angle brackets \kwd{<...>} in the same
+position where Java 1.6 allows type parameters, i.e., after the method
+qualifiers (\kwd{public}, \kwd{static}, etc.), if any, and before the
+method return type (for non-constructor methods) or class name (for
+constructors).  A method parameter declaration has the same form as a
+class parameter declaration (\S~\ref{section:class-def:params}).  The
+declared RPL parameters may be used as RPL elements in the scope of
+the method definition, including the formal parameters and return
+type.  The constraints, if present, impose disjointness constraints
+that are enforced when the parameters become bound in a method
+invocation.  The constraints are also recorded in the method
+environment, as described in \S~\ref{section:class-def:params} for
+class parameter constraints.
+
+\noindent
+\textbf{Invoking parametric methods:} When a method defined with type
+and/or RPL parameters is invoked, the invocation (at the programmer's
+option, and depending upon the support for region inference in the DPJ
+compiler) may use either \emph{explicit type and RPL arguments} or
+\emph{inferred type and RPL arguments}.  This approach corresponds to
+the way that Java 1.6 handles generic method parameters.
+
+\noindent
+\textit{Explicit Type and RPL Arguments:} As in Java 1.6, if type
+and/or RPL arguments are present, then there must be an explicit
+selector (a static class selector or an expression of class or
+interface type) followed by a dot.  The arguments must be enclosed in
+angle brackets \kwd{<...>}, after the dot and before the method name.
+For constructors, the arguments must follow the keyword \kwd{new} and
+precede the class name.  In either case, the RPL arguments have the
+same form as for class and interface RPL arguments
+(\S~\ref{section:types:class:args}), except that the keyword
+\kwd{region} must precede at least the first RPL argument.  (This
+requirement tells the compiler which arguments are types and which
+ones are RPLs.  Because of Java's method overloading, this information
+is not available from the method name, as it is for classes from the
+class name.)  The number of type and RPL arguments must exactly match
+the number of type and RPL parameters; otherwise, the compiler reports
+an error.
+
+\noindent
+\textit{Inferred Type and RPL Arguments:} If a method is defined with
+type and/or RPL parameters, then the method invocation may be written
+without explicit type or RPL arguments.  The compiler \emph{may}
+attempt to infer the RPL arguments from the types of the value
+arguments, using an algorithm similar to the one that Java 1.6 uses
+for inferring generic parameters.  This specification does not require
+any particular inference algorithm; in particular no inference is a
+correct implementation of the language.  If the inference is not
+possible for a given RPL argument, either because inference is not
+supported or it is not possible (for instance, because the parameter
+does not appear in any of the actual argument types), then the
+compiler must use \kwd{Root:*} as the RPL for that argument.
+
+\noindent
+\textit{RPL Constraints:} The compiler checks the RPL arguments
+against the constraints, as discussed in
+\S~\ref{section:types:class:args} for class parameter constraints.  If
+any constraint is violated, the compiler issues a warning.
+

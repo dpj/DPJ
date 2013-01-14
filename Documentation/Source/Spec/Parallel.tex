@@ -1,0 +1,75 @@
+\section{Parallel Control Flow}
+\label{section:parallel}
+
+DPJ extends Java's control flow constructs by adding two parallel
+statements: \kwd{cobegin} and \kwd{foreach}.  \kwd{cobegin} followed
+by a statement block executes each statement of the block as a
+parallel task.  \kwd{foreach} defines a loop that executes sets of
+iterations as parallel tasks.
+
+\subsection{Cobegin}
+
+
+The \kwd{cobegin} statement consists of the keyword \kwd{cobegin},
+followed by a statement $S$ to execute.  If $S$ is any statement but a
+block enclosed in curly braces $\kwd{\{} \ldots \kwd{\}}$, or if $S$
+is a block consisting of a single statement, then the \kwd{cobegin}
+just executes the statement $S$.  Otherwise, $S$ is a block containing
+multiple statements, and the component statements of $S$ are run as
+parallel tasks.  There is an implicit barrier (join) at the end of the
+\kwd{cobegin} statement, so that all the component tasks must finish
+execution before the parent task executes the statement after the
+\kwd{cobegin}.
+
+The compiler computes the inferred effect set
+(\S~\ref{section:effects:inference}) of each statement in the block and checks
+the effect sets for pairwise noninterference
+(\S~\ref{section:effects:noninterference}).  The compiler emits a warning if
+interference is discovered.  Both parallel and sequential code
+generation of \kwd{cobegin} blocks are supported.
+
+\subsection{Foreach}
+\label{section:parallel:foreach}
+
+The \kwd{foreach} statement has the syntax
+\kwd{foreach(}\emph{index-var}\kwd{ in }\emph{start}\kwd{,
+}\emph{length}\kwd{, }\emph{stride}\kwd{)} $S$, where 
+%
+\begin{itemize}
+\item \emph{index-var} is an integer variable declaration.
+%
+\item \emph{start}, \emph{length}, and \emph{stride} are integer
+  expressions.  The \emph{stride} expression is optional, and the
+  default is 1.
+%
+\item $S$ is a statement representing the loop body.  It may be either
+  a simple statement or a block.
+%
+\end{itemize}
+%
+The \kwd{foreach} statement causes one instance of $S$ to execute for
+each value of \emph{index-var} in the iteration space
+$\{\nonterm{start} + \nonterm{stride} \cdot i | i \in [0,
+  \nonterm{length}-1]\}$.  \emph{index-var} is treated as a
+\kwd{final} variable in $S$, so that any assignment to the index
+variable inside the loop causes an error.
+
+The compiler performs the following noninterference check for indexed
+\kwd{foreach} loops:
+\begin{enumerate}
+\item Infer the effect set of the body of the \kwd{foreach}
+  (\S~\ref{section:effects:inference}).
+\item Create a copy of the effect set generated in (1), but replace
+  every occurrence of \emph{index-var} with the negation expression
+  (\S~\ref{section:rpls:relations:disjoint}) of \emph{index-var}.
+\end{enumerate}
+If interference is detected, the compiler generates a warning.
+
+Both parallel and sequential code generation are supported.  For
+sequential code generation, the \kwd{foreach} iterations are executed
+in sequence, from lowest to highest in the iteration space.  For
+parallel code generation, the compiler repeatedly halves the iteration
+space, recursively forking off pairs of parallel tasks, until a
+programmer-specified cutoff.  The precise mechanism for specifying the
+cutoff is implementation dependent.
+

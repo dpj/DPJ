@@ -1,0 +1,229 @@
+\section{User Install%
+\label{sec:user-install}}
+
+This section explains how do a binary installation of DPJ, including
+the bytecode version of the DPJ compiler and runtime and the source
+code for the DPJ benchmarks.  If you install this way, then you can
+compile and run DPJ programs.  However, you will not have access to
+the source code for the DPJ compiler.  (The runtime source code is
+included in the user install, because you need that to compile against
+the runtime.  See \S~\ref{sec:invoking}.)  If you want to study or
+modify the compiler and runtime source code, then you should install
+from the \kwd{git} source base, as described in
+\S~\ref{sec:dev-install}.
+
+\subsection{Installation and setup}
+To install the bytecode version of the compiler and runtime, do the
+following:
+%
+\begin{enumerate}
+%
+\item Get the DPJ binary install tarball from
+  \kwd{http://dpj.cs.uiuc.edu}.
+%
+\item Unpack the tarball:
+%
+\begin{verbatim}
+tar -xvf dpjbin.tar 
+\end{verbatim}
+%
+\item Set \kwd{DPJ\_ROOT} and your \kwd{PATH}:
+%
+\begin{verbatim}
+setenv DPJ_ROOT ${HOME}/dpjbin
+setenv PATH ${PATH}:${DPJ_ROOT}/Implementation/bin
+\end{verbatim}
+%
+This assumes that \kwd{dpjbin} is in your home directory; if not, make
+the necessary changes.
+%
+\item To check that you have a good installation, build the programs
+  in the directory \kwd{Benchmarks/Kernels}:
+%
+\begin{verbatim}
+cd dpjbin/Benchmarks/Kernels
+make
+\end{verbatim}
+%
+\item Test the kernels:
+\begin{verbatim}
+make test-all
+\end{verbatim}
+
+\end{enumerate}
+%
+You are now ready to compile and run DPJ programs.
+
+\subsection{Compiling DPJ Programs}
+\label{sec:invoking}
+
+Compiling DPJ programs is a two-step process.  First, you invoke the
+DPJ compiler \kwd{dpjc} to translate DPJ source to plain Java source.
+Then you use an ordinary Java compiler (such as \kwd{javac}) to
+translate the Java source to bytecode that can be run on a Java
+virtual machine.
+
+The following subsections explain these compilation steps in detail.
+Further, the directory \kwd{\$\{DPJ\_ROOT\}/Benchmarks} contains a
+file \kwd{Makefile.common} that illustrates how to set up a build
+environment for managing these steps, including automatic management
+of the subdirectories used to hold the translated Java and class
+files.  You can also include the \kwd{Makefile.common} in your own
+makefiles, getting the benefit of this setup with almost no effort.
+See \kwd{\$\{DPJ\_ROOT\}/Benchmarks/Kernels/Makefile} for an example.
+
+\subsubsection{Translating DPJ Source to Java Source}
+
+You invoke the DPJ compiler by saying \kwd{dpjc} on the command line,
+followed by some DPJ files to compile.  The DPJ compiler translates
+the DPJ source to Java source, so it's best to direct the output of
+the DPJ compiler to a different directory, to avoid name collisions.
+For example, the command sequence
+%
+\begin{description}
+\item \kwd{mkdir java}
+\item \kwd{dpjc -d java Foo.java Bar.java}
+\end{description}
+%
+translates the DPJ files \kwd{Foo.java} and \kwd{Bar.java} into the
+plain Java files \kwd{Foo.java} and \kwd{Bar.java} in the directory
+\kwd{java}.
+
+Since \kwd{dpjc} is based on \kwd{javac}, you can use all the
+command-line options that \kwd{javac} supports.  In addition,
+\kwd{dpjc} supports the following options:
+%
+\begin{itemize}
+%
+\item \kwd{-seq}: If this flag is present, then the compiler
+  translates the DPJ sources into sequential Java code.  By default,
+  the compiler generates parallel code, using the \kwd{ForkJoinTask}
+  library to express the parallelism implied by DPJ's \kwd{cobegin}
+  and \kwd{foreach} constructs.
+%
+\item \kwd{-instrument}: This option makes sense only with \kwd{-seq}.
+  With this option turned on, the compiler adds instrumentation to the
+  program, so that when run its performance characteristics can be
+  analyzed.  The instrumentation consists of method calls into the API
+  defined by the \kwd{Instrument} class in the package
+  \kwd{DPJRuntime}, located in \kwd{Implementation/Runtime}.  See the
+  DPJ runtime API documentation for further details.
+%
+\item \kwd{-count}: When compiling the program, count the various
+  kinds of DPJ annotations, and report the counts.
+%
+\end{itemize}
+
+An important limitation of the DPJ compiler, as of DPJ v1.0, is that
+it has limited support for separate compilation.  For example, in
+ordinary Java, if \kwd{Foo.java} defines a class \kwd{Foo}, and
+\kwd{Bar.java} defines a class \kwd{Bar} that uses \kwd{Foo}, you can
+compile \kwd{Foo.java} to \kwd{Foo.class} separately, and later
+compile \kwd{Bar.java} to \kwd{Bar.class}, as long as \kwd{Foo.class}
+is in the class path specified on the compiler command line.
+
+In DPJ, you can still do this if \kwd{Foo.java} is an ordinary Java
+file (i.e., it doesn't have any DPJ annotations).  However, \emph{any
+  source files containing DPJ annotations must be compiled together
+  with code that depends on them}.  That is because DPJ's region and
+effect annotations are currently not represented in the bytecode
+(i.e., DPJ uses ordinary Java bytecode).  Therefore, the compiler
+needs all the source files containing the DPJ annotations.  In
+particular, in the example given above, if class \kwd{Foo} is defined
+with a region parameter, and you attempt to compile class \kwd{Bar}
+that uses \kwd{Foo} by linking against \kwd{Foo.class}, then the
+compiler will generate an error, saying that \kwd{Foo} doesn't take
+parameters.  That's because the region parameter information is
+\emph{erased} in the \kwd{Foo.class} bytecode.  Instead, you need to
+compile \kwd{Foo.java} and \kwd{Bar.java} together, so the compiler
+can see the parameter.  The same limitation applies to the classes in
+the DPJ runtime; see \S~7 of \refmanual\ for more details.
+
+\subsubsection{Compiling Generated Java Source}
+
+You can use any Java compiler to translate the generated Java source
+to bytecode.  When you do this, you must put the DPJ runtime classes
+in the class path.  For example, the command sequence
+%
+\begin{description}
+\item \kwd{mkdir classes}
+\item \kwd{javac -cp \$\{DPJ\_ROOT\}/Implementation/Runtime/classes -d
+  classes java/*.java}
+\end{description}
+%
+compiles the translated Java files in directory \kwd{java} to
+bytecode, and puts the resulting class files in \kwd{classes}.  The
+DPJ tools include a command \kwd{dpj-javac}, which is a convenience
+wrapper for \kwd{javac} that includes the runtime classes in the class
+path for you automatically.  For example
+%
+\begin{description}
+\item \kwd{mkdir classes}
+\item \kwd{dpj-javac -d classes java/*.java}
+\end{description}
+%
+is equivalent to the above.  
+
+
+\subsection{Running DPJ Programs}
+\label{sec:running}
+
+You run DPJ programs by saying \kwd{dpj} on the command line, followed
+by one or more Java classes to execute.  The classes, and any classes
+they depend on, must be in the class path.  For example:
+%
+\begin{description}
+\item \kwd{dpj -cp classes Foo}
+\end{description}
+%
+The options for setting the class path and the other runtime options
+are the same as for \kwd{java}.  In fact, \kwd{dpj} just invokes the
+ordinary \kwd{java} after adding the DPJ runtime classes to the class
+path, so you can use \kwd{java} to run DPJ programs if you want; you
+just have to add the runtime classes manually.  For example:
+%
+\begin{description}
+\item \kwd{java -cp
+  \$\{DPJ\_ROOT\}/Implementation/Runtime/classes:classes Foo}
+\end{description}
+
+The DPJ runtime has several configurable parameters.  These are set in
+one of two ways.  First, they can be passed as command-line arguments
+to the program.  The special DPJ command-line arguments must come
+first; they are processed by the runtime and then stripped from the
+argument list, which is passed to the main program.  For example, the
+following invocation of the class \kwd{Foo} sets the DPJ foreach
+cutoff (explained below) to 100, then passes \kwd{42} and \kwd{bar} as
+the command-line arguments to the program:
+%
+\begin{description}
+\item \kwd{dpj -cp classes Foo --dpj-foreach-cutoff 100 42 bar}
+\end{description}
+
+The following command-line options are processed specially by the
+DPJ runtime as stated above.  Each of them must be followed by a
+numeric argument; if not, an error is reported.  If the options are
+not present, then the default is used as stated below.
+%
+\begin{itemize}
+\item \kwd{--dpj-foreach-split} $n$: Set the branching factor used to
+  split a \kwd{foreach} loop to $n$.  The loop is recursively split
+  into this many branches in each iteration, until the cutoff is
+  reached (see below).  The default is 2.
+%
+\item \kwd{--dpj-foreach-cutoff} $n$: Set the minimum number of
+  \kwd{foreach} iterations allocated to a single task to $n$.  Beyond
+  this point, no more parallel splitting of a foreach loop occurs.
+  The default is 128.
+%
+\item \kwd{--dpj-num-threads} $n$: Set the number of worker threads
+  used to run the program to $n$.  The default is the number of
+  available processors given to the java virtual machine.
+%
+\end{itemize}
+
+The second way to set the runtime parameters is to assign to them from
+within the program.  This is useful if you want different
+\kwd{foreach} loops in your program to use different parameters.  See
+the runtime API documentation (available on the DPJ web site) for
+information about how to do this.

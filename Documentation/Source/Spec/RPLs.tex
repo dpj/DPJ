@@ -1,0 +1,397 @@
+\section{Region Path Lists}
+\label{section:rpls}
+
+In DPJ, the programmer uses region path lists, or RPLs, to name sets
+of heap regions (\S~\ref{section:regions:heap}).  The region sets in
+turn are used in specifying and checking effects
+(\S~\ref{section:effects}).  \S~\ref{section:rpls:valid} and
+\S~\ref{section:rpls:elts} describe the construction of RPLs.
+\S~\ref{section:rpls:relations} describe the rules for comparing RPLs,
+which are essential in noninterference checking.
+\S~\ref{section:rpls:regions} describes \emph{heap regions} and
+\emph{stack regions}, which do not appear in DPJ programs, but are
+used by the implementation to do noninterference checking.
+
+\subsection{Valid RPLs}
+\label{section:rpls:valid}
+
+A region path list (RPL) is a nonempty sequence of RPL elements
+(\S~\ref{section:rpls:elts}) separated by colons (\kwd{:}).  An RPL
+is well-formed if it obeys the following rules:
+%
+\begin{itemize}
+%
+\item The first element must be \kwd{Root}, an RPL parameter element
+  (\S~\ref{section:rpls:elts:array}), or a variable RPL element
+  (\S~\ref{section:rpls:elts:var}).
+%
+\item \kwd{Root}, an RPL parameter element, or a variable element may
+  appear only as the first element.
+%
+\end{itemize}
+%
+It is also acceptable to write an RPL starting with a class or local
+region name element (\S~\ref{section:rpls:elts:name-elts}), an array
+index element (\S~\ref{section:rpls:elts:array}), or the star element
+(\S~\ref{section:rpls:elts:star}).  In these cases, the RPL has
+\kwd{Root} as an implicit first element.
+
+
+\subsection{RPL Elements}
+\label{section:rpls:elts}
+
+An RPL element is one of the following: a name RPL element, a
+parameter RPL element, an array index RPL element, a variable RPL
+element, or the star RPL element.
+%
+
+\subsubsection{Name RPL Elements}
+\label{section:rpls:elts:name-elts}
+
+A name RPL element is one of the following:
+%
+\begin{itemize}
+%
+\item \kwd{Root}, which is a reserved name available at global scope.
+%
+\item A class region name declared in the enclosing class scope
+  (\S~\ref{section:class-def:class-rgn-decl}).
+%
+\item A local region name declared in the enclosing statement scope
+  (\S~\ref{section:class-def:methods:local-rgn-decl}).
+%
+\item \emph{selector}\kwd{.}\emph{region}, where \emph{selector} is a
+  field access selector (i.e., everything to the left of
+  \kwd{.}\emph{Identifier} in a field access expression, JLS \S~
+  15.11), and \emph{region} is a class region declared in the class
+  named by \emph{selector} (\S~\ref{section:class-def:class-rgn-decl}).
+%
+\end{itemize}
+%
+
+\subsubsection{Parameter RPL Elements}
+\label{section:rpls:elts:param}
+
+A parameter RPL element names a class RPL parameter
+(\S~\ref{section:class-def:params}), method RPL parameter
+(\S~\ref{section:class-def:params:method}), or capture parameter
+(\S~\ref{section:types:class:capture}) that is in scope.  Note that
+capture parameters are introduced by the compiler in capturing types
+(\S~\ref{section:types:class:capture}), and cannot be written by the
+programmer.
+
+\subsubsection{Array Index RPL Elements}
+\label{section:rpls:elts:array}
+
+An array index RPL element is one of the following:
+%
+\begin{itemize}
+%
+\item \kwd{[}\emph{expr}\kwd{]}, where \emph{expr} is a valid integer
+  expression, indicating the array index corresponding to the runtime
+  value of \emph{expr}.
+%
+\item \kwd{[?]}, indicating any array index.
+%
+\end{itemize}
+
+\subsubsection{Variable RPL Elements}
+\label{section:rpls:elts:var}
+
+A variable RPL element is one of the following: \kwd{this}; a
+\kwd{final} method variable of class type; or a \kwd{final} method
+formal parameter of class type.
+
+\subsubsection{The Star RPL Element}
+\label{section:rpls:elts:star}
+
+The star RPL element has the form \kwd{*}.  It indicates any sequence
+of RPL elements.
+
+\subsection{Relations on RPLs}
+\label{section:rpls:relations}
+
+RPLs have several pairwise relations that are used to determine when
+two RPLs name disjoint or overlapping sets of regions: equivalence
+(\S~\ref{section:rpls:relations:equiv}), nesting
+(\S~\ref{section:rpls:relations:nesting}), disjointness
+(\S~\ref{section:rpls:relations:disjoint}), and inclusion
+(\S~\ref{section:rpls:relations:inclusion}).
+
+\subsubsection{Equivalence}
+\label{section:rpls:relations:equiv}
+
+There is an equivalence relation on RPLs, which we will denote here by
+``\emph{rpl-1} is equivalent to \emph{rpl-2}.''  Its meaning is that
+the set of regions represented by \emph{rpl-1} is equal to the set of
+regions represented by \emph{rpl-2}.
+
+\noindent
+\textbf{Equivalent RPLs:} Two RPLs are equivalent if both RPLs have
+the same number of elements, and the corresponding pairs of elements
+are equivalent.  
+
+\noindent
+\textbf{Equivalent RPL Elements:} Two RPL elements are equivalent if:
+%
+\begin{itemize}
+%
+\item They refer to the declared same region name, RPL parameter, or
+  variable name; or
+%
+\item They are \kwd{[}\emph{expr-1}\kwd{]} and
+  \kwd{[}\emph{expr-2}\kwd{]}, where \emph{expr-1} and \emph{expr-2}
+  are always-equal expressions; or
+%
+\item They are both \kwd{[?]} or \kwd{*}.
+%
+\end{itemize}
+
+\noindent
+\textbf{Always-Equal Expressions:} Always-equal expressions are
+defined as follows:
+%
+\begin{itemize}
+%
+\item Two constants are always-equal expressions if they are the same
+  value.
+%
+\item Two variables are always-equal expressions if they are the same
+  variable (i.e., they have the same variable symbol) and the variable
+  is declared \kwd{final}.
+%
+\item Two binary operation expressions are always-equal expressions if
+  they represent the same operation, and their corresponding component
+  expressions are always-equal.
+%
+\item Any other two expressions are not always-equal.
+%
+\end{itemize}
+
+
+\subsubsection{Nesting}
+\label{section:rpls:relations:nesting}
+
+There is a nesting relation on RPLs, which we will denote here by
+``\emph{rpl-1} is nested under \emph{rpl-2}.''  Its meaning is that
+for every region \emph{r-1} represented by \emph{rpl-1}, there exists
+a region \emph{r-2} represented by \emph{rpl-2} such that \emph{r-1}
+is nested under \emph{r-2}.  The meaning of ``\emph{r-1} is nested
+under \emph{r-2}'' Is that \emph{r-1} is a descendant of \emph{r-2} in
+the region tree.
+%
+\emph{rpl-1} is nested under \emph{rpl-2} if one of the following holds:
+%
+\begin{itemize}
+%
+\item \emph{rpl-2} is \kwd{Root}.
+%
+\item \emph{rpl-1} is a sequence of two or more RPL elements, and
+  \emph{rpl-1} without its last element is nested under \emph{rpl-2}.
+%
+\item \emph{rpl-1} is included in \emph{rpl-2}
+  (\S~\ref{section:rpls:relations:inclusion}).
+%
+\item \emph{rpl-1} has one element, which is an object reference
+  variable whose owner RPL (\S~\ref{section:types:class:owner-rpls}) is
+  nested under \emph{rpl-2}.
+%
+\end{itemize}
+
+
+\subsubsection{Inclusion}
+\label{section:rpls:relations:inclusion}
+
+There is an inclusion relation on RPLs, which we will denote here by
+``\emph{rpl-1} is included in \emph{rpl-2}.''  Its meaning is that the
+set of regions represented by \emph{rpl-1} is contained (in the sense
+of ordinary set inclusion) in the set of regions represented by
+\emph{rpl-2}.
+
+\noindent
+\textbf{Inclusion of RPLs:} \emph{rpl-1} is included in \emph{rpl-2}
+if one of the following holds:
+%
+\begin{itemize}
+%
+\item \emph{rpl-1} and \emph{rpl-2} are equivalent
+  (\S~\ref{section:rpls:relations:equiv}).
+%
+\item \emph{rpl-2} ends with \kwd{*}, and \emph{rpl-1} is nested under
+  \emph{rpl-2} (\S~\ref{section:rpls:relations:nesting}) without its last element.
+%
+\item The last element of \emph{rpl-1} is included in the last element
+  of \emph{rpl-2}, and inclusion holds for the RPLs after stripping
+  the last elements of both.
+%
+\item \emph{rpl-1} has one element, which is a capture parameter
+  (\S~\ref{section:types:class:capture}) included in \emph{rpl-2}.
+%
+\end{itemize}
+%
+
+\noindent
+\textbf{Inclusion of RPL Elements:} RPL element \emph{elt-1} is
+included in RPL element \emph{elt-2} if (1) the elements are
+equivalent (\S~\ref{section:rpls:relations:equiv}); or (2) \emph{elt-1}
+is any array index RPL element and \emph{elt-2} is \kwd{[?]}.
+
+
+\subsubsection{Disjointness}
+\label{section:rpls:relations:disjoint}
+
+There is a disjointness relation on RPLs, which we will denote here by
+``\emph{rpl-1} is disjoint from \emph{rpl-2}.''  Its meaning is that
+the set of regions represented by \emph{rpl-1} has empty intersection
+with the set of regions represented by \emph{rpl-2}.
+
+\noindent
+\textbf{Disjoint RPLs:} \emph{rpl-1} and \emph{rpl-2} are disjoint if
+one of the following holds:
+%
+\begin{enumerate}
+%
+\item \emph{rpl-1} is included in
+  (\S~\ref{section:rpls:relations:inclusion}) some RPL \emph{rpl-3};
+  \emph{rpl-2} is included in some RPL \emph{rpl-4}; and \emph{rpl-3}
+  and \emph{rpl-4} are constrained to be disjoint
+  (\S~\ref{section:class-def:params}).
+%
+\item For some $n \geq 1$, (a) the RPLs formed by taking the first $n$
+  elements of \emph{rpl-1} and \emph{rpl-2} are equivalent
+  (\S~\ref{section:rpls:relations:equiv}); and (b) \emph{rpl-1} and
+  \emph{rpl-2} have disjoint elements in position $n+1$ (this is
+  called a ``distinction from the left'' in~\cite{DPJ:OOPSLA09}).
+%
+\item The last elements of \emph{rpl-1} and \emph{rpl-2} are disjoint
+  (this is called a ``distinction from the right''
+  in~\cite{DPJ:OOPSLA09}).
+%
+\end{enumerate}
+
+\noindent
+\textbf{Disjoint RPL Elements:} Two RPL elements \emph{elt-1} and
+\emph{elt-2} are disjoint if (1) one is a name RPL element
+(\S~\ref{section:rpls:elts:name-elts}) and the other is an array index
+RPL element (\S~\ref{section:rpls:elts:array}); or (2) they are both
+name RPL elements corresponding to distinct region name symbols
+(\S\S~\ref{section:class-def:class-rgn-decl}
+and~\ref{section:class-def:methods:local-rgn-decl}); or (3) they are
+the array RPL elements \kwd{[}\emph{expr-1}\kwd{]} and
+\kwd{[}\emph{expr-2}\kwd{]}, where \emph{expr-1} and \emph{expr-2} are
+always-unequal expressions.
+
+
+\noindent
+\textbf{Always-Unequal Expressions:} Always-unequal expressions are
+defined as follows:
+%
+\begin{itemize}
+%
+\item Two constants are always-unequal expressions if they are
+  different values.
+%
+\item \emph{expr-1} and \emph{expr-2} are always-unequal expressions
+  if \emph{expr-1} is the negation expression
+  (\S~\ref{section:parallel:foreach}) of \emph{expr-2}, or vice versa.
+%
+% This isn't implemented
+%
+%\item Two add or subtract expressions are always-unequal expressions
+%  if they represent the same operation and (1) their LHS expressions
+%  are always-unequal, and their RHS expressions are always-equal; or
+%  (2) vice versa.
+%
+\item Any other two expressions are not always-unequal.
+%
+\end{itemize}
+
+\subsection{Regions}
+\label{section:rpls:regions}
+
+DPJ partitions memory into \emph{heap regions} (collections of memory
+locations on the heap) and \emph{stack regions} (collections of memory
+locations on the stack).  Heap regions are explicitly named using RPLs
+(\S~\ref{section:rpls}).  Stack regions are internally named and
+automatically managed by the compiler.
+
+Because all DPJ type and effect annotations are erased at compile
+time, regions are not actually represented at runtime.  They are a
+theoretical construct, used in the soundness proofs of
+DPJ~\cite{DPJ:FormalTR08}.  For example, regions are used to show that
+if two RPLs are disjoint (\S~\ref{section:rpls:relations:disjoint}),
+then the two sets of memory locations associated with the RPLs in the
+dynamic semantics are nonintersecting.
+
+The programmer should not have to reason directly about regions; the
+proofs in~\cite{DPJ:FormalTR08} essentially say that it is sufficient
+to reason about RPLs, using the rules given in \S~\ref{section:rpls}.
+For more information about regions and the region tree, the interested
+reader is referred to~\cite{DPJ:FormalTR08}.
+
+
+\subsubsection{Heap Regions}
+\label{section:regions:heap}
+
+A heap region names a set of memory locations on the heap at runtime.
+Syntactically, a heap region is like an RPL (\S~\ref{section:rpls}),
+with the following exceptions:
+%
+\begin{itemize}
+%
+\item No \kwd{*} or \kwd{[?]} appears in the sequence of elements.
+%
+\item There are no parameter RPL elements.
+%
+\item Object reference values appear instead of object reference variables.
+%
+\item Integer values \kwd{[$n$]} appear instead of integer expressions
+  \kwd{[}\emph{expr}\kwd{]}.
+%
+\end{itemize}
+%
+An RPL with no \kwd{*} or \kwd{[?]} corresponds to a heap region at
+runtime, by replacing parameters with actual regions, object reference
+variables with the references they store, and integer expressions with
+the values to which they evaluate.  For more information about how
+this substitution works, see~\cite{DPJ:FormalTR08}.  An RPL containing
+\kwd{*} or \kwd{[?]}  represents the set of valid RPLs obtained by
+substituting (possibly empty) sequences of RPL elements for \kwd{*}
+and nonnegative array index values for \kwd{?}.  This set of RPLs in
+turn corresponds to a set of regions, via the substitutions mentioned
+above.
+
+Every heap region is part of a tree of regions rooted at the global
+name \kwd{Root} (\S~\ref{section:rpls:elts:name-elts}).  The tree
+structure is given in two ways:
+%
+\begin{enumerate}
+%
+\item By the syntax of RPLs: e.g., \kwd{A:B} is a child of \kwd{A}.
+%
+\item By the types of object references: if $o$ is an object
+  reference, and the owner region of the type of $o$
+  (\S~\ref{section:types:class:owner-rpls}) is $R$, then a region whose
+  RPL starts with $o$ is a descendant of region $R$.
+%
+\end{enumerate}
+%
+For more information about the region tree, see~\cite{DPJ:FormalTR08}.
+
+
+\subsubsection{Stack Regions}
+\label{section:regions:stack}
+
+The compiler internally generates \emph{stack regions} for method
+value parameters and local variables.  For example, the declaration
+\kwd{int x} inside a method generates the stack region \kwd{x} that is
+in scope where the variable \kwd{x} is in scope.  These stack regions
+are generated and checked automatically, and the programmer cannot
+specify them directly.
+
+Stack regions are compared by symbol: two occurrences of the same
+symbol are treated as identical, and different symbols are treated as
+different.  This simple comparison is possible for stack variables
+because Java does not allow references to or aliasing of these
+variables.
+

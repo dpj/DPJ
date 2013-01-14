@@ -1,0 +1,40 @@
+TEXFILES = $(wildcard *.tex)
+BIBFILES = $(wildcard *.bib)
+PROGRAMS = $(wildcard ./Programs/dpj/*.java)
+HACHAOPTS = -tocbis
+DOCS_DIR=$(DPJ_ROOT)/Documentation
+HEVEA_STY=$(DPJ_ROOT)/Documentation/Source/hevea.sty
+
+all: $(TARGET).pdf multihtml/index.html
+
+$(TARGET).html : $(TEXFILES) $(BIBFILES) $(PROGRAMS) multihtml hevea.sty
+	-rm -f *.aux *.haux
+	hevea -s $(TARGET).tex
+	hevea -fix -O $(TARGET).tex
+	# Repair bad section symbols inserted by hevea
+	perl ../repairsection.pl < $(TARGET).html > repaired.html
+	mv repaired.html $(TARGET).html
+
+multihtml :
+	mkdir $@
+
+hevea.sty :
+	ln $(HEVEA_STY) $@
+
+multihtml/index.html : $(TARGET).html multihtml
+	hacha $(HACHAOPTS) -o multihtml/index.html $(TARGET).html
+
+publish: $(TARGET).pdf $(TARGET).html
+	cp $(TARGET).pdf $(DOCS_DIR)/PDF
+	cp $(TARGET).html $(DOCS_DIR)/HTML
+
+clean:
+	rm -f *.h{aux,bbl,toc} *.aux *.bbl *.log *.toc *.blg *~
+	rm -f *.pdf *.html *.out
+	rm -Rf multihtml
+	rm -f hevea.sty
+	$(CLEAN)
+
+.PRECIOUS: $(TARGET).pdf $(TARGET).html
+
+.phony: clean publish

@@ -1,0 +1,77 @@
+\section{Introduction%
+\label{sec:introduction}}
+\cutname{introduction.html}
+
+This document is a reference guide to the Deterministic Parallel Java
+programming language, Version 1.0 (DPJ v1.0).  It explains in detail
+the new language features that DPJ adds to Java, and how they work.
+It is intended to be accessible to readers with no previous knowledge
+of DPJ, though familiarity with Java is assumed.  
+
+Many cross-references appear throughout the document.  To refer to
+sections, we use the section symbol \S: for example,
+\S~\ref{sec:effects:basic} refers to the section numbered
+\ref{sec:effects:basic}.
+
+Readers of this document may also wish to consult the following:
+%
+\begin{itemize}
+%
+\item \tutorial\ provides a tutorial introduction to DPJ, and
+  explains how to write some common parallel patterns in DPJ.  The DPJ
+  programmer should probably read that document first.  It
+  cross-references this document, so you can look up particular
+  features that you want to learn more about.
+%
+\item \installmanual\ explains how to get started installing the
+  \kwd{dpjc} compiler, using the compiler to compile DPJ programs, and
+  running DPJ programs.
+%
+\item \spec\ gives the specification of DPJ more precisely.  The
+  reference manual you are reading is sufficiently detailed that most
+  if not all of the specification can be gleaned from it; but the
+  specification is both more precise and more concise than this
+  document.  It will be most useful to someone who is already familiar
+  with and understands this manual.
+%
+\end{itemize}
+
+The rest of the document is organized as follows:
+%
+\begin{itemize}
+%
+\item \S~\ref{sec:classes}, \emph{Classes and Interfaces}, describes
+  DPJ's extensions to Java classes and interfaces.  These include
+  features for declaring region names, assigning region names to class
+  fields, summarizing method effects, and writing classes and methods
+  with region variables.
+%
+\item \S~\ref{sec:rpls}, \emph{Region Path Lists}, describes region
+  path lists, or RPLs.  These are the general form of a region name in
+  DPJ.  RPLs are hierarchically structured, and the structure allows
+  many fine distinctions between sets of regions to be expressed.
+%
+\item \S~\ref{sec:types}, \emph{Types}, describes DPJ's extensions to
+  Java's class and array types.  The main difference is that both
+  class and array types can have region arguments.  There are also new
+  rules for type comparisons, casts, etc. to support the extensions.
+%
+\item \S~\ref{sec:effects}, \emph{Effects}, describes DPJ's effect
+  system, which is closely integrated with the regions in the type
+  system.  Effects describe operations on the heap.  The programmer
+  declares the effects of methods, and the compiler infers the rest of
+  the effects.  The compiler checks to make sure that the effects of
+  parallel tasks are mutually noninterfering.
+%
+\item \S~\ref{sec:parallel}, \emph{Parallel Control Flow}, describes
+  DPJ's constructs for creating parallel tasks.
+%
+\item \S~\ref{sec:runtime}, \emph{The DPJ Runtime}, explains the classes in
+  the DPJ runtime that are useful for manipulating arrays.
+%
+\item \S~\ref{sec:exceptions}, \emph{Exception Behavior}, explains
+  what happens when an exception is thrown in DPJ.
+%
+\end{itemize}
+
+

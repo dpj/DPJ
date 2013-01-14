@@ -1,0 +1,45 @@
+\section{Introduction}
+\label{section:intro}
+
+This document defines Deterministic Parallel Java (DPJ) as an
+extension to the Java Programming Language, v1.6 (Java 6).  For the
+specification of Java 6, see \emph{The Java Programming Language
+  Specification}~\cite{JLS}, hereafter referred to as ``JLS.''
+Because we are extending an already-specified language (Java), we omit
+many of the topics one would expect to find in a specification
+(lexical structure, form of statements and expressions, etc.).  We use
+JLS for all that.  Instead, we describe only what DPJ adds to Java.
+
+The structure of the specification is as follows.  In
+\S~\ref{section:class-def}, we describe the DPJ extensions to Java's
+class and interface definitions.  In \S~\ref{section:rpls}, we
+describe \emph{region path lists}, or RPLs, which provide a way to
+name sets of memory locations on the heap in a DPJ program.  In
+\S~\ref{section:types}, we describe the DPJ extensions to Java's class
+and array types.  In \S~\ref{section:effects} we describe
+\emph{effects}, which specify accesses to memory in terms of
+operations on RPLs.  In \S~\ref{section:parallel}, we describe DPJ's
+constructs for expressing parallelism.
+
+Readers of this document may wish to consult the following documents:
+%
+\begin{itemize}
+%
+\item \tutorial\ provides a guided introduction to the DPJ language.
+%
+\item \installmanual\ explains how to install DPJ on your system, and
+  how to compile and run DPJ programs.
+%
+\item \refmanual\ explains the major features of the DPJ language in
+  detail.  It contains many of the same concepts as this
+  specification, but with more discussion, motivation, and examples.
+  
+\end{itemize}
+%
+
+Please note that the purpose of this specification is to give a
+compact and precise \emph{definition} of DPJ, for someone who is
+already familiar with the concepts discussed herein.  Therefore, it is
+probably best to have at least a working knowledge of the tutorial and
+reference manual (which are more concerned with \emph{explaining} the
+language) before consulting this specification.

@@ -1,0 +1,271 @@
+\section{Types}
+\label{section:types}
+
+\subsection{Class and Interface Types}
+\label{section:types:class}
+
+\subsubsection{Type and RPL Arguments}
+\label{section:types:class:args}
+
+When a class or interface defined with type and/or RPL parameters
+(\S~\ref{section:class-def:params}) is used to name a type, the type
+may optionally specify type and/or RPL arguments.
+
+\noindent
+\textbf{Syntax:} The arguments have the form
+\kwd{<}\emph{args}\kwd{>}, where \emph{args} is a comma-separated list
+of valid class or interface types (this section) and/or RPLs
+(\S~\ref{section:rpls}).  This syntax, if it appears, must immediately
+follow the class or interface name. The types, if any, must appear
+first; followed by the RPLs, if any.  Any of the types may be preceded
+by the keyword \kwd{type}, and any of the RPLs may be preceded by the
+keyword \kwd{region}; but the keywords are optional, as the compiler
+can infer which are the types and which are the RPLs from the class or
+interface definition.
+
+\noindent
+\textbf{Binding RPL arguments:} It is an error to specify more RPL
+arguments than there are RPL parameters.  If fewer RPL arguments than
+parameters are specified, the remaining arguments (from left to right)
+become bound to \kwd{Root}.  For each RPL parameter constraint
+\emph{rpl-1}\kwd{ \# }\emph{rpl-2} specified in the parameter
+declaration (\S~\ref{section:class-def:params}), the compiler checks
+that the RPLs \emph{rpl-1} and \emph{rpl-2} are disjoint
+(\S~\ref{section:rpls:relations:disjoint}), after substituting the RPL
+arguments for the corresponding parameters in the RPLs.  If any
+disjointness constraint is violated, the compiler issues a warning.
+
+\subsubsection{DPJ Erasure of Class Types}
+\label{section:types:class:dpjerasure}
+
+The \emph{DPJ erasure} of a class type is the type obtained by
+ignoring all RPL parameters and arguments.  For example, suppose class
+\kwd{C} has a type parameter \kwd{T} and a region parameter \kwd{R}.
+Then the DPJ erasure of \kwd{C<Object,Root>} is \kwd{C<Object>}.
+
+\subsubsection{Equivalent Types}
+\label{section:types:class:equiv}
+
+Class or interface types $T_1$ and $T_2$ with no type or RPL arguments
+are equivalent if they are equivalent in ordinary Java.  Otherwise,
+$T_1$ and $T_2$ are equivalent if (1) their DPJ erasures
+(\S~\ref{section:types:class:dpjerasure}) are equivalent according to
+this section; and (2) for every RPL parameter $P$ of $C$, the RPL
+arguments bound to $P$ in $T_1$ and $T_2$ are equivalent
+(\S~\ref{section:rpls:relations:equiv}).
+
+\subsubsection{Subtypes}
+\label{section:types:class:subtypes}
+
+\bfhead{Types that instantiate the same class or interface :} $T_1$ is
+a subtype of $T_2$ in DPJ if (1) the two types instantiate the same
+class or interface; (2) the two types have no type or RPL arguments;
+and (3) $T_1$ is a subtype of $T_2$ in ordinary Java.
+
+$T_1$ is also a subtype of of $T_2$ in DPJ if (1) the two types
+instantiate the same class or interface; (2) the DPJ erasure
+(\S~\ref{section:types:class:dpjerasure}) of $T_1$ is a subtype of the
+DPJ erasure of $T_2$ according to this section; and (3) the RPL
+arguments of $T_1$ are included
+(\S~\ref{section:rpls:relations:inclusion}) in the corresponding
+arguments of $T_2$.
+
+\bfhead{Types that instantiate different classes:} $T_1$ is a subtype
+of $T_2$ if $T_2$ is a \emph{direct supertype} or \emph{indirect
+  supertype} of $T_1$.
+
+\ithead{Direct supertypes:} $T_2$ is a direct supertype of $T_1$ if a
+type with $T_2$'s class or interface appears in an \kwd{extends} or
+\kwd{implements} clause of $T_1$'s class or interface, and that type
+is a subtype of $T_2$ after substituting arguments for parameters
+according to $T_1$.
+
+\ithead{Indirect supertypes:} $T_2$ is an indirect supertype of $T_1$
+if there is a chain of direct supertypes connecting $T_1$ to $T_2$.
+
+\subsubsection{Casts}
+\label{section:types:class:casts}
+
+A cast from one class or interface type to another is legal if the
+cast would be legal for the DPJ erasures
+(\S~\ref{section:types:class:dpjerasure}) of the types.  Therefore
+casts that violate type preservation are allowed.  Any unsafe cast
+will generate the usual ``unchecked or unsafe operations'' warning
+that Java 1.6 gives for unsound generic casts.
+
+\subsubsection{Owner RPLs}
+\label{section:types:class:owner-rpls}
+
+If \emph{class-type} is a class type, then the \emph{owner RPL} of
+\emph{class-type} is (1) the RPL bound to the first parameter of
+\emph{class-type}, if \emph{class-type} has parameters; otherwise (2)
+\kwd{Root}.
+
+\subsubsection{Captured Types}
+\label{section:types:class:capture}
+
+The compiler extends Java 1.6 type capture (JLS \S~5.1.10) to capture
+RPL parameters as well as generic type parameters.  If \emph{type} is
+a class type with \emph{rpls} as its RPL arguments, then the capture
+of \emph{type} is defined as follows:
+\begin{enumerate}
+\item Take the Java 1.6 capture of \emph{type}, possibly
+  substituting for the generic type arguments but keeping the same RPL
+  arguments.
+\item In the result of step 1, for each RPL \emph{rpl} in \emph{rpls}
+  that is partially specified (i.e., contains \kwd{*} or \kwd{[?]}),
+  replace that RPL with a fresh RPL parameter constrained to be
+  included in \emph{rpl}.
+\end{enumerate}
+
+
+\subsection{Array Types}
+
+\subsubsection{Valid Array Types}
+\label{arrays:valid}
+
+In DPJ, the array type is given by \emph{base-type} followed by one or
+more instances of \emph{brackets}, where \emph{base-type} is a
+primitive, class, or interface type; and each instance of
+\emph{brackets} is a pair of brackets (\kwd{[]}) optionally followed
+by an RPL argument \kwd{<}\emph{rpl}\kwd{>}, optionally followed by
+\kwd{\#}\emph{index-var}, where \emph{index-var} is an identifier that
+declares an index variable.  An array type is valid if (1)
+\emph{base-type} is valid, treating all index variables appearing in
+the type as integer variables in scope; and (2) the RPL of every
+\emph{brackets} is valid, treating all index variables appearing in
+that \emph{brackets} and all \emph{brackets} to the left of that one
+as integer variables in scope.
+
+\noindent
+\textbf{Default index variable declaration:} If no index variable
+declaration \kwd{\#}\emph{index-var} appears in a particular instance
+of \emph{brackets}, then that instance of \emph{brackets} is treated
+as if it had the declaration \kwd{\#\_} (pound underscore).  For
+example, \kwd{int[]<[\_]>} is a valid array type; it is equivalent to
+\kwd{int[]<[\_]>\#\_}.
+
+\subsubsection{New Arrays}
+\label{arrays:new}
+
+A new array expression is \kwd{new} followed by \emph{base-type} and
+one or more instances of \emph{new-brackets}, where \emph{base-type}
+is a primitive, class, or interface type; and \emph{new-brackets} is
+the same as \emph{brackets} as described in
+\S~\ref{arrays:valid}, except that an integer length expression
+\emph{expr} may optionally appear between the brackets.  A new array
+expression is valid if (1) the array type generated by deleting the
+length expressions is valid (\S~\ref{arrays:valid}); and (2) the
+first $n$ instances of \emph{new-brackets} contain a length
+expression, for some $n \geq 1$, while the rest do not.
+
+\subsubsection{Subtypes}
+
+If $T_1$ and $T_2$ are array types, then the compiler
+checks whether $T_1$ is a subtype of $T_2$ as follows:
+\begin{enumerate}
+\item If the RPL specified in the leftmost \emph{brackets} of
+  $T_1$ is not included in
+  (\S~\ref{section:rpls:relations:inclusion}) the RPL specified in the
+  leftmost \emph{brackets} of $T_2$, then the answer is no.
+\item Otherwise, check whether the element type of $T_1$ is a subtype
+  of the element type of $T_2$ (\S~\ref{section:types:class:subtypes}
+  or this section), but require equivalence of corresponding RPL
+  arguments (\S~\ref{section:rpls:relations:equiv}), instead of just
+  inclusion, in doing this check.
+\end{enumerate}
+We require equivalence of RPL arguments for all but the leftmost RPL
+because it is not sound in general to allow subtype assignments into
+array cells.
+
+\subsubsection{Casts}
+
+Array type casts work in the same way as class type casts
+(\S~\ref{section:types:class:casts}).
+
+\subsection{Typing Expressions}
+
+\subsubsection{Field Access}
+\label{section:types:exp:field}
+
+The compiler computes the type of a field access expression
+\emph{selector-exp}\kwd{.}\emph{field-name} as follows: (1) compute
+the type \emph{selector-type} of \emph{selector-exp}; (2) capture the
+type (\S~\ref{section:types:class:capture}) to generate type
+\emph{captured-selector-type}; (3) look up the type \emph{field-type}
+of \emph{field} based on the class $C$ named in
+\emph{captured-selector-type}; (4) make the following substitutions in
+\emph{field-type}: (a) the type and RPL arguments of
+\emph{captured-selector-type} for the type RPL parameters of $C$; and
+(b) \emph{selector-rpl} for \kwd{this}.  If \emph{selector-exp} is a
+\kwd{final} local variable \emph{var}, then \emph{selector-rpl} is
+\emph{var}; otherwise, \emph{selector-rpl} is a fresh capture
+parameter (\S~\ref{section:types:class:capture}) constrained to be
+included in \emph{owner-rpl}\kwd{:*}, where \emph{owner-rpl} is the
+owner RPL (\S~\ref{section:types:class:owner-rpls}) of
+\emph{captured-selector-type}.
+
+\subsubsection{Array Access}
+\label{section:types:exp:array}
+
+If expression $e$ has array type $T$ (\S~\ref{arrays:valid}), then we
+construct the type and region of array access expression
+\kwd{$e$[$e'$]} as follows:
+\begin{itemize}
+\item To construct the type, do the following: (a) concatenate
+  \emph{base-type} of $T$ with all instances of \emph{brackets} in $T$
+  but the leftmost to form \emph{elt-type}; and (b) if an index
+  variable $i$ is declared in the leftmost instance of
+  \emph{brackets}, then substitute $e'$ for all instances of $i$
+  appearing in \emph{elt-type}.
+\item To construct the RPL, do the following: (a) let \emph{rpl} be
+  the RPL appearing in the leftmost instance of \emph{brackets} in
+  $T$, or \kwd{Root} if no RPL appears there; and (b) if an index
+  variable $i$ appears in the leftmost instance of \emph{brackets},
+  then substitute $e'$ for all instances of $i$ appearing in
+  \emph{rpl}.
+\end{itemize}
+
+\subsubsection{Method Invocation}
+\label{section:types:exp:invocation}
+
+\textbf{Explicit Type and RPL Arguments:} The compiler computes the
+type of a method invocation expression
+%
+\begin{description}
+%
+\item
+  \emph{selector-exp}\kwd{.<}\emph{type-args}\kwd{,}\emph{rpl-args}\kwd{>}\emph{method-name}\kwd{(}\emph{args}\kwd{)}
+%
+\end{description}
+%
+as follows: (1) compute the type \emph{selector-type} of
+\emph{selector-exp} and the types \emph{arg-types} of \emph{args}; (2)
+capture \emph{selector-type} (\S~\ref{section:types:class:capture}) to
+generate type \emph{captured-selector-type}; (3) look up the method
+symbol based on the method name, \emph{selector-type}, and
+\emph{arg-types}, and find the return type \emph{return-type} of the
+method; (4) make the following substitutions in \emph{return-type}:
+(a) the type and RPL arguments of \emph{captured-selector-type} for
+the type and RPL parameters of \emph{return-type}; (b)
+\emph{type-args} and \emph{rpl-args} for the type and RPL parameters
+of the method; (c) for every expression \emph{int-exp} in \emph{args}
+of a type assignable to \kwd{int}, \emph{int-exp} for the
+corresponding formal parameter of the method; and (d)
+\emph{selector-rpl} for \kwd{this}, where if \emph{selector-exp} is a
+\kwd{final} local variable \emph{var}, then \emph{selector-rpl} is
+\emph{var}, and otherwise \emph{selector-rpl} is a fresh capture
+parameter (\S~\ref{section:types:class:capture}) constrained to be
+included in \emph{owner-rpl}\kwd{:*}, where \emph{owner-rpl} is the
+owner RPL (\S~\ref{section:types:class:owner-rpls}) of
+\emph{selector-type}.
+
+\noindent
+\textbf{Inferred or Missing Type Arguments, RPL Arguments, and/or
+  \emph{selector-exp}:} If there are no explicit type or RPL
+arguments, the compiler infers them (if necessary) as stated in
+\S~\ref{section:class-def:params:method} and proceeds as stated above
+using the inferred arguments in step (4)(b).  If there is no
+\emph{selector-exp}, then as in ordinary Java, the implied selector is
+\kwd{this}.
+

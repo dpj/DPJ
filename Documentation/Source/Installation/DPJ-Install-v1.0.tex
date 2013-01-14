@@ -1,0 +1,46 @@
+\documentclass[10pt]{article}
+
+\input{../defs}
+
+%%--------------------------------------------------------------------------- 
+%% Main Document
+%%--------------------------------------------------------------------------- 
+
+\title{\bfseries{The Deterministic Parallel Java Installation Manual \\
+Version 1.0}}
+%
+\author{University of Illinois at Urbana-Champaign}
+%
+\date{Revised July 2010}
+
+
+\begin{document}
+
+\maketitle
+
+\begin{sloppypar}
+This document explains how to install Deterministic Parallel Java
+(DPJ), so you can use it to compile and run programs.  It also
+explains how to build DPJ from source code, in case you wish to study
+and/or modify the compiler internals.  A working knowledge of Java is
+required. Please also consult \tutorial\ and \refmanual\ for
+further details about the language.
+
+The instructions in this document assume that you are working in a
+UNIX-like system (including Linux, Mac OS X, etc.).  Everything should
+work in Windows, but we have not tested DPJ on Windows systems.  To
+follow the instructions as stated here, you will have to install
+Cygwin on your Windows system to get a UNIX-like interface and tool
+set.
+
+\tableofcontents\cutname{contents.html}
+
+\pagebreak
+\input{Before}
+\input{User-Install}
+\input{Developer-Install}
+
+\end{sloppypar}
+
+\end{document}
+

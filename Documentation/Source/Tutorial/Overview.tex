@@ -1,0 +1,430 @@
+\section{Overview of DPJ%
+\label{sec:overview}}
+\cutname{overview.html}
+
+This section provides an overview of DPJ concepts, to get you started
+quickly using the language.  References to \refmanual\ are provided
+throughout.
+
+\subsection{Basic DPJ Concepts%
+\label{sec:overview:basic}}
+
+DPJ is based on Java.  If you know Java, then you know most of DPJ
+already.  In fact, every legal Java program is a legal DPJ program!
+However, the reverse is not true, because DPJ adds several features to
+Java to guarantee determinism for parallel programs.  We'll start with
+the DPJ equivalent of ``Hello, world'' to explain the most basic DPJ
+features.
+
+\subsubsection{A Simple DPJ \kwd{Point} Class%
+\label{sec:overview:basic:simple}}
+
+At the most fundamental level, DPJ adds just three concepts to Java:
+explicit fork-join parallelism, regions, and effects.
+Figure~\ref{fig:overview} shows a simple DPJ class \kwd{Point} that
+illustrates the concepts.
+
+\begin{figure}
+\input{Listings/Point}
+\caption{A simple DPJ class to illustrate basic concepts.}
+\label{fig:overview}
+\end{figure}
+
+\bfhead{Explicit fork-join parallelism:} The DPJ language syntax shows
+explicitly where a parallel code section begins (a fork point) and
+ends (the join point).  At a join point, execution is suspended until
+all the parallel tasks created at the corresponding fork point have
+finished executing.  In Figure~\ref{fig:overview}, the \kwd{cobegin}
+statement (lines 8--11) executes its component statements (lines 9 and
+10) in parallel.  The fork point is at the start of the \kwd{cobegin}
+statement, and the join point is at the end of the statement.
+Execution does not continue after the \kwd{cobegin} statement until
+lines 9 and 10 have both completed execution.
+
+DPJ's fork-join model makes the structure of the parallelism explicit,
+in contrast to an unstructured model such as Java threads.  Together
+with the determinism guarantee, this structure allows the programmer
+to reason about the behavior of the parallel program as if it were the
+equivalent sequential program with the parallel constructs elided.
+For example, DPJ guarantees that the code shown in
+Figure~\ref{fig:overview} will compute the same results as the code
+in which the \kwd{cobegin} statement in lines 8--11 were replaced with
+an ordinary sequential statement block.  Thus we say that DPJ has a
+sequential \emph{correctness model} and a parallel \emph{performance
+  model}.
+
+\bfhead{Regions:} To facilitate the analysis of reads and writes to
+the heap, DPJ groups memory locations into named sets called
+\emph{regions}.  The programmer explicitly partitions the heap into
+regions by marking class fields and array cells with region
+information.  In Figure~\ref{fig:overview}, line 2 declares region
+names \kwd{X} and \kwd{Y}.  Lines 3 and 4 say that field \kwd{x} is
+located in region \kwd{X} and field \kwd{y} is located in region
+\kwd{Y}.  Two or more variables may be grouped in the same region.
+For example, it would be permissible to add a field \kwd{double z in
+  Y} to class \kwd{Point}.  However, every variable always resides in
+exactly one region.
+
+\bfhead{Effects:} The DPJ compiler infers the read and write effects
+of each statement in the program in terms of regions.  For example, in
+line 5 of Figure~\ref{fig:overview}, the effect of the statement
+\kwd{this.x = x} is \kwd{writes X}, because the statement assigns a
+value to variable \kwd{x}, which is declared to be in region \kwd{X}
+(line 3).
+
+To make the compiler analysis simple and modular, and to document the
+effects at API boundaries, the DPJ programmer writes \emph{effect
+  summaries} on methods that specify their read and write effects in
+terms of regions.  Examples of effect summaries are shown in lines 5,
+6, and 7 of Figure~\ref{fig:overview}.  The compiler checks that every
+method's summary includes all the actual effects of the method body
+(including the effects of methods called in the body, using those
+methods' summaries to compute the effects of the invocations).  For
+example, in line 7, it would be a compile-time error to omit the
+effect \kwd{writes Y} from the summary of \kwd{setXY}, because of the
+write to region \kwd{Y} in line 10.  
+
+The compiler uses the inferred statement effects and method effect
+summaries to compute the effects of parallel tasks, and check that all
+pairs of parallel tasks are mutually noninterfering.  For example, the
+effect of line 9 is \kwd{writes X}, and the effect of line 10 is
+\kwd{writes Y}.  Because \kwd{X} and \kwd{Y} name different regions,
+the two writes are to disjoint memory locations, so the parallel tasks
+in the \kwd{cobegin} statement are safe to run in parallel.  
+
+Some effects don't need to be reported in a method summary.  These
+are:
+%
+\begin{itemize}
+%
+\item Any read or write of a local variable (i.e., a variable declared
+  inside method scope, including method formal parameters).  For
+  instance, the read of parameter \kwd{x} in line 9 doesn't generate
+  any effect that needs to be reported.  That's because Java doesn't
+  allow you to take the reference of a local variable, so the compiler
+  can confirm noninterference for local variables without any help
+  from the effect system.
+%
+\item Any effect on a \kwd{final} variable.  That's because the value
+  of a \kwd{final} variable never changes, so reading it cannot cause
+  interference.
+%
+\item Any initialization effect on fields of \kwd{this} by a
+  constructor.  That's because in DPJ, other parallel tasks can never
+  see the constructed object until all the initialization is done.
+%
+\end{itemize}
+
+\subsubsection{Compiling the \kwd{Point} Class%
+\label{sec:overview:basic:compiling}}
+
+Try entering and compiling the \kwd{Point} class shown in
+Figure~\ref{fig:overview}.  If you've entered the code correctly, and
+your DPJ environment is set up correctly, it should compile with no
+errors or warnings.
+
+Now try modifying the example a bit to see how DPJ responds to the
+changes.  Playing around with programs like this is one of the best
+ways to learn new language features.
+
+First, delete \kwd{in X} at the end of line 3, and recompile.  You
+should get an error that the effect summary \kwd{writes X} in line 5
+doesn't cover the effects of the method \kwd{setX}.  That's because
+when you take out the explicit declaration \kwd{in X}, the variable
+\kwd{x} gets put in a default region called \kwd{Root}.  Now replace
+\kwd{writes X} in line 5 with \kwd{writes Root}.  The code should
+compile again without errors.
+
+Now delete the effect summary in line 5 entirely.  This time the
+code should compile, but it gives a warning.  Since you didn't give
+any explicit effect summary for \kwd{setX}, the compiler assumes the
+most conservative effect for that method --- in effect, ``writes the
+entire heap.''  The code compiles, because the assumed effect
+covers the effects of \kwd{setX}.  However, the assumed effect
+conflicts with the effect \kwd{writes Y} of \kwd{setY}.  So the
+compiler is warning you that there is potential interference between
+lines 9 and 10 in the \kwd{cobegin}.
+
+Please notice three things about this example.  First, there really
+isn't any interference; the compiler is just warning you because you
+haven't satisfied all its rules for \emph{proving} there is no
+interference.  This may seem like a minor point for this trivial
+class, but for a large and complex program, proving determinism can be
+quite tricky.  So following the rules is important, because it gives a
+\emph{guarantee} of correctness that would otherwise be hard to show.
+
+Second, notice that the DPJ compiler gives an error when your declared
+method effects are too small, but a warning when your parallel effects
+are interfering.  This behavior is so that you can write a DPJ program
+incrementally, without getting all the annotations right on the first
+go.  For example, you could have written the class in
+Figure~\ref{fig:overview} by putting in the \kwd{cobegin} first,
+leaving out the region and effect annotations entirely.  That code
+would compile, but it would give a warning.  Then you could add the
+region and effect annotations incrementally, until the warnings go
+away.  This is usually a good strategy for writing programs in DPJ.
+Writing bad method effects causes an error (not just a warning)
+because it is both easier to deal with (if you write nothing you get
+the default effect, which always works) and less localized --- a bad
+method effect in one place could cause interference to be
+underreported in a different one.
+
+Third, the defaults are designed so that you don't have to worry about
+region and effect annotations for code that is never called inside a
+parallel task.  You only need to annotate code that is going to run in
+parallel.
+
+\subsubsection{Where To Learn More%
+\label{sec:overview:basic:where-tolearn}}
+
+The Reference Manual has more detailed information on the topics
+discussed above.  In addition to \kwd{cobegin} for parallel
+statements, DPJ has a \kwd{foreach} construct for parallel loop
+iterations.  See Reference Manual, \S~6, for more details.  Reference
+Manual, \S\S~2.1 and 2.2, have more information on declaring and using
+regions.  For further information about summarizing and checking
+effects, see the following sections of the Reference Manual:
+%
+\begin{itemize}
+%
+\item 
+\S\S~2.3.1, 2.3.2, and 5.2 explain how to write method effect summaries.
+%
+\item
+\S~5.4 explains how the compiler computes a method's actual effects.
+%
+\item
+\S~5.6 explains how the compiler compares a method's actual effects to
+its summarized effects.
+%
+\item
+\S~5.7 explains noninterference of effect.
+\end{itemize}
+%
+It may be best to read at least the rest of this section of this
+tutorial before consulting these sections of the reference manual,
+because the full explanation of these features requires concepts (such
+as region path lists and region parameters) introduced in later
+subsections here.  However, the Reference Manual contains plenty of
+cross references (hyperlinked in the HTML version), so you can also
+just start reading the Reference Manual, following cross references
+when you don't understand something, if you prefer learning that way.
+
+\subsection{Region Path Lists%
+\label{sec:overview:rpls}}
+
+Every region in DPJ is described by a \emph{region path list}, or RPL.
+A basic region name, shown in \S~\ref{sec:overview:basic:simple}, is a
+particular kind of RPL.  More generally, a \emph{sequence of names}
+separated by colons is an RPL.  For example, if \kwd{A} and \kwd{B}
+are declared region names, then \kwd{A}, \kwd{B}, \kwd{A:B},
+\kwd{A:A:B}, etc., are RPLs.  RPLs can be \emph{partially specified},
+by writing a \kwd{*} in place of some sequence of names.  For example,
+\kwd{A:*:B} stands in for \kwd{A:B}, \kwd{A:A:B}, \kwd{A:B:B},
+\kwd{A:A:A:B}, etc.  Nesting and partial specification are useful for
+describing \emph{sets of regions} in effects.  For example, in
+conjunction with region parameters (\S~\ref{sec:overview:params}),
+RPLs let you write an effect that says ``writes all nodes in the left
+subtree.''
+
+Here is a simple example of RPLs in action:
+%
+\input{Listings/RPLExample}
+%
+We have declared region names \kwd{A}, \kwd{B}, and \kwd{C} (line 2),
+and we use them to construct the RPLs \kwd{A:B} and \kwd{A:C}.  We put
+field \kwd{x} in region \kwd{A:B} and field \kwd{y} in region
+\kwd{A:C} (lines 3--4).  In line 5, we use the partially specified RPL
+\kwd{A:*} to cover both \kwd{A:B} and \kwd{A:C}.  Note in particular
+that \emph{\kwd{A} and \kwd{A:B} are different regions}.  So
+\kwd{writes A} does \emph{not} cover a write to \kwd{A:B}; the \kwd{*}
+is needed to get the inclusion.  This is because to get more precision
+with RPLs, DPJ separates the concepts of \emph{nesting} (\kwd{A:B} is
+nested under \kwd{A}) and \emph{inclusion} (\kwd{A:B} is included in
+\kwd{A:*} but not in \kwd{A}).  It may help to think of RPLs like a
+file system.  For example, given the UNIX path \kwd{foo/bar}, the file
+system is a tree with \kwd{bar} nested under \kwd{foo}; but \kwd{rm
+  foo} won't remove \kwd{bar}; you have to say either \kwd{rm foo/bar}
+or \kwd{rm foo/*}.
+
+RPLs are useful in several ways:
+%
+\begin{itemize}
+%
+\item Covering effects in method effect summaries, as shown in the
+  example above.
+%
+\item Distinguishing different sets of regions from each other.  For
+  example, \kwd{A:*} is distinct from \kwd{B:*}, and \kwd{*:A} is
+  distinct from \kwd{*:B}.  This technique is useful for proving
+  noninterference.
+%
+\item Describing partially specified types, to allow flexible
+  assignments to variables with region arguments in their types.  See
+  the next section of this tutorial for more information.
+%
+\end{itemize}
+%
+Later sections of this tutorial give more examples of using RPLs.  For
+the full details, see \S\S~3 (RPLs), 4 (Types), and 5 (Effects) of the
+Reference Manual.
+
+\subsection{Class and Method Region Parameters%
+\label{sec:overview:params}}
+
+\bfhead{Class region parameters:} DPJ allows you to write classes with
+region parameters.  This works similarly to Java generic type
+parameters and allows you to have different instances of the same
+class with the fields in different regions.
+
+Here is a simple example to illustrate class region parameters:
+%
+\input{Listings/ClassRegionParams}
+%
+Lines 1--3 define a simple \kwd{Data} class with an integer field
+\kwd{x}.  The class has one \emph{region parameter}, \kwd{R}, and
+field \kwd{x} is located in that class.  That means that when an
+object of the \kwd{Data} class created, its \kwd{x} field will reside
+in the region supplied as an argument to the type.
+
+The rest of the program is a simple class \kwd{DataPair} which stores
+two \kwd{Data} objects in fields \kwd{first} and \kwd{second} (lines
+6--7).  Note that we have made the fields \kwd{final}.  That is
+because we are not going to assign into the fields themselves, as in
+Figure~\ref{fig:overview}; instead we are going to read the fields and
+assign into the objects they refer to.  We do this in method
+\kwd{updateBoth}.  In line 15, the effect is \kwd{writes First}.
+That's because the write is to field \kwd{x}, \kwd{x} is in region
+\kwd{R} (line 2), and \kwd{R=First} in the type of the selector
+\kwd{first}.  See Reference Manual, \S~2.4.1, for more information on
+defining class region parameters, and Reference Manual, \S~4, for more
+information on using parametric classes as types.  See Reference
+Manual, \S~5.4 for more information on how the compiler computes the
+effect of a field access through a parametric type.
+
+\bfhead{Method region parameters:} Methods can also have region
+parameters in DPJ.  Method region parameters allow the same method to
+be invoked with different regions.  See Reference Manual, \S~2.4.2.
+
+\bfhead{Disjointness constraints on parameters:} You can put
+disjointness constraints on class and method parameters.  This allows
+you, for example, to require that two parameters coming into a class
+or method be different names.  The requirement is checked by the
+compiler at the point where the region arguments are given to the
+parameters.  Inside the class or method definition, the compiler can
+use the disjointness constraint to prove noninterference.  For
+example, if two parameters are constrained to be disjoint, then
+effects on them are disjoint.  See Reference Manual, \S~2.4.3, for
+more details.
+
+\bfhead{Assignment restrictions:} In order to ensure sound reasoning
+about types, some assignments aren't allowed when two types with the
+same class have different region arguments.  The rules are in
+Reference Manual, \S~4.1.2.  Sometimes this means you can't do an
+assignment you want to do.  For example, if variable \kwd{a} has type
+\kwd{C<A>} and \kwd{b} has type \kwd{C<B>}, you can't say \kwd{b=a}.
+In this case, you have three options:
+%
+\begin{enumerate}
+%
+\item Use partially specified RPLs (Reference Manual, \S~3.4) and/or
+  additional region parameters to express the assignment.  DPJ's
+  subtyping features are fairly powerful, so often you can do this.
+  For example, if you give \kwd{b} the type \kwd{C<*>}, now you can
+  assign \kwd{a} to it, as well as \kwd{C<B>} objects.  However, the
+  \kwd{*} causes the compiler to infer coarser information about
+  effects.  So this strategy doesn't always work.
+%
+\item Clone an object with the new type.  For example, \kwd{b =
+  a.<B>clone()}. Here \kwd{clone} is a generic method that takes as an
+  arguments the region parameter arguments of the outgoing object, and
+  clones \kwd{this} with the new type:
+\begin{dpjlisting}
+<region Out>C<Out>clone() {
+    C<Out> result = new C<Out>();
+    // Copy fields from this to result
+    ...
+    return result;
+}
+\end{dpjlisting}
+%
+This strategy adds some overhead, which is a price of DPJ's
+determinism guarantee in this case.
+%
+\item As a last resort, use a type cast (Reference Manual,
+  \S~4.1.3). For example, \kwd{b = (C<B>) a}.  This is usually not a
+  good option, because it breaks DPJ's determinism guarantee.
+%
+\end{enumerate}
+
+\subsection{Arrays}
+
+Arrays are important in parallel programming, so DPJ has several
+features to support them.
+
+\subsubsection{Arrays and Regions}
+
+In DPJ, array types can have region arguments.  This is similar to
+giving a region argument to a class type
+(\S~\ref{sec:overview:params}).  For example, the following array type
+describes an array of \kwd{int} cells all located in region \kwd{R}:
+%
+\begin{dpjlisting}
+int[]<R>
+\end{dpjlisting}
+%
+This technique is useful to distinguish effects on whole arrays from
+effect on other whole arrays or objects.  See Reference Manual,
+\S~4.2.1, for more information about regions in array types.
+
+Sometimes it's useful to put different array cells in different
+regions, in particular if you want to update different parts of the
+array in parallel.  To do this, you use a DPJ feature called an
+\emph{index-parameterized array}.  For example, the following array
+type declares an array of \kwd{int} such that cell \kwd{i} is in
+region \kwd{[i]}:
+%
+\begin{dpjlisting}
+int[]<[_]>
+\end{dpjlisting}
+%
+An RPL \kwd{[$e$]}, where $e$ is an integer expression, is called an
+\emph{array index RPL}; it refers to the array index given by the
+runtime value of $e$.  The variable \kwd{\_} is always in scope in an
+array type, and refers to the index of a cell.
+
+The two strategies can also be mixed.  For example, you can give array
+\kwd{A} type \kwd{int[]<rA:[\_]>} and array \kwd{B} type
+\kwd{int[]<rB:[\_]>}.  Then if you want to write in parallel to the
+two arrays, you can express the effects on \kwd{A} as \kwd{writes
+  rA:[?]}  and the effects on \kwd{B} as \kwd{writes rB:[?]}.  The
+\kwd{[?]} is an RPL element that stands in for any array index element
+(see Reference Manual, \S~3.4.2).  However, you can also express
+disjoint effects on different parts of \kwd{A} or \kwd{B}.  For
+example, writing to cells 0 and 1 of \kwd{A} generates effects
+\kwd{writes rA:[0]} and \kwd{writes rA:[1]}, which are disjoint.
+
+Index-parameterized arrays are also useful with arrays of class
+objects and arrays of arrays.  See Reference Manual, \S~4.2.2, for
+more information.  Later sections of this tutorial also provide
+concrete examples.
+
+\subsubsection{DPJ Runtime Array Classes}
+
+The DPJ runtime provides classes \kwd{DPJArray} and \kwd{DPJPartition}
+for manipulating arrays.  These classes are useful for divide and
+conquer traversals that update disjoint parts of the same array.
+Reference Manual, \S~7, gives an overview of how these classes work.
+They are fully documented in the HTML documentation included with the
+DPJ release.  Later sections of this tutorial also give concrete
+examples for how to use the classes.
+
+Please note that, as described in \S~7 of the Reference Manual, it is
+not sufficient to put the DPJ runtime classes in your class path when
+compiling DPJ code that uses the runtime classes.  Instead, you must
+compile the runtime together with your code that depends on the
+runtime.  This is because the DPJ bytecode does not yet properly
+support separate compilation of DPJ annotations, so the compiler needs
+all the source code to process the annotations.
+%
+

@@ -43,7 +43,7 @@ BODY{backgroundcolor:white}
 </HEAD>
 
 <BODY >
-<!--HEVEA command line is: hevea -fix -O DPJSpecification.tex -->
+<!--HEVEA command line is: hevea -fix -O DPJ-Spec-v1.0.tex -->
 <!--HTMLHEAD-->
 <!--ENDHTML-->
 <!--PREFIX <ARG ></ARG>-->
@@ -141,10 +141,11 @@ Version 1.0</B></H1>
 </UL>
 <LI CLASS="li-toc"><A HREF="#htoc53">6&nbsp;&nbsp;Parallel Control Flow</A>
 <UL CLASS="ftoc2"><LI CLASS="li-toc">
-<A HREF="#htoc54">6.1&nbsp;&nbsp;<TT>cobegin</TT></A>
-<LI CLASS="li-toc"><A HREF="#htoc55">6.2&nbsp;&nbsp;<TT>foreach</TT></A>
+<A HREF="#htoc54">6.1&nbsp;&nbsp;Cobegin</A>
+<LI CLASS="li-toc"><A HREF="#htoc55">6.2&nbsp;&nbsp;Foreach</A>
 </UL>
 </UL>
+
 
 <!--TOC section 1&nbsp;&nbsp;Introduction-->
 
@@ -1249,9 +1250,9 @@ by a statement block executes each statement of the block as a
 parallel task. <TT>foreach</TT> defines a loop that executes sets of
 iterations as parallel tasks.<BR>
 <BR>
-<!--TOC subsection 6.1&nbsp;&nbsp;<TT>cobegin</TT>-->
+<!--TOC subsection 6.1&nbsp;&nbsp;Cobegin-->
 
-<H3 CLASS="subsection"><A NAME="htoc54">6.1</A>&nbsp;&nbsp;<TT>cobegin</TT></H3><!--SEC END -->
+<H3 CLASS="subsection"><A NAME="htoc54">6.1</A>&nbsp;&nbsp;Cobegin</H3><!--SEC END -->
 
 The <TT>cobegin</TT> statement consists of the keyword <TT>cobegin</TT>,
 followed by a statement <I>S</I> to execute. If <I>S</I> is any statement but a
@@ -1271,9 +1272,9 @@ the effect sets for pairwise noninterference
 interference is discovered. Both parallel and sequential code
 generation of <TT>cobegin</TT> blocks are supported.<BR>
 <BR>
-<!--TOC subsection 6.2&nbsp;&nbsp;<TT>foreach</TT>-->
+<!--TOC subsection 6.2&nbsp;&nbsp;Foreach-->
 
-<H3 CLASS="subsection"><A NAME="htoc55">6.2</A>&nbsp;&nbsp;<TT>foreach</TT></H3><!--SEC END -->
+<H3 CLASS="subsection"><A NAME="htoc55">6.2</A>&nbsp;&nbsp;Foreach</H3><!--SEC END -->
 
 <A NAME="section:parallel:foreach"></A>
 The <TT>foreach</TT> statement has the syntax
@@ -1341,6 +1342,7 @@ Addison-Wesley Professional, 2005.<BR>
 Christos Papadimitriou.
 <EM>The Theory of Database Concurrency Control</EM>.
 Computer Science Press, Inc., New York, NY, USA, 1986.</DL>
+
 
 
 <!--HTMLFOOT-->

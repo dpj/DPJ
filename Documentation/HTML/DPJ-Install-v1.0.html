@@ -42,7 +42,7 @@ BODY{backgroundcolor:white}
 </HEAD>
 
 <BODY >
-<!--HEVEA command line is: hevea -fix -O DPJInstallationManual.tex -->
+<!--HEVEA command line is: hevea -fix -O DPJ-Install-v1.0.tex -->
 <!--HTMLHEAD-->
 <!--ENDHTML-->
 <!--PREFIX <ARG ></ARG>-->
@@ -56,6 +56,7 @@ Version 1.0</B></H1>
 <H3 CLASS="titlerest">University of Illinois at Urbana-Champaign</H3>
 <H3 CLASS="titlerest">Revised July 2010</H3></TD>
 </TR></TABLE><BR>
+
 This document explains how to install Deterministic Parallel Java
 (DPJ), so you can use it to compile and run programs. It also
 explains how to build DPJ from source code, in case you wish to study
@@ -68,7 +69,8 @@ UNIX-like system (including Linux, Mac OS X, etc.). Everything should
 work in Windows, but we have not tested DPJ on Windows systems. To
 follow the instructions as stated here, you will have to install
 Cygwin on your Windows system to get a UNIX-like interface and tool
-set.
+set.<BR>
+<BR>
 <!--TOC section Contents-->
 
 <H2 CLASS="section">Contents</H2><!--SEC END -->
@@ -89,14 +91,18 @@ set.
 <LI CLASS="li-toc"><A HREF="#htoc9">2&nbsp;&nbsp;User Install</A>
 <UL CLASS="ftoc2"><LI CLASS="li-toc">
 <A HREF="#htoc10">2.1&nbsp;&nbsp;Installation and setup</A>
-<LI CLASS="li-toc"><A HREF="#htoc11">2.2&nbsp;&nbsp;Invoking the DPJ Compiler</A>
-<LI CLASS="li-toc"><A HREF="#htoc12">2.3&nbsp;&nbsp;Running DPJ Programs</A>
+<LI CLASS="li-toc"><A HREF="#htoc11">2.2&nbsp;&nbsp;Compiling DPJ Programs</A>
+<UL CLASS="ftoc3"><LI CLASS="li-toc">
+<A HREF="#htoc12">2.2.1&nbsp;&nbsp;Translating DPJ Source to Java Source</A>
+<LI CLASS="li-toc"><A HREF="#htoc13">2.2.2&nbsp;&nbsp;Compiling Generated Java Source</A>
 </UL>
-<LI CLASS="li-toc"><A HREF="#htoc13">3&nbsp;&nbsp;Developer Install</A>
+<LI CLASS="li-toc"><A HREF="#htoc14">2.3&nbsp;&nbsp;Running DPJ Programs</A>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc15">3&nbsp;&nbsp;Developer Install</A>
 <UL CLASS="ftoc2"><LI CLASS="li-toc">
-<A HREF="#htoc14">3.1&nbsp;&nbsp;Installation and setup</A>
-<LI CLASS="li-toc"><A HREF="#htoc15">3.2&nbsp;&nbsp;Testing the Installation</A>
-<LI CLASS="li-toc"><A HREF="#htoc16">3.3&nbsp;&nbsp;Browsing and Modifying the Compiler Code</A>
+<A HREF="#htoc16">3.1&nbsp;&nbsp;Installation and setup</A>
+<LI CLASS="li-toc"><A HREF="#htoc17">3.2&nbsp;&nbsp;Testing the Installation</A>
+<LI CLASS="li-toc"><A HREF="#htoc18">3.3&nbsp;&nbsp;Browsing and Modifying the Compiler Code</A>
 </UL>
 </UL>
 <!--NAME contents.html-->
@@ -240,8 +246,8 @@ software for further license information.<BR>
 
 <H2 CLASS="section"><A NAME="htoc9">2</A>&nbsp;&nbsp;User Install<A NAME="sec:user-install"></A></H2><!--SEC END -->
 
-This section explains how do a binary installation of DPJ including
-the bytecode version of the DPJ compiler and runtime, and the source
+This section explains how do a binary installation of DPJ, including
+the bytecode version of the DPJ compiler and runtime and the source
 code for the DPJ benchmarks. If you install this way, then you can
 compile and run DPJ programs. However, you will not have access to
 the source code for the DPJ compiler. (The runtime source code is
@@ -281,25 +287,41 @@ make test-all
 
 You are now ready to compile and run DPJ programs.<BR>
 <BR>
-<!--TOC subsection 2.2&nbsp;&nbsp;Invoking the DPJ Compiler-->
+<!--TOC subsection 2.2&nbsp;&nbsp;Compiling DPJ Programs-->
 
-<H3 CLASS="subsection"><A NAME="htoc11">2.2</A>&nbsp;&nbsp;Invoking the DPJ Compiler</H3><!--SEC END -->
+<H3 CLASS="subsection"><A NAME="htoc11">2.2</A>&nbsp;&nbsp;Compiling DPJ Programs</H3><!--SEC END -->
 
 <A NAME="sec:invoking"></A>
-You invoke the DPJ compiler by saying
-<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>dpjc</TT>
-</DL>
-on the command line, followed by some DPJ files to compile, e.g.,
-<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>dpjc Foo.java Bar.java</TT>
-</DL>
+Compiling DPJ programs is a two-step process. First, you invoke the
+DPJ compiler <TT>dpjc</TT> to translate DPJ source to plain Java source.
+Then you use an ordinary Java compiler (such as <TT>javac</TT>) to
+translate the Java source to bytecode that can be run on a Java
+virtual machine.<BR>
+<BR>
+The following subsections explain these compilation steps in detail.
+Further, the directory <TT>${DPJ_ROOT}/Benchmarks</TT> contains a
+file <TT>Makefile.common</TT> that illustrates how to set up a build
+environment for managing these steps, including automatic management
+of the subdirectories used to hold the translated Java and class
+files. You can also include the <TT>Makefile.common</TT> in your own
+makefiles, getting the benefit of this setup with almost no effort.
+See <TT>${DPJ_ROOT}/Benchmarks/Kernels/Makefile</TT> for an example.<BR>
+<BR>
+<!--TOC subsubsection 2.2.1&nbsp;&nbsp;Translating DPJ Source to Java Source-->
 
-The compiler translates source files written in DPJ to source files
-written in plain Java, that can be compiled to bytecode by an ordinary
-Java compiler (such as <TT>javac</TT>) and then run by a Java Virtual
-Machine. By default, the compiler translates DPJ's parallel
-constructs to Java parallel code using the <TT>ForkJoinTask</TT> library
-to express the parallelism. A command-line option (see below) can be
-used to generate sequential code.<BR>
+<H4 CLASS="subsubsection"><A NAME="htoc12">2.2.1</A>&nbsp;&nbsp;Translating DPJ Source to Java Source</H4><!--SEC END -->
+
+You invoke the DPJ compiler by saying <TT>dpjc</TT> on the command line,
+followed by some DPJ files to compile. The DPJ compiler translates
+the DPJ source to Java source, so it's best to direct the output of
+the DPJ compiler to a different directory, to avoid name collisions.
+For example, the command sequence
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>mkdir java</TT>
+<DT CLASS="dt-description"><DD CLASS="dd-description"><TT>dpjc -d java Foo.java Bar.java</TT>
+</DL>
+translates the DPJ files <TT>Foo.java</TT> and <TT>Bar.java</TT> into the
+plain Java files <TT>Foo.java</TT> and <TT>Bar.java</TT> in the directory
+<TT>java</TT>.<BR>
 <BR>
 Since <TT>dpjc</TT> is based on <TT>javac</TT>, you can use all the
 command-line options that <TT>javac</TT> supports. In addition,
@@ -307,7 +329,9 @@ command-line options that <TT>javac</TT> supports. In addition,
 <UL CLASS="itemize"><LI CLASS="li-itemize">
 <TT>-seq</TT>: If this flag is present, then the compiler
  translates the DPJ sources into sequential Java code. By default,
- the compiler generates parallel code.
+ the compiler generates parallel code, using the <TT>ForkJoinTask</TT>
+ library to express the parallelism implied by DPJ's <TT>cobegin</TT>
+ and <TT>foreach</TT> constructs.
 <LI CLASS="li-itemize"><TT>-instrument</TT>: This option makes sense only with <TT>-seq</TT>.
  With this option turned on, the compiler adds instrumentation to the
  program, so that when run its performance characteristics can be
@@ -318,8 +342,8 @@ command-line options that <TT>javac</TT> supports. In addition,
 <LI CLASS="li-itemize"><TT>-count</TT>: When compiling the program, count the various
  kinds of DPJ annotations, and report the counts.
 </UL>
-One important limitation of the DPJ compiler, as of DPJ v1.0, is that
-it has very limited support for separate compilation. For example, in
+An important limitation of the DPJ compiler, as of DPJ v1.0, is that
+it has limited support for separate compilation. For example, in
 ordinary Java, if <TT>Foo.java</TT> defines a class <TT>Foo</TT>, and
 <TT>Bar.java</TT> defines a class <TT>Bar</TT> that uses <TT>Foo</TT>, you can
 compile <TT>Foo.java</TT> to <TT>Foo.class</TT> separately, and later
@@ -343,23 +367,45 @@ compile <TT>Foo.java</TT> and <TT>Bar.java</TT> together, so the compiler
 can see the parameter. The same limitation applies to the classes in
 the DPJ runtime; see &sect;&nbsp;7 of <EM>The Deterministic Parallel Java Language Reference Manual</EM> for more details.<BR>
 <BR>
+<!--TOC subsubsection 2.2.2&nbsp;&nbsp;Compiling Generated Java Source-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc13">2.2.2</A>&nbsp;&nbsp;Compiling Generated Java Source</H4><!--SEC END -->
+
+You can use any Java compiler to translate the generated Java source
+to bytecode. When you do this, you must put the DPJ runtime classes
+in the class path. For example, the command sequence
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>mkdir classes</TT>
+<DT CLASS="dt-description"><DD CLASS="dd-description"><TT>javac -cp ${DPJ_ROOT}/Implementation/Runtime/classes -d
+ classes java/*.java</TT>
+</DL>
+compiles the translated Java files in directory <TT>java</TT> to
+bytecode, and puts the resulting class files in <TT>classes</TT>. The
+DPJ tools include a command <TT>dpj-javac</TT>, which is a convenience
+wrapper for <TT>javac</TT> that includes the runtime classes in the class
+path for you automatically. For example
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>mkdir classes</TT>
+<DT CLASS="dt-description"><DD CLASS="dd-description"><TT>dpj-javac -d classes java/*.java</TT>
+</DL>
+is equivalent to the above. <BR>
+<BR>
 <!--TOC subsection 2.3&nbsp;&nbsp;Running DPJ Programs-->
 
-<H3 CLASS="subsection"><A NAME="htoc12">2.3</A>&nbsp;&nbsp;Running DPJ Programs</H3><!--SEC END -->
+<H3 CLASS="subsection"><A NAME="htoc14">2.3</A>&nbsp;&nbsp;Running DPJ Programs</H3><!--SEC END -->
 
 <A NAME="sec:running"></A>
-You run DPJ programs by saying
-<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>dpj</TT>
+You run DPJ programs by saying <TT>dpj</TT> on the command line, followed
+by one or more Java classes to execute. The classes, and any classes
+they depend on, must be in the class path. For example:
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>dpj -cp classes Foo</TT>
 </DL>
-on the command line, followed by a Java class to execute, e.g.,
-<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>dpj Foo</TT>
-</DL>
-The class, and any classes it depends on, must be in the class path.
 The options for setting the class path and the other runtime options
 are the same as for <TT>java</TT>. In fact, <TT>dpj</TT> just invokes the
-ordinary <TT>java</TT> with a few options, so you can use <TT>java</TT> to
-run DPJ programs if you want.<BR>
-<BR>
+ordinary <TT>java</TT> after adding the DPJ runtime classes to the class
+path, so you can use <TT>java</TT> to run DPJ programs if you want; you
+just have to add the runtime classes manually. For example:
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>java -cp
+ ${DPJ_ROOT}/Implementation/Runtime/classes:classes Foo</TT>
+</DL>
 The DPJ runtime has several configurable parameters. These are set in
 one of two ways. First, they can be passed as command-line arguments
 to the program. The special DPJ command-line arguments must come
@@ -368,7 +414,7 @@ argument list, which is passed to the main program. For example, the
 following invocation of the class <TT>Foo</TT> sets the DPJ foreach
 cutoff (explained below) to 100, then passes <TT>42</TT> and <TT>bar</TT> as
 the command-line arguments to the program:
-<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>dpj Foo &ndash;dpj-foreach-cutoff 100 42 bar</TT>
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>dpj -cp classes Foo &ndash;dpj-foreach-cutoff 100 42 bar</TT>
 </DL>
 The following command-line options are processed specially by the
 DPJ runtime as stated above. Each of them must be followed by a
@@ -395,11 +441,11 @@ information about how to do this.
 
 <!--TOC section 3&nbsp;&nbsp;Developer Install-->
 
-<H2 CLASS="section"><A NAME="htoc13">3</A>&nbsp;&nbsp;Developer Install<A NAME="sec:dev-install"></A></H2><!--SEC END -->
+<H2 CLASS="section"><A NAME="htoc15">3</A>&nbsp;&nbsp;Developer Install<A NAME="sec:dev-install"></A></H2><!--SEC END -->
 
 <!--TOC subsection 3.1&nbsp;&nbsp;Installation and setup-->
 
-<H3 CLASS="subsection"><A NAME="htoc14">3.1</A>&nbsp;&nbsp;Installation and setup</H3><!--SEC END -->
+<H3 CLASS="subsection"><A NAME="htoc16">3.1</A>&nbsp;&nbsp;Installation and setup</H3><!--SEC END -->
 
 To install the DPJ compiler and runtime from source, do the following.
 <OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
@@ -470,7 +516,7 @@ make test-all
 </PRE></OL>
 <!--TOC subsection 3.2&nbsp;&nbsp;Testing the Installation-->
 
-<H3 CLASS="subsection"><A NAME="htoc15">3.2</A>&nbsp;&nbsp;Testing the Installation<A NAME="sec:testing"></A></H3><!--SEC END -->
+<H3 CLASS="subsection"><A NAME="htoc17">3.2</A>&nbsp;&nbsp;Testing the Installation<A NAME="sec:testing"></A></H3><!--SEC END -->
 
 <OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 JUnit 4 tests are in
@@ -488,7 +534,7 @@ the launcher, this error should not happen.
 </OL>
 <!--TOC subsection 3.3&nbsp;&nbsp;Browsing and Modifying the Compiler Code-->
 
-<H3 CLASS="subsection"><A NAME="htoc16">3.3</A>&nbsp;&nbsp;Browsing and Modifying the Compiler Code</H3><!--SEC END -->
+<H3 CLASS="subsection"><A NAME="htoc18">3.3</A>&nbsp;&nbsp;Browsing and Modifying the Compiler Code</H3><!--SEC END -->
 
 After an initial <TT>ant</TT> build, DPJ javac will build automatically
 in Eclipse (albeit to a <TT>bin/</TT> directory instead of <TT>build/</TT>).

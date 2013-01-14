@@ -1,0 +1,152 @@
+\section{Developer Install%
+\label{sec:dev-install}}
+
+\subsection{Installation and setup}
+
+To install the DPJ compiler and runtime from source, do the following.
+%
+\begin{enumerate}
+%
+\item Check that your system meets the requirements in
+  \S~\ref{sec:requirements}.
+%
+\item Get the source code distribution.  We recommend using Eclipse to
+  check out the source code; that way you'll have access to all of
+  Eclipse's code browsing and editing features.  Go to
+  \kwd{http://www.eclipse.org} to get Eclipse.  Then you'll need to install
+  EGit (Git for Eclipse).  This tutorial tells you how to do it:
+%
+\begin{description}
+\item \kwd{http://www.vogella.de/articles/EGit/article.html}
+\end{description}
+%
+Then you can check out the DPJ source tree from inside Eclipse, again
+as explained in the tutorial.  Use this as the repository URL:
+%
+\begin{description}
+\item \kwd{git://github.com/dpj/DPJ.git}
+\end{description}
+%
+The following steps assume you are calling the root of the working
+directory \kwd{DPJ} and putting it in your home directory.  If not,
+make the appropriate adjustments.
+
+If you don't want to use Eclipse, you can check out the DPJ source
+tree from the command line:
+%
+\begin{verbatim}
+cd ~
+git clone git://github.com/dpj/DPJ.git DPJ
+\end{verbatim}
+%
+Again, make the appropriate adjustments if you are putting the root of
+the working directory somewhere else.
+%
+\item Set the \kwd{DPJ\_ROOT} environment variable.  For example, if
+  the root of your DPJ tree is \kwd{DPJ} in your home directory and
+  you are using the C shell, put this in your \kwd{.cshrc} file:
+%
+\begin{verbatim}
+setenv DPJ_ROOT ~/DPJ
+\end{verbatim}
+%
+Then do
+%
+\begin{verbatim}
+source ~/.cshrc
+\end{verbatim}
+%
+\item Tell \kwd{ant} to build the compiler, using your JDK: 
+%
+\begin{verbatim}
+cd ~/DPJ/Implementation/Compiler/make
+ant -Dboot.java.home=/usr/lib/jvm/java
+\end{verbatim}
+%
+If your JDK is not located at \kwd{/usr/bin/jvm/java}, then substitute
+the appropriate path.
+%
+\item A successful compiler build puts \kwd{jar} files for the
+  compiler and related tools (such as \kwd{javadoc}) in
+\begin{description}
+\item \kwd{Implementation/Compiler/build}.  
+\end{description}
+The executable files \kwd{dpjc} and \kwd{dpj} in
+\kwd{Implementation/bin} invoke these \kwd{jar} files.
+%
+\item Add the DPJ compiler bin to your \kwd{PATH}:
+\begin{verbatim}
+setenv PATH ${PATH}:${DPJ_ROOT}/Implementation/bin/
+\end{verbatim}
+\item Build the runtime classes located at
+  \kwd{{\$\{DPJ\_ROOT\}}/Implementation/Runtime}.  You can expect some
+  warnings.
+\begin{verbatim}
+cd ../../Runtime/
+make
+\end{verbatim}
+
+\item You can now build and run the kernels:
+\begin{verbatim}
+cd ${DPJ_ROOT}/Benchmarks/Kernels
+make
+\end{verbatim}
+
+\item Then run all the kernel tests: 
+\begin{verbatim}
+make test-all
+\end{verbatim}
+
+
+\end{enumerate}
+
+\subsection{Testing the Installation%
+\label{sec:testing}}
+\begin{enumerate}
+\item JUnit 4 tests are in
+  \kwd{\$\{DPJ\_ROOT\}/Implementation/Compiler/test/dpj-junit-tests}.  The
+  corresponding DPJ source files are in \kwd{test/dpj-programs}.
+\item The JUnit tests are designed to be run from within Eclipse, by
+  running the launcher file
+%
+\begin{description}
+\item \kwd{test/dpj-junit-tests/dpj-junit-tests.launch}.
+\end{description}
+%
+If the JUnit tests fail with a \kwd{MethodNotFound} error, it is
+probably because the classpath is wrong.  Many of the javac classes
+are included in the system library (\kwd{rt.jar}), and so the DPJ
+versions must precede the system library in the classpath.  If you use
+the launcher, this error should not happen.
+\end{enumerate}
+
+\subsection{Browsing and Modifying the Compiler Code}
+
+After an initial \kwd{ant} build, DPJ javac will build automatically
+in Eclipse (albeit to a \kwd{bin/} directory instead of \kwd{build/}).
+However, if any of the resource bundles are changed (be sure to change
+the \kwd{.properties} files in
+%
+\begin{description}
+\item \kwd{src/share/classes/com/sun/tools/javac/resources} 
+\end{description}
+and not the generated \kwd{.java} files!), the compiler must be
+re-built using the \kwd{ant} script.
+ 
+The \kwd{ant} script bootstraps the compiler.  So if there is an
+internal compiler error, it is due to a fault in the DPJ compiler.
+Note also that the compiler may compile successfully in Eclipse but
+fail when it is bootstrapped in the \kwd{ant} script due to differences
+between pure Java and DPJ (or an error in the DPJ compiler).  In
+particular, note that the following keywords are reserved in DPJ and
+therefore may not be used as variable names (in any DPJ program,
+including the DPJ compiler):
+\begin{itemize}
+     \item \kwd{under}
+     \item \kwd{region}
+     \item \kwd{reads}
+     \item \kwd{writes}
+\end{itemize}
+
+
+

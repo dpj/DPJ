@@ -43,7 +43,7 @@ BODY{backgroundcolor:white}
 </HEAD>
 
 <BODY >
-<!--HEVEA command line is: hevea -fix -O DPJTutorial.tex -->
+<!--HEVEA command line is: hevea -fix -O DPJ-Tutorial-v1.0.tex -->
 <!--HTMLHEAD-->
 <!--ENDHTML-->
 <!--PREFIX <ARG ></ARG>-->
@@ -101,6 +101,7 @@ Version 1.0</B></H1>
 <!--NAME contents.html-->
 <BR>
 <BR>
+
 <!--TOC section 1&nbsp;&nbsp;Introduction-->
 
 <H2 CLASS="section"><A NAME="htoc1">1</A>&nbsp;&nbsp;Introduction<A NAME="sec:introduction"></A></H2><!--SEC END -->
@@ -908,30 +909,34 @@ that simplification to the reader as an exercise.
 <FONT SIZE=2>  19</FONT>         LeafNode(Body b) <FONT COLOR="blue"><B>pure</B></FONT> { centerOfMass = b; }
 <FONT SIZE=2>  20</FONT>     }
 <FONT SIZE=2>  21</FONT>     <B>private static</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>int</B> computeSplitPoint(DPJArray&lt;Body,R&gt; arr,
-<FONT SIZE=2>  22</FONT>                                                    <B>double</B> midpoint) <FONT COLOR="blue"><B>reads</B></FONT> R {
-<FONT SIZE=2>  23</FONT>         <B>int</B> result = 0;
-<FONT SIZE=2>  24</FONT>         <FONT COLOR="fuchsia"><EM>// Set result to the first index position in arr whose</EM></FONT>
-<FONT SIZE=2>  25</FONT>         <FONT COLOR="fuchsia"><EM>// position is to the right of midpoint</EM></FONT>
-<FONT SIZE=2>  26</FONT>         <B>return</B> result;
-<FONT SIZE=2>  27</FONT>     }
-<FONT SIZE=2>  28</FONT>     <B>public static</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> RN,RA | RN:* # RA:*&gt;Node&lt;RN&gt;
-<FONT SIZE=2>  29</FONT>         makeTree(DPJArray&lt;Body,RA&gt; arr, <B>double</B> leftBound,
-<FONT SIZE=2>  30</FONT>                  <B>double</B> rightBound) <FONT COLOR="blue"><B>reads</B></FONT> RA:* <FONT COLOR="blue"><B>writes</B></FONT> RN:* {
-<FONT SIZE=2>  31</FONT>         <B>if</B> (arr.length == 0) <B>return null</B>;
-<FONT SIZE=2>  32</FONT>         <B>if</B> (arr.length == 1) <B>return new</B> LeafNode&lt;RN&gt;(arr.get(0));
-<FONT SIZE=2>  33</FONT>         <B>double</B> midpoint = (leftBound + rightBound) / 2;
-<FONT SIZE=2>  34</FONT>         <B>int</B> splitPoint = computeSplitPoint(arr, midpoint);
-<FONT SIZE=2>  35</FONT>         DPJPartition&lt;Body,RA&gt; segs = <B>new</B> DPJPartition&lt;Body,RA&gt;(arr, splitPoint);
-<FONT SIZE=2>  36</FONT>         InnerNode&lt;RN&gt; node = <B>new</B> InnerNode&lt;RN&gt;(leftBound, rightBound);
-<FONT SIZE=2>  37</FONT>         <FONT COLOR="blue"><B>cobegin</B></FONT> {
-<FONT SIZE=2>  38</FONT>             node.leftChild = RecursiveTreeBuild.&lt;<FONT COLOR="blue"><B>region</B></FONT> RN:InnerNode.LeftRgn,RA:*&gt;
-<FONT SIZE=2>  39</FONT>                 makeTree(segs.get(0), leftBound, midpoint);
-<FONT SIZE=2>  40</FONT>             node.rightChild = RecursiveTreeBuild.&lt;<FONT COLOR="blue"><B>region</B></FONT> RN:InnerNode.RightRgn,RA:*&gt;
-<FONT SIZE=2>  41</FONT>                 makeTree(segs.get(1), midpoint, rightBound);
-<FONT SIZE=2>  42</FONT>         }
-<FONT SIZE=2>  43</FONT>         <B>return</B> node;
-<FONT SIZE=2>  44</FONT>     }
-<FONT SIZE=2>  45</FONT> }</TT></DIV>
+<FONT SIZE=2>  22</FONT>                                                    <B>double</B> midpoint)
+<FONT SIZE=2>  23</FONT>         <FONT COLOR="blue"><B>reads</B></FONT> R
+<FONT SIZE=2>  24</FONT>     {
+<FONT SIZE=2>  25</FONT>         <B>int</B> result = 0;
+<FONT SIZE=2>  26</FONT>         <FONT COLOR="fuchsia"><EM>// Set result to the first index position in arr whose</EM></FONT>
+<FONT SIZE=2>  27</FONT>         <FONT COLOR="fuchsia"><EM>// position is to the right of midpoint</EM></FONT>
+<FONT SIZE=2>  28</FONT>         <B>return</B> result;
+<FONT SIZE=2>  29</FONT>     }
+<FONT SIZE=2>  30</FONT>     <B>public static</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> RN,RA | RN:* # RA:*&gt;Node&lt;RN&gt;
+<FONT SIZE=2>  31</FONT>         makeTree(DPJArray&lt;Body,RA:*&gt; arr, <B>double</B> leftBound,
+<FONT SIZE=2>  32</FONT>                  <B>double</B> rightBound)
+<FONT SIZE=2>  33</FONT>         <FONT COLOR="blue"><B>reads</B></FONT> RA:* <FONT COLOR="blue"><B>writes</B></FONT> RN:*
+<FONT SIZE=2>  34</FONT>     {
+<FONT SIZE=2>  35</FONT>         <B>if</B> (arr.length == 0) <B>return null</B>;
+<FONT SIZE=2>  36</FONT>         <B>if</B> (arr.length == 1) <B>return new</B> LeafNode&lt;RN&gt;(arr.get(0));
+<FONT SIZE=2>  37</FONT>         <B>double</B> midpoint = (leftBound + rightBound) / 2;
+<FONT SIZE=2>  38</FONT>         <B>int</B> splitPoint = computeSplitPoint(arr, midpoint);
+<FONT SIZE=2>  39</FONT>         DPJPartition&lt;Body,RA:*&gt; segs = <B>new</B> DPJPartition&lt;Body,RA:*&gt;(arr, splitPoint);
+<FONT SIZE=2>  40</FONT>         InnerNode&lt;RN&gt; node = <B>new</B> InnerNode&lt;RN&gt;(leftBound, rightBound);
+<FONT SIZE=2>  41</FONT>         <FONT COLOR="blue"><B>cobegin</B></FONT> {
+<FONT SIZE=2>  42</FONT>             node.leftChild = RecursiveTreeBuild.&lt;<FONT COLOR="blue"><B>region</B></FONT> RN:InnerNode.LeftRgn,RA&gt;
+<FONT SIZE=2>  43</FONT>                 makeTree(segs.get(0), leftBound, midpoint);
+<FONT SIZE=2>  44</FONT>             node.rightChild = RecursiveTreeBuild.&lt;<FONT COLOR="blue"><B>region</B></FONT> RN:InnerNode.RightRgn,RA&gt;
+<FONT SIZE=2>  45</FONT>                 makeTree(segs.get(1), midpoint, rightBound);
+<FONT SIZE=2>  46</FONT>         }
+<FONT SIZE=2>  47</FONT>         <B>return</B> node;
+<FONT SIZE=2>  48</FONT>     }
+<FONT SIZE=2>  49</FONT> }</TT></DIV>
 <BR>
 <BR>
 <DIV CLASS="center">Figure 5: Recursive Tree Build.</DIV><BR>
@@ -1443,10 +1448,6 @@ implement reductions:
 </UL>
 
 
-
-<!--NAME references.html-->
-<BR>
-<BR>
 <!--HTMLFOOT-->
 <!--ENDHTML-->
 <!--FOOTER-->

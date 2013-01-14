@@ -1,0 +1,74 @@
+\usepackage{fullpage}
+\usepackage{enumerate}
+\usepackage{fouriernc}
+\usepackage{color}
+\usepackage{cite}
+\usepackage{listings}
+\usepackage{verbatim}
+\usepackage{hevea}
+\usepackage[pdfborder={0 0 0}]{hyperref}
+
+\newcommand{\mb}[1]{\ensuremath{\mbox{#1}}}
+\newcommand{\bnf}{\ensuremath{::=}}
+\newcommand{\kwd}[1]{\mb{\small{\texttt{#1}}}}
+\newcommand{\bfhead}[1]{\noindent\textbf{#1}}
+\newcommand{\ithead}[1]{\noindent\textit{#1}}
+\newcommand{\nonterm}[1]{\mb{\textit{#1}}}
+
+\newcommand{\todo}[0]{\textbf{\textit{TODO}}}
+
+\newcommand{\spec}{\emph{The Deterministic Parallel Java Language Specification}}
+\newcommand{\tutorial}{\emph{The Deterministic Parallel Java Tutorial}}
+\newcommand{\installmanual}{\emph{The Deterministic Parallel Java Installation Manual}}
+\newcommand{\refmanual}{\emph{The Deterministic Parallel Java Language Reference Manual}}
+
+\newcommand{\descr}[1]{\begin{description}\item #1\end{description}}
+
+\lstdefinestyle{display}{
+  emph={region, reads, writes, spawn, cobegin, under, foreach,
+  finish}, emphstyle=\textbf, morecomment=[l]{//},
+  basicstyle=\scriptsize, numbers=left }
+\lstset{style=display}
+
+
+\tocnumber
+\setcounter{cuttingdepth}{0}
+
+
+% Don't insert colored bars in table of contents
+\newcommand{\newftocstyle}[3][0ex]{\newstyle{.ftoc#2}
+  {list-style:none;margin:#1 1ex;padding:0ex 1ex;border-left:1ex solid transparent;}}  
+  
+% Orange section headings
+%HEVEA\input{fancysection.hva}
+%HEVEA\colorsections{26}
+
+% Light green background for verbatim environments
+%\newstyle{.verbatim}{margin:1ex 1ex;padding:1ex;background:\#ccffcc;}
+\newstyle{.verbatim}{margin:1ex 1ex;padding:1ex;}
+
+% Formatting for DPJ source code listings (with and without line numbers)
+\lstdefinelanguage[DPJ]{Java} []{Java}
+  {morendkeywords={in}, morendkeywords={region}, morendkeywords={type}, 
+    morendkeywords={effect}, morendkeywords={reads}, morendkeywords={writes},
+    morendkeywords={pure}, morendkeywords={commutative}, 
+    morendkeywords={cobegin}, morendkeywords={foreach}}
+\lstdefinestyle{listingstyle}{basicstyle=\normalsize\ttfamily,
+  keywordstyle={\bf\ttfamily}, ndkeywordstyle={\bf\ttfamily\color{blue}},
+  commentstyle={\em\color{magenta}}}
+\lstnewenvironment{dpjlisting}
+  {\setenvclass{lstlisting}{dpjlisting}
+    \lstset{language=[DPJ]Java, style=listingstyle, numbers=none, 
+      basicstyle=\small\ttfamily, showstringspaces=false, tabsize=4}}
+  {}
+\lstnewenvironment{numbereddpjlisting}
+  {\setenvclass{lstlisting}{numbereddpjlisting}
+    \lstset{language=[DPJ]Java, style=listingstyle, numbers=left, 
+      basicstyle=\small\ttfamily, numberstyle=\scriptsize, showstringspaces=false, tabsize=4}}
+  {}
+\newstyle{.dpjlisting}{font-family:monospace;white-space:pre;
+margin:1ex 1ex;padding:1ex;}
+\newstyle{.numbereddpjlisting}{font-family:monospace;white-space:pre;
+margin:1ex 1ex;padding:1ex 1ex 1ex 0ex;}
+
+

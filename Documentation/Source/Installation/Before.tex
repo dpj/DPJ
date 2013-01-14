@@ -1,0 +1,138 @@
+\section{Before You Begin%
+\label{sec:build}}
+\cutname{Building.html}
+
+Thank you for you interest in DPJ.  This section covers the
+information you need to know before installing DPJ on your system.
+
+\subsection{Requirements%
+\label{sec:requirements}}
+\cutname{requirements.html}
+
+DPJ is based on the Java language and \kwd{javac} compiler from Sun
+Microsystems. This manual assumes that the reader is familiar with
+Java, including compiling and running Java programs.  You will need at
+least a Java Development Environment (JDK) to build and run DPJ codes.  If you wish
+to work on the compiler sources you will need a Java Development Kit
+(JDK) to build the compiler from source.  We recommend the latest Sun
+JDK from \kwd{java.sun.com}.
+
+\subsection{Developer or User?}
+
+Instructions and requirements are slightly different depending on
+whether you want to use DPJ \emph{(user install)} or develop DPJ
+\emph{(developer install)}.  A user install of DPJ includes the
+bytecode versions of the compiler and runtime, documentation, and the
+DPJ source code for the benchmarks.  A developer install of DPJ
+includes everything from the user install, and adds the compiler and
+runtime sources and build environment.
+
+Performing a user install is easier, but there are two reasons to do a
+developer install:
+%
+\begin{enumerate}
+%
+\item You are interested in reading or modifying the source code for
+  the DPJ compiler and/or runtime; or
+%
+\item You want access to the latest updates to the DPJ compiler,
+  without waiting for the next bytecode release.
+\end{enumerate}
+
+
+\subsubsection{Requirements for User Install%
+\label{sec:runDPJ}}
+%
+For a user install of DPJ, do the following:
+\begin{enumerate}
+\item Make sure you have a Java Devlopment Kit (JDK) installed.  As of
+  this writing we have tested with JDK 1.6.0\_20.
+\item Follow the instructions in \S~\ref{sec:user-install} to do
+  the installation and start using DPJ.
+\end{enumerate}
+
+\subsubsection{Requirements for Developer Install%
+\label{sec:buildDPJ}}
+For a developer install of DPJ, do the following:
+\begin{enumerate}
+\item Make sure you have a JDK (at least Java 6) installed.
+\item Make sure that you have a working installation of Apache
+  \kwd{ant}, the Java build tool.
+\item Make sure you have a working installation of \kwd{git}, the
+  version control system.
+%
+\begin{description}
+\item  \kwd{http://git.com}.
+\end{description}
+\item Make sure you have a working \kwd{make}.
+\item The Eclipse IDE is invaluable for studying and modifying large
+  Java programs, so we recommend installing it.  See
+%
+\begin{description}
+\item \kwd{http://www.eclipse.org}
+\end{description}
+\item Follow the instructions in \S~\ref{sec:dev-install} to do the
+  installation.  Then read \S\S~\ref{sec:invoking}
+  and~\ref{sec:running} to learn how to use DPJ.
+\end{enumerate}
+
+\subsection{What's in the Release}
+The release directory structure contains the following directories:
+\begin{itemize}
+\item \kwd{Documentation }: Manuals and instructions for using and/or
+  building DPJ.
+\item \kwd{Implementation}: The DPJ compiler and runtime.
+\item \kwd{Benchmarks}: Example code kernels and applications written
+  for DPJ.
+\end{itemize}
+
+ \subsection{DPJ Resources% 
+\label{sec:getDPJ}}
+You should keep the following resources in mind as you work with DPJ:
+\begin{enumerate}
+\item The DPJ home page: \kwd{dpj.cs.illinois.edu}.
+\item The DPJ public code repository:
+  \kwd{http://github.com/dpj/DPJ.git}.
+\item The DPJ development mailing list: \kwd{dpjdev@cs.uiuc.edu}.
+  Joining the list allows you to follow major announcements, news, and
+  technical discussions regarding DPJ.  To subscribe to the list,
+  please visit
+%
+\begin{description}
+\item \kwd{http://lists.cs.uiuc.edu/mailman/listinfo/dpjdev}.
+\end{description}
+
+\item DPJ documentation is located in the \kwd{Documentation}
+  directory of the DPJ release and is also available on the DPJ web
+  site at \kwd{http://dpj.cs.illinois.edu/DPJ/Download.html}.
+\end{enumerate}
+
+The DPJ development team appreciates your feedback and questions.
+Please check the email list archives before submitting a question or
+bug report.  We prefer using the list for submissions so that the
+entire DPJ community can benefit from the growing knowledge base of
+questions and answers.
+
+
+\subsection{DPJ License}
+
+The DPJ software is subject to the following licenses:
+%
+\begin{itemize}
+%
+\item The DPJ compiler is based on Sun's \kwd{javac} compiler and is
+  covered by the GNU General Public License version 2.
+%
+\item The programs in the \kwd{Benchmarks/Applications} directory are
+  based on codes written by various third parties, and are subject to
+  their licenses.
+%
+\item The rest of the code is by the University of Illinois and is
+  released under the University of Illinois/NCSA Open Source License.
+%
+\end{itemize}
+%
+See the file \kwd{LICENSE.TXT} in the top-level directory of the DPJ
+software for further license information.
+
+

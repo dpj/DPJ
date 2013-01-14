@@ -1,0 +1,199 @@
+\section{Computations on Trees%
+\label{sec:tree}}
+\cutname{tree.html}
+
+This section explains how to write two common parallel patterns for
+tree processing in DPJ:
+%
+\begin{itemize}
+%
+\item \S~\ref{sec:tree:build} shows how to build a tree data structure
+  in parallel, using a divide-and-conquer strategy.
+%
+\item \S~\ref{sec:tree:update} shows how to recurse over a tree in
+  parallel and update its nodes.
+%
+\end{itemize}
+%
+
+\subsection{Recursive Tree Build%
+\label{sec:tree:build}}
+
+This section shows how to use DPJ to implement a divide-and-conquer
+build of a tree data structure.  We show how to build the tree so it
+can be used for a parallel algorithm that traverses and updates its
+nodes.  This requires that every node have a different region in its
+type, and the regions have a tree structure.  If read-only access to
+the tree is desired, then the DPJ types can be simplified.  We leave
+that simplification to the reader as an exercise.
+
+\begin{figure}
+\input{Listings/RecursiveTreeBuild}
+\caption{Recursive Tree Build.}
+\label{fig:tree:build}
+\end{figure}
+
+\bfhead{How to write the pattern:} Figure~\ref{fig:tree:build}
+illustrates the Recursive Tree Build pattern, for an algorithm that
+builds a binary region tree for partitioning bodies in one-dimensional
+space.  In this kind of tree, the data (the bodies) are in the leaf
+nodes; the inner nodes are there just to facilitate searching the
+data.  For example, computing whether a ray intersects a body can be
+done in $\mbox{log}(n)$ time, where $n$ is the number of points.
+
+Lines 6--20 of Figure~\ref{fig:tree:build} define the classes that the
+algorithm uses:
+%
+\begin{itemize}
+%
+\item Class \kwd{Body} (lines 6--9) defines a body with a mass and a
+  position.  The fields are declared \kwd{final}, so reading them has
+  no effect.
+%
+\item Class \kwd{Node} (line 10) defines an abstract node of the tree.
+  It contains a \kwd{Body} representing its center of mass.  For a
+  leaf node, this is an actual physical body; and for an inner node,
+  this is the average of all the bodies in the leaves under the node.
+  There is one region parameter \kwd{R}, so that different instances
+  of \kwd{Node} can have different regions, and the \kwd{centerOfMass}
+  field is in region \kwd{R}.
+%
+\item Class \kwd{InnerNode} (lines 11--17) defines an inner node of
+  the tree.  It inherits the \kwd{centerOfMass} field from \kwd{Node}.
+  Additionally, it has a left bound and a right bound, defining a
+  region of 1-D space; and it has a left child and a right child,
+  defining the tree.  Here we have used the RPLs \kwd{R:LeftRgn} and
+  \kwd{R:RightRgn} to give the region of the tree node a region
+  structure that mirrors the tree structure.  For example, at runtime,
+  the left child of the right child of the root node would have the
+  type \kwd{Node<Root:RightRgn:LeftRgn>}.
+%
+\item Class \kwd{LeafNode} (lines 18--20) just adds a constructor to
+  \kwd{Node}, so that a leaf node representing a physical body may be
+  created.
+\end{itemize}
+
+The rest of the code defines the methods that do the tree building:
+%
+\begin{itemize}
+%
+\item Method \kwd{partition} (lines 21--27) is a helper method that
+  takes an array of bodies and a point in space.  It computes and
+  returns the index into the array such that the elements to the left
+  of the index are all and only the elements to the left of the point
+  in space.  The array is assumed to be sorted by position.  We don't
+  show this code.  It can easily be implemented in parallel using a
+  divide-and-conquer strategy.
+%
+\item Method \kwd{makeTree} (lines 28 and following) does the actual
+  tree building and is discussed below.
+%
+\end{itemize}
+
+Method \kwd{makeTree} uses divide-and-conquer recursion to build the
+tree.  It takes an array of bodies to build into a tree (assumed to be
+pre-sorted by position), and a left and right bound representing the
+region of space that the tree is partitioning.  It returns a node
+representing the root of the tree.  The method has two region
+parameters, \kwd{RN} and \kwd{RA}.  \kwd{RN} is the region associated
+with the type of the node returned, while \kwd{RA} is the region
+associated with the array of bodies coming in.  The parameters are
+constrained so that writes under \kwd{RN} and under \kwd{RA} are
+noninterfering.  (For example two different names \kwd{A} and \kwd{B}
+would satisfy this constraint, but \kwd{A} and \kwd{A:B} would not).
+
+The body of \kwd{makeTree} does the following:
+%
+\begin{itemize}
+%
+\item If the input array is empty, return \kwd{null} (line 31).
+%
+\item If the input array has just one element, then create a fresh
+  leaf node for it (line 32).
+%
+\item Otherwise, handle the recursive case.
+%
+\end{itemize}
+
+The recursive case works as follows:
+%
+\begin{itemize}
+%
+\item Compute the index into the array corresponding to the midpoint
+  of the current region of space, and split the array there (lines
+  33--35).
+%
+\item Make a new \kwd{InnerNode} corresponding to the current region
+  of space (line 36).
+%
+\item In parallel, populate the left and right children of the new
+  inner node, by calling \kwd{makeTree} recursively (lines 37--42).
+%
+\item Return the created node (line 43).
+%
+\end{itemize}
+
+The interesting types and effects are inside the \kwd{cobegin}.
+Notice that line 38 calls \kwd{makeTree} is called with
+$\kwd{RN}=\kwd{RN:InnerNode}$, which creates the right type for
+assigning into \kwd{node.leftChild}.  Notice also that the effects of
+the two branches of the \kwd{cobegin} are \kwd{reads RA:* writes
+  RN:InnerNode.LeftRgn:*} and \kwd{reads RA:* writes
+  RN:InnerNode.RightRgn:*}, and these two effects are disjoint.
+
+\bfhead{Further examples:} The file \kwd{Quadtree.java} in directory
+\kwd{Benchmarks/Kernels/dpj} of the DPJ uses this pattern to build a
+quadtree (i.e., a tree in which each node has up to four children)
+for partitioning two-dimensional space.  The main difference is that
+index-parameterized arrays (Reference Manual, \S~4.2.2) are used
+instead of the regions \kwd{LeftRgn} and \kwd{RightRgn} to distinguish
+the different branches of the tree.  The partition step is implemented
+sequentially, but it could easily be parallelized.
+
+The Barnes-Hut benchmark in the DPJ release
+(\kwd{Benchmarks/Applications/Barnes-Hut/dpj}) builds an octtree for
+partitioning three-dimensional space.  The tree build phase is not
+parallelized in that benchmark, but it could be using this pattern.
+
+\subsection{Recursive Tree Update%
+\label{sec:tree:update}}
+
+This section shows how to traverse the tree created in
+\S~\ref{sec:tree:build} in parallel and update its nodes.  The tree
+structure of the regions in the types of the nodes allow this
+traversal and update to be done with provable noninterference.
+
+\begin{figure}
+\input{Listings/RecursiveTreeUpdate}
+\caption{Recursive Tree Update.}
+\label{fig:tree:update}
+\end{figure}
+
+\bfhead{How to write the pattern:} Figure~\ref{fig:tree:update}
+illustrates the Recursive Tree Update pattern, for an algorithm that
+traverses the tree constructed in Figure~\ref{fig:tree:build} and
+updates the center of mass of each node.  The work is done by a single
+method, \kwd{updateCenterOfMass}, which accepts a tree node, updates
+the center of mass fields of that node and all its descendants, and
+returns the center of mass of that node.
+
+The method body works as follows.  If the input node is a leaf node,
+then the method just returns its body as the center of mass (lines
+9--10).  Otherwise, the method recursively and in parallel calls
+\kwd{updateCenterOfMass} on the left and right nodes (lines 13--18),
+and constructs a new \kwd{Body} representing the center of mass (lines
+19--26).  It then stores the \kwd{Body} representing the center of
+mass into the input node and returns the \kwd{Body}.
+
+In lines 14--17, the effects of the two \kwd{cobegin} statements are
+as shown.  Because of the tree structure of the regions of the tree
+nodes, the effects on the left and write subtrees are disjoint.
+
+
+\bfhead{Further examples:} The Barnes-Hut benchmark in the DPJ release
+(\kwd{Benchmarks/Applications/Barnes-Hut/dpj}) does a similar
+center-of-mass computation on an octtree.  The center-of-mass phase is
+not parallelized in that benchmark, but it could be using this
+pattern.
+
+

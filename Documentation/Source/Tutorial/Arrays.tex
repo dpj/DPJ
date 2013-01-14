@@ -1,0 +1,263 @@
+\section{Computations on Arrays%
+\label{sec:array}}
+\cutname{array.html}
+
+This section explains how to write common parallel patterns for array
+processing, using DPJ's features for supporting arrays:
+%
+\begin{itemize}
+\item \S~\ref{sec:array:disjoint}, Disjoint Array Update, shows how to
+  create an array whose cells all point to different objects, then
+  traverse the array in parallel and update the objects.
+%
+\item \S~\ref{sec:array:blocked}, Blocked Array Update, shows how to
+  divide an array into segments and process the segments in parallel
+  using a loop. 
+%
+\item \S~\ref{sec:array:dandc}, Divide-and-Conquer Array Update, shows
+  how to partition and recurse on arrays in parallel.
+\end{itemize}
+
+\subsection{Disjoint Array Update%
+\label{sec:array:disjoint}}
+
+Here we explain how to use DPJ to create an array of objects, put a
+different object into every element of the array, and then iterate
+over the array in parallel and update the objects.  We call this
+pattern Disjoint Array Update.  Because objects are stored as
+references in Java, in general, multiple array cells could point to
+the same object, causing a race.  We'll show how to use the DPJ type
+and effect system to ensure that no such race can occur.
+
+%\subsubsection{Writing the Pattern%
+%\label{sec:array:disjoint:pattern}}
+
+\bfhead{How to write the pattern:} Figure ~\ref{fig:array:disjoint}
+illustrates the Disjoint Array Update pattern in DPJ, for a simple
+computation (creating an array of objects, then incrementing a field
+of each one).
+
+\begin{figure}
+\input{Listings/DisjointArrayUpdate}
+\caption{Disjoint Array Update.}
+\label{fig:array:disjoint}
+\end{figure}
+
+
+Class \kwd{Data} (lines 2--4) has an integer field \kwd{x} and one
+region parameter \kwd{R} (Reference Manual, \S~2.4.1).  The field
+\kwd{x} is in region \kwd{R}; that means that when \kwd{Data} is used
+as a type, the field of the object instance will be in whatever region
+is supplied as an argument to the type.  See Reference Manual,
+\S~4.1.1.
+
+The rest of the code consists of an array \kwd{arr} of \kwd{Data}
+objects and three methods that operate on the array:
+%
+\begin{enumerate}
+%
+\item \kwd{initialize} assigns a new array to \kwd{arr} and uses a
+  \kwd{foreach} loop (Reference Manual, \S~6.2) to assign a fresh
+  \kwd{Data} object to every element of \kwd{arr} in parallel.
+%
+\item \kwd{compute} increments the \kwd{x} field of each \kwd{Data}
+  object in \kwd{arr} in parallel.
+%
+\item \kwd{main} creates a new \kwd{DisjointArrayUpdate} object, calls
+  \kwd{initialize} on it, then calls \kwd{compute} on it, prints out
+  the array, and exits.
+%
+\end{enumerate}
+%
+The array \kwd{arr} has an index-parameterized type (Reference Manual,
+\S~4.2.2) stating that cell \kwd{i} of the array is in region
+\kwd{[i]} and has type \kwd{Data<[i]>}.  The compiler can prove
+that the parallelism is safe because:
+%
+\begin{itemize}
+%
+\item In line 10, the update to \kwd{arr[i].x} has effect \kwd{writes
+  [i]}.  The value of \kwd{i} is different in each loop iteration, so
+  the updates are all to disjoint regions, i.e., there are no
+  conflicting writes.
+%
+\item In line 14, each iteration of the loop reads cell \kwd{arr[i]}
+  (in region \kwd{[i]}) and writes field \kwd{arr[i].x}.  Again, the
+  operations are to disjoint regions in different iterations, so there
+  is no interference.
+%
+\end{itemize}
+
+\bfhead{Further examples:} This pattern appears in the parallel
+Barnes-Hut force computation in method \kwd{computegrav} of file
+\kwd{Tree.java} in directory
+\kwd{Benchmarks/Applications/BarnesHut/dpj} of the DPJ release.  The
+force computation iterates in parallel over a disjoint array of
+\kwd{Body} objects and writes into the \kwd{force} field of each one.
+
+
+\begin{comment}
+\subsubsection{Algorithm Example:  Barnes-Hut Force Computation%
+\label{sec:array:disjoint:bh}}
+
+TODO
+
+\begin{figure}
+\begin{numbereddpjlisting}
+TODO
+\end{numbereddpjlisting}
+\caption{Disjoint Array Update in the Barnes-Hut force computation.}
+\label{fig:array:bh}
+\end{figure}
+\end{comment}
+
+\subsection{Blocked Array Update%
+\label{sec:array:blocked}}
+
+When you write a \kwd{foreach} loop in DPJ, the runtime repeatedly
+divides the iteration space in half, until a programmer-specified
+depth is reached.  See Reference Manual, \S~6.2.2.  In conjunction
+with an index-parameterized array that has each cell in its own region
+(Reference Manual, \S~4.2.2), this is usually the easiest and best way
+to write a loop that traverses an array in parallel and updates its
+elements.  However, sometimes you may want to control the partition
+directly, by dividing the array into blocks (or tiles) and having each
+task operate on a block.  We call this pattern Blocked Array Update.
+
+%\subsubsection{Writing the Pattern%
+%\label{sec:array:blocked:writing}}
+
+\bfhead{How to write the pattern:} Figure ~\ref{fig:array:blocked}
+illustrates the Blocked Array Update pattern in DPJ, for a simple
+computation (initializing an array of integers so that cell \kwd{i}
+contains the value \kwd{i}).
+
+\begin{figure}
+\input{Listings/BlockedArrayUpdate}
+\caption{Blocked Array Update.}
+\label{fig:array:blocked}
+\end{figure}
+
+The code uses the \kwd{DPJArrayInt} and \kwd{DPJPartitionInt} classes
+discussed in ReferenceManual, \S~7, and the DPJ runtime documentation.
+(\kwd{DPJArrayInt} and \kwd{DPJPartitionInt} are specializations of
+the \kwd{DPJArray} and \kwd{DPJPartition} classes to the primitive
+type \kwd{int}.)  Line 5 creates a fresh \kwd{DPJArrayInt} called
+\kwd{array} with 100 elements.  A \kwd{DPJArrayInt} wraps an ordinary
+Java array (of type \kwd{int[]}) and behaves much like a
+\kwd{java.util.ArrayList}: for example, it has \kwd{put} and \kwd{get}
+methods for accessing the array elements.  Lines 6--7 create a
+\emph{strided partition} of \kwd{array} called \kwd{segs}.  The
+partition has stride 10, which means that the array is divided into 10
+segments of length 10 each.  The variable \kwd{segs} is declared
+\kwd{final} so that it can be used as a region (Reference Manual,
+\S~3.1.5).
+
+Lines 8--13 represent the parallel computation.  The outer parallel
+\kwd{foreach} loop iterates over the segments in \kwd{segs}.  Line 4
+pulls segment \kwd{i} out of the partition.  Segment \kwd{i} is itself
+a \kwd{DPJArray}, representing the segment consisting of indices
+$10*i$ through $10*i+9$ of the original array.  Its type is
+\kwd{DPJArray<segs:[i]:*>}.  As explained in Reference Manual, \S~7.2,
+the \kwd{[i]} in the type allows different segments of the same array
+to be treated as disjoint, and the variable \kwd{segs} in the type
+ensures that different partitions of the same array are not treated as
+disjoint.  For now, all you really need to know to write the pattern
+is that you have to declare the partition variable \kwd{segs}
+\kwd{final}, as shown in line 6, and you have to write the type of a
+segment as shown in line 9.
+
+The inner sequential loop iterates over the elements of a segment and
+writes values into its elements.  Notice that in iteration \kwd{i} of
+the outer loop, the inner loop is zero-indexed, even though it is
+accessing elements $10*i, 10*i+1, \ldots$ of the underlying array.
+That's because when you create a \kwd{DPJPartition} out of a
+\kwd{DPJArray}, each segment provides a zero-indexed \emph{view} of
+some segment of the original \kwd{DPJArray}.  The \kwd{DPJArray} class
+takes care of the index translation for you, which is handy.
+
+\bfhead{Further examples:} This pattern appears in the International
+Data Encryption Algorithm (IDEA), in method \kwd{Do} of file
+\kwd{IDEATest.java} in directory
+\kwd{Benchmarks/Applications/IDEA/dpj} of the DPJ release.  The
+pattern is useful for IDEA, because the IDEA algorithm operates on
+fixed-size blocks of the input data.
+
+This pattern is also useful for implementing reductions.  See
+\S~\ref{sec:reductions} of this tutorial for more details.
+
+\begin{comment}
+\subsubsection{Algorithm Example:  International Data Encryption Algorithm (IDEA)%
+\label{sec:array:blocked:idea}}
+
+Now we show how the Blocked Array Update pattern can be used to
+parallelize the International Data Encryption Algorithm (IDEA).  IDEA
+is a block cipher code that was designed as a replacement for the Data
+Encryption Standard (DES).  It operates on 64 bit blocks using a 128
+bit key using a series of eight transformations.  We use Blocked Array
+Update because the algorithm requires that the blocking structure be
+explicit in the code, and not hidden in the runtime.
+
+TODO: EXPLAIN FIGURE
+
+\begin{figure}
+\begin{numbereddpjlisting}
+// slice has the number of blocks.
+  DPJPartitionByte<R1> inSegs  = DPJPartitionByte.stridedPartition(plain1, slice);
+  DPJPartitionByte<R2> outSegs = DPJPartitionByte.stridedPartition(crypt1, slice);
+  foreach (int i in 0, inSegs.length)
+  {
+    DPJArrayByte<inSegs:[i]:*>inSeg = inSegs.get(i);
+    DPJArrayByte<outSegs:[i]:*>outSeg = outSegs.get(i);
+    run1(0, inSeg.length, inSeg, outSeg, Z); // do the encryption
+  }
+
+\end{numbereddpjlisting}
+\caption{Blocked Array Update in IDEA.}
+\label{fig:array:idea}
+\end{figure}
+\end{comment}
+
+\subsection{Divide-and-Conquer Array Update%
+\label{sec:array:dandc}}
+
+A common pattern in parallel array algorithms is to divide an array in
+pieces, and work independently on the pieces, then recursively divide
+again, etc., until a base case is reached.  This pattern is often
+called \emph{divide and conquer}, because it divides the problem into
+smaller subproblems, then ``conquers'' the subproblems by recursively
+dividing them.
+
+%\subsubsection{Writing the Pattern%
+%\label{sec:array:dandc:writing}}
+
+\bfhead{How to write the pattern:} Figure~\ref{fig:array:dandc}
+illustrates the Divide-And-Conquer Array Update pattern in DPJ, for a
+simple computation (initializing an array of integers so that every
+cell contains the same value).  
+
+\begin{figure}
+\input{Listings/DivideAndConquerArrayUpdate}
+\caption{Divide-And-Conquer Array Update.}
+\label{fig:array:dandc}
+\end{figure}
+
+The code uses the \kwd{DPJArrayInt} and \kwd{DPJPartitionInt} classes
+also used for Blocked Array Update (\S~\ref{sec:array:blocked}).  The
+method \kwd{recursiveInit} (line 4) takes as input a \kwd{DPJArrayInt}
+parameterized by a method region parameter \kwd{R} (Reference Manual,
+\S~2.4.2).  Its effect is \kwd{writes R:*}, i.e., it reads and writes
+regions under the parameter.  If the array is sufficiently small, the
+initialization is done sequentially (lines 8--12).  Otherwise the
+program creates a \kwd{DPJPartition} that splits the array in half.
+Lines 17--22 recursively and in parallel call \kwd{recursiveInit} on
+the halves.  The effects of the recursive calls are as shown, for the
+reasons explained in Reference Manual, \S~7.2, and they are disjoint
+for the two parallel tasks (see Reference Manual, \S~3.6.4).
+
+\bfhead{Further examples:} For a more realistic example of this
+pattern, see the implementation of parallel merge sort in file
+\kwd{MergeSort4.java} in directory \kwd{Benchmarks/Kernels/dpj} of the
+DPJ release.
+
+

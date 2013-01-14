@@ -1,0 +1,39 @@
+\section{Introduction%
+\label{sec:introduction}}
+\cutname{introduction.html}
+
+Deterministic Parallel Java (DPJ) is an extension to the Java
+programming language that guarantees \emph{determinism} for programs
+written with fork-join parallelism.  That is, if a DPJ program
+compiles without errors or warnings, then it will produce the same
+output on every execution of the program.  DPJ achieves its
+determinism guarantee by enforcing \emph{noninterference}: DPJ
+guarantees that for any two parallel tasks, there are no pairs of
+\emph{conflicting accesses} (i.e., accesses to the same memory
+location, with at least one a write) performed by the tasks.
+
+DPJ's determinism guarantee provides a significant benefit over
+traditional models such as Java threads.  In such models, conflicting
+memory accesses and even data races can occur, so the behavior of the
+program can vary depending on the interleaving of operations from
+different threads on each execution.  Such nondeterminism makes many
+parallel programs difficult to reason about and hard to debug.
+
+The purpose of this tutorial is to bring you up to speed quickly using
+DPJ.  Section~\ref{sec:overview} gives an overview of major DPJ
+concepts, so you can start writing programs as quickly as possible.
+It provides links to \refmanual\ (e.g., Reference Manual, \S~1) so you
+can look up particular features there to get more detail.  The rest of
+the sections show how to write common parallel patterns in DPJ.  We
+believe that a very good way to get started with DPJ is to (1) look
+for patterns in this guide that are the same as or similar to patterns
+occurring in your parallel algorithm; (2) study and understand the
+relevant pattern or patterns in this guide; and (3) adapt the pattern
+or patterns to your needs.
+
+Throughout this tutorial are DPJ code examples.  Some are fragments of
+larger programs, but many are short, self-contained programs.  We
+recommend that, before reading this tutorial, you download and
+install DPJ.  See \installmanual\ for instructions on how to do it.
+Then, as you read this tutorial, you can compile and run the examples.
+
