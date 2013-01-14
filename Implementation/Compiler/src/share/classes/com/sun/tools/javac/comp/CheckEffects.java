@@ -128,26 +128,6 @@ public class CheckEffects extends EnvScanner { // DPJ
 	attr = Attr.instance(context);
     }
 
-    /**
-     * Are we inside a constructor?  If so, we need to keep track of the effects
-     * visible at the constructor interface, so we can check the constructor
-     * effect summary.
-     * @param env
-     * @return
-     */
-    private boolean inConstructor(Env<AttrContext> env) {
-	Symbol owner = env.info.scope.owner;
-	return (owner.kind == MTH) && (owner.name == names.init);
-    }
-    
-    /**
-     * Are we inside a class definition?
-     */
-    private boolean inClassDef(Env<AttrContext> env) {
-	Symbol owner = env.info.scope.owner;
-	return (owner.kind == TYP);
-    }
-    
     /** Are we in an atomic statement? */
     private boolean inAtomic;
     
@@ -281,14 +261,14 @@ public class CheckEffects extends EnvScanner { // DPJ
      */
     private void addAll(JCTreeWithEffects from, JCTreeWithEffects to) {
 	to.effects.addAll(from.effects);
-	if (inConstructor(parentEnv))
+	if (attr.inConstructor(parentEnv))
 	    to.getConstructorEffects().addAll(from.getConstructorEffects());	
     }
     
     private void addAll(List<? extends JCTreeWithEffects> from, JCTreeWithEffects to) {
 	for (List<? extends JCTreeWithEffects> l = from; l.tail != null; l = l.tail) {
 	    to.effects.addAll(l.head.effects);
-	    if (inConstructor(parentEnv))
+	    if (attr.inConstructor(parentEnv))
 		to.getConstructorEffects().addAll(l.head.getConstructorEffects());
 	}
     }
@@ -316,7 +296,7 @@ public class CheckEffects extends EnvScanner { // DPJ
 	    to.effects.add(new Effect.ReadEffect(rpls, access, 
 		    inAtomic, inNonint));
 	access = accessedRPL(from, true);
-	if (access != null && inConstructor(parentEnv))
+	if (access != null && attr.inConstructor(parentEnv))
 	    to.getConstructorEffects().add(new Effect.ReadEffect(rpls, access, 
 		    inAtomic, inNonint));
     }
@@ -329,7 +309,7 @@ public class CheckEffects extends EnvScanner { // DPJ
      */    
     private void addAllWithWrite(JCExpression from, JCTreeWithEffects to) {
 	to.effects.addAll(from.effects);
-	if (inConstructor(parentEnv))
+	if (attr.inConstructor(parentEnv))
 	    to.getConstructorEffects().addAll(from.getConstructorEffects());
 	addWriteEffect(from, to);
     }
@@ -391,11 +371,8 @@ public class CheckEffects extends EnvScanner { // DPJ
 	Effects declaredEffects = m.effects;
 	DiagnosticPosition pos = (tree.effects == null) ?
 		tree.pos() : tree.effects.pos();
-	// Add 'pure' effects for implicit constructors
-	if (inConstructor(childEnvs.head) && declaredEffects == Effects.UNKNOWN)
-	    declaredEffects = new Effects();
 	if (tree.body != null) {
-	    if (!inConstructor(childEnvs.head)) {
+	    if (!attr.inConstructor(childEnvs.head)) {
 		actualEffects = 
 		    tree.body.effects.inEnvironment(rs, childEnvs.head, true);
 	    } else {
@@ -619,7 +596,7 @@ public class CheckEffects extends EnvScanner { // DPJ
 
 	if (tree.init != null) {
 	    addAllWithRead(tree.init, tree);
-            if (inClassDef(parentEnv) && !tree.mods.areStatic()) {
+            if (attr.inClassDef(parentEnv) && !tree.mods.areStatic()) {
                 // Record field initializer effects for checking against                         
                 // constructors                                                                  
                 initEffects.addAll(tree.init.effects);
@@ -692,7 +669,7 @@ public class CheckEffects extends EnvScanner { // DPJ
             }
             
 	    tree.effects.add(ie);
-	    if (inConstructor(parentEnv))
+	    if (attr.inConstructor(parentEnv))
 		tree.getConstructorEffects().add(ie);
 	}
     }
@@ -732,7 +709,7 @@ public class CheckEffects extends EnvScanner { // DPJ
 	for (JCTree.JCStatement stat : tree.stats) {
 	    addAll(stat, tree);
 	}
-        if (inClassDef(parentEnv) && !tree.isStatic()) {
+        if (attr.inClassDef(parentEnv) && !tree.isStatic()) {
             // Record instance initializer effects for checking against                         
             // constructors                                                                  
             initEffects.addAll(tree.effects);
@@ -742,7 +719,7 @@ public class CheckEffects extends EnvScanner { // DPJ
     @Override public void visitCobegin(DPJCobegin tree) {
 	super.visitCobegin(tree);
 	tree.effects = tree.body.effects;
-	if (inConstructor(parentEnv))
+	if (attr.inConstructor(parentEnv))
 	    tree.setConstructorEffects(tree.body.getConstructorEffects());
 	boolean interfere = false;
 	if (tree.body instanceof JCBlock) {
