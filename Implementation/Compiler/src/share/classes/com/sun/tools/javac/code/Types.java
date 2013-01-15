@@ -2560,7 +2560,7 @@ public class Types {
                 List<RPL> rgnactuals1 = rpls.substIndices(rgnactuals, from, to);
                 List<Effects> effectparams = t.getEffectArguments();
                 List<Effects> effectparams1 = 
-                    Effects.substIndices(effectparams, from, to);
+                    Substitute.listIntoList(Effects.substIndices, effectparams, from, to);
                 Type outer = t.getEnclosingType();
                 Type outer1 = substIndices(outer);
                 if (typarams1 == typarams && outer1 == outer && 
@@ -2865,14 +2865,14 @@ public class Types {
         @Override
         public Type visitClassType(ClassType t, Void ignored) {
             if (!t.isCompound()) {
-                List<Type> typarams = t.getTypeArguments();
-                List<Type> typarams1 = substEffect(typarams);
+                List<Type> typarams = substEffect(t.getTypeArguments());
                 List<Effects> effectargs = t.getEffectArguments();
-                List<Effects> effectargs1 = Effects.substForEffectVars(effectargs, from, to);
-                Type outer = t.getEnclosingType();
-                Type outer1 = substEffect(outer);
-                return new ClassType(outer1, typarams1, 
-                	t.getRPLArguments(), effectargs1, t.tsym,
+                effectargs = 
+                	Substitute.listIntoList(Effects.substEffectParams, 
+                		effectargs, from, to);
+                Type outer = substEffect(t.getEnclosingType());
+                return new ClassType(outer, typarams, 
+                	t.getRPLArguments(), effectargs, t.tsym,
                 	t.getCellType());
             } else {
                 Type st = substEffect(supertype(t));

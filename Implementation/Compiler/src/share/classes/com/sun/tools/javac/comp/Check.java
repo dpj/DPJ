@@ -1289,8 +1289,8 @@ public class Check {
 		me = me.substRPLParams(m_rpl_params, rpls);
 		oe = oe.substRPLParams(o_rpl_params, rpls);
 	    }
-	    me = me.substForVars(m.params, other.params);
-	    me = me.substForEffectVars(m.effectparams, other.effectparams);
+	    me = me.substVars(m.params, other.params);
+	    me = me.substEffectParams(m.effectparams, other.effectparams);
 	    if (!me.areSubeffectsOf(oe)) {
 		System.err.println("Effects are not covered by overridden effects in class " + other.owner.type);
 		System.err.println("Missing " + me.missingFrom(oe));

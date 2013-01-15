@@ -62,9 +62,9 @@ public class Effects implements
 	    this.add(e);
     }
 
-    public void addAllEffects(List<? extends JCTreeWithEffects> list) {
-	for (List<? extends JCTreeWithEffects> l = list; l.tail != null; l = l.tail)
-	    this.addAll(l.head.effects);
+    public void addAllEffects(Iterable<? extends JCTreeWithEffects> trees) {
+	for (JCTreeWithEffects tree : trees)
+	    this.addAll(tree.effects);
     }
 
     public boolean isEmpty() {
@@ -119,24 +119,15 @@ public class Effects implements
 	return result;	
     }
     
-    public Effects substForEffectVars(List<Effects> from, List<Effects> to) {
+    public Effects substEffectParams(Iterable<Effects> from, 
+	    Iterable<Effects> to) {
 	Effects result = new Effects();
 	for (Effect e : effects) {
-	    result.addAll(e.substEffectVars(from, to));
+	    result.addAll(e.substEffectParams(from, to));
 	}
 	return result;
     }
     
-    public static List<Effects> substForEffectVars(List<Effects> effects, 
-		List<Effects> from, List<Effects> to) {
-	ListBuffer<Effects> buf = new ListBuffer<Effects>();
-	while (effects.nonEmpty()) {
-	    buf.append(effects.head.substForEffectVars(from, to));
-	    effects = effects.tail;
-	}
-	return buf.toList();
-    }
-
      public Effects substRPLForVar(VarSymbol from, RPL to) {
 	Effects result = new Effects();
 	for (Effect e : effects) {
@@ -145,15 +136,17 @@ public class Effects implements
 	return result;	
     }
     
-    public Effects substForVars(List<VarSymbol> from, List<VarSymbol> to) {
+    public Effects substVars(Iterable<VarSymbol> from, 
+	    Iterable<VarSymbol> to) {
 	Effects result = new Effects();
 	for (Effect e : effects) {
-	    result.add(e.substForVars(from, to));
+	    result.add(e.substVars(from, to));
 	}
 	return result;
     }
     
-    public Effects substExpsForVars(List<VarSymbol> from, List<JCExpression> to) {
+    public Effects substExpsForVars(Iterable<VarSymbol> from, 
+	    Iterable<JCExpression> to) {
 	Effects result = new Effects();
 	for (Effect e : effects) {
 	    result.add(e.substExpsForVars(from, to));
@@ -161,8 +154,8 @@ public class Effects implements
 	return result;		
     }
     
-    public Effects substIndices(List<VarSymbol> from, 
-	    	List<JCExpression> to) {
+    public Effects substIndices(Iterable<VarSymbol> from, 
+	    	Iterable<JCExpression> to) {
 	Effects result = new Effects();
 	for (Effect e: effects) {
 	    result.add(e.substIndices(from, to));
@@ -170,15 +163,6 @@ public class Effects implements
 	return result;
     }
 
-    public static List<Effects> substIndices(List<Effects> list,
-	    List<VarSymbol> from, List<JCExpression> to) {
-	ListBuffer<Effects> buf = ListBuffer.lb();
-	for (Effects effects : list) {
-	    buf.append(effects.substIndices(from, to));
-	}	
-	return buf.toList();
-    }
-    
     public Iterator<Effect> iterator() {
 	return effects.iterator();
     }
@@ -236,7 +220,6 @@ public class Effects implements
 	return memberEffects;
     }
 
-    
     /**
      * Translate effects from method signature context to method use context.  This
      * is used both for declared effects and for method effect constraints.
@@ -263,7 +246,7 @@ public class Effects implements
 				    ct.getRPLArguments());
 		}
 		result = 
-			result.substForEffectVars(ct.tsym.type.getEffectArguments(),
+			result.substEffectParams(ct.tsym.type.getEffectArguments(),
 				ct.getEffectArguments());
 	    }
 	    // Substitute for actual arg expressions
@@ -303,7 +286,7 @@ public class Effects implements
 
             // Substitute for method effect params
             if (sym.effectparams != null && tree.mtype != null) {
-        	result = result.substForEffectVars(sym.effectparams,
+        	result = result.substEffectParams(sym.effectparams,
         	    tree.mtype.effectactuals);
             }
 	}
@@ -383,8 +366,9 @@ public class Effects implements
     /**
      * Check whether noninterference constraints are satisfied
      */
-    public static boolean nonintConstraintsAreSatisfied(List<Pair<Effects,Effects>> constraints,
-	    Type t, Constraints envConstraints) {
+    public static boolean nonintConstraintsAreSatisfied
+    	(Iterable<Pair<Effects,Effects>> constraints,
+    		Type t, Constraints envConstraints) {
 	for (Pair<Effects,Effects> constraint : constraints) {
 	    Effects first = constraint.fst.substForAllParams(t);
 	    Effects second = constraint.snd.substForAllParams(t);
@@ -395,8 +379,9 @@ public class Effects implements
 	return true;
     }
 
-    public static boolean nonintConstraintsAreSatisfied(List<Pair<Effects,Effects>> constraints,
-	    JCMethodInvocation tree, 
+    public static boolean nonintConstraintsAreSatisfied
+    	(Iterable<Pair<Effects,Effects>> constraints,
+    		JCMethodInvocation tree, 
 	    List<RPL> rplFormals, List<RPL> rplActuals,
 	    List<Effects> effectFormals, List<Effects> effectActuals, 
 	    Types types, Attr attr, Env<AttrContext> env) {
@@ -404,10 +389,10 @@ public class Effects implements
 	for (Pair<Effects,Effects> constraint : constraints) {
 	    Effects first = constraint.fst.translateMethodEffects(tree, types, attr, env);
 	    first = first.substRPLParams(rplFormals, rplActuals);
-	    first = first.substForEffectVars(effectFormals, effectActuals);
+	    first = first.substEffectParams(effectFormals, effectActuals);
 	    Effects second = constraint.snd.translateMethodEffects(tree, types, attr, env);
 	    second = second.substRPLParams(rplFormals, rplActuals);
-	    second = second.substForEffectVars(effectFormals, effectActuals);
+	    second = second.substEffectParams(effectFormals, effectActuals);
 	    if (!noninterferingEffects(first, second, envConstraints, false)) {
 		System.out.println(first + " interferes with " +second);
 		return false;
@@ -446,10 +431,30 @@ public class Effects implements
 	    return effects.substRPLParams(from, to);
 	}
     };
+    public static final Subst substEffectParams = new Subst<Effects,Effects,Effects>() {
+	public Effects basic(Effects effects, Effects from, Effects to) {
+	    return effects.substEffectParams(List.of(from), List.of(to));
+	}
+	public Effects substIterable(Effects effects, Iterable<Effects> from,
+		Iterable<Effects> to) {
+	    return effects.substEffectParams(from, to);
+	}
+    };
     public static final Subst substRPLsForVars = new Subst<Effects,VarSymbol,RPL>() {
 	public Effects basic(Effects effects, VarSymbol from, RPL to) {
 	    return effects.substRPLForVar(from, to);
 	}
     };
+    public static final Subst substIndices =
+	    new Subst<Effects,VarSymbol,JCExpression>() {
+	public Effects basic(Effects effects, VarSymbol from, JCExpression to) {
+	    return effects.substIndices(List.of(from), List.of(to));
+	}
+	public Effects substIterable(Effects effects, Iterable<VarSymbol> from,
+		Iterable<JCExpression> to) {
+	    return effects.substIndices(from, to);
+	}
+    };
+
 
 }

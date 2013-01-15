@@ -267,7 +267,7 @@ public class RPL implements
 	return Substitute.iterable(RPLs.substExpsForVars, this, from, to);
     }
     
-    public RPL substIndices(List<VarSymbol> from, List<JCExpression> to) {
+    public RPL substIndices(Iterable<VarSymbol> from, Iterable<JCExpression> to) {
 	return Substitute.iterable(RPLs.substIndices, this, from, to);
     }
 
