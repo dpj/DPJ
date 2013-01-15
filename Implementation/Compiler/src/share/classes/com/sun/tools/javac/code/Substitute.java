@@ -1,11 +1,22 @@
 package com.sun.tools.javac.code;
 
+import static com.sun.tools.javac.code.Kinds.VAR;
+
 import java.util.Iterator;
 
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type.ClassType;
+import com.sun.tools.javac.comp.Attr;
+import com.sun.tools.javac.comp.AttrContext;
+import com.sun.tools.javac.comp.Env;
+import com.sun.tools.javac.comp.Resolve;
+import com.sun.tools.javac.tree.JCTree.JCArrayAccess;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
+import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
+import com.sun.tools.javac.util.Name;
 
 /**
  * Interfaces for performing type, region, and effect substitutions.
@@ -118,5 +129,18 @@ public class Substitute {
 	public T asMemberOf(Type t, Types types);
 	
     }
+
+    /** Interface representing index substitution */
+    public interface SubstIndex<T extends SubstIndex<T>> {
+	/** 'this' after substituting index */
+	public T substIndex(VarSymbol from, JCExpression to); 
+    }
+    
+    /** Interface representing substitution of RPL for var */
+    public interface SubstRPLForVar<T extends SubstRPLForVar<T>> {
+	/** 'this' after substituting RPL for var */
+	public T substRPLForVar(VarSymbol from, RPL to);
+    }
+
     
 }

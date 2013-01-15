@@ -1129,7 +1129,7 @@ public class MemberEnter extends JCTree.Visitor implements Completer {
                 
                 // Add index field for array class
                 JCTree index = make.VarDef(
-                        make.Modifiers(PRIVATE | FINAL),
+                        make.Modifiers(PUBLIC | FINAL),
                         names.index,
                         null,
                         make.Type(syms.typeOfTag[TypeTags.INT]),

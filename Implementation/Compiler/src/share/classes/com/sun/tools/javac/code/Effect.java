@@ -71,6 +71,10 @@ public abstract class Effect implements
 	return this;
     }
     
+    public Effect substIndex(VarSymbol from, JCExpression to) {
+	return substIndices(List.of(from), List.of(to));
+    }
+    
     public Effect substIndices(List<VarSymbol> from, List<JCExpression> to) {
 	return this;
     }

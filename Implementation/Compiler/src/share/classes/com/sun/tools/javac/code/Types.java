@@ -1446,6 +1446,8 @@ public class Types {
             return elemtype(upperBound(t));
         case ARRAY:
             return ((ArrayType)t).elemtype;
+        case CLASS:
+            return t.getCellType();
         case FORALL:
             return elemtype(((ForAll)t).qtype);
         case ERROR:
@@ -2486,12 +2488,8 @@ public class Types {
         public Type visitErrorType(ErrorType t, Void ignored) {
             return t;
         }
-        
-
-    
     }
 
-    
     public List<Type> substIndices(List<Type> ts, List<VarSymbol> from,
 	    List<JCExpression> to) {
 	return new SubstIndices(from, to).substIndices(ts);

@@ -90,6 +90,9 @@ import com.sun.tools.javac.code.RPLElement.VarRPLElement;
 import com.sun.tools.javac.code.RPLs;
 import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Source;
+import com.sun.tools.javac.code.Substitute.AsMemberOf;
+import com.sun.tools.javac.code.Substitute.SubstIndex;
+import com.sun.tools.javac.code.Substitute.SubstRPLForVar;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.CompletionFailure;
@@ -211,7 +214,7 @@ public class Attr extends JCTree.Visitor {
     protected static final Context.Key<Attr> attrKey =
         new Context.Key<Attr>();
 
-    final Name.Table names;
+    public final Name.Table names;
     final Log log;
     final protected Symtab syms;
     public final Resolve rs;
@@ -221,7 +224,7 @@ public class Attr extends JCTree.Visitor {
     final ConstFold cfolder;
     final Enter enter;
     final Target target;
-    final Types types;
+    public final Types types;
     final Annotate annotate;
     final RPLs rpls;
     final DPJAttrPrePass dpjAttrPrePass;
@@ -2349,8 +2352,13 @@ public class Attr extends JCTree.Visitor {
         else if (types.isArrayClass(atype)) {
             ClassType ct = (ClassType) atype;
             Type site = capture(ct);
-	    Symbol sym = rs.findIdentInType(env, site, names.fromString("cell"), VAR);
-	    owntype = types.memberType(site, sym);
+	    Symbol cellSym = rs.findIdentInType(env, site, names.fromString("cell"), VAR);
+	    Symbol indexSym = rs.findIdentInType(env,  site, names.fromString("index"), VAR);
+	    owntype = types.memberType(site, cellSym);
+	    if (indexSym instanceof VarSymbol) {
+		owntype = types.substIndices(owntype, List.<VarSymbol>of((VarSymbol) indexSym),
+			List.<JCExpression>of(tree.index));
+	    }
 	    result = check(tree, owntype, VAR, pkind, pt);
             return;
         }
@@ -3665,6 +3673,110 @@ public class Attr extends JCTree.Visitor {
 
     private Type capture(Type type) {
         return types.capture(type);
+    }
+    
+    public VarSymbol getVarSymbolFor(JCExpression tree,
+            Env<AttrContext> env) {
+        Symbol sym = tree.getSymbol();
+        VarSymbol varSym = null;
+        if (sym instanceof VarSymbol) {
+            varSym = (VarSymbol) sym;
+        }
+        else if (tree instanceof JCArrayAccess) {
+            JCArrayAccess aa = (JCArrayAccess) tree;
+            Type atype = aa.indexed.type;
+            if (types.isArrayClass(atype)) {
+                ClassType ct = (ClassType) atype;
+                Type site = capture(ct);
+                varSym = (VarSymbol)
+                        rs.findIdentInType(env, site, names.fromString("cell"), VAR);
+            }
+        }
+        return varSym;
+    }
+    
+    public RPL getRPLFor(JCExpression tree,
+	    Env<AttrContext> env) {
+	if (tree instanceof JCArrayAccess) {
+	    JCArrayAccess aa = (JCArrayAccess) tree;
+            Type atype = aa.indexed.type;
+            if (types.isArray(atype)) {
+        	ArrayType at = (ArrayType) atype;
+        	return at.rpl;
+            }
+	}
+	VarSymbol vsym = getVarSymbolFor(tree, env);
+	if (vsym != null) {
+	    return vsym.rpl;
+	}
+	return null;
+    }
+        
+    /** Perform 'as member of' implied by a selection */
+    public <T extends AsMemberOf<T>> T asMemberOf(T elt,
+            JCExpression tree, Env<AttrContext> env) {
+	if (elt == null) return null;
+	if (tree instanceof JCFieldAccess) {
+            JCFieldAccess fa = (JCFieldAccess) tree;
+            return elt.asMemberOf(fa.selected.type, types);
+	}
+        if (tree instanceof JCArrayAccess) {
+            JCArrayAccess aa = (JCArrayAccess) tree;
+            return elt.asMemberOf(aa.indexed.type, types);
+        }
+    	if (tree instanceof JCIdent) {
+            return elt.asMemberOf(env.enclClass.sym.type, types);
+        }
+        return elt;
+    }
+    
+
+    /** Perform index substitution implied by a selection */
+    public <T extends SubstIndex<T>> T substIndex(T elt, 
+	    JCExpression tree, Env<AttrContext> env) {
+	if (elt == null) return null;
+	T result = elt;
+	if (tree instanceof JCArrayAccess) {
+	    JCArrayAccess aa = (JCArrayAccess) tree;
+            Type atype = aa.indexed.type;
+            if (types.isArray(atype)) {
+                ArrayType at = (ArrayType) atype;
+            	result = result.substIndex(at.indexVar, aa.index);
+            }    
+            else if (types.isArrayClass(atype)) {
+                ClassType ct = (ClassType) atype;
+                Type site = types.capture(ct);
+        	Symbol sym = getVarSymbolFor(tree,env);
+        	if (sym instanceof VarSymbol) {
+        	    Symbol indexSym = rs.findIdentInType(env,  
+        		    site, names.fromString("index"), 
+        		    VAR);
+        	    if (indexSym instanceof VarSymbol) {
+        		result = result.substIndex((VarSymbol) indexSym, aa.index);
+        	    }
+        	}
+            }            
+	}
+	return result;
+    }
+
+    /** Perform RPL-for-var substitution implied by a selection */
+    public <T extends SubstRPLForVar<T>> T substRPLForVar(T elt,
+	    JCExpression tree, Env<AttrContext> env) {
+	if (elt == null) return null;
+	T result = elt;
+	if (tree instanceof JCArrayAccess) {
+	    JCArrayAccess aa = (JCArrayAccess) tree;
+	    JCExpression selectedExp = 
+		    rs.selectedExp(aa.indexed, env);                	
+	    RPL selectedRPL = exprToRPL(selectedExp);
+	    Symbol sym = aa.indexed.getSymbol();
+	    if (selectedRPL != null && sym != null) {
+		VarSymbol thisSym = sym.enclThis();
+		result = result.substRPLForVar(thisSym, selectedRPL);
+	    }
+	}
+	return result;
     }
     
     // DPJ constructs (to end)

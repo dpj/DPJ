@@ -6,6 +6,8 @@ import com.sun.tools.javac.code.RPLElement.RPLParameterElement;
 import com.sun.tools.javac.code.RPLElement.UndetRPLParameterElement;
 import com.sun.tools.javac.code.RPLElement.VarRPLElement;
 import com.sun.tools.javac.code.Substitute.AsMemberOf;
+import com.sun.tools.javac.code.Substitute.SubstIndex;
+import com.sun.tools.javac.code.Substitute.SubstRPLForVar;
 import com.sun.tools.javac.code.Substitute.SubstRPLs;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type.ClassType;
@@ -26,7 +28,9 @@ import com.sun.tools.javac.util.ListBuffer;
  */
 public class RPL implements 
 	SubstRPLs<RPL>,
-	AsMemberOf<RPL>
+	AsMemberOf<RPL>,
+	SubstIndex<RPL>,
+	SubstRPLForVar<RPL>
 {
 
     ///////////////////////////////////////////////////////////////////////////

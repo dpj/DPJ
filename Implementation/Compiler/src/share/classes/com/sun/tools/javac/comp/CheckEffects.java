@@ -3,6 +3,7 @@ package com.sun.tools.javac.comp;
 import static com.sun.tools.javac.code.Flags.STATIC;
 import static com.sun.tools.javac.code.Kinds.MTH;
 import static com.sun.tools.javac.code.Kinds.TYP;
+import static com.sun.tools.javac.code.Kinds.VAR;
 import static com.sun.tools.javac.code.TypeTags.CLASS;
 import static com.sun.tools.javac.code.TypeTags.TYPEVAR;
 
@@ -216,37 +217,20 @@ public class CheckEffects extends EnvScanner { // DPJ
         }
 	
 	public void visitIdent(JCIdent tree) {
-	    if (tree.sym instanceof VarSymbol) {        	
-                VarSymbol v = (VarSymbol) tree.sym;
-                if (!inConstructor || !isInstanceField(v)) {
-                    result = rpls.memberRPL(types, 
-                	    parentEnv.enclClass.sym.type, 
-                	    (VarSymbol) tree.sym);
-                }
-            }
+	    VarSymbol v = attr.getVarSymbolFor(tree, parentEnv);
+	    if (v != null) {
+		if (!inConstructor || !isInstanceField(v)) {
+		    result = attr.getRPLFor(tree, parentEnv);
+		    result = attr.asMemberOf(result, tree, parentEnv);
+		}
+	    }
         }
 
 	public void visitIndexed(JCArrayAccess tree) {
-            Type atype = tree.indexed.type;
-            if (types.isArray(atype)) {
-                ArrayType at = (ArrayType) atype;
-                Type elemtype = types.elemtype(atype);
-                result = at.rpl;
-                if (result != null) {
-                    if (at.indexVar != null) {
-                	result = result.substIndex(at.indexVar, tree.index);
-                	JCExpression selectedExp = 
-                		rs.selectedExp(tree.indexed, parentEnv);                	
-                	RPL selectedRPL = attr.exprToRPL(selectedExp);
-                	Symbol sym = tree.indexed.getSymbol();
-                	if (selectedRPL != null && sym != null) {
-                	    VarSymbol thisSym = sym.enclThis();
-                	    result = result.substRPLForVar(thisSym, selectedRPL);
-                	}
-                	return;
-                    }
-                }    
-            }
+	    result = attr.getRPLFor(tree,parentEnv);
+	    result = attr.asMemberOf(result, tree, parentEnv);
+	    result = attr.substIndex(result, tree, parentEnv);
+            result = attr.substRPLForVar(result, tree, parentEnv);
         }
         @Override
         public void visitTree(JCTree tree) {

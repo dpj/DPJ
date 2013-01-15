@@ -25,4 +25,12 @@ public class ArrayClassGood extends DPJTestCase {
 	compile("ArrayFieldRegion");
     }
     
+    @Test public void testIndexParameterized() throws Throwable {
+	compile("IndexParameterized");
+    }
+    
+    @Test public void testIndexParamType() throws Throwable {
+	compile("IndexParamType");
+    }
+    
 }

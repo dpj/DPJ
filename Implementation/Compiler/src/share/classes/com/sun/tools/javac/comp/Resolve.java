@@ -1414,7 +1414,7 @@ public class Resolve {
      *  @param kind      Indicates the possible symbol kinds
      *                   (a subset of VAL, TYP).
      */
-    Symbol findIdentInType(Env<AttrContext> env, Type site,
+    public Symbol findIdentInType(Env<AttrContext> env, Type site,
                            Name name, int kind) {
         Symbol bestSoFar = typeNotFound;
         Symbol sym;
