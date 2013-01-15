@@ -223,7 +223,7 @@ public abstract class Effect implements
 	
 	@Override
 	public Effect substForVars(List<VarSymbol> from, List<VarSymbol> to) {
-	    return new ReadEffect(rpls, rpl.substVars(from, to), 
+	    return new ReadEffect(rpls, Substitute.iterable(RPLs.substVars, rpl, from, to), 
 		    this.isAtomic(), this.isNonint());
 	}
 	
@@ -364,7 +364,8 @@ public abstract class Effect implements
 
 	@Override
 	public Effect substForVars(List<VarSymbol> from, List<VarSymbol> to) {
-	    return new WriteEffect(rpls, rpl.substVars(from, to), 
+	    return new WriteEffect(rpls, 
+		    Substitute.iterable(RPLs.substVars, this.rpl, from, to), 
 		    this.isAtomic(), this.isNonint());
 	}
 	

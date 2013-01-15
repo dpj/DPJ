@@ -258,10 +258,6 @@ public class RPL implements
 	return (toRPL == null) ? this : substRPLForVar(from, toRPL);	
     }
 
-    public RPL substVars(Iterable<VarSymbol> from, Iterable<VarSymbol> to) {
-	return Substitute.iterable(RPLs.substVars, this, from, to);
-    }
-    
     public RPL substExpForVar(VarSymbol from, JCExpression to) {
 	RPL toRPL = exprToRPL(to);
 	return (toRPL == null) ? this : substRPLForVar(from, toRPL);

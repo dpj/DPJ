@@ -268,11 +268,6 @@ public class TreeScanner extends Visitor {
     public void visitRPL(DPJRegionPathList tree) {	
     }
 
-    public void visitRegionApply(DPJRegionApply tree) {	
-	scan(tree.clazz);
-	scan(tree.arguments);
-    }
-
     public void visitRegionDecl(DPJRegionDecl tree) {	
     }
 

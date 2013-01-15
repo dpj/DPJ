@@ -2332,34 +2332,6 @@ public abstract class JCTree implements Tree, Cloneable, DiagnosticPosition {
     }
 
     /**
-     * A region parameterized type, T<<...>>, used as an expression (not as a declaration)
-     */
-    public static class DPJRegionApply extends JCExpression implements RegionParamTypeTree {
-        public JCExpression clazz;
-        public List<DPJRegionPathList> arguments;
-        protected DPJRegionApply(JCExpression clazz, List<DPJRegionPathList> arguments) {
-            this.clazz = clazz;
-            this.arguments = arguments;
-        }
-        @Override
-        public void accept(Visitor v) { v.visitRegionApply(this); }
-
-        public Kind getKind() { return Kind.REGION_PARAM_TYPE; }
-        public JCTree getType() { return clazz; }
-        public List<DPJRegionPathList> getRegionArguments() {
-            return arguments;
-        }
-        @Override
-        public <R,D> R accept(TreeVisitor<R,D> v, D d) {
-            return v.visitRegionParamType(this, d);
-        }
-        @Override
-        public int getTag() {
-            return REGIONAPPLY;
-        }
-    }
-
-    /**
      * A parameterized type, T<...>
      */
     public static class JCTypeApply extends JCExpression implements ParameterizedTypeTree {
@@ -2929,7 +2901,6 @@ public abstract class JCTree implements Tree, Cloneable, DiagnosticPosition {
 			               List<DPJRegionPathList> readEffects,
 			               List<DPJRegionPathList> writeEffects,
 			               List<JCIdent> variableEffects);
-        DPJRegionApply RegionApply(JCExpression clazz, List<DPJRegionPathList> args);
         DPJRegionDecl RegionDecl(JCModifiers mods, Name name, boolean isAtomic);
         DPJSpawn Spawn(JCStatement expr);
         DPJFinish Finish(JCStatement body);
@@ -2992,7 +2963,6 @@ public abstract class JCTree implements Tree, Cloneable, DiagnosticPosition {
         public void visitTypeIdent(JCPrimitiveTypeTree that) { visitTree(that); }
         public void visitTypeArray(JCArrayTypeTree that)     { visitTree(that); }
         public void visitTypeApply(JCTypeApply that)         { visitTree(that); }
-        public void visitRegionApply(DPJRegionApply that)    { visitTree(that); }
         public void visitTypeParameter(JCTypeParameter that) { visitTree(that); }
         public void visitRegionParameter(DPJRegionParameter that) {visitTree(that); }
         public void visitParamInfo(DPJParamInfo that) {visitTree(that); }

@@ -99,7 +99,6 @@ import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.DPJEffect;
 import com.sun.tools.javac.tree.JCTree.DPJParamInfo;
-import com.sun.tools.javac.tree.JCTree.DPJRegionApply;
 import com.sun.tools.javac.tree.JCTree.DPJRegionDecl;
 import com.sun.tools.javac.tree.JCTree.DPJRegionParameter;
 import com.sun.tools.javac.tree.JCTree.DPJRegionPathList;
@@ -970,10 +969,9 @@ public class Parser {
     protected JCExpression term3() {
         int pos = S.pos();
         JCExpression t;
-        List<DPJRegionPathList> rplArgs = regionArgumentsOpt(EXPR);
         TypeRPLEffectArgs typeRPLEffectArgs = typeRPLEffectArgsOpt(EXPR);
         List<JCExpression> typeArgs = typeRPLEffectArgs.typeArgs; //typeRPLEffectArgsOpt(EXPR).typeArgs;
-        rplArgs = typeRPLEffectArgs.getRPLArgs(rplArgs, pos);
+        List<DPJRegionPathList> rplArgs = typeRPLEffectArgs.rplArgs;
         List<DPJEffect> effectargs = typeRPLEffectArgs.effectArgs;
         switch (S.token()) {
         case QUES:
@@ -1005,51 +1003,6 @@ public class Parser {
                 S.nextToken();
                 mode = EXPR | TYPE | NOPARAMS;
                 t = term3();
-                if ((mode & TYPE) != 0 && S.token() == LTLT) {
-                    // DEPRECATED
-                    // Handle either (C<<R>>) or (EXP1 << EXP2)
-                    int op = JCTree.SL;
-                    int pos1 = S.pos();
-                    S.nextToken();
-                    if (S.token() == GTGT)
-                	S.nextToken();
-                    else {
-                	DPJRegionPathList rpl = rplOrExpr();
-                	if (goodRPL &&
-                		(S.token() == COMMA || S.token() == GTGT)) {
-                	    ListBuffer<DPJRegionPathList> args = new ListBuffer<DPJRegionPathList>();
-                	    args.append(rpl);
-                	    while (S.token() == COMMA) {
-                		S.nextToken();
-                		args.append(rpl());
-                	    }
-                	    accept(GTGT);
-                	    t = F.at(pos1).RegionApply(t, args.toList());
-                	    checkGenerics();
-                	    t = bracketsOpt(toP(t), true);
-                	} else if (rpl.elts.size() == 0) {
-                            JCExpression t1 = term3();
-                            mode = EXPR;
-                            t = F.at(pos1).Binary(op, t, term2Rest(t1, TreeInfo.shiftPrec));
-                            t = termRest(term1Rest(term2Rest(t, TreeInfo.orPrec)));
-                	} else if (rpl.elts.size() == 1) {
-                	    JCExpression t1 = null;
-                	    switch (rpl.elts.get(0).type) {
-                	    case DPJRegionPathListElt.NAME:
-                		t1 = rpl.elts.get(0).exp;
-                		break;
-                	    default:
-                		syntaxError("illegal.rpl");
-                		break;    
-                	    }
-                	    mode = EXPR;
-                	    t = F.at(pos1).Binary(op, t, term2Rest(t1, TreeInfo.shiftPrec));
-                	    t = termRest(term1Rest(term2Rest(t, TreeInfo.orPrec)));
-                	} else {
-                	    syntaxError("illegal.rpl");
-                	}
-                    }
-                }
                 if ((mode & TYPE) != 0 && S.token() == LT) {
                     // Handle either (C<T>) or (C<R>) or (EXP1 < EXP2)
                     int op = JCTree.LT;
@@ -1165,11 +1118,10 @@ public class Parser {
             if ((mode & EXPR) != 0) {
                 mode = EXPR;
                 S.nextToken();
-                if (S.token() == LTLT) rplArgs = regionArguments();
                 if (S.token() == LT) {
                     typeRPLEffectArgs = typeRPLEffectArgs();
                     typeArgs = typeRPLEffectArgs.typeArgs;
-                    rplArgs = typeRPLEffectArgs.getRPLArgs(rplArgs, pos);
+                    rplArgs = typeRPLEffectArgs.rplArgs;
                     effectargs = typeRPLEffectArgs.effectArgs;
                 }
                 t = creator(pos, rplArgs, typeArgs, effectargs);
@@ -1213,10 +1165,10 @@ public class Parser {
                     break loop;
                 case DOT:
                     S.nextToken();
-                    rplArgs = regionArgumentsOpt(EXPR);
+                    rplArgs = null;
                     typeRPLEffectArgs = typeRPLEffectArgsOpt(EXPR);
                     typeArgs = typeRPLEffectArgs.typeArgs; //Opt(EXPR).typeArgs;
-                    rplArgs = typeRPLEffectArgs.getRPLArgs(rplArgs, pos);
+                    rplArgs = typeRPLEffectArgs.rplArgs;
                     effectargs = typeRPLEffectArgs.effectArgs;
                     if ((mode & EXPR) != 0) {
                         switch (S.token()) {
@@ -1252,11 +1204,10 @@ public class Parser {
                             mode = EXPR;
                             int pos1 = S.pos();
                             S.nextToken();
-                            if (S.token() == LTLT) rplArgs = regionArguments();
                             if (S.token() == LT) {
                         	typeRPLEffectArgs = typeRPLEffectArgs();
                         	typeArgs = typeRPLEffectArgs.typeArgs;
-                        	rplArgs = typeRPLEffectArgs.getRPLArgs(rplArgs, pos);
+                        	rplArgs = typeRPLEffectArgs.rplArgs;
                         	effectargs = typeRPLEffectArgs.effectArgs;
                             }
                             t = innerCreator(pos1, rplArgs, typeArgs, effectargs, t);
@@ -1266,7 +1217,7 @@ public class Parser {
                             break loop;
                         }
                     }
-                    // regionArgs and typeArgs saved for next loop iteration.
+                    // typeArgs saved for next loop iteration.
                     t = toP(F.at(pos).Select(t, ident()));
                     break;
                 default:
@@ -1275,7 +1226,7 @@ public class Parser {
             }
             if (rplArgs != null || typeArgs != null
         	    || effectargs != null) illegal();
-            t = typeRPLEffectArgsOpt(regionArgumentsOpt(t));
+            t = typeRPLEffectArgsOpt(t);
             break;
         // Basic types
         case BYTE: case SHORT: case CHAR: case INT: case LONG: case FLOAT:
@@ -1328,10 +1279,10 @@ public class Parser {
                 accept(RBRACKET);
             } else if (S.token() == DOT) {
                 S.nextToken();
-                rplArgs = regionArgumentsOpt(EXPR);
+                rplArgs = null;
                 typeRPLEffectArgs = typeRPLEffectArgsOpt(EXPR);
                 typeArgs = typeRPLEffectArgs.typeArgs; //Opt(EXPR).typeArgs;
-                rplArgs = typeRPLEffectArgs.getRPLArgs(rplArgs, pos);
+                rplArgs = typeRPLEffectArgs.rplArgs;
                 effectargs = typeRPLEffectArgs.effectArgs;
                 if (S.token() == SUPER && (mode & EXPR) != 0) {
                     // "." [TypeRPLEffectArgs] SUPER Arguments
@@ -1349,11 +1300,10 @@ public class Parser {
                     mode = EXPR;
                     int pos2 = S.pos();
                     S.nextToken();
-                    if (S.token() == LTLT) rplArgs = regionArguments();
                     if (S.token() == LT) {
                 	typeRPLEffectArgs = typeRPLEffectArgs();
                 	typeArgs = typeRPLEffectArgs.typeArgs;
-                	rplArgs = typeRPLEffectArgs.getRPLArgs(rplArgs, pos2);
+                	rplArgs = typeRPLEffectArgs.rplArgs;
                 	effectargs = typeRPLEffectArgs.effectArgs;
                     }
                     t = innerCreator(pos2, rplArgs, typeArgs, effectargs, t);
@@ -1363,7 +1313,7 @@ public class Parser {
                 } else {
                     t = toP(F.at(pos1).Select(t, ident()));
                     t = argumentsOpt(rplArgs, typeArgs, effectargs,
-                	    typeRPLEffectArgsOpt(regionArgumentsOpt(t)));
+                	    typeRPLEffectArgsOpt(t));
                     rplArgs = null;
                     typeArgs = null;
                     effectargs = null;
@@ -1394,11 +1344,10 @@ public class Parser {
         } else {
             int pos = S.pos();
             accept(DOT);
-            regionArgs = (S.token() == LTLT) ? regionArguments() : null;
             if (S.token() == LT) {
         	TypeRPLEffectArgs typeRPLEffectArgs = typeRPLEffectArgs();
         	typeArgs = typeRPLEffectArgs.typeArgs;
-        	regionArgs = typeRPLEffectArgs.getRPLArgs(regionArgs, pos);
+        	regionArgs = typeRPLEffectArgs.rplArgs;
         	effectargs = typeRPLEffectArgs.effectArgs;
             }
             t = toP(F.at(pos).Select(t, ident()));
@@ -1487,36 +1436,6 @@ public class Parser {
         return new TypeRPLEffectArgs(null, null, null);
     }
 
-    /**  RegionArgumentsOpt = [ RegionArguments ]
-     */
-    JCExpression regionArgumentsOpt(JCExpression t) {
-        if (S.token() == LTLT &&
-            (mode & TYPE) != 0 &&
-            (mode & NOPARAMS) == 0) {
-            mode = TYPE;
-            checkGenerics();
-            return regionArguments(t);
-        } else {
-            return t;
-        }
-    }
-    List<DPJRegionPathList> regionArgumentsOpt() {
-        return regionArgumentsOpt(TYPE);
-    }
-
-    List<DPJRegionPathList> regionArgumentsOpt(int useMode) {
-        if (S.token() == LTLT) {
-            checkGenerics();
-            if ((mode & useMode) == 0 ||
-                (mode & NOPARAMS) != 0) {
-                illegal();
-            }
-            mode = useMode;
-            return regionArguments();
-        }
-        return null;
-    }
-
     /** TypeRPLEffectArgs := "<" ( TypeArgs | RPLsEffectArgs | TypeArgs "," RPLEffectArgs ) ">"
      *  RPLEffectArgs := RPLArgs | EffectArgs | RPLArgs "," EffectArgs
      *  TypeArgs = TypeArgument {"," TypeArgument}
@@ -1537,16 +1456,6 @@ public class Parser {
 	    this.typeArgs = typeArgs;
 	    this.rplArgs = rplArgs;
 	    this.effectArgs = effectArgs;
-	}
-	/** If an rplArgs was provided with the old syntax, use it; otherwise use the
-	 *  rplArgs given with the new syntax.  Report an error if there are two sets of
-	 *  rplArgs.
-	 */
-	public List<DPJRegionPathList> getRPLArgs(List<DPJRegionPathList> rplArgs, int pos) {
-		if (rplArgs == null) return this.rplArgs;
-		if (this.rplArgs != null)
-		    log.error(pos, "duplicate.rpl.args");
-		return rplArgs;	    
 	}
     }
     
@@ -1576,28 +1485,6 @@ public class Parser {
             if (tokenIsStartOfEffect()) {        	
         	effectArgs = effectList();
             }
-            /*
-            switch (S.token()) {
-            case GTGTGTEQ:
-                S.token(GTGTEQ);
-                break;
-            case GTGTEQ:
-                S.token(GTEQ);
-                break;
-            case GTEQ:
-                S.token(EQ);
-                break;
-            case GTGTGT:
-                S.token(GTGT);
-                break;
-            case GTGT:
-                S.token(GT);
-                break;
-            default:
-                accept(GT);
-                break;
-            }
-            */
             endOfArgs();
         } else {
             syntaxError(S.pos(), "expected", keywords.token2string(LT));
@@ -1626,38 +1513,6 @@ public class Parser {
             accept(GT);
             break;
         }	
-    }
-    
-    /** DEPRECATED
-     *  RegionArguments  = "<<" RegionPathList {"," RegionPathList} ">>"
-     */
-    List<DPJRegionPathList> regionArguments() {
-        ListBuffer<DPJRegionPathList> args = lb();
-        if (S.token() == LTLT) {
-            S.nextToken();
-            args.append(rpl());
-            while (S.token() == COMMA) {
-                S.nextToken();
-                args.append(rpl());
-            }
-            switch (S.token()) {
-            case GTGTGTEQ:
-                S.token(GTEQ);
-                break;
-            case GTGTEQ:
-                S.token(EQ);
-                break;
-            case GTGTGT:
-                S.token(GT);
-                break;
-            default:
-                accept(GTGT);
-                break;
-            }
-        } else {
-            syntaxError(S.pos(), "expected", keywords.token2string(LTLT));
-        }
-        return args.toList();
     }
     
     /** TypeArgument = Type
@@ -1700,22 +1555,13 @@ public class Parser {
         TypeRPLEffectArgs typeRPLEffectArgs = typeRPLEffectArgs();
         List<JCExpression> typeArgs = typeRPLEffectArgs.typeArgs;
         List<DPJRegionPathList> rplArgs = null;
-        if (t instanceof DPJRegionApply) {
-            rplArgs = ((DPJRegionApply) t).arguments;
-        }
-        rplArgs = typeRPLEffectArgs.getRPLArgs(rplArgs, pos);
+        rplArgs = typeRPLEffectArgs.rplArgs;
         List<DPJEffect> effectArgs = typeRPLEffectArgs.effectArgs;
         JCTypeApply result = toP(F.at(pos).TypeApply(t, typeArgs, 
         	rplArgs, effectArgs));
         return result;
     }
     
-    DPJRegionApply regionArguments(JCExpression t) {
-        int pos = S.pos();
-        List<DPJRegionPathList> args = regionArguments();
-        return toP(F.at(pos).RegionApply(t, args));
-    }
-
     /** BracketsOpt = {"[" "]"}
      */
     private JCExpression bracketsOpt(JCExpression t, boolean regionsAllowed) {
@@ -1738,11 +1584,6 @@ public class Parser {
         	S.nextToken();
         	rpl = rpl();
         	accept(GT);
-            } else if (S.token() == LTLT) {
-                // Deprecated syntax
-        	S.nextToken();
-        	rpl = rpl();
-        	accept(GTGT);
             }
             if (S.token() == NUMBER) {
         	S.nextToken();
@@ -1801,10 +1642,6 @@ public class Parser {
         JCExpression t = qualident();
         int oldmode = mode;
         mode = TYPE;
-        if (S.token() == LTLT) {
-            checkGenerics();
-            t = regionArguments(t);
-        }
         if (S.token() == LT) {
             checkGenerics();
             t = typeRPLEffectArgs(t);
@@ -1813,10 +1650,6 @@ public class Parser {
             int pos = S.pos();
             S.nextToken();
             t = toP(F.at(pos).Select(t, ident()));
-            if (S.token() == LTLT) {
-        	checkGenerics();
-        	t = regionArguments(t);
-            }
             if (S.token() == LT) {
                 checkGenerics();
                 t = typeRPLEffectArgs(t);
@@ -1889,12 +1722,8 @@ public class Parser {
         	S.nextToken();
         	rpls.append(rpl());
         	accept(GT);
-            } else if (S.token() == LTLT) {
-        	// Deprecated syntax
-        	S.nextToken();
-        	rpls.append(rpl());
-        	accept(GTGT);
-            } else {
+            }
+            else {
         	rpls.append(null);
         	params.append(null);
             }
@@ -1917,12 +1746,8 @@ public class Parser {
                 	S.nextToken();
                 	rpls.append(rpl());
                 	accept(GT);
-                    } else if (S.token() == LTLT) {
-                	// Deprecated syntax
-                	S.nextToken();
-                	rpls.append(rpl());
-                	accept(GTGT);
-                    } else {
+                    }
+                    else {
                 	params.append(null);
                 	rpls.append(null);
                     }
@@ -2187,7 +2012,8 @@ public class Parser {
         case FOR: {
             S.nextToken();
             accept(LPAREN);
-            List<JCStatement> inits = S.token() == SEMI ? List.<JCStatement>nil() : forInit();
+            List<JCStatement> inits = S.token() == 
+        	    SEMI ? List.<JCStatement>nil() : forInit();
             if (inits.length() == 1 &&
                 inits.head.getTag() == JCTree.VARDEF &&
                 ((JCVariableDecl) inits.head).init == null &&
@@ -2203,7 +2029,8 @@ public class Parser {
                 accept(SEMI);
                 JCExpression cond = S.token() == SEMI ? null : expression();
                 accept(SEMI);
-                List<JCExpressionStatement> steps = S.token() == RPAREN ? List.<JCExpressionStatement>nil() : forUpdate();
+                List<JCExpressionStatement> steps = S.token() == 
+                	RPAREN ? List.<JCExpressionStatement>nil() : forUpdate();
                 accept(RPAREN);
                 JCStatement body = statement();
                 return F.at(pos).ForLoop(inits, cond, steps, body);
@@ -3266,10 +3093,9 @@ public class Parser {
         List<JCAnnotation> annotations = annotationsOpt();
         JCModifiers mods = F.at(annotations.isEmpty() ? 
         	Position.NOPOS : pos).Modifiers(flags, annotations);
-        List<DPJRegionPathList> regionArgs = regionArgumentsOpt();
         TypeRPLEffectArgs typeRPLEffectArgs = typeRPLEffectArgsOpt();
         List<JCExpression> typeArgs = typeRPLEffectArgs.typeArgs;
-        regionArgs = typeRPLEffectArgs.getRPLArgs(regionArgs, pos);
+        List<DPJRegionPathList>regionArgs = typeRPLEffectArgs.rplArgs;
         List<DPJEffect> effectargs = typeRPLEffectArgs.effectArgs;
         int identPos = S.pos();
         Name name = ident();
@@ -3290,7 +3116,7 @@ public class Parser {
         if (createPos != Position.NOPOS)
             storeEnd(create, S.prevEndPos());
         ident = F.at(Position.NOPOS).Ident(enumName);
-        JCTree result = toP(F.at(pos).VarDef(mods, name, null, ident, create)); // DPJ: null region
+        JCTree result = toP(F.at(pos).VarDef(mods, name, null, ident, create));
         attach(result, dc);
         return result;
     }

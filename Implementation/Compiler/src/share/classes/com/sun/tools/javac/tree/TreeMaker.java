@@ -450,12 +450,6 @@ public class TreeMaker implements JCTree.Factory {
         return tree;
     }
     
-    public DPJRegionApply RegionApply(JCExpression clazz, List<DPJRegionPathList> args) {
-	DPJRegionApply tree = new DPJRegionApply(clazz, args);
-	tree.pos = pos;
-	return tree;
-    }
-
     public JCTypeParameter TypeParameter(Name name, List<DPJRegionParameter> rplparams,
 	    List<JCExpression> bounds) {
         JCTypeParameter tree = new JCTypeParameter(name, rplparams, bounds);

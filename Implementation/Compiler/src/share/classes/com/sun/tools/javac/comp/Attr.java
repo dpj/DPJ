@@ -125,7 +125,6 @@ import com.sun.tools.javac.tree.JCTree.DPJFinish;
 import com.sun.tools.javac.tree.JCTree.DPJForLoop;
 import com.sun.tools.javac.tree.JCTree.DPJNonint;
 import com.sun.tools.javac.tree.JCTree.DPJParamInfo;
-import com.sun.tools.javac.tree.JCTree.DPJRegionApply;
 import com.sun.tools.javac.tree.JCTree.DPJRegionDecl;
 import com.sun.tools.javac.tree.JCTree.DPJRegionParameter;
 import com.sun.tools.javac.tree.JCTree.DPJRegionPathList;
@@ -354,11 +353,6 @@ public class Attr extends JCTree.Visitor {
 	    super.visitTypeApply(tree);
 	}
 	
-	@Override
-	public void visitRegionApply(DPJRegionApply tree) {
-	    //TODO: Enforce class region param constraints
-	    super.visitRegionApply(tree);
-	}
     }
     
     public static Attr instance(Context context) {
@@ -1905,8 +1899,6 @@ public class Attr extends JCTree.Visitor {
             (clazz.getTag() == JCTree.TYPEAPPLY)
             ? ((JCTypeApply) clazz).functor
             : clazz;
-        if (clazz.getTag() == JCTree.REGIONAPPLY)
-            clazzid = ((DPJRegionApply) clazz).clazz;
             
         JCExpression clazzid1 = clazzid; // The same in fully qualified form
 
@@ -1929,10 +1921,6 @@ public class Attr extends JCTree.Visitor {
                               ((JCTypeApply) clazz).typeArgs, 
                               ((JCTypeApply) clazz).rplArgs,
                               ((JCTypeApply) clazz).effectArgs);
-            else if (clazz.getTag() == JCTree.REGIONAPPLY)
-        	clazz = make.at(tree.pos).
-        	    RegionApply(clazzid1, 
-        		      ((DPJRegionApply) clazz).arguments);
             else
                 clazz = clazzid1;
 //          System.out.println(clazz + " generated.");//DEBUG
@@ -3283,28 +3271,21 @@ public class Attr extends JCTree.Visitor {
         	f = f.tail;
             }
 
-            // Use the RPL args previously inserted by visitRegionApply if 
-            // they are available.  Otherwise, use the ones given here.
             ClassType ct = (ClassType) functortype;
             List<RPL> rplActuals = null;
-            if (tree.functor instanceof DPJRegionApply) {
-        	// We did this already
-        	rplActuals = ct.getRPLArguments();
+            // Attribute RPL args.
+            rplActuals = attribRPLs(tree.rplArgs);
+            // Check actual vs. expected # of RPL args
+            counter = rplFormals.size() - rplActuals.size();
+            if (counter < 0) {
+        	// Too many rpl args ==> error
+        	log.error(tree.pos(), "too.many.rpl.args",
+        		Integer.toString(rplFormals.size()));
             } else {
-        	// OK, we need RPL args.  Attribute them.
-        	rplActuals = attribRPLs(tree.rplArgs);
-        	// Check actual vs. expected # of RPL args
-                counter = rplFormals.size() - rplActuals.size();
-                if (counter < 0) {
-                    // Too many rpl args ==> error
-                    log.error(tree.pos(), "too.many.rpl.args",
-            			Integer.toString(rplFormals.size()));
-                } else {
-                    // Not enough rpl args ==> fill the rest in with Root
-                    while (counter-- > 0) {
-            	    	rplActuals = rplActuals.append(RPLs.ROOT);
-                    }
-                }
+        	// Not enough rpl args ==> fill the rest in with Root
+        	while (counter-- > 0) {
+        	    rplActuals = rplActuals.append(RPLs.ROOT);
+        	}
             }
 
             // Attribute effect args
@@ -3963,63 +3944,6 @@ public class Attr extends JCTree.Visitor {
 	}
     }
     
-    /** Visitor method for region parameters applied to a region-parameterized type.
-     */
-    public void visitRegionApply(DPJRegionApply tree) {
-        Type owntype = syms.errType;
-	
-        // Attribute functor part of application and make sure it's a class.
-        Type clazztype = chk.checkClassType(tree.clazz.pos(), attribType(tree.clazz, env));
-
-        // Attribute type parameters
-        List<RPL> actuals = attribRPLs(tree.arguments);
-
-        if (clazztype.tag == CLASS) {
-            List<RPL> formals = 
-        	clazztype.tsym.type.getRPLArguments();
-            
-            while (actuals.length() < formals.length()) {
-        	actuals = actuals.append(RPLs.ROOT);
-            }
-            
-            if (actuals.length() == formals.length()) {
-                
-                // Compute the proper generic outer
-                Type clazzOuter = clazztype.getEnclosingType();
-                if (clazzOuter.tag == CLASS) {
-                    Type site;
-                    if (tree.clazz.getTag() == JCTree.IDENT) {
-                        site = env.enclClass.sym.type;
-                    } else if (tree.clazz.getTag() == JCTree.SELECT) {
-                        site = ((JCFieldAccess) tree.clazz).selected.type;
-                    } else throw new AssertionError(""+tree);
-                    if (clazzOuter.tag == CLASS && site != clazzOuter) {
-                        if (site.tag == CLASS)
-                            site = types.asOuterSuper(site, clazzOuter.tsym);
-                        if (site == null)
-                            site = types.erasure(clazzOuter);
-                        clazzOuter = site;
-                    }
-                }
-                ClassType ct = (ClassType) clazztype;
-                owntype = new ClassType(clazzOuter, ct.typarams_field, 
-                	actuals, List.<Effects>nil(), clazztype.tsym, null);
-
-            } else {
-                if (formals.length() != 0) {
-                    log.error(tree.pos(), "wrong.number.type.args",
-                              Integer.toString(formals.length()));
-                } else {
-                    log.error(tree.pos(), "type.doesnt.take.params", clazztype.tsym);
-                }
-                owntype = syms.errType;
-            }
-        }
-                
-        result = check(tree, owntype, TYP, pkind, pt);
-
-    }
-
     public void visitEffect(DPJEffect tree) {
 	attribRPLs(tree.readEffects);
 	attribRPLs(tree.writeEffects);

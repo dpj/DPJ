@@ -2322,11 +2322,6 @@ public class Lower extends TreeTranslator {
 	result = tree;
     }
 
-    public void visitRegionApply(DPJRegionApply tree) {
-	tree.clazz = translate(tree.clazz);
-	result = tree;
-    }
-    
     public void visitTypeApply(JCTypeApply tree) {
 	tree.functor = translate(tree.functor);
 	for (List<JCExpression> l = tree.typeArgs; l.nonEmpty(); l = l.tail)

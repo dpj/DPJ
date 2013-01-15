@@ -2017,19 +2017,6 @@ public class Pretty extends JCTree.Visitor {
         }
     }
     
-    public void visitRegionApply(DPJRegionApply tree) {
-        try {
-            printExpr(tree.clazz);
-            if (codeGenMode == NONE) {
-        	print("<<");
-        	printExprs(tree.arguments);
-        	print(">>");
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }	
-    }
-
     public void visitTypeParameter(JCTypeParameter tree) {
         try {
             print(tree.name);

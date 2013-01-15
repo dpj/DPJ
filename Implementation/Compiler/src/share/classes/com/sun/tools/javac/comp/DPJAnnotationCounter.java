@@ -7,7 +7,6 @@ import com.sun.tools.javac.parser.Parser;
 import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.tree.JCTree.DPJEffect;
 import com.sun.tools.javac.tree.JCTree.DPJParamInfo;
-import com.sun.tools.javac.tree.JCTree.DPJRegionApply;
 import com.sun.tools.javac.tree.JCTree.DPJRegionDecl;
 import com.sun.tools.javac.tree.JCTree.DPJRegionParameter;
 import com.sun.tools.javac.tree.JCTree.DPJRegionPathList;
@@ -337,14 +336,6 @@ public class DPJAnnotationCounter extends TreeScanner {
 	}
     }
 
-    @Override
-    public void visitRegionApply(DPJRegionApply tree) {
-	Context savedContext = context;
-	context = Context.TYPE;
-	super.visitRegionApply(tree);
-	context = savedContext;			
-    }
-    
     @Override
     public void visitTypeApply(JCTypeApply tree) {
 	typeTypeArgCount += tree.typeArgs.size();

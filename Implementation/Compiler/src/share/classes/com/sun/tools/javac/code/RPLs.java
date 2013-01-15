@@ -169,19 +169,6 @@ public class RPLs {
 	return true;
     }
     
-    /**
-     * The RPL of a given VarSymbol, seen as a member of t
-     */
-    public RPL memberRPL(Types types, Type t, VarSymbol vsym) {
-        Symbol owner = vsym.owner;
-        long flags = vsym.flags();
-	RPL result = vsym.rpl;
-	if (owner.kind == Kinds.TYP && result != null && ((flags & STATIC) == 0)) {
-	    result = result.asMemberOf(t, types);
-        }
-        return result;
-    }
-    
     public List<RPL> substIndices(List<RPL> rpls, List<VarSymbol> from, 
 	    List<JCExpression> to) {
 	ListBuffer<RPL> buf = ListBuffer.<RPL>lb();

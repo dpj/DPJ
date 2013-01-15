@@ -377,12 +377,6 @@ public class TreeTranslator extends JCTree.Visitor {
 	result = tree;
     }
     
-    public void visitRegionApply(DPJRegionApply tree) {
-	tree.clazz = translate(tree.clazz);
-	tree.arguments = translate(tree.arguments);
-	result = tree;
-    }
-    
     public void visitSpawn(DPJSpawn tree) {
 	tree.body = translate(tree.body);
 	result = tree;

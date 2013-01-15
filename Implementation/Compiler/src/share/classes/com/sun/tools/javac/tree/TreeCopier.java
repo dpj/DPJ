@@ -97,7 +97,6 @@ import com.sun.tools.javac.tree.JCTree.DPJFinish;
 import com.sun.tools.javac.tree.JCTree.DPJForLoop;
 import com.sun.tools.javac.tree.JCTree.DPJNonint;
 import com.sun.tools.javac.tree.JCTree.DPJParamInfo;
-import com.sun.tools.javac.tree.JCTree.DPJRegionApply;
 import com.sun.tools.javac.tree.JCTree.DPJRegionParameter;
 import com.sun.tools.javac.tree.JCTree.DPJRegionPathList;
 import com.sun.tools.javac.tree.JCTree.DPJRegionPathListElt;
@@ -630,13 +629,6 @@ public class TreeCopier<P> implements TreeVisitor<JCTree,P> {
         }
         return M.at(t.pos).ParamInfo(params, rplConstraints.toList(), 
         	effectParams, effectConstraints.toList());
-    }
-    
-    public JCTree visitRegionParamType(RegionParamTypeTree node, P p) {
-	DPJRegionApply t = (DPJRegionApply) node;
-	JCExpression clazz = copy(t.clazz, p);
-	List<DPJRegionPathList> args = copy(t.arguments, p);
-	return M.at(t.pos).RegionApply(clazz, args);
     }
     
     public JCTree visitSpawn(SpawnTree node, P p) {

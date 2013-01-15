@@ -487,11 +487,6 @@ public class TransTypes extends TreeTranslator {
         result = tree;
     }
     
-    public void visitRegionApply(DPJRegionApply tree) {
-	tree.clazz = translate(tree.clazz);
-	result = tree;
-    }
-
     public void visitForLoop(JCForLoop tree) {
         tree.init = translate(tree.init, null);
         if (tree.cond != null)
