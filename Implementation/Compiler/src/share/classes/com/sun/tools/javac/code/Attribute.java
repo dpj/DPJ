@@ -118,7 +118,8 @@ public abstract class Attribute implements AnnotationValue {
                                       List.of(arg),
                                       List.<RPL>nil(), 
                                       List.<Effects>nil(),
-                                      types.syms.classType.tsym);
+                                      types.syms.classType.tsym,
+                                      types.syms.classType.getCellType());
         }
 	public String toString() {
 	    return type + ".class";

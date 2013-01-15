@@ -764,7 +764,7 @@ public abstract class Symbol implements
                 flags,
                 name,
                 new ClassType(Type.noType, null, List.<RPL>nil(), 
-                	List.<Effects>nil(), null),
+                	List.<Effects>nil(), null, null),
                 owner);
             this.type.tsym = this;
         }
@@ -792,12 +792,14 @@ public abstract class Symbol implements
         }
 
         public Type erasure(Types types) {
-            if (erasure_field == null)
-                erasure_field = new ClassType(types.erasure(type.getEnclosingType()),
+            if (erasure_field == null) {
+        	Type enclosingType = types.erasure(type.getEnclosingType());
+                erasure_field = new ClassType(enclosingType,
                                               List.<Type>nil(),
                                               List.<RPL>nil(),
                                               List.<Effects>nil(),
-                                              this);
+                                              this, enclosingType.getCellType());
+            }
             return erasure_field;
         }
 
@@ -1103,7 +1105,7 @@ public abstract class Symbol implements
         	ClassType erasedType = 
         	    new ClassType(ownerType.outer_field, List.<Type>nil(), 
         		    List.<RPL>nil(), List.<Effects>nil(), 
-        		    owner.type.tsym);
+        		    owner.type.tsym, ownerType.getCellType());
         	erasedType.DPJerased = true;
         	String result = erasedType.toString() + "." + name.toString();
         	return result;

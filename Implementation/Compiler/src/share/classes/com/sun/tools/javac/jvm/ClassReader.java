@@ -645,7 +645,7 @@ public class ClassReader extends ClassFile implements Completer {
                     outer = t.erasure(types);
                 else
                     outer = new ClassType(outer, List.<Type>nil(), 
-                	    List.<RPL>nil(), List.<Effects>nil(), t);
+                	    List.<RPL>nil(), List.<Effects>nil(), t, null);
                 sbp = startSbp;
                 return outer;
             }
@@ -655,7 +655,7 @@ public class ClassReader extends ClassFile implements Completer {
                                                          startSbp,
                                                          sbp - startSbp));
                 outer = new ClassType(outer, sigToTypes('>'), List.<RPL>nil(), 
-                	List.<Effects>nil(), t) {
+                	List.<Effects>nil(), t, null) {
                         boolean completed = false;
                         public Type getEnclosingType() {
                             if (!completed) {

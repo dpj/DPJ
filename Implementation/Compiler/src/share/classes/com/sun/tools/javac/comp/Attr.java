@@ -266,6 +266,15 @@ public class Attr extends JCTree.Visitor {
 	    attr = Attr.instance(context);
 	    rpls = RPLs.instance(context);
 	}
+	
+        @Override public void visitVarDef(JCVariableDecl tree) {
+            Type varType = tree.vartype.type;
+            if (varType != null) {
+                // Compute the cell types for all field types now.                                                          
+                attr.computeCellType(parentEnv, varType.tsym, varType);
+            }
+            super.visitVarDef(tree);
+        }
 
 	@Override
 	public void visitMethodDef(JCMethodDecl tree) {
@@ -1806,7 +1815,7 @@ public class Attr extends JCTree.Visitor {
                                                                syms.boundClass)),
                               List.<RPL>nil(),
                               List.<Effects>nil(),
-                              restype.tsym);
+                              restype.tsym, null);
             }
 
             // Substitutions required by DPJ type system
@@ -2337,6 +2346,14 @@ public class Attr extends JCTree.Visitor {
         		List.<JCExpression>of(tree.index));
             }
         }
+        else if (types.isArrayClass(atype)) {
+            ClassType ct = (ClassType) atype;
+            Type site = capture(ct);
+	    Symbol sym = rs.findIdentInType(env, site, names.fromString("cell"), VAR);
+	    owntype = types.memberType(site, sym);
+	    result = check(tree, owntype, VAR, pkind, pt);
+            return;
+        }
         else if (atype.tag != ERROR)
             log.error(tree.pos(), "array.req.but.found", atype);
         if ((pkind & VAR) == 0) owntype = capture(owntype);
@@ -2431,8 +2448,27 @@ public class Attr extends JCTree.Visitor {
 	env.info.siteVar = null;
 	env.info.siteExp = null;
         result = checkId(tree, env1.enclClass.sym.type, sym, env, pkind, pt, varArgs);
+        computeCellType(env1, tree.sym, result);
     }
 
+    /**                                                                                                                     
+     * Compute the cell type for an array class                                                                             
+     * @param env   The current environment                                                                                 
+     * @param sym   The type or class symbol whose cell type we are computing                                               
+     * @param type  The instantiated type of the class                                                                      
+     */
+    private void computeCellType(Env<AttrContext> env, Symbol sym, Type type) {
+        if ((sym.kind == TYP || sym.kind == CLASS) &&
+		types.isArrayClass(type)) {
+            Symbol cellSym = rs.findIdentInType(env, type,
+	            names.fromString("cell"), VAR);
+            if (cellSym != rs.varNotFound) {
+                Type cellType = types.memberType(type, cellSym);
+                type.setCellType(cellType);
+                sym.type.setCellType(cellType);
+            }
+        }
+    }
 
     public void visitSelect(JCFieldAccess tree) {
         // Determine the expected kind of the qualifier expression.
@@ -2600,7 +2636,7 @@ public class Attr extends JCTree.Visitor {
                         : List.<Type>nil();
                     t = new ClassType(t.getEnclosingType(), typeargs, 
                 	    List.<RPL>nil(), 
-                	    List.<Effects>nil(), t.tsym);
+                	    List.<Effects>nil(), t.tsym, null);
                     return new VarSymbol(
                         STATIC | PUBLIC | FINAL, names._class, t, site.tsym);
                 } else {
@@ -2641,7 +2677,7 @@ public class Attr extends JCTree.Visitor {
                     Type arg = types.boxedClass(site).type;
                     t = new ClassType(t.getEnclosingType(), List.of(arg), 
                 	    List.<RPL>nil(), 
-                	    List.<Effects>nil(), t.tsym);
+                	    List.<Effects>nil(), t.tsym, null);
                     return new VarSymbol(
                         STATIC | PUBLIC | FINAL, names._class, t, site.tsym);
                 } else {
@@ -2734,7 +2770,7 @@ public class Attr extends JCTree.Visitor {
                             owntype = new ClassType(
                                 normOuter, List.<Type>nil(), 
                                 List.<RPL>nil(), 
-                                List.<Effects>nil(), owntype.tsym);
+                                List.<Effects>nil(), owntype.tsym, null);
                     }
                 }
                 break;
@@ -3138,7 +3174,6 @@ public class Attr extends JCTree.Visitor {
             
             // Attribute the RPL args
             List<RPL> rplargs = attribRPLs(tree.rplArgs);
-            //tvartype.rplargs = rplargs;
             
             // Check # of args
             if (rplargs.size() != tvartype.rplparams.size()) {
@@ -3294,10 +3329,10 @@ public class Attr extends JCTree.Visitor {
             // Construct the instantiated type with the type, RPL, and effect args
             owntype = new ClassType(clazzOuter, actuals, 
         	    rplActuals, effectActuals,
-        	    functortype.tsym);
+        	    functortype.tsym, null);
         }
         result = check(tree, owntype, TYP, pkind, pt);
-
+        computeCellType(env, tree.functor.getSymbol(), result);
     }
 
     /** Helper function:  Make a list of expressions, some of which may have
@@ -3849,7 +3884,7 @@ public class Attr extends JCTree.Visitor {
                 }
                 ClassType ct = (ClassType) clazztype;
                 owntype = new ClassType(clazzOuter, ct.typarams_field, 
-                	actuals, List.<Effects>nil(), clazztype.tsym);
+                	actuals, List.<Effects>nil(), clazztype.tsym, null);
 
             } else {
                 if (formals.length() != 0) {

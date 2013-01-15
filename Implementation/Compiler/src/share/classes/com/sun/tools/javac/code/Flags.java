@@ -106,8 +106,12 @@ public class Flags {
      */
     public static final int ISCOMMUTATIVE    = 1<<15;
     
+    /** Flag that denotes an array class                                                                           
+     */
+    public static final int ARRAYCLASS            = 1<<16;
+    
     public static final int StandardFlags = 0x0fff;
-    public static final int DPJStandardFlags = StandardFlags | ISCOMMUTATIVE;
+    public static final int DPJStandardFlags = StandardFlags | ISCOMMUTATIVE | ARRAYCLASS;
 
     // Because the following access flags are overloaded with other
     // bit positions, we translate them when reading and writing class
@@ -223,12 +227,17 @@ public class Flags {
      * Flag that marks a Sun proprietary class.
      */
     public static final long PROPRIETARY = 1L<<38;
+    
+    /**                                                                                                                     
+     * Flag that marks an array class constructor                                                                           
+     */
+    public static final long ARRAYCONSTR = 1L<<39;
 
     /** Modifier masks.
      */
     public static final int
         AccessFlags           = PUBLIC | PROTECTED | PRIVATE,
-        LocalClassFlags       = FINAL | ABSTRACT | STRICTFP | ENUM | SYNTHETIC,
+        LocalClassFlags       = FINAL | ABSTRACT | STRICTFP | ENUM | SYNTHETIC | ARRAYCLASS,
         MemberClassFlags      = LocalClassFlags | INTERFACE | AccessFlags,
         ClassFlags            = LocalClassFlags | INTERFACE | PUBLIC | ANNOTATION,
         InterfaceVarFlags     = FINAL | STATIC | PUBLIC,

@@ -26,6 +26,7 @@
 package com.sun.tools.javac.parser;
 
 import static com.sun.tools.javac.parser.Token.AMP;
+import static com.sun.tools.javac.parser.Token.ARRAYCLASS;
 import static com.sun.tools.javac.parser.Token.ASSERT;
 import static com.sun.tools.javac.parser.Token.BAR;
 import static com.sun.tools.javac.parser.Token.CASE;
@@ -96,11 +97,10 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Source;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeInfo;
-import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.tree.JCTree.DPJEffect;
 import com.sun.tools.javac.tree.JCTree.DPJParamInfo;
 import com.sun.tools.javac.tree.JCTree.DPJRegionApply;
+import com.sun.tools.javac.tree.JCTree.DPJRegionDecl;
 import com.sun.tools.javac.tree.JCTree.DPJRegionParameter;
 import com.sun.tools.javac.tree.JCTree.DPJRegionPathList;
 import com.sun.tools.javac.tree.JCTree.DPJRegionPathListElt;
@@ -126,7 +126,6 @@ import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javac.tree.JCTree.JCNewArray;
 import com.sun.tools.javac.tree.JCTree.JCNewClass;
 import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
-import com.sun.tools.javac.tree.JCTree.DPJRegionDecl;
 import com.sun.tools.javac.tree.JCTree.JCReturn;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javac.tree.JCTree.JCSwitch;
@@ -135,6 +134,8 @@ import com.sun.tools.javac.tree.JCTree.JCTypeApply;
 import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.JCTree.TypeBoundKind;
+import com.sun.tools.javac.tree.TreeInfo;
+import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Convert;
 import com.sun.tools.javac.util.List;
@@ -325,6 +326,7 @@ public class Parser {
                 case MONKEYS_AT:
                 case EOF:
                 case CLASS:
+                case ARRAYCLASS:
                 case INTERFACE:
                 case ENUM:
                     return;
@@ -2082,6 +2084,9 @@ public class Parser {
                 stats.append(classOrInterfaceOrEnumDeclaration(modifiersOpt(),
                                                                S.docComment()));
                 break;
+            case ARRAYCLASS:
+                stats.append(arrayClassDeclaration(modifiersOpt(), S.docComment()));
+                break;
             case ENUM:
             case ASSERT:
                 if (allowEnums && S.token() == ENUM) {
@@ -2558,6 +2563,7 @@ public class Parser {
         switch (S.token()) {
         case ENUM: flags |= Flags.ENUM; break;
         case INTERFACE: flags |= Flags.INTERFACE; break;
+        case ARRAYCLASS: flags |= Flags.ARRAYCLASS; break;
         default: break;
         }
 
@@ -3026,7 +3032,10 @@ public class Parser {
      *  @param dc       The documentation comment for the class, or null.
      */
     JCStatement classOrInterfaceOrEnumDeclaration(JCModifiers mods, String dc) {
-        if (S.token() == CLASS) {
+        if (S.token() == ARRAYCLASS) {
+            return arrayClassDeclaration(mods, dc);
+        }
+	if (S.token() == CLASS) {
             return classDeclaration(mods, dc);
         } else if (S.token() == INTERFACE) {
             return interfaceDeclaration(mods, dc);
@@ -3125,6 +3134,59 @@ public class Parser {
             mods, name, rgnparamInfo, typarams, null, extending, defs));
         attach(result, dc);
         return result;
+    }
+    
+    /** ArrayClassDeclaration = ARRAYCLASS Ident ParametersOpt ArrayBody                                                
+     *  @param mods   The modifiers starting the array declaration                                                 
+     *  @param dc     The documentation comment for the array, or null                                             
+     */
+    JCClassDecl arrayClassDeclaration(JCModifiers mods, String dc) {
+        int pos = S.pos();
+        accept(ARRAYCLASS);
+        Name name = ident();
+
+        Pair<List<JCTypeParameter>,DPJParamInfo> params = typeRPLEffectParamsOpt();
+        List<JCTypeParameter> typarams = params.fst;
+        DPJParamInfo dpjParamInfo = params.snd;
+
+        List<JCTree> defs = arrayBody(name);
+        JCModifiers newMods =
+            F.at(mods.pos).Modifiers(mods.flags|Flags.ARRAYCLASS, mods.annotations);
+        JCClassDecl result = toP(F.at(pos).
+            ClassDef(newMods, name, dpjParamInfo, typarams, null,
+                    List.<JCExpression>nil(), defs));
+        attach(result, dc);
+        return result;
+    }
+    
+    /** ArrayBody = { RegionDeclarations }                                                                                  
+     *              RefPermOpt Type VariableDeclaratorRest ";"                                                              
+     *                                                                                                                      
+     */
+    List<JCTree> arrayBody(Name arrayName) {
+        accept(LBRACE);
+        int flags = Flags.PUBLIC;
+        String dc = S.docComment();
+        List<JCAnnotation> annotations = annotationsOpt();
+        JCModifiers mods = F.at(annotations.isEmpty() ?
+                Position.NOPOS : S.pos()).Modifiers(flags, annotations);
+        ListBuffer<JCTree> defs = new ListBuffer<JCTree>();
+
+        // Get region decls, if any                                                                                         
+        if (S.token() == REGION) {
+            regionDeclarations(S.pos(), mods, dc, defs).toList();
+        }
+
+        // Get field decl                                                                                                   
+        JCExpression type = type();
+        JCVariableDecl var =
+                variableDeclaratorRest(S.pos(), mods, type,
+                        names.fromString("cell"), false, true, dc);
+        storeEnd(var, S.endPos());
+        defs.append(var);
+        accept(SEMI);
+        accept(RBRACE);
+        return defs.toList();
     }
 
     /** EnumDeclaration = ENUM Ident [IMPLEMENTS TypeList] EnumBody

@@ -1055,9 +1055,11 @@ public class Types {
             ClassType cs = (ClassType) s;
             ClassType ct = (ClassType) t;
             s = new ClassType(cs.outer_field, cs.typarams_field, 
-        	    List.<RPL>nil(), List.<Effects>nil(), cs.tsym);
+        	    List.<RPL>nil(), List.<Effects>nil(), cs.tsym,
+        	    cs.getCellType());
             t = new ClassType(ct.outer_field, ct.typarams_field, 
-        	    List.<RPL>nil(), List.<Effects>nil(), ct.tsym);
+        	    List.<RPL>nil(), List.<Effects>nil(), ct.tsym,
+        	    ct.getCellType());
         }
 
         if (t.isPrimitive() != s.isPrimitive())
@@ -1427,6 +1429,12 @@ public class Types {
         while (t.tag == WILDCARD)
             t = upperBound(t);
         return t.tag == ARRAY;
+    }
+
+    public boolean isArrayClass(Type t) {
+        while (t.tag == WILDCARD)
+            t = upperBound(t);
+        return  (t.tsym.flags() & Flags.ARRAYCLASS) != 0;
     }
 
     /**
@@ -2062,7 +2070,8 @@ public class Types {
                 if (outer1 != t.getEnclosingType())
                     return new ClassType(outer1, t.getTypeArguments(), 
                 	    t.tsym.type.getRPLArguments(), 
-                	    t.getEffectArguments(), t.tsym);
+                	    t.getEffectArguments(), t.tsym,
+                	    t.getCellType());
                 else
                     return t;
             }
@@ -2254,7 +2263,7 @@ public class Types {
                 	 result = new ClassType(ct.getEnclosingType(), ct.getTypeArguments(),
                 		 buf.toList(), 
                 		 ct.getEffectArguments(),
-                		 ct.tsym);
+                		 ct.tsym, ct.getCellType());
                      } else if (result.tag == TYPEVAR && 
                 	     !(result instanceof CapturedType)) {
                 	 TypeVar tv = (TypeVar) result;
@@ -2282,7 +2291,7 @@ public class Types {
                     Type result = new ClassType(outer1, typarams1, 
                 	    t.getRPLArguments(),
                     	    t.getEffectArguments(),
-                	    t.tsym);
+                	    t.tsym, t.getCellType());
                     return result;
                 }
             } else {
@@ -2421,7 +2430,7 @@ public class Types {
                 Type outer = t.getEnclosingType();
                 Type outer1 = transformType(outer);
                 return new ClassType(outer1, typarams1, 
-                	rgnactuals1, effectargs1, t.tsym);
+                	rgnactuals1, effectargs1, t.tsym, t.getCellType());
             } else {
                 Type st = transformType(supertype(t));
                 List<Type> is = upperBounds(transformTypes(interfaces(t)));
@@ -2562,7 +2571,8 @@ public class Types {
                     return t;
                 else
                     return new ClassType(outer1, typarams1, 
-                	    rgnactuals1, effectparams1, t.tsym);
+                	    rgnactuals1, effectparams1, t.tsym,
+                	    t.getCellType());
             } else {
                 Type st = substIndices(supertype(t));
                 List<Type> is = upperBounds(substIndices(interfaces(t)));
@@ -2732,7 +2742,8 @@ public class Types {
                 Type outer = t.getEnclosingType();
                 Type outer1 = substRPL(outer);
                 return new ClassType(outer1, typarams1, 
-                	rgnactuals1, effectargs1, t.tsym);
+                	rgnactuals1, effectargs1, t.tsym,
+                	t.getCellType());
             } else {
                 Type st = substRPL(supertype(t));
                 List<Type> is = upperBounds(substRPL(interfaces(t)));
@@ -2863,7 +2874,8 @@ public class Types {
                 Type outer = t.getEnclosingType();
                 Type outer1 = substEffect(outer);
                 return new ClassType(outer1, typarams1, 
-                	t.getRPLArguments(), effectargs1, t.tsym);
+                	t.getRPLArguments(), effectargs1, t.tsym,
+                	t.getCellType());
             } else {
                 Type st = substEffect(supertype(t));
                 List<Type> is = upperBounds(substEffect(interfaces(t)));
@@ -3302,7 +3314,8 @@ public class Types {
             assert(act1.isEmpty() && act2.isEmpty() && typarams.isEmpty());
             return new ClassType(class1.getEnclosingType(), merged.toList(), 
         	    List.<RPL>nil(), 
-        	    List.<Effects>nil(), class1.tsym);
+        	    List.<Effects>nil(), class1.tsym,
+        	    class1.getCellType());
         }
 
     /**
@@ -3721,7 +3734,7 @@ public class Types {
 
         if (captured)
             return new ClassType(cls.getEnclosingType(), S, cls.rplparams_field, 
-        	    cls.effectparams_field, cls.tsym);
+        	    cls.effectparams_field, cls.tsym, cls.getCellType());
         else
             return t;
     }
@@ -3786,7 +3799,7 @@ public class Types {
 	
 	return (capturedRPLs || capturedEffects) ? 
 		new ClassType(ct.outer_field, ct.typarams_field, 
-		rpls, effects, ct.tsym) : t;
+		rpls, effects, ct.tsym, ct.getCellType()) : t;
     }
     
     // <editor-fold defaultstate="collapsed" desc="Internal utility methods">

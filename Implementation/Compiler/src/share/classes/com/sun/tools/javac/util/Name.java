@@ -478,6 +478,7 @@ public class Name implements javax.lang.model.element.Name {
 	    forName = fromString("forName");
 	    toString = fromString("toString");
 	    length = fromString("length");
+	    index = fromString("index");
 	    valueOf = fromString("valueOf");
 	    value = fromString("value");
 	    getMessage = fromString("getMessage");
@@ -616,6 +617,7 @@ public class Name implements javax.lang.model.element.Name {
 	public final Name forName;
 	public final Name toString;
 	public final Name length;
+	public final Name index;
 	public final Name valueOf;
 	public final Name value;
 	public final Name getMessage;

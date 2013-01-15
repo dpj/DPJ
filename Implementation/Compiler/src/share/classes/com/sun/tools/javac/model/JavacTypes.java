@@ -255,7 +255,7 @@ public class JavacTypes implements javax.lang.model.util.Types {
 	    
 	    return (DeclaredType) new Type.ClassType(outer, targs.toList(), 
 		    List.<RPL>nil(), 
-		    List.<Effects>nil(), sym);
+		    List.<Effects>nil(), sym, null);
 	}
 
     /**

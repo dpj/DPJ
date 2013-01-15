@@ -238,6 +238,6 @@ public class TypesImpl implements Types {
 	return (DeclaredType) env.typeMaker.getType(
 		new Type.ClassType(outer, targs.toList(), 
 			List.<RPL>nil(), 
-			List.<Effects>nil(), sym));
+			List.<Effects>nil(), sym, null));
     }
 }

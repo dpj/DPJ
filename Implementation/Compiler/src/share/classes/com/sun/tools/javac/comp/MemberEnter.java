@@ -28,6 +28,8 @@ package com.sun.tools.javac.comp;
 import static com.sun.tools.javac.code.Flags.ANNOTATION;
 import static com.sun.tools.javac.code.Flags.ANONCONSTR;
 import static com.sun.tools.javac.code.Flags.AccessFlags;
+import static com.sun.tools.javac.code.Flags.ARRAYCLASS;
+import static com.sun.tools.javac.code.Flags.ARRAYCONSTR;
 import static com.sun.tools.javac.code.Flags.DEPRECATED;
 import static com.sun.tools.javac.code.Flags.ENUM;
 import static com.sun.tools.javac.code.Flags.FINAL;
@@ -53,18 +55,15 @@ import java.util.Set;
 import javax.tools.JavaFileObject;
 
 import com.sun.tools.javac.code.Attribute;
+import com.sun.tools.javac.code.Effect.VariableEffect;
 import com.sun.tools.javac.code.Effects;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.RPL;
 import com.sun.tools.javac.code.RPLElement;
+import com.sun.tools.javac.code.RPLElement.RPLParameterElement;
 import com.sun.tools.javac.code.RPLs;
 import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symtab;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.Types;
-import com.sun.tools.javac.code.Effect.VariableEffect;
-import com.sun.tools.javac.code.RPLElement.RPLParameterElement;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.Completer;
 import com.sun.tools.javac.code.Symbol.CompletionFailure;
@@ -72,20 +71,22 @@ import com.sun.tools.javac.code.Symbol.EffectParameterSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
 import com.sun.tools.javac.code.Symbol.RegionNameSymbol;
-import com.sun.tools.javac.code.Symbol.RegionParameterSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Symtab;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ForAll;
 import com.sun.tools.javac.code.Type.MethodType;
+import com.sun.tools.javac.code.TypeTags;
+import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.jvm.ClassReader;
 import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeInfo;
-import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.tree.JCTree.DPJEffect;
 import com.sun.tools.javac.tree.JCTree.DPJParamInfo;
+import com.sun.tools.javac.tree.JCTree.DPJRegionDecl;
 import com.sun.tools.javac.tree.JCTree.DPJRegionParameter;
 import com.sun.tools.javac.tree.JCTree.DPJRegionPathList;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
@@ -99,21 +100,21 @@ import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCImport;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCNewClass;
-import com.sun.tools.javac.tree.JCTree.DPJRegionDecl;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
-import com.sun.tools.javac.tree.JCTree.JCTypeApply;
 import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
+import com.sun.tools.javac.tree.TreeInfo;
+import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.FatalError;
 import com.sun.tools.javac.util.JCDiagnostic;
+import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Options;
 import com.sun.tools.javac.util.Position;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 
 /** This is the second phase of Enter, in which classes are completed
  *  by entering their members into the class scope using
@@ -1026,7 +1027,8 @@ public class MemberEnter extends JCTree.Visitor implements Completer {
                                                                    List.of(c.type),
                                                                    List.<RPL>nil(),
                                                                    List.<Effects>nil(),
-                                                                   syms.comparableType.tsym)));
+                                                                   syms.comparableType.tsym,
+                                                                   null)));
                 // add interface Serializable
                 interfaceTrees =
                     interfaceTrees.prepend(make.Type(syms.serializableType));
@@ -1096,6 +1098,44 @@ public class MemberEnter extends JCTree.Visitor implements Completer {
                                                     typarams, argtypes, thrown,
                                                     ctorFlags, based);
                 tree.defs = tree.defs.prepend(constrDef);
+            }
+            
+            if ((c.flags() & ARRAYCLASS) != 0) {
+                // Add array class constructor                                                                              
+                List<Type> argtypes = List.of(syms.intType);
+                List<JCVariableDecl> params = make.Params(argtypes, syms.noSymbol);
+                long ctorFlags = PUBLIC | ARRAYCONSTR;
+                JCTree constrDef = make.MethodDef(
+                    make.Modifiers(ctorFlags),
+                    names.init,
+                    null,
+                    null,
+                    make.TypeParams(List.<Type>nil()),
+                    params,
+                    List.<JCExpression>nil(),
+                    make.Block(0, List.<JCStatement>nil()),
+                    null,
+                    null);
+                tree.defs = tree.defs.prepend(constrDef);
+
+                // Add length field for array class                                                                         
+                JCTree length = make.VarDef(
+                        make.Modifiers(PUBLIC | FINAL),
+                        names.length,
+                        null,
+                        make.Type(syms.typeOfTag[TypeTags.INT]),
+                        make.Literal(new Integer(0)));
+                tree.defs = tree.defs.prepend(length);
+                
+                // Add index field for array class
+                JCTree index = make.VarDef(
+                        make.Modifiers(PRIVATE | FINAL),
+                        names.index,
+                        null,
+                        make.Type(syms.typeOfTag[TypeTags.INT]),
+                        make.Literal(new Integer(0)));
+                tree.defs = tree.defs.prepend(index);
+                
             }
 
             // If this is a class, enter symbols for this and super into

@@ -127,6 +127,11 @@ public class Type implements PrimitiveType {
     /** Is this an erased type? (DPJ)
      */
     public boolean DPJerased = false;
+    
+    /** Get and set the cell type, if any
+     */
+    public Type getCellType() { return null; }
+    public void setCellType(Type t) {}
 
     /**
      * The constant value of this type, null if this type does not
@@ -656,10 +661,21 @@ public class Type implements PrimitiveType {
          */
         public List<Type> interfaces_field;
 
+        /** Type of an array cell, if this is an array class                                                                
+         */
+        public Type cellType;
+
+        @Override
+        public Type getCellType() { return cellType; }
+        @Override
+        public void setCellType(Type t) { cellType = t; }
+        
+	public static int counter = 0;
         public ClassType(Type outer, List<Type> typarams, 
         	List<RPL> rgnparams, 
         	List<Effects> effectparams,
-        	TypeSymbol tsym) {
+        	TypeSymbol tsym,
+        	Type cellType) {
             super(CLASS, tsym);
             this.outer_field = outer;
             this.typarams_field = typarams;
@@ -670,6 +686,7 @@ public class Type implements PrimitiveType {
             this.alleffectparams_field = null;
             this.supertype_field = null;
             this.interfaces_field = null;
+            this.cellType = cellType;
             /*
             // this can happen during error recovery
             assert
@@ -689,7 +706,8 @@ public class Type implements PrimitiveType {
         public Type constType(Object constValue) {
             final Object value = constValue;
             return new ClassType(getEnclosingType(), typarams_field, 
-        	    rplparams_field, effectparams_field, tsym) {
+        	    rplparams_field, effectparams_field, tsym,
+        	    cellType) {
                     @Override
                     public Object constValue() {
                         return value;
@@ -891,7 +909,7 @@ public class Type implements PrimitiveType {
             List<Type> typarams1 = map(typarams, f);
             if (outer1 == outer && typarams1 == typarams) return this;
             else return new ClassType(outer1, typarams1, rplparams_field, 
-        	    effectparams_field, tsym);
+        	    effectparams_field, tsym, getCellType());
         }
 
         public boolean contains(Type elem) {
@@ -1475,7 +1493,7 @@ public class Type implements PrimitiveType {
 
         public ErrorType() {
             super(noType, List.<Type>nil(), List.<RPL>nil(), 
-        	    List.<Effects>nil(), null);
+        	    List.<Effects>nil(), null, null);
             tag = ERROR;
         }
 
