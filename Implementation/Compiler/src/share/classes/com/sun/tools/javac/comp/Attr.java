@@ -3761,10 +3761,17 @@ public class Attr extends JCTree.Visitor {
     }
 
     /** Perform RPL-for-var substitution implied by a selection */
-    public <T extends SubstRPLForVar<T>> T substRPLForVar(T elt,
+    public <T extends SubstRPLForVar<T>> T substOwnerRPL(T elt,
 	    JCExpression tree, Env<AttrContext> env) {
 	if (elt == null) return null;
 	T result = elt;
+	if (tree instanceof JCFieldAccess) {
+	    JCFieldAccess fa = (JCFieldAccess) tree;
+	    RPL rpl = exprToRPL(fa.selected);
+	    if (rpl != null) {	
+		result = result.substRPLForVar(tree.enclThis(), rpl);
+	    }
+	}
 	if (tree instanceof JCArrayAccess) {
 	    JCArrayAccess aa = (JCArrayAccess) tree;
 	    JCExpression selectedExp = 

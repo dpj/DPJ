@@ -362,7 +362,7 @@ public class RPL implements
             RPLParameterElement paramElt =
                     (RPLParameterElement) elt;
 	    Symbol owner = paramElt.sym.enclClass();
-            return this.asMemberOf(types, t, owner);
+	    return this.asMemberOf(types, t, owner);
         }
         return this;
     }
@@ -372,17 +372,16 @@ public class RPL implements
 	if (owner.type.hasRegionParams()) {
             Type base = types.asOuterSuper(t, owner);
             if (base != null) {
-                List<RPL> from = owner.type.allrgnparams();
-                List<RPL> to = base.allrgnactuals();
+        	List<RPL> from = owner.type.allrgnparams();
+        	List<RPL> to = base.allrgnparams();
                 if (from.nonEmpty()) {
                     result = result.substRPLParams(from, to);
                 }
                 result = result.substTRParams(owner.type.alltyparams(), 
                 	base.alltyparams());
             }
-        }
-	return result;
-	
+	}
+	return Substitute.allRPLParams(result, t);
     }
     
     /**

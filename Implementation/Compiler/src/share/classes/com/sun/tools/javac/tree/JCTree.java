@@ -705,6 +705,10 @@ public abstract class JCTree implements Tree, Cloneable, DiagnosticPosition {
         }
         
         public Symbol getSymbol() { return null; }
+        public VarSymbol enclThis() {
+            Symbol sym = getSymbol();
+            return (sym == null) ? null : sym.enclThis();
+        }
     }
 
     /**

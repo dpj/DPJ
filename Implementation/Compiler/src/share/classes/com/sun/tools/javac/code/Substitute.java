@@ -115,6 +115,7 @@ public class Substitute {
     public static <T extends SubstRPLs<T>> T allRPLParams
     	(T elt, Type t)
     {
+	if (elt == null || t == null) return elt;
 	T result = elt.substRPLParams(t.tsym.type.getRPLArguments(),
 		t.getRPLArguments());
 	result = result.substTRParams(t.tsym.type.getTypeArguments(),

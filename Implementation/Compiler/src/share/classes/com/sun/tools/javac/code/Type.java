@@ -344,11 +344,6 @@ public class Type implements PrimitiveType {
      */
     public List<RPL> allrgnparams() { return List.nil(); }
     
-    /** Return all region arguments of this type and all its outer types
-     *  in order outer (first) to inner (last)
-     */
-    public List<RPL> allrgnactuals() { return List.nil(); }
-    
     /** Return all effect parameters of this type and all its outer types in order
      *  outer (first) to inner (last).
      */
@@ -645,7 +640,7 @@ public class Type implements PrimitiveType {
          *  appended to all parameters of its enclosing class.
          *  @see #allregionactuals
          */
-        public List<RPL> allrgnactuals_field;
+        //public List<RPL> allrgnactuals_field;
 
         /** A cache variable for the effect parameters of this type,
          *  appended to all parameters of its enclosing class.
@@ -847,17 +842,6 @@ public class Type implements PrimitiveType {
             return allrplparams_field;
         }
 
-        public List<RPL> allrgnactuals() {
-            if (allrgnactuals_field == null) {
-        	allrgnactuals_field = getRPLArguments();
-        	if (this != getEnclosingType()) {
-        	    allrgnactuals_field = 
-        		    allrgnactuals_field.prependList(getEnclosingType().allrgnactuals());
-        	}
-            }
-            return allrgnactuals_field;
-        }
-        
         @Override
         public List<Effects> alleffectparams() {
             if (alleffectparams_field == null) {

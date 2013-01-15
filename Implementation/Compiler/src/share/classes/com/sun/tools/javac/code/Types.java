@@ -1625,7 +1625,7 @@ public class Types {
                 	List<Type> fromTypes = owner.type.alltyparams();
                 	List<Type> toTypes = base.alltyparams();
                 	List<RPL> from = owner.type.allrgnparams();
-                        List<RPL> to = base.allrgnactuals();
+                        List<RPL> to = base.allrgnparams();
                         result = substRPL(result, fromTypes, toTypes, from, to);
                     }
                 }
@@ -1859,7 +1859,7 @@ public class Types {
                         } else {
                             t.supertype_field = subst(supertype, formals, actuals);
                         }
-                        List<RPL> rgnactuals = classBound(t).allrgnactuals();
+                        List<RPL> rgnactuals = classBound(t).allrgnparams();
                         List<RPL> rgnformals = t.tsym.type.allrgnparams();
                         t.supertype_field = substRPL(t.supertype_field, rgnformals, rgnactuals);
                         t.supertype_field = substEffect(t.supertype_field, 
@@ -1953,7 +1953,7 @@ public class Types {
                         t.interfaces_field = substRPL(t.interfaces_field,
                             formals, actuals,
                     	    t.tsym.type.allrgnparams(),
-                    	    t.allrgnactuals());
+                    	    t.allrgnparams());
                         t.interfaces_field = substEffect(t.interfaces_field,
                         	t.tsym.type.alleffectparams(),
                         	t.alleffectparams());

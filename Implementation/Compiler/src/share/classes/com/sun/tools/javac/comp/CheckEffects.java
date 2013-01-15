@@ -201,17 +201,13 @@ public class CheckEffects extends EnvScanner { // DPJ
 	}
 
 	public void visitSelect(JCFieldAccess tree) {
-	    if (tree.selected.type instanceof ClassType &&
-		    tree.sym instanceof VarSymbol) {
-		ClassType ct = (ClassType) tree.selected.type;
-		VarSymbol vsym = (VarSymbol) tree.sym;
-		if (inConstructor && isInstanceField(vsym)) return;
-		if (vsym.rpl == null) return;
-		result = Substitute.allRPLParams(rpls.memberRPL(types, ct, 
-			vsym), ct);
-		RPL rpl = attr.exprToRPL(tree.selected);
-		if (rpl != null) {
-		    result = result.substRPLForVar(tree.sym.enclThis(), rpl);
+	    VarSymbol v = attr.getVarSymbolFor(tree, parentEnv);
+	    if (v != null) {
+		if (!inConstructor || !isInstanceField(v)) {
+		    result = attr.getRPLFor(tree,parentEnv);
+		    result = attr.asMemberOf(result, tree, parentEnv);
+	            result = attr.substOwnerRPL(result, tree, parentEnv);
+
 		}
 	    }
         }
@@ -230,7 +226,7 @@ public class CheckEffects extends EnvScanner { // DPJ
 	    result = attr.getRPLFor(tree,parentEnv);
 	    result = attr.asMemberOf(result, tree, parentEnv);
 	    result = attr.substIndex(result, tree, parentEnv);
-            result = attr.substRPLForVar(result, tree, parentEnv);
+            result = attr.substOwnerRPL(result, tree, parentEnv);
         }
         @Override
         public void visitTree(JCTree tree) {
