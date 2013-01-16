@@ -1,0 +1,5 @@
+package DPJRuntime;
+
+public arrayclass Array$$<region R> {
+    $ in R;
+}
