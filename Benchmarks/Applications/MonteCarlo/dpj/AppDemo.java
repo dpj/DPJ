@@ -23,13 +23,9 @@ public class AppDemo extends Universal {
   // Class variables.
   //------------------------------------------------------------------------
 
-  // DPJ: Region declarations
-  // TaskR: for tasks
-  // ResultR: for results (one result per task)
-  // reductionR: for local reduction
   region ResultR, TaskR, reductionR;
 
-  public static double JGFavgExpectedReturnRateMC =0.0;
+  public static double JGFavgExpectedReturnRateMC = 0.0;
   /**
     * A class variable.
     */
@@ -213,7 +209,10 @@ public class AppDemo extends Universal {
  RatePath<reductionR> avgMCrate;
  //RatePath avgMCrate;
  ReentrantLock lock = new ReentrantLock();
- RatePath<reductionR:[i]>[]<reductionR:[i]>#i localAvgMCrate;
+ private arrayclass ReductionArray {
+   RatePath<reductionR:[index]> in reductionR:[index];
+ }
+ ReductionArray localAvgMCrate;
 
     commutative void sumReduction(final int index, double localAvgExpectedReturnRateMC, 
 				  double localAvgVolatilityMC) 
@@ -240,11 +239,12 @@ public class AppDemo extends Universal {
     //
     // Create an instance of a RatePath, for accumulating the results of the
     // Monte Carlo simulations.
-    avgMCrate = new RatePath<reductionR>(nTimeStepsMC, "MC", 19990109, 19991231, dTime);
+    avgMCrate = new RatePath<reductionR>(nTimeStepsMC, "MC", 
+					 19990109, 19991231, dTime);
       
     // parallelize the reduction using local and tiling
     int tileSize = 100;
-    localAvgMCrate = new RatePath<reductionR:[i]>[nRunsMC/tileSize]<reductionR:[i]>#i;  
+    localAvgMCrate = new ReductionArray(nRunsMC/tileSize);
 
     foreach (int p in 0, (nRunsMC/tileSize)) {
 
