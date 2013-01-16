@@ -46,7 +46,8 @@ public abstract class Harness {
      * Make a new harness and do some default initialization.
      * Ordinarily your constructor should call this one via "super".
      */
-    public Harness(String progName, String[] args, int min, int max) {
+    public Harness(String progName, String[] args, 
+		   int min, int max) {
 	this.progName = progName;
 	if (args.length < min || args.length > max) {
 	    usage();

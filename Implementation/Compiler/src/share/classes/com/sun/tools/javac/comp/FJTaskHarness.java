@@ -181,15 +181,6 @@ public class FJTaskHarness extends TreeScanner {
 	    classCanBeRun = true;
 	    tree.name = names.fromString("__dpj_run");
 	    tree.params = List.<JCVariableDecl>nil();
-	    /*tree.params = tree.params.append(make.VarDef(
-	        		make.Modifiers(0),
-			        names.fromString("args"), null,
-			        make.TypeArray(
-			          make.Ident(names.fromString("String")),
-			          null),
-			        null));
-	      tree.thrown = tree.thrown.append(
-	      	make.Ident(names.fromString("InterruptedException")));*/
 	}
 	
     	super.visitMethodDef(tree);

@@ -32,8 +32,10 @@ public class DPJUtils {
      * @param <T> Element type of array {@code A}
      * @param <R> Region of array {@code A}
      */
-    public static <type T, region R> void swap(T[]<R> A, int i, int j) 
-        writes R {
+    public static <type T, region R> void swap(Array<T,R> A, 
+					       int i, int j) 
+        writes R 
+    {
 	T tmp = A[j];
 	A[j] = A[i];
 	A[i] = tmp;
@@ -46,7 +48,7 @@ public class DPJUtils {
      * @param <T> Element type of array {@code A}
      * @param <R> Region of array {@code A}
      */
-    public static <type T, region R> void permute(T[]<R> A) {
+    public static <type T, region R> void permute(Array<T,R> A) {
 	for (int i = 0; i < A.length; ++i) {
 	    int j = (int) (Math.random() * A.length);
 	    int k = (int) (Math.random() * A.length);
@@ -60,7 +62,7 @@ public class DPJUtils {
      * @param A Integer array to permute
      * @param <R> Region of array {@code A}
      */
-    public static <region R> void permuteInt(int[]<R> A) {
+    public static <region R> void permuteInt(ArrayInt<R> A) {
 	for (int i = 0; i < A.length; ++i) {
 	    int j = (int) (Math.random() * A.length);
 	    int k = (int) (Math.random() * A.length);

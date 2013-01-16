@@ -1,26 +1,26 @@
 package DPJRuntime;
 
 /**
- * <p>The {@code DPJArray} class wraps and provides a "view" of an
- * ordinary Java array.  In addition to array-element access, the
- * {@code DPJArray} class supports the creation of a <i>subarray</i>,
- * which is a contiguous slice of the original array.  The subarray
- * itself is a new {@code DPJArray} object.  Both the original {@code
- * DPJArray} and the subarray wrap the same underlying Java array.
+ * <p>The {@code ArraySlice} class wraps and provides a slice of an
+ * ordinary Java array. <p>A {@code ArraySlice} stores a start
+ * position (indexed into the underlying array) and a length.
+ * Accesses to the {@code ArraySlice} are translated into accesses
+ * into the underlying array, offset by the start position.  They are
+ * bounds-checked against the length of the {@code ArraySlice}.
  *
- * <p>A {@code DPJArray} stores a start position (indexed into the
- * underlying array) and a length.  Accesses to the {@code DPJArray}
- * are translated into accesses into the underlying array, offset by
- * the start position.  They are bounds-checked against the length of
- * the {@code DPJArray}.  For example:
+ * The {@code ArraySlice} class supports the creation of a
+ * <i>subslice</i>, which is a another slice of the original array.
+ * The subslice itself is a new {@code ArraySlice} object.
+ *
+ * For example:
  *
  * <p><blockquote><pre>
- * // Create a Java array a of 10 Integers
- * Integer[] a = new Integer[10];
- * // Wrap a in a DPJArray
- * DPJArray&lt;Integer&gt; A = new DPJArray&lt;Integer&gt;(a)
- * // Create a subarray of A
- * DPJArray&lt;Integer&gt; B = A.subarray(5,2);
+ * // Create a Java array a of 10 int
+ * Array&lt;Integer&gt; a = new Array&lt;Integer&gt;(10);
+ * // Wrap a in an ArraySlice
+ * ArraySlice&lt;Integer&gt; A = new ArraySlice&lt;Integer&gt;(a)
+ * // Create a subslice of A
+ * ArraySlice&lt;Integer&gt; B = A.subslice(5,2);
  * // Store value 1 into position 5 of a
  * B.put(0,1);
  * // Error:  Out of bounds
@@ -28,16 +28,16 @@ package DPJRuntime;
  * </pre></blockquote><p>
  * 
  * @author Rob Bocchino
- * @param <T> The type of an element of this {@code DPJArray}
- * @param <R> The region of a cell of this {@code DPJArray}
+ * @param <T> The type of an element of this {@code ArraySlice}
+ * @param <R> The region of a cell of this {@code ArraySlice}
  *
  */
-public class DPJArray<type T,region R> {
+public class ArraySlice<type T,region R> {
 
     /**
      * The underlying array representation
      */
-    private final T[]<R> elts in R;
+    private final Array<T,R> elts in R;
 
     /**
      * The start index for indexing into the underlying array
@@ -45,34 +45,34 @@ public class DPJArray<type T,region R> {
     public final int start in R;
 
     /**
-     * The number of elements in the {@code DPJArray}
+     * The number of elements in the {@code ArraySlice}
      */
     public final int length in R;
 
     /**
-     * Creates a {@code DPJArray} of the specified length, wrapping a
+     * Creates a {@code ArraySlice} of the specified length, wrapping a
      * freshly created Java array with the same length.
      *
-     * @param length  The length of the {@code DPJArray}
+     * @param length  The length of the {@code ArraySlice}
      */
-    public DPJArray(int length) pure {
-	this.elts = (T[]<R>) new Object[length];
+    public ArraySlice(int length) pure {
+	this.elts = (Array<T,R>) ((Object) new Object[length]);
 	this.start = 0;
 	this.length = length;
     }
 
     /**
-     * Creates a {@code DPJArray} that wraps the given Java array.
+     * Creates a {@code ArraySlice} that wraps the given Java array.
      *
      * @param elts  The Java array to wrap
      */
-    public DPJArray(T[]<R> elts) pure {
+    public ArraySlice(Array<T,R> elts) pure {
 	this.elts = elts;
 	this.start = 0;
 	this.length = elts.length;
     }
 
-    private DPJArray(T[]<R> elts, int start, int length) pure {
+    private ArraySlice(Array<T,R> elts, int start, int length) pure {
 	this.elts = elts;
 	this.start = start;
 	this.length = length;
@@ -80,10 +80,10 @@ public class DPJArray<type T,region R> {
 
     /**
      * Returns the value stored at index {@code idx} of this {@code
-     * DPJArray}.
+     * ArraySlice}.
      * 
      * <p>Throws {@code ArrayIndexOutOfBoundsException} if {@code idx}
-     * is outside the bounds of this {@code DPJArray} (even if it is
+     * is outside the bounds of this {@code ArraySlice} (even if it is
      * in bounds for the underlying array).
      *
      * @param idx Index of value to return
@@ -98,10 +98,10 @@ public class DPJArray<type T,region R> {
 
     /**
      * Replaces the value at index {@code idx} of this {@code
-     * DPJArray} with value {@code val}.
+     * ArraySlice} with value {@code val}.
      * 
      * <p>Throws {@code ArrayIndexOutOfBoundsException} if {@code idx}
-     * is outside the bounds of this {@code DPJArray} (even if it is
+     * is outside the bounds of this {@code ArraySlice} (even if it is
      * in bounds for the underlying array).
      *
      * @param idx Index of value to replace
@@ -115,38 +115,38 @@ public class DPJArray<type T,region R> {
     }
 
     /**
-     * Creates and returns a new {@code DPJArray} starting at index
+     * Creates and returns a new {@code ArraySlice} starting at index
      * {@code start} with length {@code length} that wraps the same
-     * underlying array as this {@code DPJArray}.  Index {@code i} of
-     * the new {@code DPJArray} refers to the same cell of the
+     * underlying array as this {@code ArraySlice}.  Index {@code i} of
+     * the new {@code ArraySlice} refers to the same cell of the
      * underlying array as index {@code start+i} of {@code this}.
      *
      * <p>Throws {@code ArrayIndexOutOfBoundsException} if the
      * interval {@code start,start+length-1]} is not in bounds for
-     * this {@code DPJArray}.
+     * this {@code ArraySlice}.
      *
-     * @param start  Start index for the subarray
-     * @param length Length of the subarray
-     * @return Subarray of this {@code DPJArray} defined by {@code
+     * @param start  Start index for the subslice
+     * @param length Length of the subslice
+     * @return Subslice of this {@code ArraySlice} defined by {@code
      * start} and {@code length}
      */
-    public DPJArray<T,R> subarray(int start, int length) pure {
+    public ArraySlice<T,R> subslice(int start, int length) pure {
 	if (start < 0 || length < 0 || 
 	    start + length > this.length) {
 	    throw new ArrayIndexOutOfBoundsException();
 	}
-	return new DPJArray<T,R>(elts, this.start + start, length);
+	return new ArraySlice<T,R>(elts, this.start + start, length);
     }
 
     /**
-     * Returns the underlying Java array for this {@code DPJArray}.
+     * Returns the underlying Java array for this {@code ArraySlice}.
      *
      * @return The underlying Java array
      */
-    public T[]<R> toArray() pure { return elts; }
+    public Array<T,R> toArray() pure { return elts; }
 
     /**
-     * Returns a string representation of this {@code DPJArray}.
+     * Returns a string representation of this {@code ArraySlice}.
      *
      * @return A string representation
      */
@@ -164,7 +164,7 @@ public class DPJArray<type T,region R> {
 
     /**
      * Swaps the values at indices {@code i} and {@code j} of this
-     * {@code DPJArray}.
+     * {@code ArraySlice}.
      *
      * @param i  First index to swap
      * @param j  Second index to swap

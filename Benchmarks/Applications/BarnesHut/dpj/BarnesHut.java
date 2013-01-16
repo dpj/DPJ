@@ -11,7 +11,6 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.concurrent.CyclicBarrier;
-import DPJRuntime.ArrayString;
 
 public class BarnesHut {
 
@@ -56,7 +55,7 @@ public class BarnesHut {
     /**
      * Program main method
      */
-    public static void main(ArrayString args) throws Exception {
+    public static void main(String[] args) throws Exception {
         // Deal with args
         int nbody = 100000;
         boolean emitBodies = false;

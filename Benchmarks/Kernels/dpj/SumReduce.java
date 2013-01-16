@@ -14,17 +14,21 @@ public class SumReduce extends Harness {
 	    seqLength = Integer.parseInt(args[2]);
     }
 
-    public <region R>int reduce(DPJArrayInt<R> A, 
-				int seqLength) reads R {
+    public <region R>int reduce(ArraySliceInt<R> A, 
+				int seqLength) 
+	reads R 
+    {
 	if (A.length == 0) return 0;
 	if (A.length == 1) return A.get(0);
 	int result = 0;
 	if (A.length > seqLength) {
 	    int tmp1, tmp2;
 	    cobegin {
-		tmp1 = reduce(A.subarray(0, A.length/2), seqLength);
-		tmp2 = reduce(A.subarray(A.length/2, 
-					 A.length - A.length/2), seqLength);
+		tmp1 = reduce(A.subslice(0, A.length/2), 
+			      seqLength);
+		tmp2 = reduce(A.subslice(A.length/2, 
+					 A.length - A.length/2), 
+			      seqLength);
 	    }
 	    result = tmp1 + tmp2;
 	} else {
@@ -36,8 +40,8 @@ public class SumReduce extends Harness {
 
     @Override
     public void initialize() {
-	A = new int[size]<[i]>#i;
-	foreach (int i in 0, A.length) {
+	A = new ArrayInt(size);
+	for (int i = 0; i < A.length; ++i) {
 	    A[i] = i;	    
 	}
     }
@@ -52,7 +56,8 @@ public class SumReduce extends Harness {
 
     @Override
     public void runWork() {
-	result = reduce(new DPJArrayInt<*>(A), seqLength);
+	result = reduce(new ArraySliceInt<*>(A), 
+			seqLength);
     }
 
     @Override
@@ -63,7 +68,7 @@ public class SumReduce extends Harness {
 	System.err.println("seqsize = sequential problem size (int)");
     }
     private int seqLength = 1;
-    private int[]<[i]>#i A;
+    private ArrayInt A;
     private int result = 0;
     public static void main(String[] args) {
 	SumReduce sr = new SumReduce(args);

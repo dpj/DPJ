@@ -1,14 +1,12 @@
 package DPJRuntime;
 
 /**
- * The {@link DPJPartition} class, specialized to {@code $}.
- *
- * <p>The {@code DPJPartition$$} class represents an array of {@link
- * DPJArray$$} objects that partition another {@code DPJArray$$} (called
- * the <i>root array</i>).  Each {@code DPJArray$$} in the partition is
- * a contiguous subsection of the root array, and all are mutually
- * disjoint.  The {@code DPJArray$$}s in the partition are called
- * <i>segments</i> of the root array.
+ * <p>The {@code Partition} class represents an array of {@link
+ * ArraySlice} objects that partition another {@code ArraySlice}
+ * (called the <i>root array</i>).  Each {@code ArraySlice} in the
+ * partition is a contiguous subsection of the root array, and all are
+ * mutually disjoint.  The {@code ArraySlice}s in the partition are
+ * called <i>segments</i> of the root array.
  *
  * <p>For example, if the root array has index space {@code [0,10]},
  * then a partition might have segments with index spaces {@code
@@ -19,17 +17,20 @@ package DPJRuntime;
  * @param <T> The type of an element of an array in the partition
  * @param <R> The region of a cell of an array in the partition
  */
-public class DPJPartition$$<region R> {
+public class Partition<type T,region R> {
 
     /**
      * The array being partitioned
      */
-    private final DPJArray$$<R> A;
+    private final ArraySlice<T,R> A;
 
     /**
      * The segments of the partition
      */
-    private final DPJArray$$<this:[i]>[]<this:[i]>#i segs;
+    private arrayclass Segs<region R> {
+	ArraySlice<T,R:[index]> in R:[index];
+    }
+    private final Segs<this> segs;
 
     /**
      * Number of segments in the partition
@@ -54,14 +55,16 @@ public class DPJPartition$$<region R> {
      * @param A   The array to partition
      * @param idx The partition index
      */
-    public DPJPartition$$(DPJArray$$<R> A, final int idx) 
+    public Partition(ArraySlice<T,R> A, final int idx) 
 	writes this:[?] {
 	this.A = A;
 	this.length = 2;
 	this.stride = 0;
-	segs = (DPJArray$$<this:[i]>[]<this:[i]>#i) new DPJArray$$[length]<this:[i]>#i;
-	segs[0] = (DPJArray$$<this:[0]>) A.subarray(0, idx);
-	segs[1] = (DPJArray$$<this:[1]>) A.subarray(idx, A.length - idx);
+	segs = (Segs<this>) ((Object) new Object[length]);
+	segs[0] = (ArraySlice<T,this:[0]>) 
+	    A.subslice(0, idx);
+	segs[1] = (ArraySlice<T,this:[1]>) 
+	    A.subslice(idx, A.length - idx);
     }
 
     /**
@@ -80,17 +83,20 @@ public class DPJPartition$$<region R> {
      * @param exclude Whether to exclude the element at
      *                {@code idx} from the segments
      */
-    public DPJPartition$$(DPJArray$$<R> A, final int idx, boolean exclude) 
+    public Partition(ArraySlice<T,R> A, 
+		     final int idx, boolean exclude) 
 	writes this:[?] {
 	this.A = A;
 	this.length = 2;
 	this.stride = 0;
-	this.segs = (DPJArray$$<this:[i]>[]<this:[i]>#i) new DPJArray$$[length]<this:[i]>#i;
-	segs[0] = (DPJArray$$<this:[0]>) A.subarray(0, idx);
+	this.segs = (Segs<this>) ((Object) new Object[length]);
+	segs[0] = (ArraySlice<T,this:[0]>) A.subslice(0, idx);
 	if (exclude) {
-	    segs[1] = (DPJArray$$<this:[1]>) A.subarray(idx + 1, A.length - idx - 1);
+	    segs[1] = (ArraySlice<T,this:[1]>) 
+		A.subslice(idx + 1, A.length - idx - 1);
 	} else {
-            segs[1] = (DPJArray$$<this:[1]>) A.subarray(idx, A.length - idx);
+            segs[1] = (ArraySlice<T,this:[1]>) 
+		A.subslice(idx, A.length - idx);
 	}
     }
 
@@ -99,10 +105,14 @@ public class DPJPartition$$<region R> {
      * use it to disambiguate this constructor from the other one that
      * takes an array and a stride.
      */
-    private DPJPartition$$(DPJArray$$<R> A, int stride, double strided) pure {
+    private Partition(ArraySlice<T,R> A, 
+		      int stride, double strided) 
+	pure 
+    {
     	this.A = A;
         this.stride = stride;
-	this.length = (A.length / stride) + ((A.length % stride == 0) ? 0 : 1);
+	this.length = (A.length / stride) + 
+	    ((A.length % stride == 0) ? 0 : 1);
 	this.segs = null;
     }
 
@@ -117,9 +127,9 @@ public class DPJPartition$$<region R> {
      * @param stride The stride at which to partition
      * @return A partition of {@code A} with stride {@code stride}
      */
-    public static <region R>DPJPartition$$<R> 
-      stridedPartition(DPJArray$$<R> A, int stride) pure {
-    	return new DPJPartition$$<R>(A, stride, 0.0);
+    public static <type T,region R>Partition<T,R> 
+      stridedPartition(ArraySlice<T,R> A, int stride) pure {
+    	return new Partition<T,R>(A, stride, 0.0);
     }
 
     /**
@@ -140,29 +150,32 @@ public class DPJPartition$$<region R> {
      * @return A partition of {@code A} using {@code idxs} as the
      * split points.
      */
-    public <region RI>DPJPartition$$(DPJArray$$<R> A, int[]<RI> idxs) 
-	reads RI writes this:[?] {
+    public <region RI>Partition(ArraySlice<T,R> A, 
+				int[]<RI> idxs) 
+	reads RI writes this:[?] 
+    {
 	this.A = A;
 	this.length = idxs.length+1;
-	this.segs = (DPJArray$$<this:[i]>[]<this:[i]>#i) 
-	    new DPJArray$$[length]<this:[i]>#i;
+	this.segs = (Segs<this>) ((Object) new Object[length]);
 	this.stride = 0;
 	if (length == 1)
-	    segs[0] = (DPJArray$$<this:[0]>) A;
+	    segs[0] = (ArraySlice<T,this:[0]>) A;
 	else {
 	    int i = 0, len = 0;
-	    segs[0] = (DPJArray$$<this:[0]>) A.subarray(0, idxs[0]);
+	    segs[0] = (ArraySlice<T,this:[0]>) A.subslice(0, idxs[0]);
 	    for (i = 1; i < idxs.length; ++i) {
 		len = idxs[i] - idxs[i-1];
 		if (len < 0) 
 		    throw new ArrayIndexOutOfBoundsException();
 	    	final int j = i;
-		segs[j] = (DPJArray$$<this:[j]>) A.subarray(idxs[j-1], len);	    
+		segs[j] = (ArraySlice<T,this:[j]>) 
+		    A.subslice(idxs[j-1], len);	    
 	    }
             i = idxs[idxs.length - 1];
             len = A.length - i;
 	    final int length = idxs.length;
-            segs[length] = (DPJArray$$<this:[length]>) A.subarray(i, len);
+            segs[length] = (ArraySlice<T,this:[length]>) 
+		A.subslice(i, len);
 	}
     }
 
@@ -175,7 +188,9 @@ public class DPJPartition$$<region R> {
      * @param idx  Index of the segment to get
      * @return Segment {@code idx} of the partition
      */
-    public DPJArray$$<this : [idx] : *> get(final int idx) reads this:[idx] {
+    public ArraySlice<T,this:[idx]:*> get(final int idx) 
+	reads this:[idx] 
+    {
 	if (idx < 0 || idx > length-1) {
 	    throw new ArrayIndexOutOfBoundsException();
 	}
@@ -183,8 +198,10 @@ public class DPJPartition$$<region R> {
    	    return segs[idx];
 	else {
 	    int start = idx * stride;
-	    int segLength = (start + stride > A.length) ? (A.length - start) : stride;
-	    return (DPJArray$$<this:[idx]:*>) A.subarray(start, segLength);
+	    int segLength = (start + stride > A.length) ? 
+		(A.length - start) : stride;
+	    return (ArraySlice<T,this:[idx]:*>) 
+		A.subslice(start, segLength);
         }
     }
 

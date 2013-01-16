@@ -12,15 +12,18 @@ public class MergeSort8 extends MergeSort {
     }
 
     @Override
-    public <region P1,P2 | P1:* # P2:*>
-	void sort(DPJArrayInt<P1> A, DPJArrayInt<P2> B) {
+    public <region R1,R2 | R1:* # R2:*>
+	void sort(ArraySliceInt<R1> A, ArraySliceInt<R2> B) 
+    {
 	sort(A, B, true);
     }
 
-    public <region P1,P2 | P1:* # P2:*>
-	boolean sort(DPJArrayInt<P1> A, DPJArrayInt<P2> B, 
+    public <region R1,R2 | R1:* # R2:*>
+	boolean sort(ArraySliceInt<R1> A, 
+		     ArraySliceInt<R2> B, 
 		     boolean parity) 
-	writes P1:*, P2:* {
+	writes R1:*, R2:* 
+    {
 	if (A.length <= QUICK_SIZE) {
 	    if(parity)
 		quickSort(A);
@@ -31,7 +34,8 @@ public class MergeSort8 extends MergeSort {
 	    
 	    int q = A.length/8;
 	    
-	    int[]<Local> idxs = new int[7]<Local>;
+	    ArrayInt<Local> idxs = 
+		new ArrayInt<Local>(7);
 	    idxs[0] = q;
 	    idxs[1] = 2*q;
 	    idxs[2] = 3*q;
@@ -40,23 +44,24 @@ public class MergeSort8 extends MergeSort {
 	    idxs[5] = 6*q;
 	    idxs[6] = 7*q;
 	    
-	    int[]<Local> quart_idxs = new int[3]<Local>;
+	    ArrayInt<Local> quart_idxs = 
+		new ArrayInt<Local>(3);
 	    quart_idxs[0] = 2*q;
 	    quart_idxs[1] = 4*q;
 	    quart_idxs[2] = 6*q;
 	    
-	    final DPJPartitionInt<P1> A_eighths = 
-		new DPJPartitionInt<P1>(A, idxs);
-	    final DPJPartitionInt<P2> B_eighths = 
-		new DPJPartitionInt<P2>(B, idxs);
-	    final DPJPartitionInt<P1> A_quarters = 
-		new DPJPartitionInt<P1>(A, quart_idxs);
-	    final DPJPartitionInt<P1> A_halves = 
-		new DPJPartitionInt<P1>(A, 4*q);
-	    final DPJPartitionInt<P2> B_quarters = 
-		new DPJPartitionInt<P2>(B, quart_idxs);
-	    final DPJPartitionInt<P2> B_halves = 
-		new DPJPartitionInt<P2>(B, 4*q);
+	    final PartitionInt<R1> A_eighths = 
+		new PartitionInt<R1>(A, idxs);
+	    final PartitionInt<R2> B_eighths = 
+		new PartitionInt<R2>(B, idxs);
+	    final PartitionInt<R1> A_quarters = 
+		new PartitionInt<R1>(A, quart_idxs);
+	    final PartitionInt<R1> A_halves = 
+		new PartitionInt<R1>(A, 4*q);
+	    final PartitionInt<R2> B_quarters = 
+		new PartitionInt<R2>(B, quart_idxs);
+	    final PartitionInt<R2> B_halves = 
+		new PartitionInt<R2>(B, 4*q);
 	    
 	    boolean subparity;
 	    
@@ -102,10 +107,10 @@ public class MergeSort8 extends MergeSort {
 	}
     }
 
-    private static <region P1,P2 | P1:* # P2:*>void 
-	sort_quarters(final DPJPartitionInt<P1> A_eighths,
-			final DPJPartitionInt<P2> B_quarters) 
-	reads P1:* writes P2:* {
+    private static <region R1,R2 | R1:* # R2:*>void 
+	sort_quarters(final PartitionInt<R1> A_eighths,
+			final PartitionInt<R2> B_quarters) 
+	reads R1:* writes R2:* {
 	cobegin {
 	    merge(A_eighths.get(0), 
 		  A_eighths.get(1), 
@@ -122,10 +127,10 @@ public class MergeSort8 extends MergeSort {
 	}
     }
   
-    private static <region P1,P2 | P1:*#P2:*>void
-	sort_halves(final DPJPartitionInt<P1> quarters,
-		      final DPJPartitionInt<P2> halves) 
-	reads P1:* writes P2:* {
+    private static <region R1,R2 | R1:*#R2:*>void
+	sort_halves(final PartitionInt<R1> quarters,
+		      final PartitionInt<R2> halves) 
+	reads R1:* writes R2:* {
 	cobegin {
 	    merge(quarters.get(0),
 		  quarters.get(1),

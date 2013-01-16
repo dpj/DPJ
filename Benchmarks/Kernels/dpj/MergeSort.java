@@ -17,8 +17,8 @@ public abstract class MergeSort extends Harness {
 
     region Input, Result;
 
-    protected int[]<Input> input;
-    protected int[]<Result> result;
+    protected ArrayInt<Input> input;
+    protected ArrayInt<Result> result;
 
     public MergeSort(String name, String[] args) {
         super(name, args);
@@ -26,8 +26,8 @@ public abstract class MergeSort extends Harness {
 
     @Override
     public void initialize() {
-	input = new int[size]<Input>;
-	result = new int[size]<Result>;
+	input = new ArrayInt<Input>(size);
+	result = new ArrayInt<Result>(size);
 	for (int i = 0; i < input.length; ++i) {
 	    input[i] = i;
 	}
@@ -36,8 +36,8 @@ public abstract class MergeSort extends Harness {
 
     @Override
     public void runWork() {
-	sort(new DPJArrayInt<Input>(input),
-	     new DPJArrayInt<Result>(result));
+	sort(new ArraySliceInt<Input>(input),
+	     new ArraySliceInt<Result>(result));
     }
 
     @Override
@@ -45,34 +45,39 @@ public abstract class MergeSort extends Harness {
 	checkSorted(input,input.length);
     }
 
-    public abstract <region P1,P2 | P1:* # P2:*>
-	void sort(DPJArrayInt<P1> A, DPJArrayInt<P2> B);
+    public abstract <region R1,R2 | R1:* # R2:*>
+	void sort(ArraySliceInt<R1> A, ArraySliceInt<R2> B);
 
-    protected static <region P>void checkSorted (int[]<P> anArray, int n)  {
+    protected static <region P>void checkSorted 
+	(ArrayInt<P> array, int n)  
+    {
 	for (int i = 0; i < n - 1; i++) {
-	    if (anArray[i] > anArray[i+1]) {
+	    if (array[i] > array[i+1]) {
 		throw new Error("Unsorted at " + i + ": " + 
-				anArray[i] + " / " + anArray[i+1]);
+				array[i] + " / " + array[i+1]);
 	    }
 	}
     }
     
-    protected static <region P1,P2,P3 | P1:* # P3:*, P2:* # P3:*>void 
-	merge(DPJArrayInt<P1> A, DPJArrayInt<P2> B, DPJArrayInt<P3> out) 
-	reads P1 : *, P2 : * writes P3 : * {
+    protected static <region R1,R2,R3 | R1:* # R3:*, R2:* # R3:*>void 
+	merge(ArraySliceInt<R1> A, ArraySliceInt<R2> B, 
+	      ArraySliceInt<R3> out) 
+	reads R1 : *, R2 : * writes R3 : * 
+    {
 	
 	if (A.length <= MERGE_SIZE) {
 	    sequentialMerge(A, B, out);
-	} else {
+	} 
+	else {
 	    int aHalf = A.length >>> 1; /*l33t shifting h4x!!!*/
 	    int bSplit = findSplit(A.get(aHalf), B);
 	    
-	    final DPJPartitionInt<P1> A_split = 
-		new DPJPartitionInt<P1>(A, aHalf);
-	    final DPJPartitionInt<P2> B_split = 
-		new DPJPartitionInt<P2>(B, bSplit);
-	    final DPJPartitionInt<P3> out_split = 
-		new DPJPartitionInt<P3>(out, aHalf + bSplit);
+	    final PartitionInt<R1> A_split = 
+		new PartitionInt<R1>(A, aHalf);
+	    final PartitionInt<R2> B_split = 
+		new PartitionInt<R2>(B, bSplit);
+	    final PartitionInt<R3> out_split = 
+		new PartitionInt<R3>(out, aHalf + bSplit);
 	    
 	    cobegin {
 		merge(A_split.get(0),
@@ -86,11 +91,12 @@ public abstract class MergeSort extends Harness {
     }
 
     /** A standard sequential merge **/
-    protected static <region P1,P2,P3 | P1#P3, P2#P3>
-	void sequentialMerge(DPJArrayInt<P1> A, 
-			     DPJArrayInt<P2> B, 
-			     DPJArrayInt<P3> out) 
-	reads P1 : *, P2 : * writes P3 : * {
+    protected static <region R1,R2,R3 | R1#R3, R2#R3>
+	void sequentialMerge(ArraySliceInt<R1> A, 
+			     ArraySliceInt<R2> B, 
+			     ArraySliceInt<R3> out) 
+	reads R1 : *, R2 : * writes R3 : * 
+    {
 	int a = 0;
 	int aFence = A.length;
 	int b = 0;
@@ -109,7 +115,7 @@ public abstract class MergeSort extends Harness {
     }
     
     protected static <region P>int 
-	findSplit(int value, DPJArrayInt<P> B) 
+	findSplit(int value, ArraySliceInt<P> B) 
 	reads P {
 	int low = 0;
 	int high = B.length;
@@ -140,20 +146,19 @@ public abstract class MergeSort extends Harness {
     
     /** A standard sequential quicksort **/
     protected static <region R>void
-	quickSort(DPJArrayInt<R> array) writes R : * {
+	quickSort(ArraySliceInt<R> slice) writes R : * {
 	int lo = 0;
-	int hi = array.length-1;
+	int hi = slice.length-1;
 	// If under threshold, use insertion sort
-	DPJArrayInt<R> arr = array;
 	if (hi-lo+1l <= INSERTION_SIZE) {
 	    for (int i = lo + 1; i <= hi; i++) {
-		int t = arr.get(i);
+		int t = slice.get(i);
 		int j = i - 1;
-		while (j >= lo && arr.get(j) > t) {
-		    arr.put(j+1, arr.get(j));
+		while (j >= lo && slice.get(j) > t) {
+		    slice.put(j+1, slice.get(j));
 		    --j;
 		}
-		arr.put(j+1, t);
+		slice.put(j+1, t);
 	    }
 	    return;
 	}
@@ -163,17 +168,17 @@ public abstract class MergeSort extends Harness {
 	
 	int mid = (lo + hi) >>> 1;
 	
-	if (arr.get(lo) > arr.get(mid)) {
-	    int t = arr.get(lo); arr.put(lo, arr.get(mid)); 
-	    arr.put(lo, arr.get(mid)); arr.put(mid, t);
+	if (slice.get(lo) > slice.get(mid)) {
+	    int t = slice.get(lo); slice.put(lo, slice.get(mid)); 
+	    slice.put(lo, slice.get(mid)); slice.put(mid, t);
 	}
-	if (arr.get(mid) > arr.get(hi)) {
-	    int t = arr.get(mid); arr.put(mid, arr.get(hi)); 
-	    arr.put(hi, t);
+	if (slice.get(mid) > slice.get(hi)) {
+	    int t = slice.get(mid); slice.put(mid, slice.get(hi)); 
+	    slice.put(hi, t);
 	    
-	    if (arr.get(lo) > arr.get(mid)) {
-		t = arr.get(lo); arr.put(lo, arr.get(mid));
-		arr.put(mid, t);
+	    if (slice.get(lo) > slice.get(mid)) {
+		t = slice.get(lo); slice.put(lo, slice.get(mid));
+		slice.put(mid, t);
 	    }
 	    
 	}
@@ -181,28 +186,28 @@ public abstract class MergeSort extends Harness {
 	int left = lo+1;           // start one past lo since already handled lo
 	int right = hi-1;          // similarly
 	
-	int partition = arr.get(mid);
+	int partition = slice.get(mid);
 	
 	for (;;) {
 	    
-	    while (arr.get(right) > partition)
+	    while (slice.get(right) > partition)
 		--right;
 	    
-	    while (left < right && arr.get(left) <= partition) 
+	    while (left < right && slice.get(left) <= partition) 
 		++left;
 	    
 	    if (left < right) {
-		int t = arr.get(left); 
-		arr.put(left, arr.get(right));
-		arr.put(right, t);
+		int t = slice.get(left); 
+		slice.put(left, slice.get(right));
+		slice.put(right, t);
 		--right;
 	    }
 	    else break;
 	    
 	}
 	
-	quickSort(array.subarray(lo, left+1));
-	quickSort(array.subarray(left+1, hi-left));
+	quickSort(slice.subslice(lo, left+1));
+	quickSort(slice.subslice(left+1, hi-left));
 	
     }
     

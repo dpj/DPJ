@@ -846,7 +846,11 @@ public class Type implements PrimitiveType {
         public List<Effects> alleffectparams() {
             if (alleffectparams_field == null) {
                 alleffectparams_field = 
-                    getEffectArguments().prependList(getEnclosingType().alleffectparams());
+                    getEffectArguments();
+                Type enclosingType = getEnclosingType();
+                if (enclosingType != this)
+                    alleffectparams_field =
+                    	alleffectparams_field.prependList(enclosingType.alleffectparams());
             }
             return alleffectparams_field;
         }

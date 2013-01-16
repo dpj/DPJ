@@ -12,9 +12,12 @@ public class Quadtree extends Harness {
 	public abstract <region R1>Node<R1> copy() pure;
     }
 
+    private static arrayclass Children<region R> {
+	Node<R:[index]> in R:[index];
+    }
+
     public class InnerNode<region R> extends Node<R> {
-	Node<R:[i]>[]<R:[i]>#i children in R = 
-	    new Node<R:[i]>[4]<R:[i]>#i;
+	final Children<R> children = new Children<R>(4);
 	final Box box;
 	public InnerNode(Box box) pure {
 	    this.box = box;
@@ -88,20 +91,26 @@ public class Quadtree extends Harness {
 	}
     }
 
+    private static arrayclass Quadrants<region R1,R2,R3> {
+	DPJSequentialHashSet<Body<R1>,R2:[index]> in R3:[index];
+    }
+
     public <region R1,R2>Node<R2> 
 	makeTree(DPJSequentialHashSet<Body<R1>,R2> S, Box box, int level)
-	writes R2:* {
+	writes R2:* 
+    {
 	// Nothing to add
 	if (S.size() == 0) return null;
 	// Only one thing
 	if (S.size() == 1) return S.iterator().next().<region R2>copy();
 	// More than one: Make a new inner node and fill it
 	// recursively
-	DPJSequentialHashSet<Body<R1>,R2:[i]>[]<Local:[i]>#i quadrants = 
-	    (DPJSequentialHashSet<Body<R1>,R2:[i]>[]<Local:[i]>#i) 
-	    new DPJSequentialHashSet[4];
+	Quadrants<R1,R2,Local> quadrants = 
+	    (Quadrants<R1,R2,Local>)
+	    ((Object) new DPJSequentialHashSet[4]);
 	foreach (int i in 0, 4)
-	    quadrants[i] = new DPJSequentialHashSet<Body<R1>,R2:[i]>();
+	    quadrants[i] = 
+	    new DPJSequentialHashSet<Body<R1>,R2:[i]>();
 	for (Body<R1> b : S) {
 	    int quadrant =  box.quadrant(b);
 	    quadrants[quadrant].add(b);
@@ -146,7 +155,7 @@ public class Quadtree extends Harness {
 	else if (subroot instanceof Body<R2>) {
 	    myBodies.add((Body<R2>) subroot);
 	} else {
-	    Node<R1:[i]>[]<R1:[i]>#i children = ((InnerNode<R1>) subroot).children;
+	    Children<R1> children = ((InnerNode<R1>) subroot).children;
 	    for (int i = 0; i < children.length; ++i) {
 		final int j = i;
 		Node<R1:[j]> child = children[j];
