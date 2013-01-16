@@ -1,12 +1,19 @@
+package DPJBenchmarks;
+
 import java.util.Formatter;
+import DPJRuntime.ArrayDouble;
 
 /**
  * Vector operations
  */
 public class Vector<region R> {
 
-    public final double[]<R> elts in R = 
-	new double[Constants.NDIM]<R>;
+    static arrayclass Array<region R> {
+	Vector<R> in R;
+    }
+
+    public final ArrayDouble<R> elts in R = 
+	new ArrayDouble<R>(Constants.NDIM);
 
     public void CLRV() writes R {
 	for (int i = 0; i < Constants.NDIM; ++i)

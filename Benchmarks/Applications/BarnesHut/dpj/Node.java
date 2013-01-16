@@ -3,6 +3,7 @@
  * @author Robert L. Bocchino Jr.
  * @author Rakesh Komuravelli
  */
+package DPJBenchmarks;
 
 public abstract class Node {
 

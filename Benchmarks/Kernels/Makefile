@@ -1,4 +1,3 @@
-ALL = sequential-classes parallel-classes
 include ../Makefile.common
 
 # Problem size

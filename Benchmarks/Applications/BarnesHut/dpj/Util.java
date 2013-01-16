@@ -3,6 +3,7 @@
  * @author Robert L. Bocchino Jr.
  * @date July 2008
  */
+package DPJBenchmarks;
 
 import java.util.Formatter;
 import DPJRuntime.*;

@@ -4,10 +4,13 @@
  * @author Robert L. Bocchino Jr.
  * @author Rakesh Komuravelli
  */
+package DPJBenchmarks;
 
 import java.util.ArrayList;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.BrokenBarrierException;
+import DPJRuntime.ArrayInt;
+
 public class Tree {
 
     /**
@@ -29,12 +32,12 @@ public class Tree {
     /**
      * Nodes of the tree
      */
-    public Body<[i]>[]#i bodies;
+    public Body.Array bodies;
 
     /**
      * Temporary body array required for reordering
      */
-    public Body<[i]>[]#i bodiesNew;
+    public Body.Array bodiesNew;
 
     /**
      * No of threads
@@ -108,7 +111,7 @@ public class Tree {
      *  Initialize tree structure for hack force calculation.                     
      */
     void maketree(int step) {
-        int[] xqic;
+        ArrayInt xqic;
         root = null;
         for (int i = 0; i < bodies.length; ++i) {
 	    final int j = i;
@@ -120,7 +123,7 @@ public class Tree {
                 root = loadtree(body, xqic, root, Constants.IMAX >> 1, i);
             }
         }
-        bodiesNew = new Body<[i]>[bodies.length]#i;
+        bodiesNew = new Body.Array(bodies.length);
 
         reOrderBodies(root, 0);
         bodies = bodiesNew;
@@ -186,7 +189,8 @@ public class Tree {
      * @param level - current level in tree 
      * @param idx - index of body in 
      */
-    Node loadtree(Body<*> body, int[] xpic, Node subroot, int level, int idx) {
+    Node loadtree(Body<*> body, ArrayInt xpic, 
+		  Node subroot, int level, int idx) {
         if (subroot == null) {
             return body;
         }
@@ -213,7 +217,7 @@ public class Tree {
      * @param l level
      * @return
      */
-    int subindex(int[] x, int l) {
+    int subindex(ArrayInt x, int l) {
         int i, k;
         boolean yes;
         i = 0;
@@ -291,9 +295,9 @@ public class Tree {
      * Compute integerized coordinates.
      * Returns: TRUE unless rp was out of bounds.
      */
-    public int[] intcoord(Body<*> p) {
+    public ArrayInt intcoord(Body<*> p) {
         double xsc;
-        int[] ic = new int[3];
+        ArrayInt ic = new ArrayInt(3);
         boolean inb;
         Vector pos = new Vector();
         pos.SETV(p.pos);

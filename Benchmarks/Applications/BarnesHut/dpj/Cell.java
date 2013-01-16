@@ -3,23 +3,27 @@
  * @author Robert L. Bocchino Jr.
  * @author Rakesh Komuravelli
  */
+package DPJBenchmarks;
+
+import DPJRuntime.ArrayDouble;
 
 public class Cell extends Node {
     /**
      * Descendants of cell
      */
-    public final Node[]<MP> subp in MP = 
-	new Node[Constants.NSUB]<MP>; 
+    arrayclass Subp { Node in MP; }
+    public final Subp subp in MP = 
+	new Subp(Constants.NSUB); 
 
     /**
      * Descend tree finding center-of-mass coordinates.
      */
     @Override
     public double hackcofm() {
-        Vector[] tmpv    = new Vector[Constants.NSUB];
-        Vector   tmp_pos = new Vector();
+        Vector.Array tmpv = new Vector.Array(Constants.NSUB);
+        Vector tmp_pos    = new Vector();
         double   mq;
-        double[] mrs     = new double[Constants.NSUB];
+        ArrayDouble mrs  = new ArrayDouble(Constants.NSUB);
 
         mq   = 0.0;
         

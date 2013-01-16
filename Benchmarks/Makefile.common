@@ -1,39 +1,53 @@
-ALL ?= sequential-classes parallel-classes instrument-classes
-IMPLEMENTATION=${DPJ_ROOT}/Implementation
-RUNTIME=${IMPLEMENTATION}/Runtime
-SCRIPTS=${DPJ_ROOT}/Scripts
+ALL ?= sequential/classes parallel/classes
+IMPLEMENTATION=$(DPJ_ROOT)/Implementation
+RUNTIME=$(IMPLEMENTATION)/Runtime
+SCRIPTS=$(DPJ_ROOT)/Scripts
 DPJ=dpj
-DPJ-PAR=${DPJ} -cp parallel/classes
-DPJ-SEQ=${DPJ} -cp sequential/classes
-DPJ-INST=${DPJ} -cp instrument/classes
+DPJ-PAR=$(DPJ) -cp parallel/classes/
+DPJ-SEQ=$(DPJ) -cp sequential/classes/
+DPJ-INST=$(DPJ) -cp instrument/classes/
 DPJC-PAR=dpjc
-DPJC-SEQ=${DPJC-PAR} -seq
-DPJC-INST=${DPJC-SEQ} -instrument
+DPJC-SEQ=$(DPJC-PAR) -seq
+DPJC-INST=$(DPJC-SEQ) -instrument
 JAVAC=dpj-javac
-DPJ-PAR-TEST= ${DPJ-PAR} -ea
-DPJ-SEQ-TEST=${DPJ-SEQ} -ea
-DPJ-INST-TEST=${DPJ-INST} -ea
-SRCS= ${wildcard dpj/*.java}
+DPJ-PAR-TEST= $(DPJ-PAR) -ea
+DPJ-SEQ-TEST=$(DPJ-SEQ) -ea
+DPJ-INST-TEST=$(DPJ-INST) -ea
+SRCS= $(wildcard dpj/*.java)
 
 
-all :: ${ALL}
+all :: $(ALL)
 
-sequential-classes : ${SRCS} sequential/java sequential/classes
-	${DPJC-SEQ} -d sequential/java dpj/*.java ${RUNTIME}/dpj/*.java
-	${JAVAC} -d sequential/classes sequential/java/*.java
-instrument-classes : ${SRCS} instrument/java instrument/classes
-	${DPJC-INST} -d instrument/java dpj/*.java ${RUNTIME}/dpj/*.java
-	${JAVAC} -d instrument/classes instrument/java/*.java
-parallel-classes : ${SRCS} parallel/java parallel/classes
-	${DPJC-PAR} -d parallel/java dpj/*.java ${RUNTIME}/dpj/*.java
-	${JAVAC} -d parallel/classes parallel/java/*.java
-
+sequential/java : $(SRCS) sequential
+	rm -Rf $@
+	mkdir $@
+	$(DPJC-SEQ) -d $@ dpj/*.java $(RUNTIME)/dpj/*.java
+sequential/classes : sequential/java
+	rm -Rf $@
+	mkdir $@
+	$(JAVAC) -d $@ sequential/java/$(PACKAGE)/*.java
+parallel/java : $(SRCS) parallel
+	rm -Rf $@
+	mkdir $@
+	$(DPJC-PAR) -d parallel/java dpj/*.java $(RUNTIME)/dpj/*.java
+parallel/classes : parallel/java
+	rm -Rf $@
+	mkdir $@
+	$(JAVAC) -d parallel/classes parallel/java/$(PACKAGE)/*.java
+instrument/java : $(SRCS) instrument
+	rm -Rf $@
+	mkdir $@
+	$(DPJC-INST) -d instrument/java dpj/*.java $(RUNTIME)/dpj/*.java
+instrument/classes : instrument/java
+	rm -Rf $@
+	mkdir $@
+	$(JAVAC) -d instrument/classes instrument/java/$(PACKAGE)/*.java
 
 countAll :: sequential/java
-	${DPJC-SEQ} -count -nowarn -d sequential/java dpj/*.java ${RUNTIME}/dpj/*.java
+	$(DPJC-SEQ) -count -nowarn -d sequential/java dpj/*.java $(RUNTIME)/dpj/*.java
 
 count ::
-	perl ${SCRIPTS}/count.pl ${RUNTIME} .
+	perl $(SCRIPTS)/count.pl $(RUNTIME) .
 
 sequential :
 	mkdir $@
@@ -43,24 +57,6 @@ parallel :
 
 instrument :
 	mkdir $@
-
-sequential/java : sequential
-	mkdir sequential/java
-
-sequential/classes : sequential
-	mkdir sequential/classes
-
-parallel/java : parallel
-	mkdir parallel/java
-
-parallel/classes : parallel
-	mkdir parallel/classes
-
-instrument/java : instrument
-	mkdir instrument/java
-
-instrument/classes : instrument
-	mkdir instrument/classes
 
 clean :
 	rm -Rf sequential parallel instrument

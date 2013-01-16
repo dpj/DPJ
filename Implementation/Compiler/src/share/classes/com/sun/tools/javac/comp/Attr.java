@@ -2590,7 +2590,7 @@ public class Attr extends JCTree.Visitor {
         result = checkId(tree, site, sym, env, pkind, pt, varArgs);
         env.info.tvars = List.nil();
         env.info.rvars = List.nil();
-        
+        computeCellType(env, tree.sym, result);
         
     }
     //where

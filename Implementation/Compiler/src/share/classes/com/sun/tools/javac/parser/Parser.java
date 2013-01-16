@@ -3186,6 +3186,8 @@ public class Parser {
                 S.token() == INTERFACE ||
                 allowEnums && S.token() == ENUM) {
                 return List.<JCTree>of(classOrInterfaceOrEnumDeclaration(mods, dc));
+            } else if (S.token() == ARRAYCLASS) {
+                return List.<JCTree>of(arrayClassDeclaration(mods, dc));
             } else if (S.token() == REGION) {
         	ListBuffer<JCTree> rdefs = new ListBuffer<JCTree>();
         	return regionDeclarations(pos, mods, dc, rdefs).toList();

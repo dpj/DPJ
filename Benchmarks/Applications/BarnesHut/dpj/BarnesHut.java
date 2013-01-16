@@ -3,6 +3,7 @@
  * @author Robert L. Bocchino Jr.
  * @author Rakesh Komuravelli
  */
+package DPJBenchmarks;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -10,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.concurrent.CyclicBarrier;
+import DPJRuntime.ArrayString;
 
 public class BarnesHut {
 
@@ -54,7 +56,7 @@ public class BarnesHut {
     /**
      * Program main method
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(ArrayString args) throws Exception {
         // Deal with args
         int nbody = 100000;
         boolean emitBodies = false;
@@ -97,7 +99,7 @@ public class BarnesHut {
         // Fill in the tree
         tree.rmin.SETVS(-2.0);
         tree.rsize = -2.0 * -2.0;  // t->rmin.elts[0];
-        tree.bodies = new Body<[i]>[nbody]#i;
+        tree.bodies = new Body.Array(nbody);
 
         // Create an array of empty bodies
         for (int i = 0; i < nbody; ++i) {

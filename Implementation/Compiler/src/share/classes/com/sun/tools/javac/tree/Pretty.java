@@ -25,17 +25,99 @@
 
 package com.sun.tools.javac.tree;
 
-import java.io.*;
-import java.util.*;
+import static com.sun.tools.javac.code.Flags.ANNOTATION;
+import static com.sun.tools.javac.code.Flags.ARRAYCONSTR;
+import static com.sun.tools.javac.code.Flags.DPJStandardFlags;
+import static com.sun.tools.javac.code.Flags.ENUM;
+import static com.sun.tools.javac.code.Flags.INTERFACE;
+import static com.sun.tools.javac.code.Flags.SYNTHETIC;
+import static com.sun.tools.javac.code.Flags.VARARGS;
 
-import com.sun.tools.javac.util.*;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import com.sun.tools.javac.code.BoundKind;
+import com.sun.tools.javac.code.Flags;
+import com.sun.tools.javac.code.Kinds;
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Symbol.ClassSymbol;
+import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.code.Type.ClassType;
+import com.sun.tools.javac.code.TypeTags;
+import com.sun.tools.javac.code.Types;
+import com.sun.tools.javac.tree.JCTree.DPJAtomic;
+import com.sun.tools.javac.tree.JCTree.DPJCobegin;
+import com.sun.tools.javac.tree.JCTree.DPJFinish;
+import com.sun.tools.javac.tree.JCTree.DPJForLoop;
+import com.sun.tools.javac.tree.JCTree.DPJNegationExpression;
+import com.sun.tools.javac.tree.JCTree.DPJNonint;
+import com.sun.tools.javac.tree.JCTree.DPJParamInfo;
+import com.sun.tools.javac.tree.JCTree.DPJRegionDecl;
+import com.sun.tools.javac.tree.JCTree.DPJRegionParameter;
+import com.sun.tools.javac.tree.JCTree.DPJRegionPathList;
+import com.sun.tools.javac.tree.JCTree.DPJRegionPathListElt;
+import com.sun.tools.javac.tree.JCTree.DPJSpawn;
+import com.sun.tools.javac.tree.JCTree.JCAnnotation;
+import com.sun.tools.javac.tree.JCTree.JCArrayAccess;
+import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
+import com.sun.tools.javac.tree.JCTree.JCAssert;
+import com.sun.tools.javac.tree.JCTree.JCAssign;
+import com.sun.tools.javac.tree.JCTree.JCAssignOp;
+import com.sun.tools.javac.tree.JCTree.JCBinary;
+import com.sun.tools.javac.tree.JCTree.JCBlock;
+import com.sun.tools.javac.tree.JCTree.JCBreak;
+import com.sun.tools.javac.tree.JCTree.JCCase;
+import com.sun.tools.javac.tree.JCTree.JCCatch;
+import com.sun.tools.javac.tree.JCTree.JCClassDecl;
+import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.javac.tree.JCTree.JCConditional;
+import com.sun.tools.javac.tree.JCTree.JCContinue;
+import com.sun.tools.javac.tree.JCTree.JCDoWhileLoop;
+import com.sun.tools.javac.tree.JCTree.JCEnhancedForLoop;
+import com.sun.tools.javac.tree.JCTree.JCErroneous;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCExpressionStatement;
+import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
+import com.sun.tools.javac.tree.JCTree.JCForLoop;
+import com.sun.tools.javac.tree.JCTree.JCIdent;
+import com.sun.tools.javac.tree.JCTree.JCIf;
+import com.sun.tools.javac.tree.JCTree.JCImport;
+import com.sun.tools.javac.tree.JCTree.JCInstanceOf;
+import com.sun.tools.javac.tree.JCTree.JCLabeledStatement;
+import com.sun.tools.javac.tree.JCTree.JCLiteral;
+import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
+import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
+import com.sun.tools.javac.tree.JCTree.JCModifiers;
+import com.sun.tools.javac.tree.JCTree.JCNewArray;
+import com.sun.tools.javac.tree.JCTree.JCNewClass;
+import com.sun.tools.javac.tree.JCTree.JCParens;
+import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
+import com.sun.tools.javac.tree.JCTree.JCReturn;
+import com.sun.tools.javac.tree.JCTree.JCSkip;
+import com.sun.tools.javac.tree.JCTree.JCStatement;
+import com.sun.tools.javac.tree.JCTree.JCSwitch;
+import com.sun.tools.javac.tree.JCTree.JCSynchronized;
+import com.sun.tools.javac.tree.JCTree.JCThrow;
+import com.sun.tools.javac.tree.JCTree.JCTry;
+import com.sun.tools.javac.tree.JCTree.JCTypeApply;
+import com.sun.tools.javac.tree.JCTree.JCTypeCast;
+import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
+import com.sun.tools.javac.tree.JCTree.JCUnary;
+import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
+import com.sun.tools.javac.tree.JCTree.JCWhileLoop;
+import com.sun.tools.javac.tree.JCTree.JCWildcard;
+import com.sun.tools.javac.tree.JCTree.LetExpr;
+import com.sun.tools.javac.tree.JCTree.TypeBoundKind;
+import com.sun.tools.javac.util.Convert;
 import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.code.*;
-
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.tree.JCTree.*;
-
-import static com.sun.tools.javac.code.Flags.*;
+import com.sun.tools.javac.util.Log;
+import com.sun.tools.javac.util.Name;
+import com.sun.tools.javac.util.Pair;
 
 /** Prints out a tree as an indented Java source program.
  *
@@ -511,8 +593,10 @@ public class Pretty extends JCTree.Visitor {
         }
     }
 
+    boolean inImport = false;
     public void visitImport(JCImport tree) {
         try {
+            inImport = true;
             print("import ");
             if (tree.staticImport) print("static ");
             printExpr(tree.qualid);
@@ -520,6 +604,9 @@ public class Pretty extends JCTree.Visitor {
             println();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+        finally {
+            inImport = false;
         }
     }
 
@@ -808,7 +895,6 @@ public class Pretty extends JCTree.Visitor {
 
     public void seqDPJForLoop(DPJForLoop tree) {
         try {
-            Types.printDPJ = false;
             if (codeGenMode == SEQ_INST) {
         	print("DPJRuntime.Instrument.enterForeach(");
         	if (tree.length != null)
@@ -825,7 +911,7 @@ public class Pretty extends JCTree.Visitor {
         	print("{\n");
         	indent();
         	align();
-        	print(tree.start.type);
+        	printType(tree.start.type);
         	print(" ");
                 print("i_"); print(depth); print(" = ");
         	printExpr(tree.start);
@@ -916,7 +1002,7 @@ public class Pretty extends JCTree.Visitor {
 	    Set<VarSymbol> copyOut = new HashSet(tree.definedVars);
 	    copyOut.removeAll(tree.declaredVars);
 	    if(copyOut.size()>0 && !tree.isNondet)
-		//In real life this should have been caught by the type checker.
+		// In real life this should have been caught by the type checker.
 		print("Error: Assignment inside foreach to local variable declared prior to foreach\n");
 	    
 	    // Don't copy field values in/out, which would interfere with the STM system.
@@ -936,16 +1022,21 @@ public class Pretty extends JCTree.Visitor {
 	    Set<VarSymbol> copyAll = new HashSet(copyIn);
 	    copyAll.addAll(copyOut);
 	    
-	    //Declare local vars necessary for copyin/copyout
+	    // Declare local vars necessary for copyin/copyout
 	    for(VarSymbol var : copyAll) {
-		print(var.type.toString()+" "+varString(var)+";\n");
+		printType(var.type);
+		print(" ");
+		print(varString(var)+";\n");
 		align();
 	    }
 	    
 	    //Generate constructor for class
 	    print(stName+"(int __dpj_begin, int __dpj_length, int __dpj_stride");
-	    for(VarSymbol var : copyIn)
-		print(", "+var.type.toString()+" "+varString(var));
+	    for(VarSymbol var : copyIn) {
+		print(", ");
+		printType(var.type);
+		print(" "+varString(var));
+	    }
 	    
 	    print(") {\n");
 	    indent(); align();
@@ -1018,7 +1109,11 @@ public class Pretty extends JCTree.Visitor {
 	    align();
 	    print("else\n");
 	    indent();
-	    printAligned("(new "+stName+"("+tree.start.toString()+", "+(tree.length==null ? tree.start.toString()+".size()" : tree.length.toString())+", "+(tree.stride==null ? "1" : tree.stride.toString()));
+	    printAligned("(new "+stName+"("+tree.start.toString()+", "+
+		    (tree.length==null ?
+			    tree.start.toString()+".size()" : 
+				tree.length.toString()) + 
+				", "+(tree.stride==null ? "1" : tree.stride.toString()));
 	    for(VarSymbol var : copyIn)
 		{
 		    align();
@@ -1330,11 +1425,34 @@ public class Pretty extends JCTree.Visitor {
         }
     }
 
+    private void printArrayConstructor(Type cellType, List<JCExpression> args)
+            throws IOException {
+        if (cellType instanceof ClassType) {
+            ClassType ct = (ClassType) cellType;
+            if (ct.cellType != null) {
+                printArrayConstructor(ct.cellType, args);
+                print("[]");
+                return;
+            }
+        }
+        print("new ");
+        printType(cellType);
+        print("[");
+        printExprs(args);
+        print("]");
+    }
+
     public void visitNewClass(JCNewClass tree) {
         try {
             if (tree.encl != null) {
                 printExpr(tree.encl);
                 print(".");
+            }
+            if ((tree.constructor.flags() & ARRAYCONSTR) != 0) {
+                // Convert array constructor call to regular Java array         
+		ClassType ct = (ClassType) tree.clazz.type;
+                printArrayConstructor(ct.cellType, tree.args);
+                return;
             }
             if (!inEnumVarDecl) {
         	print("new ");
@@ -1534,6 +1652,7 @@ public class Pretty extends JCTree.Visitor {
     }
 
     public void parCobegin(DPJCobegin tree) {
+	boolean savedPrintDPJ = Types.printDPJ;
 	Types.printDPJ = false;
 	try {
 	    JCBlock body = (JCBlock)(tree.body);
@@ -1569,9 +1688,9 @@ public class Pretty extends JCTree.Visitor {
 		for(VarSymbol var : copyAll)
 		{
 		    align();
-		    Types.printDPJ = false;
-		    print(var.type.toString()+" "+var.toString()+";\n");
-		    Types.printDPJ = true;
+		    printType(var.type);
+		    print(" ");
+		    print(var.toString()+";\n");
 		}
 		
 		//Generate constructor for class
@@ -1583,9 +1702,9 @@ public class Pretty extends JCTree.Visitor {
 			print(",");
 		    else
 			needsComma=true;
-		    Types.printDPJ = false;
-		    print(var.type.toString()+" "+var.toString());
-		    Types.printDPJ = true;
+		    printType(var.type);
+		    print(" ");
+		    print(var.toString());
 		}
 		print(") {\n");
 		indent();
@@ -1709,7 +1828,7 @@ public class Pretty extends JCTree.Visitor {
 	    throw new UncheckedIOException(e);
 	}
 	finally {
-	    Types.printDPJ = true;
+	    Types.printDPJ = savedPrintDPJ;
 	}
     }
 	
@@ -1841,14 +1960,21 @@ public class Pretty extends JCTree.Visitor {
 
     public void visitSelect(JCFieldAccess tree) {
         try {
-            // Hack to work around generation of types starting with "." during barrier insertion
-            // TODO Fix the root cause of this (in TreeMaker, I think).
             if (tree.selected instanceof JCIdent && 
         	    ((JCIdent)(tree.selected)).name.length() == 0) {
+                // Hack to work around generation of types starting with "." during barrier insertion
+                // TODO Fix the root cause of this (in TreeMaker, I think).
         	print(tree.name);
             } else {
-        	printExpr(tree.selected, TreeInfo.postfixPrec);
-        	print("." + tree.name);
+                if (tree.sym instanceof ClassSymbol &&
+                	isArrayClass(tree.sym.type)) {
+                    printType(tree.sym.type);
+                }
+                else {
+                    printExpr(tree.selected, TreeInfo.postfixPrec);
+                    print(".");
+                    print(tree.name);
+                }
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -1856,15 +1982,54 @@ public class Pretty extends JCTree.Visitor {
     }
 
     public boolean printOwner = false;
+    
+    /**                                                                                    
+     * Recursively print a type.  If the type is an array class type,                      
+     * then print it out as a regular Java array.  Otherwise, print out                    
+     * the regular Java type.                                                              
+     */
+    private void printType(Type type) throws IOException {
+        // Don't print out DPJ type annotations if we are generating code                  
+        boolean oldPrintDPJ = Types.printDPJ;
+        Types.printDPJ = (codeGenMode == NONE);
+
+        boolean printed = false;
+        if (type instanceof ClassType) {
+            ClassType ct = (ClassType) type;
+            if (ct.cellType != null  && !inImport) {
+                printType(ct.cellType);
+                print("[]");
+                printed = true;
+            }
+        }
+        if (!printed) {
+            print(type);
+        }
+        Types.printDPJ = oldPrintDPJ;
+    }
+
+    private boolean isArrayClass(Type type) {
+        if (type instanceof ClassType) {
+            ClassType ct = (ClassType) type;
+            return ct.cellType != null;
+        }
+        return false;
+    }
+    
     public void visitIdent(JCIdent tree) {
         try {
             if (thisIsBogus && tree.toString().equals("this"))
         	print("__dpj_this");
             else if (printOwner && tree.toString().equals("this")) {
-        	Types.printDPJ = false;
         	print (tree.sym.owner.type + "." + "this");
-        	Types.printDPJ = false;
-            } else {
+            } 
+            else if (tree.sym instanceof ClassSymbol) {
+                if (isArrayClass(tree.sym.type)) {
+                    printType(tree.sym.type);
+                }
+                else print(tree.name);
+            }
+            else {
         	print(tree.name);
             }
         } catch (IOException e) {
@@ -1990,6 +2155,10 @@ public class Pretty extends JCTree.Visitor {
     public void visitTypeApply(JCTypeApply tree) {
 	try {
             printExpr(tree.functor);
+            Symbol functorSymbol = tree.functor.getSymbol();
+            if (functorSymbol != null && 
+        	    isArrayClass(functorSymbol.type))
+        	return;
             boolean rplsToPrint = (codeGenMode == NONE) && tree.rplArgs != null &&
             	tree.rplArgs.nonEmpty();
             boolean effectsToPrint = (codeGenMode == NONE) && tree.effectArgs != null &&

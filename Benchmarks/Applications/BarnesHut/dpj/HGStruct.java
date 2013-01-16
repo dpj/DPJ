@@ -2,6 +2,7 @@
  * Class for temporary storage of computed and required fields for hackgrav
  * @author Rakesh Komuravelli
  */
+package DPJBenchmarks;
 
 public class HGStruct<region R> {
     

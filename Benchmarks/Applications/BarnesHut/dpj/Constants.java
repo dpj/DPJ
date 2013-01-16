@@ -2,6 +2,7 @@
  * Class for various constants used throughout the program
  * @author Rakesh Komuravelli
  */
+package DPJBenchmarks;
 
 public class Constants {
     public static final int    NDIM       = 3;

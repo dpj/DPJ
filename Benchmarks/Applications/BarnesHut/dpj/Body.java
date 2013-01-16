@@ -4,8 +4,16 @@
  * @author Robert L. Bocchino Jr.
  * @author Rakesh Komuravelli
  */
+package DPJBenchmarks;
 
 public class Body<region R> extends Node {
+
+    /**
+     * Type for array of bodies
+     */
+    static arrayclass Array<region R> {
+	Body<R:[index]> in R:[index];
+    }
 
     /**
      * Velocity of body
