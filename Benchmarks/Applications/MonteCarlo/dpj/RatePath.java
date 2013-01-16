@@ -1,7 +1,6 @@
-
-
 import java.io.*;
 import java.util.*;
+import DPJRuntime.*;
 
 /**
   * Class for recording the values in the time-dependent path of a security.
@@ -51,7 +50,7 @@ public class RatePath<region P> extends PathId<P> {
     * An instance variable, for storing the rate's path values itself.
     */
  
-  private double[]<P> pathValue in P;
+  private ArrayDouble<P> pathValue in P;
   /**
     * An instance variable, for storing the corresponding date of the datum,
     * in 'YYYYMMDD' format.
@@ -107,7 +106,7 @@ public class RatePath<region P> extends PathId<P> {
     * @param dTime the time interval between successive path values, in
     *        fractions of a year.
     */
-  public RatePath(double[]<P> pathValue, String name, int startDate, int endDate, double dTime) reads Root writes P {
+  public RatePath(ArrayDouble<P> pathValue, String name, int startDate, int endDate, double dTime) reads Root writes P {
     set_name(name);
     set_startDate(startDate);
     set_endDate(endDate);
@@ -163,7 +162,7 @@ public class RatePath<region P> extends PathId<P> {
     set_dTime(dTime);
     set_prompt(prompt);
     set_DEBUG(DEBUG);
-    this.pathValue = new double[pathValueLength]<P>;
+    this.pathValue = new ArrayDouble<P>(pathValueLength);
     this.nAcceptedPathValue = pathValue.length;
   }
   //------------------------------------------------------------------------
@@ -177,19 +176,17 @@ public class RatePath<region P> extends PathId<P> {
     * @exception DemoException thrown if there is a mismatch between the
     *            lengths of the operand and target arrays.
     */
-  public <region R>void inc_pathValue(double[]<R> operandPath) reads P,R writes P  /*throws DemoException*/ {
-    /*
-	if( pathValue.length != operandPath.length )
-      throw new DemoException("The path to update has a different size to the path to update with!");
- 	*/
- //   foreach (int i in 0, pathValue.length) {
+  public <region R>void inc_pathValue(ArrayDouble<R> operandPath) 
+      reads P,R writes P  
+  {
     for(int i=0; i<pathValue.length; i++ ) {
       pathValue[i] += operandPath[i];
    }
   }
 
-  public <region R>void inc_pathValue2(double[]<R> operandPath) 
-      reads R writes P {
+  public <region R>void inc_pathValue2(ArrayDouble<R> operandPath) 
+      reads R writes P 
+  {
 	for (int i=0;i<pathValue.length;i++) {
 	    pathValue[i] += operandPath[i];
 	}
@@ -208,9 +205,7 @@ public class RatePath<region P> extends PathId<P> {
       throw new DemoException("Variable pathValue is undefined!");
  
     for(int i=0; i<pathValue.length; i++ ) {
-//    foreach (int i in 0, pathValue.length) {
     	pathValue[i] *= scale;
-    	//pathVal *= scale;
     }
   }
   //------------------------------------------------------------------------
@@ -223,7 +218,7 @@ public class RatePath<region P> extends PathId<P> {
     * @return Value of instance variable <code>pathValue</code>.
     * @exception DemoException thrown if instance variable <code>pathValue</code> is undefined.
     */
-  public double[]<P> get_pathValue() reads P /*throws DemoException*/ {
+  public ArrayDouble<P> get_pathValue() reads P /*throws DemoException*/ {
 	  /*
     if( this.pathValue == null )
       throw new DemoException("Variable pathValue is undefined!");
@@ -235,7 +230,7 @@ public class RatePath<region P> extends PathId<P> {
     *
     * @param pathValue the value to set for the instance variable <code>pathValue</code>.
     */
-  public void set_pathValue(double[]<P> pathValue) writes P {
+  public void set_pathValue(ArrayDouble<P> pathValue) writes P {
     this.pathValue = pathValue;
   }
   /**
@@ -296,7 +291,8 @@ public class RatePath<region P> extends PathId<P> {
     //*******************************************************************
     // array of double type with size of # of accepted path value
     //*******************************************************************
-    double[]<P> returnPathValue = new double[nAcceptedPathValue]<P>;
+    ArrayDouble<P> returnPathValue = 
+	new ArrayDouble<P>(nAcceptedPathValue);
     returnPathValue[0] = 0.0;
     
     try{
@@ -333,7 +329,8 @@ public class RatePath<region P> extends PathId<P> {
     if( pathValue == null || nAcceptedPathValue == 0 ) {
       throw new DemoException("The Rate Path has not been defined!");
     }
-    double[]<P> returnPathValue = new double[nAcceptedPathValue]<P>;
+    ArrayDouble<P> returnPathValue 
+	= new ArrayDouble<P>(nAcceptedPathValue);
     returnPathValue[0] = 0.0;
     try{
       // TODO parallelizable? 
@@ -425,7 +422,7 @@ public class RatePath<region P> extends PathId<P> {
     // Now create an array to store the rates data.
     // two arrays of double type and int type
     // **********************************************************************
-    this.pathValue = new double[nLines]<P>;
+    this.pathValue = new ArrayDouble<P>(nLines);
     this.pathDate  = new int[nLines];
     // **********************************************************************
     nAcceptedPathValue=0;

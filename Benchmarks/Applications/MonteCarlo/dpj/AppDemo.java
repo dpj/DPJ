@@ -74,13 +74,19 @@ public class AppDemo extends Universal {
   private int runMode;
 
   // An index-parameterized array of tasks under TaskR
-    private ToTask<TaskR:[i]>[]<TaskR:[i]>#i tasks in TaskR;
+  private static arrayclass TaskArray {
+    ToTask<TaskR:[index]> in TaskR:[index];
+  }
+  private TaskArray tasks in TaskR;
 
-  // DPJ
-  // an index-parameterized array of results under ResultR
-  private ToResult<ResultR:[i]>[]<ResultR:[i]>#i results in ResultR;
+  // An index-parameterized array of results under ResultR
+  private static arrayclass ResultArray {
+    ToResult<ResultR:[index]> in ResultR:[index]; 
+  } 
+  private ResultArray results in ResultR;
 
-  public AppDemo(String dataDirname, String dataFilename, int nTimeStepsMC, int nRunsMC) {
+  public AppDemo(String dataDirname, String dataFilename, 
+		 int nTimeStepsMC, int nRunsMC) {
     this.dataDirname    = dataDirname;
     this.dataFilename   = dataFilename;
     this.nTimeStepsMC   = nTimeStepsMC;
@@ -150,7 +156,7 @@ public class AppDemo extends Universal {
   private void initTasks(int nRunsMC) writes TaskR, TaskR:[?] {
         
       // initialize task array
-      tasks = new ToTask<TaskR:[i]>[nRunsMC]<TaskR:[i]>#i;
+      tasks = new TaskArray(nRunsMC);
 	
       // for each task, parallel init
       foreach (int i in 0, nRunsMC) {
@@ -165,7 +171,7 @@ public class AppDemo extends Universal {
   // an effect should be specified to show it's partitionable
   public void runParallel() {
 	 	 
-      results = new ToResult<ResultR:[i]>[nRunsMC]<ResultR:[i]>#i;
+      results = new ResultArray(nRunsMC);
            
       foreach (int iRun in 0, nRunsMC) {
 	  // [iRun] notation indicates separate region for each PriceStock object
@@ -247,7 +253,9 @@ public class AppDemo extends Universal {
     	double localAvgExpectedReturnRateMC = 0.0;
         double localAvgVolatilityMC = 0.0;
 
-	localAvgMCrate[p] = new RatePath<reductionR:[p]>(nTimeStepsMC, "MC", 19990109, 19991231, dTime);
+	localAvgMCrate[p] = 
+	    new RatePath<reductionR:[p]>(nTimeStepsMC, "MC", 
+					 19990109, 19991231, dTime);
 
     	for (int i=start;i<end;i++) {
 	    ToResult<ResultR:[?]> returnMC = results[i];
@@ -357,7 +365,7 @@ public class AppDemo extends Universal {
     *
     * @return Value of instance variable <code>tasks</code>.
     */
-  public ToTask<TaskR:[i]>[]<TaskR:[i]>#i get_tasks() reads TaskR {
+  public TaskArray get_tasks() reads TaskR {
   	return(this.tasks);
   }
   /**
@@ -365,7 +373,7 @@ public class AppDemo extends Universal {
     *
     * @param tasks the value to set for the instance variable <code>tasks</code>.
     */
-  public void set_tasks(ToTask<TaskR:[i]>[]<TaskR:[i]>#i tasks) writes TaskR {
+  public void set_tasks(TaskArray tasks) writes TaskR {
 	this.tasks = tasks;
   }
 
@@ -374,7 +382,9 @@ public class AppDemo extends Universal {
     *
     * @return Value of instance variable <code>results</code>.
     */
-  public ToResult<ResultR:[i]>[]<ResultR:[i]>#i get_results() reads Root,ResultR {
+  public ResultArray get_results() 
+      reads Root,ResultR 
+  {
   	return(this.results);
   }
 
@@ -383,7 +393,9 @@ public class AppDemo extends Universal {
     *
     * @param results the value to set for the instance variable <code>results</code>.
     */
-  public void set_results(ToResult<ResultR:[i]>[]<ResultR:[i]>#i results) writes ResultR {
+  public void set_results(ResultArray results) 
+      writes ResultR 
+  {
   	this.results = results;
   }
  

@@ -1,6 +1,6 @@
-
-
 import jsr166y.forkjoin.*;
+import DPJRuntime.*;
+
 /**
   * Class for representing the returns of a given security.
   *
@@ -48,8 +48,7 @@ public class ReturnPath<region P> extends PathId<P> {
   /**
     * An instance variable, for storing the return values.
     */
-  //private double[] pathValue;
-  private double[]<P> pathValue in P;
+  private ArrayDouble<P> pathValue in P;
   /**
     * The number of accepted values in the rate path.
     */
@@ -101,7 +100,10 @@ public class ReturnPath<region P> extends PathId<P> {
     * @param returnDefinition to tell this class how the return path values
     *                         were computed.
     */
-  public ReturnPath(double[]<P> pathValue, int nPathValue, int returnDefinition) reads Root writes P {
+  public ReturnPath(ArrayDouble<P> pathValue, int nPathValue, 
+		    int returnDefinition) 
+      reads Root writes P 
+  {
 	    set_prompt(prompt);
 	    set_DEBUG(DEBUG);
 	    this.pathValue = pathValue;
@@ -122,7 +124,10 @@ public class ReturnPath<region P> extends PathId<P> {
     * @return Value of instance variable <code>pathValue</code>.
     * @exception DemoException thrown if instance variable <code>pathValue</code> is undefined.
     */
-  public double[]<P> get_pathValue() reads P throws DemoException {
+  public ArrayDouble<P> get_pathValue() 
+    reads P 
+    throws DemoException 
+  {
     if( this.pathValue == null )
       throw new DemoException("Variable pathValue is undefined!");
     return(this.pathValue);
@@ -132,7 +137,7 @@ public class ReturnPath<region P> extends PathId<P> {
     *
     * @param pathValue the value to set for the instance variable <code>pathValue</code>.
     */
-  public void set_pathValue(double[]<P> pathValue) writes P {
+  public void set_pathValue(ArrayDouble<P> pathValue) writes P {
     this.pathValue = pathValue;
   }
   /**
@@ -307,8 +312,6 @@ public class ReturnPath<region P> extends PathId<P> {
       throw new DemoException("Variable nPathValue is undefined!");
     this.mean = 0.0;
   
-    //foreach (int i in 1, nPathValue) {
-    //foreach (int i in 1, pathValue.length-1) {
     for (int i=1;i<pathValue.length;i++) {
     	mean += pathValue[i];
     }
@@ -327,7 +330,6 @@ public class ReturnPath<region P> extends PathId<P> {
       throw new DemoException("Variable mean and/or nPathValue are undefined!");
     this.variance = 0.0;
       
-    //foreach (int i in 1, pathValue.length-1) {
     for (int i=1;i<pathValue.length;i++) {
     	variance += (pathValue[i] - mean)*(pathValue[i] - mean);
     }

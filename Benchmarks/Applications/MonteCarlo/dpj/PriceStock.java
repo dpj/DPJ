@@ -1,3 +1,4 @@
+import DPJRuntime.*;
 
 /**
   * Class to do the work in the Application demonstrator, in particular
@@ -55,7 +56,7 @@ public class PriceStock<region P> extends Universal<P> {
   private double volatility in P;
   private double volatility2 in P;
   private double finalStockPrice in P;
-  private double[]<P> pathValue in P;
+  private ArrayDouble<P> pathValue in P;
 
   //------------------------------------------------------------------------
   // Constructors.
@@ -96,8 +97,8 @@ public class PriceStock<region P> extends Universal<P> {
     mcPath.set_nTimeSteps(nTimeSteps);
     this.pathStartValue = initAllTasks.get_pathStartValue();
     mcPath.set_pathStartValue(pathStartValue);
-    mcPath.set_pathValue(new double[nTimeSteps]<P>);
-    mcPath.set_fluctuations(new double[nTimeSteps]<P>);
+    mcPath.set_pathValue(new ArrayDouble<P>(nTimeSteps));
+    mcPath.set_fluctuations(new ArrayDouble<P>(nTimeSteps));
   }
   /**
     * Method which is passed in the data representing each task, which then

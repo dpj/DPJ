@@ -1,3 +1,4 @@
+import DPJRuntime.*;
 
 /**
   * Class for defining the results of a task.  Currently, this is simply
@@ -12,7 +13,7 @@ public class ToResult<region P> implements java.io.Serializable {
   private double volatility in P =Double.NaN;
   private double volatility2 in P =Double.NaN;
   private double finalStockPrice in P =Double.NaN;
-  private double[]<P> pathValue in P;
+  private ArrayDouble<P> pathValue in P;
 
   /**
     * Constructor, for the results from a computation.
@@ -21,7 +22,7 @@ public class ToResult<region P> implements java.io.Serializable {
     * @param pathValue Data computed by the Monte Carlo generator.
     */
   public ToResult(String header, double expectedReturnRate, double volatility, 
-  double volatility2, double finalStockPrice, double[]<P> pathValue) writes P {
+  double volatility2, double finalStockPrice, ArrayDouble<P> pathValue) writes P {
     this.header=header;
     this.expectedReturnRate = expectedReturnRate;
     this.volatility = volatility;
@@ -128,7 +129,7 @@ public class ToResult<region P> implements java.io.Serializable {
     *
     * @return Value of instance variable <code>pathValue</code>.
     */
-  public double[]<P> get_pathValue() reads P {
+  public ArrayDouble<P> get_pathValue() reads P {
     return(this.pathValue);
   }
   /**
@@ -136,7 +137,7 @@ public class ToResult<region P> implements java.io.Serializable {
     *
     * @param pathValue the value to set for the instance variable <code>pathValue</code>.
     */
-  public void set_pathValue(double[]<P> pathValue) writes P {
+  public void set_pathValue(ArrayDouble<P> pathValue) writes P {
     this.pathValue = pathValue;
   }
   //------------------------------------------------------------------------
