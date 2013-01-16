@@ -54,9 +54,9 @@ region R2;
 region R3;
 region R4;
 region R5;
-DPJArrayByte<R1> plain1;       // Buffer for plaintext data.
-DPJArrayByte<R2> crypt1;       // Buffer for encrypted data.
-DPJArrayByte<R3> plain2;       // Buffer for decrypted data.
+ArraySliceByte<R1> plain1;       // Buffer for plaintext data.
+ArraySliceByte<R2> crypt1;       // Buffer for encrypted data.
+ArraySliceByte<R3> plain2;       // Buffer for decrypted data.
 
 short [] userkey;     // Key for encryption/decryption.
 int []<R4> Z;             // Encryption subkey (userkey derived).
@@ -76,12 +76,12 @@ void Do()
   ttslice = (tslice + JGFCryptBench.nthreads-1) / JGFCryptBench.nthreads;
   slice = ttslice*8;
 
-  final DPJPartitionByte<R1> inSegs  = DPJPartitionByte.stridedPartition(plain1, slice);
-  final DPJPartitionByte<R2> outSegs = DPJPartitionByte.stridedPartition(crypt1, slice);
+  final PartitionByte<R1> inSegs  = PartitionByte.stridedPartition(plain1, slice);
+  final PartitionByte<R2> outSegs = PartitionByte.stridedPartition(crypt1, slice);
   foreach (int i in 0, inSegs.length)
   {
-    DPJArrayByte<inSegs:[i]:*>inSeg = inSegs.get(i);
-    DPJArrayByte<outSegs:[i]:*>outSeg = outSegs.get(i);
+    ArraySliceByte<inSegs:[i]:*>inSeg = inSegs.get(i);
+    ArraySliceByte<outSegs:[i]:*>outSeg = outSegs.get(i);
     run1(0, inSeg.length, inSeg, outSeg, Z);
   }
  
@@ -90,12 +90,12 @@ void Do()
   ttslice = (tslice + JGFCryptBench.nthreads-1) / JGFCryptBench.nthreads;
   slice = ttslice*8;
 
-  final DPJPartitionByte<R2> inSegs1  = DPJPartitionByte.stridedPartition(crypt1, slice);
-  final DPJPartitionByte<R3> outSegs1 = DPJPartitionByte.stridedPartition(plain2, slice);
+  final PartitionByte<R2> inSegs1  = PartitionByte.stridedPartition(crypt1, slice);
+  final PartitionByte<R3> outSegs1 = PartitionByte.stridedPartition(plain2, slice);
   foreach (int i in 0, inSegs1.length)
   {
-    DPJArrayByte<inSegs1:[i]:*>inSeg = inSegs1.get(i);
-    DPJArrayByte<outSegs1:[i]:*>outSeg = outSegs1.get(i);
+    ArraySliceByte<inSegs1:[i]:*>inSeg = inSegs1.get(i);
+    ArraySliceByte<outSegs1:[i]:*>outSeg = outSegs1.get(i);
     run1(0, inSeg.length, inSeg, outSeg, DK);
   }
   // Stop the stopwatch.
@@ -116,9 +116,9 @@ void buildTestData()
     // Create three byte arrays that will be used (and reused) for
     // encryption/decryption operations.
 
-    plain1 = new DPJArrayByte<R1>(array_rows);
-    crypt1 = new DPJArrayByte<R2>(array_rows);
-    plain2 = new DPJArrayByte<R3>(array_rows);
+    plain1 = new ArraySliceByte<R1>(array_rows);
+    crypt1 = new ArraySliceByte<R2>(array_rows);
+    plain2 = new ArraySliceByte<R3>(array_rows);
     
     Random rndnum = new Random(136506717L);  // Create random number generator.
 
@@ -378,7 +378,16 @@ void freeTestData()
 }
 
 
-    public <region R1, R2, R3 | R1:* # R2:*, R2:* # R3:*, R1:* # R3:*> void run1 (int ilow, int iupper, DPJArrayByte<R1> text1, DPJArrayByte<R2> text2, int []<R3> key) reads R3, R1  writes R2 {
+public 
+<region R1, R2, R3 | 
+    R1:* # R2:*, 
+    R2:* # R3:*, 
+    R1:* # R3:*> 
+void run1 (int ilow, int iupper, ArraySliceByte<R1> text1, 
+	   ArraySliceByte<R2> text2, int []<R3> key) 
+  reads R3, R1  writes R2 
+{
+
   if(iupper > text1.length) iupper = text1.length;
 
   int i1 = ilow;                 // Index into first text array.
