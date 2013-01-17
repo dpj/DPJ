@@ -6,9 +6,15 @@ endif
 
 all : java classes
 	cp -Rf forkjoin jsr166y extra166y java
-	# Compile FJTask
+	# Compile FJTask version used by dpjc
 	javac -d classes java/forkjoin/*.java
+	# Compile FJTask version used by ParallelArray
+	javac -d classes java/jsr166y/*.java
+	# Compile ParallelArray
+	javac -cp classes -d classes java/extra166y/*.java
+	# Compile DPJ runtime
 	make runtime-only
+	# Make DPJ docs
 	make dpjdoc-html
 
 java :
@@ -21,8 +27,8 @@ runtime-only:
 	# Generate Java 'template' classes
 	perl expandAll.pl
 	# Compile the DPJ runtime
-	dpjc -seq ${INSTRUMENT} -d java -cp classes ${UNCHECKED} dpj/*.java
-	javac -cp classes -d classes java/DPJRuntime/*.java
+	dpjc -seq ${INSTRUMENT} -d java -cp classes ${UNCHECKED} dpj/*.java dpj/Framework/*.java
+	javac -cp classes -d classes java/DPJRuntime/*.java java/DPJRuntime/Framework/*.java
 
 # Count DPJ Annotations
 countAll :

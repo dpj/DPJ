@@ -14,14 +14,14 @@ DPJ-PAR-TEST= $(DPJ-PAR) -ea
 DPJ-SEQ-TEST=$(DPJ-SEQ) -ea
 DPJ-INST-TEST=$(DPJ-INST) -ea
 SRCS= $(wildcard dpj/*.java)
-
+RUNTIME_JAVA=$(RUNTIME)/dpj/*.java
 
 all :: $(ALL)
 
 sequential/java : $(SRCS) sequential
 	rm -Rf $@
 	mkdir $@
-	$(DPJC-SEQ) -d $@ dpj/*.java $(RUNTIME)/dpj/*.java
+	$(DPJC-SEQ) -d $@ dpj/*.java $(RUNTIME_JAVA)
 sequential/classes : sequential/java
 	rm -Rf $@
 	mkdir $@
@@ -29,7 +29,7 @@ sequential/classes : sequential/java
 parallel/java : $(SRCS) parallel
 	rm -Rf $@
 	mkdir $@
-	$(DPJC-PAR) -d parallel/java dpj/*.java $(RUNTIME)/dpj/*.java
+	$(DPJC-PAR) -d parallel/java dpj/*.java $(RUNTIME_JAVA)
 parallel/classes : parallel/java
 	rm -Rf $@
 	mkdir $@
@@ -37,7 +37,7 @@ parallel/classes : parallel/java
 instrument/java : $(SRCS) instrument
 	rm -Rf $@
 	mkdir $@
-	$(DPJC-INST) -d instrument/java dpj/*.java $(RUNTIME)/dpj/*.java
+	$(DPJC-INST) -d instrument/java dpj/*.java $(RUNTIME_JAVA)
 instrument/classes : instrument/java
 	rm -Rf $@
 	mkdir $@
@@ -60,5 +60,6 @@ instrument :
 
 clean :
 	rm -Rf sequential parallel instrument
+	$(CLEAN)
 
 .PRECIOUS: java/%.java

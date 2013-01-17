@@ -3,21 +3,25 @@ SRCS= ${wildcard dpj/*.java}
 CUTOFF ?= 100
 SIZE ?= 0
 NT ?=1
+CLEAN= rm -f Data
 
-include ../../Makefile.common
+include ../../../Makefile.common
 
 DPJ += -Xmx1g
 
-run-inst :
+Data : ../Data
+	ln -s $< $@
+
+run-inst : Data
 	${DPJ-INST} ${PROG} IDEAL ${SIZE}
 
-run-seq :
+run-seq : Data
 	${DPJ-SEQ} ${PROG} TIME ${SIZE}
 
-run-par:
+run-par : Data
 	${DPJ-PAR} ${PROG} --dpj-foreach-cutoff ${CUTOFF} --dpj-num-threads ${NT} TIME ${SIZE}
 
-test:
+test : Data
 	make run-seq SIZE=0
 	make run-seq SIZE=1
 	make run-par CUTOFF=100 NT=10 SIZE=0
