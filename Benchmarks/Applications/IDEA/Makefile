@@ -67,7 +67,10 @@ harness-strace:
 idealharness:
 	cd classes; java -cp ${DPJ_ROOT}/Implementation/Runtime/classes:. JGFCryptBenchSize $(mode) $(num)
 
-test-files:
+test-java :
+	mkdir $@
+
+test-files: test-java
 	dpjc -cp ${RUNTIME}/classes:classes -d test-java test-dpj/*.java ${DPJ_ROOT}/Implementation/Runtime/dpj/*.java
 	javac -cp ${DPJ_ROOT}/Implementation/Runtime/classes:classes -d classes test-java/*.java 
 	cd original; javac -cp ../:. *.java
@@ -83,6 +86,6 @@ count ::
 	perl ${DPJ_ROOT}/Benchmarks/Scripts/count.pl ${RUNTIME} .
 
 clean:
-	rm -rf classes/*
+	rm -Rf java test-java classes
 	rm -f original/*.class
 	rm -f original/crypt/*.class
