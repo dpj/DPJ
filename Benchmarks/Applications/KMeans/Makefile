@@ -1,5 +1,3 @@
-ALL=sequential-classes parallel-classes
-
 include ../../Makefile.common
 
 INPUT ?= inputs/color100
