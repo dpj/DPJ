@@ -36,7 +36,7 @@ public class Effects implements
     private Set<Effect> effects = new HashSet<Effect>();
     
     public static final Effects UNKNOWN = new Effects();
-    
+
     public Effects() {}
     
     public Effects(Effect effect) {

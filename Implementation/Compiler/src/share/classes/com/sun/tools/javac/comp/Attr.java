@@ -303,9 +303,10 @@ public class Attr extends JCTree.Visitor {
 
 	            // Store resolved effects in the method symbol
 	            m.effects = tree.effects.effects;
-	            // Set default effect to pure for implicit constructors
+	            
+	            // Set default effect for implicit constructors
 	            if ((m.effects == Effects.UNKNOWN) && attr.inConstructor(parentEnv))
-	        	m.effects = new Effects();
+	        	m.effects = attr.defaultEffects();
 	        }
 	        
 		parentEnv = savedEnv;
@@ -3676,6 +3677,9 @@ public class Attr extends JCTree.Visitor {
         return varSym;
     }
     
+    /**
+     * Get the RPL associated with an expression
+     */
     public RPL getRPLFor(JCExpression tree,
 	    Env<AttrContext> env) {
 	if (tree instanceof JCArrayAccess) {
@@ -3767,6 +3771,13 @@ public class Attr extends JCTree.Visitor {
 	return result;
     }
     
+    /** Default effect = writes Root : * */
+    public Effects defaultEffects() {
+	return new Effects(new Effect.WriteEffect(rpls, 
+		    	new RPL(List.<RPLElement>of(RPLElement.ROOT_ELEMENT, 
+		    		RPLElement.STAR)), false, true));
+    }
+        
     // DPJ constructs (to end)
     
     public void visitRegionDecl(DPJRegionDecl tree) { // DPJ -- based on visitVarDef
@@ -3971,10 +3982,7 @@ public class Attr extends JCTree.Visitor {
 		}
 	    }
 	} else {
-	    // Default effect = writes Root : *
-	    tree.effects.add(new Effect.WriteEffect(rpls, 
-		    new RPL(List.<RPLElement>of(RPLElement.ROOT_ELEMENT, 
-			    RPLElement.STAR)), false, true));            
+	    tree.effects = defaultEffects(); 
 	}            
     }
 
