@@ -7,7 +7,7 @@ import java.util.*;
  *
  * @author Rob Bocchino
  */
-public interface DPJSequentialSet<type E, region R> extends Set<E> {
+public interface SequentialSet<type E, region R> extends Set<E> {
     @Override
     boolean add(E e) writes R;
 

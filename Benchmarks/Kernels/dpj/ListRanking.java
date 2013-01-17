@@ -111,7 +111,7 @@ class List {
 	    nodes[i].initRank();
 	}
 	// Repeat log2(nodes.length) times
-	int i = DPJUtils.log2(nodes.length);
+	int i = Utils.log2(nodes.length);
 	while (i-- > 0) {
 	    // Get the rank information from the rank neighbor
 	    foreach (int j in 0, nodes.length) {

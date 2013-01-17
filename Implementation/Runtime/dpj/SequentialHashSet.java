@@ -9,8 +9,8 @@ import java.util.*;
  *
  * @author Rob Bocchino
  */
-public class DPJSequentialHashSet<type E, region R> extends HashSet<E>
-    implements DPJSequentialSet<E,R> {
+public class SequentialHashSet<type E, region R> extends HashSet<E>
+    implements SequentialSet<E,R> {
     @Override
     public boolean add(E e) writes R { 
 	return super.add(e); 

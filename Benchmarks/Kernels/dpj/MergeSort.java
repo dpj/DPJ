@@ -31,7 +31,7 @@ public abstract class MergeSort extends Harness {
 	for (int i = 0; i < input.length; ++i) {
 	    input[i] = i;
 	}
-	DPJUtils.permuteInt(input);
+	Utils.permuteInt(input);
     }
 
     @Override

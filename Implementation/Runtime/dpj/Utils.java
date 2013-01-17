@@ -5,7 +5,7 @@ package DPJRuntime;
  *
  * @author Robert L. Bocchino Jr.
  */
-public class DPJUtils {
+public class Utils {
 
     /**
      * Quickly computes the floor of the base 2 log of {@code x}.
@@ -52,7 +52,7 @@ public class DPJUtils {
 	for (int i = 0; i < A.length; ++i) {
 	    int j = (int) (Math.random() * A.length);
 	    int k = (int) (Math.random() * A.length);
-	    DPJUtils.swap(A, j, k);
+	    Utils.swap(A, j, k);
 	}
     }
 
