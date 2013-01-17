@@ -1,26 +1,49 @@
-RUNTIME = ${DPJ_ROOT}/Implementation/Runtime
+IMPLEMENTATION=$(DPJ_ROOT)/Implementation
+RUNTIME=$(IMPLEMENTATION)/Runtime
+SCRIPTS=$(DPJ_ROOT)/Benchmarks/Scripts
+RUNTIME_SRC=$(RUNTIME)/dpj/*.java
+CP = $(RUNTIME)/classes:jgfutil-classes:idea-classes:test-classes
 
-numthread ?= 1
+NT ?= 1
+CUTOFF ?= 1
+MODE ?= TEST
 
-all: jgfutil-files dpj-files java-files original-code test-files
+# SIZE must be 1,2, or 3.  It's not the problem size, but an index
+# into the space of available sizes.  See
+# original/crypt/JGFCryptBench.java.
 
-jgfutil-files: classes
-	javac -d classes jgfutil/*.java
+SIZE ?= 1
 
-classes :
+all: test-classes original-code
+
+jgfutil-classes : jgfutil/*.java
+	rm -Rf $@
 	mkdir $@
+	javac -d $@ $+
 
-dpj-files: java
-	dpjc -cp ${RUNTIME}/classes:. -d java dpj/*.java ${DPJ_ROOT}/Implementation/Runtime/dpj/*.java
-
-java :
+idea-java : jgfutil-classes dpj/*.java
+	rm -Rf $@
 	mkdir $@
+	dpjc -cp $(CP) -d $@ dpj/*.java $(RUNTIME_SRC)
 
-java-files:
-	javac -cp ${DPJ_ROOT}/Implementation/Runtime/classes:. -d classes java/*.java
+idea-classes : idea-java
+	rm -Rf $@
+	mkdir $@
+	javac -cp $(CP) -d $@ idea-java/*.java
+
+test-java : idea-classes test-dpj/*.java
+	rm -Rf $@
+	mkdir $@
+	dpjc -cp $(CP) -d $@ test-dpj/*.java $(RUNTIME_SRC)
+
+test-classes : test-java
+	rm -Rf $@
+	mkdir $@
+	javac -cp $(CP) -d $@ test-java/*.java
 
 original-code:
 	javac original/crypt/*.java
+	cd original; javac -cp ../:. *.java
 
 run: runA runB runC
 
@@ -44,48 +67,36 @@ runC-jg:
 
 runA-dpj:
 	echo "Running DPJ"
-	cd classes; java -cp ${DPJ_ROOT}/Implementation/Runtime/classes:. JGFCryptBenchSizeA $(num)
+	java -cp $(CP) JGFCryptBenchSizeA $(num)
 
 runB-dpj:
 	echo "Running DPJ"
-	cd classes; java -cp ${DPJ_ROOT}/Implementation/Runtime/classes:. JGFCryptBenchSizeB $(num)
+	java -cp $(CP) JGFCryptBenchSizeB $(num)
 
 runC-dpj:
 	echo "Running DPJ"
-	cd classes; java -cp ${DPJ_ROOT}/Implementation/Runtime/classes:${RUNTIME}/classes/EDU/oswego/cs/dl/util/concurrent:. JGFCryptBenchSizeC --dpj-foreach-cutoff 1 --dpj-num-threads $(numthread) $(num)
+	java -cp $(CP) JGFCryptBenchSizeC --dpj-foreach-cutoff 1 --dpj-num-threads $(NT) $(num)
 
 harness:
 	echo "Running Harness"
-	cd classes; java -cp ${DPJ_ROOT}/Implementation/Runtime/classes:. JGFCryptBenchSize --dpj-foreach-cutoff $(numforeach) --dpj-num-threads $(numthread) $(mode) $(num)
+	java -cp $(CP) JGFCryptBenchSize --dpj-foreach-cutoff $(CUTOFF) --dpj-num-threads $(NT) $(MODE) $(SIZE)
 
 harness1:
-	cd classes; java -cp ${DPJ_ROOT}/Implementation/Runtime/classes:. JGFCryptBenchSize --dpj-num-threads $(numthread) $(mode) $(num)
+	java -cp $(CP) JGFCryptBenchSize --dpj-num-threads $(NT) $(MODE) $(SIZE)
 
 harness-strace:
-	cd classes; strace -T java -cp ${DPJ_ROOT}/Implementation/Runtime/classes:. JGFCryptBenchSize --dpj-num-threads $(numthread) $(mode) $(num)
+	strace -T java -cp $(CP) JGFCryptBenchSize --dpj-num-threads $(NT) $(MODE) $(SIZE)
 
 idealharness:
-	cd classes; java -cp ${DPJ_ROOT}/Implementation/Runtime/classes:. JGFCryptBenchSize $(mode) $(num)
-
-test-java :
-	mkdir $@
-
-test-files: test-java
-	dpjc -cp ${RUNTIME}/classes:classes -d test-java test-dpj/*.java ${DPJ_ROOT}/Implementation/Runtime/dpj/*.java
-	javac -cp ${DPJ_ROOT}/Implementation/Runtime/classes:classes -d classes test-java/*.java 
-	cd original; javac -cp ../:. *.java
-
-IMPLEMENTATION=${DPJ_ROOT}/Implementation
-RUNTIME=${IMPLEMENTATION}/Runtime
-SCRIPTS=${DPJ_ROOT}/Benchmarks/Scripts
+	java -cp $(CP) JGFCryptBenchSize $(MODE) $(SIZE)
 
 countAll ::
-	dpjc -count -cp ${RUNTIME}/classes:. -d java dpj/*.java ${DPJ_ROOT}/Implementation/Runtime/dpj/*.java
+	dpjc -count -cp $(RUNTIME)/classes:. -d java dpj/*.java $(RUNTIME)/dpj/*.java
 
 count ::
-	perl ${DPJ_ROOT}/Benchmarks/Scripts/count.pl ${RUNTIME} .
+	perl $(DPJ_ROOT)/Benchmarks/Scripts/count.pl $(RUNTIME) .
 
 clean:
-	rm -Rf java test-java classes
+	rm -Rf jgfutil-classes idea-classes idea-java test-classes test-java
 	rm -f original/*.class
 	rm -f original/crypt/*.class
