@@ -1,6 +1,10 @@
 \documentclass[10pt]{article}
 
-\input{../defs}
+\input{../../defs}
+\renewcommand{\bfhead}[1]{\noindent{\textbf{#1:}}}
+\renewcommand{\ithead}[1]{\noindent{\textit{#1:}}}
+
+\usepackage{fouriernc}
 
 %%--------------------------------------------------------------------------- 
 %% Main Document
@@ -8,12 +12,11 @@
 
 \title{\bfseries{The Deterministic Parallel Java \\
 Language Reference Manual \\
-Version 1.0}}
+Version 1.1}}
 %
-\author{University of Illinois at Urbana-Champaign}
+%\author{University of Illinois at Urbana-Champaign}
 %
-\date{Revised June 2010}
-
+\date{Revised January 2013}
 
 \begin{document}
 
@@ -23,8 +26,8 @@ Version 1.0}}
 
 \begin{sloppypar}
 \input{Introduction}
-\input{Classes}
 \input{RPLs}
+\input{Classes}
 \input{Types}
 \input{Effects}
 \input{Parallel}

@@ -1,0 +1,844 @@
+\section{Region Path Lists (RPLs)%
+\label{sec:rpls}}
+\cutname{rpls.html}
+
+This section describes \emph{region path lists}, or RPLs.  RPLs are
+the fundamental tool for describing sets of memory locations in DPJ.
+RPLs can be \emph{fully specified} or \emph{partially specified}.  A
+fully-specified RPL names a \emph{region}, which represents a set of
+memory locations on the heap. The correspondence between memory
+locations and regions is given by the way that the programmer has
+assigned RPLs to class fields (\S~\ref{sec:classes:field-region-spec})
+and bound RPLs to region parameters in class types
+(\S~\ref{sec:types:class:instant}), array types
+(\S~\ref{sec:types:array:instant}), and method invocations
+(\S~\ref{sec:classes:params:method}). A partially-specified RPL names
+a \emph{set of regions} and is useful for expressing hierarchical
+effects (e.g., ``all regions under this one'').
+
+RPLs are naturally nested.  In fact the motivation for name ``region
+path list'' is that an RPL is a sequence of names that describes a
+path from the root in a tree of regions.  Together with partially
+specified RPLs, this nesting structure provides a great deal of power
+in comparing sets of memory locations to determine whether they are
+overlapping or disjoint.  These properties are the key to specifying
+and checking effects.  In particular, checking \emph{subeffects}
+(e.g., that a method's effect summary covers its effects,
+\S~\ref{sec:classes:methods:summaries}) requires reasoning about
+inclusion of RPLs, while checking \emph{noninterfering effects} (e.g.,
+that the branches of a \kwd{cobegin} statement do not interfere,
+\S~\ref{sec:parallel:cobegin}) requires reasoning about disjointness
+of RPLs.
+
+The rest of this section proceeds as follows.  \S~\ref{sec:rpls:basic}
+describes the simplest form of RPL, which is just a name, such as a
+region name declared at class scope
+(\S~\ref{sec:classes:region-names}).  \S~\ref{sec:rpls:sequences}
+describes how to construct RPLs using \emph{sequences of names}, which
+put a nesting structure on RPLs.  \S~\ref{sec:rpls:param} describes
+the use of region parameters (\S~\ref{sec:classes:params}) with RPLs.
+These parameters allow RPLs to vary with the class type or method
+invocation.  \S~\ref{sec:rpls:partial} explains how to write
+\emph{partially specified RPLs}, which describe sets of fully
+specified RPLs.  \S~\ref{sec:rpls:comparing} explains the rules for
+comparing RPLs for properties such as inclusion and disjointness.
+
+Finally, a word about the uses of RPLs.  This section is about the
+\emph{definition} of RPLs, and the relations among them (inclusion,
+disjointness, etc.).  The various ways in which RPLs can be
+\emph{used} (i.e., how they actually appear in a DPJ program) are
+covered in other sections.  To provide context for this section, we
+list all the possible uses here, together with the sections discussing
+those uses:
+%
+\begin{itemize}
+%
+\item RPLs can appear in field RPL specifiers, to assign class fields
+  to regions (\S~\ref{sec:classes:field-region-spec}).
+%
+\item RPLs can appear in effect summaries
+  (\S~\ref{sec:effects:summaries}).  These RPLs describe the effects
+  of a code statement.
+%
+\item RPLs can appear as arguments to parametric class types
+  (\S~\ref{sec:types:class:instant}) and to array types
+  (\S~\ref{sec:types:array:instant}).  These RPLs provide actual
+  regions for the parameters in the instantiation of a class or array.
+%
+\item RPLs can appear in method invocations, as arguments to method
+  region parameters (\S~\ref{sec:classes:params:method}).  These RPLs
+  provide actual regions for the parameters in an invocation of a
+  method.
+%
+\end{itemize}
+%
+Throughout this section, we provide example uses to illustrate the
+definitions in context.
+
+\subsection{Basic Region Names%
+\label{sec:rpls:basic}}
+\cutname{rpls.basic.html}
+
+This section describes the simplest form of RPL, which is a single
+name.  There are five kinds of region names: 
+%
+\begin{enumerate}
+%
+\item
+\kwd{Root}, a special name that is always in scope.
+%
+\item A region name declared at class scope
+  (\S~\ref{sec:classes:region-names}).
+%
+\item An array index region \kwd{[}\emph{exp}\kwd{]}, where \emph{exp}
+  is an integer expression.
+%
+\item A region name declared in a method-local scope
+  (\S~\ref{sec:classes:methods:local-regions}).
+%
+\item A \kwd{final} local variable or \kwd{this}.  
+%
+\end{enumerate}
+%
+The first three kinds of names are available everywhere (except that
+class region names may have access qualifiers, see
+\S~\ref{sec:classes:region-names}).  The last two kinds of names are
+available only in the scope where the region names or variables
+are active.
+
+\subsubsection{The Name \kwd{Root}%
+\label{sec:rpls:basic:root}}
+\cutname{rpls.basic.root.html}
+
+The region name \kwd{Root} is always in scope, and can be used
+anywhere as an RPL.  For example, the following code uses \kwd{Root}
+in a field region specifier (\S~\ref{sec:classes:field-region-spec})
+and to instantiate a class type (\S~\ref{sec:types:class:instant}):
+%
+\begin{dpjlisting}
+class RootExample<region R> {
+    RootExample<Root> x in Root;
+}
+\end{dpjlisting}
+%
+
+The name \kwd{Root} has a special meaning: it is the root of the
+region tree.  Every RPL is nested under \kwd{Root}.  For more
+information about the nesting relation on RPLs, see
+\S~\ref{sec:rpls:comparing:nest}.
+
+\subsubsection{Class Region Names%
+\label{sec:rpls:basic:class}}
+\cutname{rpls.basic.class.html}
+
+A region name declared as a class member
+(\S~\ref{sec:classes:region-names}) is available for use as an RPL in
+any scope where it is visible.  For example, the following code
+declares a region name \kwd{ClassRegion} at class scope, then uses it
+in a field region specifier (\S~\ref{sec:classes:field-region-spec})
+and to instantiate a class type (\S~\ref{sec:types:class:instant}):
+%
+\begin{dpjlisting}
+class ClassRegionExample<region R> {
+    region ClassRegion;
+    int ClassRegionExample<ClassRegion> x in ClassRegion;
+}
+\end{dpjlisting}
+%
+Because class region names can be package- and class-qualified, like
+Java static fields, the following code is also legal:
+%
+\begin{dpjlisting}
+class Class1 {
+    region ClassRegion;
+}
+class Class2 {
+    int x in Class1.ClassRegion;
+}
+\end{dpjlisting}
+
+When a class region name $R$ is used as an RPL, it is shorthand for
+the name sequence \kwd{Root}:$R$, as described in
+\S~\ref{sec:rpls:sequences}.  For example, the following definition of
+\kwd{Class2} is equivalent to the one given above:
+%
+\begin{dpjlisting}
+class Class2 {
+    int x in Root:Class1.ClassRegion;
+}
+\end{dpjlisting}
+
+
+\subsubsection{Array Index RPLs%
+\label{sec:rpls:basic:array}}
+\cutname{rpls.basic.array.html}
+
+The name \kwd{[}$e$\kwd{]}, where $e$ is an integer expression,
+functions as an RPL, called an \emph{array index RPL}.  The array
+index RPL represents a region indexed by the number that $e$
+evaluates to at runtime (so there is a different region for each
+natural number).  It is useful in conjunction with
+\emph{index-parameterized arrays} (\S~\ref{sec:types:array:ipa}) and
+with DPJ's built-in features for array partitioning
+(\S~\ref{sec:runtime:partition}).
+
+As with class region names used as RPLs
+(\S~\ref{sec:rpls:basic:class}), an array index RPL \kwd{[}$e$\kwd{]}
+is short for \kwd{Root:[}$e$\kwd{]}.
+
+\subsubsection{Local Region Names%
+\label{sec:rpls:basic:local}}
+\cutname{rpls.basic.local.html}
+
+
+A region name declared inside a method body
+(\S~\ref{sec:classes:methods:local-regions}) is available for use as
+an RPL in the scope where it is visible.  For example, the following
+code declares a region name \kwd{LocalRegion} in a local scope, and
+uses it to instantiate a type:
+%
+\begin{dpjlisting}
+class LocalRegionExample<region R> {
+    void method() {
+        region LocalRegion;
+        LocalRegionExample<LocalRegion> lre = 
+          new LocalRegionExample<LocalRegion>();
+    }
+}
+\end{dpjlisting}
+%
+
+As with class region names and array index regions, an RPL consisting
+of a single local region name implicitly starts with \kwd{Root}.  For
+example, the class definition above is equivalent to the following:
+%
+\begin{dpjlisting}
+class LocalRegionExample<region R> {
+    void method() {
+        region LocalRegion;
+        LocalRegionExample<Root:LocalRegion> lre = 
+          new LocalRegionExample<Root:LocalRegion>();
+    }
+}
+\end{dpjlisting}
+%
+
+
+\subsubsection{\kwd{final} Local Variables and \kwd{this} as Region Names%
+\label{sec:rpls:basic:var}}
+\cutname{rpls.basic.var.html}
+
+The following variables may be used as an RPL:
+%
+\begin{itemize}
+%
+\item A \kwd{final} local variable or method parameter with a class
+  type.
+%
+\item The variable \kwd{this}, in a non-static context.
+%
+\end{itemize}
+%
+This usage is called a \emph{variable RPL}.  For example, the
+following code uses \kwd{this} as an RPL in a field region specifier
+(\S~\ref{sec:classes:field-region-spec}), as an argument to a class
+type (\S~\ref{sec:types:class:instant}), and in an effect summary
+(\S~\ref{sec:effects:summaries}):
+%
+\begin{dpjlisting}
+class VarRegionExample<region R> {
+    VarRegionExample<this> x in this;
+    void setX(VarRegionExample<this> x) writes this {
+        this.x = x;
+    }
+}
+\end{dpjlisting}
+%
+
+Variable RPLs allow \emph{runtime objects to function as regions}, as
+in type systems based on \emph{ownership}.  The variable stands in for
+the object stored to the variable at runtime.  Because the variable
+must be \kwd{final} or \kwd{this} (which cannot be assigned to), the
+variable always refers to the same object.  This feature is
+particularly useful in conjunction with the \kwd{DPJParititon} class
+(\S~\ref{sec:runtime:partition}), because it provides a way to
+instantiate a partition with the region corresponding to the array
+being partitioned.
+
+As in ownership systems, a variable RPL is nested under the first RPL
+argument of its type, which is called the \emph{owner RPL} of the type
+(\S~\ref{sec:types:class:owner-rpl}).  For example, in the code above,
+the variable \kwd{this} has type \kwd{VarRegionExample<R>}, so it is
+nested under the RPL \kwd{R}.  For more information about the nesting
+relationship on RPLs, see \S~\ref{sec:rpls:comparing:nest}.
+
+
+\subsection{Sequences of Basic Names%
+\label{sec:rpls:sequences}}
+\cutname{rpls.sequences.html}
+
+RPLs are built up from colon-separated sequences of names; this gives
+them a natural nesting structure.  For example, if \kwd{A} and \kwd{B}
+are names, then \kwd{A}, \kwd{B}, \kwd{A:B}, \kwd{B:A}, \kwd{A:A:B},
+and so forth are all RPLs.  The nesting structure is given by the
+syntax: for example, \kwd{A:B} and \kwd{A:A:B} are both nested under
+\kwd{A}.  Note that nesting does not imply inclusion; \kwd{A} and
+\kwd{A:B} are distinct regions.  In particular the effect \kwd{writes
+  A} does \emph{not} cover (or imply) the effect \kwd{writes A:B}.
+However, the nesting structure creates a hierarchy of regions that is
+useful in conjunction with partially specified RPLs
+(\S~\ref{sec:rpls:partial}), because then we can use it to say things
+like ``all RPLs under this one'' or ``all RPLs under this one that end
+in \kwd{B}.''  Separating nesting from inclusion like this makes RPLs
+more complicated, but it also allows greater precision.
+
+An RPL is valid if it is conforms to the following rules:
+%
+\begin{itemize}
+%
+\item It is composed of basic names (\S~\ref{sec:rpls:basic}),
+  separated by colons.
+%
+\item If \kwd{Root} (\S~\ref{sec:rpls:basic:root}) or a variable name
+  (\S~\ref{sec:rpls:basic:var}) appears in the sequence, it must
+  appear first (so, in particular, both cannot appear).
+%
+\end{itemize}
+%
+The names in the sequence are called the \emph{elements} of the RPL.
+If an RPL does not start with \kwd{Root} or a variable element, then
+it is treated as implicitly starting with \kwd{Root}.  For example,
+\kwd{A} is the same as \kwd{Root:A}, and \kwd{[0]} is the same as
+\kwd{Root:[0]}.
+
+The following are examples of valid RPLs, assuming that \kwd{A} and
+\kwd{B} are declared region names in scope:
+%
+\begin{dpjlisting}
+A        // Declared name
+Root:A   // Same as A
+A:B      // Sequence of names
+Root:A:B // Same as A:B
+[0]      // Array index region
+Root:[0] // Same as [0]
+this     // Variable region
+this:A   // Variable region with A appended
+\end{dpjlisting}
+
+The following are examples of RPLs that are \emph{not} valid, because
+they do not conform to the rules above:
+%
+\begin{dpjlisting}
+A:Root    // Root must appear first
+this:Root // Root must appear first
+A:this    // this must appear first
+Root:this // this must appear first
+\end{dpjlisting}
+
+\subsection{Parameterized RPLs%
+\label{sec:rpls:param}}
+\cutname{rpls.param.html}
+
+Class and method region parameters (\S~\ref{sec:classes:params}) work
+with RPLs in a natural way.  First, a region parameter standing alone
+is always a valid RPL, as shown in the examples in
+\S\S~\ref{sec:classes:params:class}
+and~\ref{sec:classes:params:method}.  Second, an RPL may be
+constructed from a region parameter followed by a colon-separated
+sequence of elements, similar to a sequence of basic names
+(\S~\ref{sec:rpls:sequences}).  If a parameter appears in an RPL, then
+it must appear first, and no \kwd{Root} or \kwd{final} local variable
+may appear in the RPL (because those, when they appear, must also be
+first).
+
+The following are examples of valid parameterized RPLs, assuming that
+\kwd{R} is a region parameter in scope and \kwd{A} and \kwd{B} are
+declared region names in scope:
+%
+\begin{dpjlisting}
+R      // Region parameter alone
+R:A    // Region parameter with name appended
+R:A:B  // Region parameter with names appended
+R:[0]  // Region parameter with index appended
+\end{dpjlisting}
+
+The following are examples of RPLs that are \emph{not} valid, because
+they do not conform to the rules above:
+%
+\begin{dpjlisting}
+A:R      // R must appear first
+Root:R   // R must appear first
+R:Root   // Root must appear first
+R:this   // this must appear first
+\end{dpjlisting}
+
+The meaning of a parameterized RPL is that at runtime, the parameter
+will be substituted away, generating a region that has \kwd{Root} or
+an object as its first element.  For example, consider the following
+class definition:
+%
+\begin{dpjlisting}
+class ParameterExample<region R> {
+    region r;
+    int x in R:r
+}
+\end{dpjlisting}
+%
+The class \kwd{ParameterExample} has one region parameter \kwd{R}, and
+one field \kwd{x} placed in RPL \kwd{R} using a field RPL specifier
+(\S~\ref{sec:classes:region-names}).  Suppose we now instantiate that
+class to a type (\S~\ref{sec:types:class:instant}), by binding
+\kwd{Root} to \kwd{R}:
+%
+\begin{dpjlisting}
+ParameterExample<Root> pa = new ParameterExample<Root>();
+\end{dpjlisting}
+%
+This type says that the object bound to \kwd{pa} at runtime has its
+field \kwd{x} in RPL \kwd{Root:r} (substituting \kwd{Root} for \kwd{R}
+in \kwd{R:r}).  For more information about how this subsitution works,
+see \S~\ref{sec:types:exp}.
+
+\subsection{Partially Specified RPLs%
+\label{sec:rpls:partial}}
+\cutname{rpls.partial.html}
+
+In order for the nested structure of RPLs to be useful, the programmer
+must be able to name a \emph{set} of RPLs such as ``all RPLs nested
+under this one.''  To support this kind of naming, DPJ has a special
+element \kwd{*} that stands in for any sequence of RPL elements.
+There is also a wildcard array index element \kwd{[?]}, where the
+\kwd{?} stands in for any natural number.  This is useful for naming
+sets of array regions.
+
+\subsubsection{The \kwd{*} RPL Element%
+\label{sec:rpls:partial:star}}
+\cutname{rpls.partial.star.html}
+
+An RPL may be written with \kwd{*} as one if its elements.  The RPL
+must otherwise follow the rules in \S\S~\ref{sec:rpls:sequences}
+and~\ref{sec:rpls:param}: for example, if a parameter appears in the
+RPL, it must be first.  It is permissible for an RPL to start with
+\kwd{*}; in this case, there is an implicit \kwd{Root} before the
+\kwd{*}.  In particular, the RPL \kwd{*} is equivalent to \kwd{Root:*}
+and refers to all regions.
+
+The meaning of an RPL containing \kwd{*} is that it stands in for all
+legal RPLs that could be constructed by substituting sequences of zero
+or more elements for the \kwd{*}.  For example, \kwd{A:*:B} stands in
+for \kwd{A:B}, \kwd{A:A:B}, \kwd{A:B:B}, \kwd{A:A:A:B}, etc.  However,
+\kwd{A:*:B} does \emph{not} stand in for \kwd{A:Root:B}, because that
+is not a valid RPL (\kwd{Root} must appear first).  See
+\S\S~\ref{sec:rpls:comparing:nest}
+and~\ref{sec:rpls:comparing:include} for more information about the
+nesting and inclusion rules for RPLs using \kwd{*}.
+
+Here are some examples of valid RPLs constructed with the \kwd{*}
+element, assuming that \kwd{A} and \kwd{B} are declared region names
+in scope:
+%
+\begin{dpjlisting}
+*          // All RPLs
+Root:*     // Same as *
+*:A        // All RPLs under Root ending in A
+A:*        // All RPLs under Root:A
+Root:A:*   // Same as A:*
+this:*     // All RPLs under this
+this:*:A   // All RPLs under this ending in A
+\end{dpjlisting}
+%
+Although more complex RPLs are possible, typically in user code at
+most one \kwd{*} appears in an RPL, as shown in the examples above.
+
+Here are some examples of RPLs that are \emph{not} valid, because they
+do not conform to the rules stated in \S\S~\ref{sec:rpls:sequences}
+and~\ref{sec:rpls:param} (\kwd{R} is a region parameter):
+%
+\begin{dpjlisting}
+*:R        // R must appear first
+*:this     // this must appear first
+A:*:Root   // Root must appear first
+\end{dpjlisting}
+
+
+\subsubsection{The \kwd{[?]} RPL Element%
+\label{sec:rpls:partial:qmark}}
+\cutname{rpls.partial.qmark.html}
+
+The \emph{wildcard array index element} \kwd{[?]} may be used in an
+RPL anywhere that an array index element \kwd{[$e$]} may appear
+(\S~\ref{sec:rpls:basic:array}).  It stands in for any array index
+element.  For example:
+%
+\begin{dpjlisting}
+[?]        // Matches [e] for any [e]
+Root:[?]   // Same as [?]
+[?]:A      // Matches [e]:A for any e
+this:[?]   // Matches this:[e] for any e
+\end{dpjlisting}
+
+\subsection{Local RPLs%
+\label{sec:rpls:local}}
+\cutname{rpls.local.html}
+
+A \emph{local RPL} is an RPL that contains a local region name
+(\S~\ref{sec:rpls:basic:local}) as an element.  It may be
+parameterized and/or partially specified.  For example:
+%
+\begin{dpjlisting}
+class LocalRPLs<region R> {
+    region ClassRegion;
+    void method() {
+        region LocalRegion;
+        // LocalRegion is a local RPL; it is equivalent 
+        // to Root:LocalRegion
+        LocalRPLs<LocalRegion> x = null;
+        // R:LocalRegion:* is a local RPL
+        LocalRpls<ClassRegion:LocalRegion:*> y = null;
+        // ClassRegion is not a local RPL
+        LocalRpls<ClassRegion> z = null;
+    }
+}
+\end{dpjlisting}
+%
+Local RPLs are important because they define \emph{local effects}
+(\S~\ref{sec:effects:local}).  A local effect is visible only in a
+method and its callees, so doesn't have to be reported to the caller.
+For example, in the code above, any effects on \kwd{LocalRegion} or
+\kwd{R:LocalRegion} could be omitted from the effect summary of
+\kwd{method}.
+
+\subsection{Comparing RPLs%
+\label{sec:rpls:comparing}}
+\cutname{rpls.comparing.html}
+
+To reason about effects, both the programmer and the compiler have to
+make judgments like ``this RPL is included in that one'' or ``this RPL
+is disjoint from that one'' (where ``disjoint'' means that the
+corresponding sets of memory locations are nonintersecting).  The
+programmer has to do this in order to reason about which code sections
+may be run in parallel safely, i.e., without interference.  And the
+compiler has to do it to check that the programmer got it right.
+
+To support this kind of reasoning, there are four relations on RPLs:
+%
+\begin{enumerate}
+%
+\item \emph{Equivalence}, meaning that two RPLs refer to the same set
+  of regions.
+%
+\item \emph{Nesting}, meaning that one RPL is a descendant of another
+  in the region tree.  For example, \kwd{A:B} is nested under \kwd{A}.
+%
+\item \emph{Inclusion}, meaning that the set of memory locations
+  represented by one RPL includes the set of locations represented by
+  another.  For example, \kwd{A:B} is included in \kwd{A:*}.  Note
+  that \emph{\kwd{A:B} is not included in \kwd{A}}.  The \kwd{*} is
+  necessary to get the inclusion.  This is to increase the precision
+  of effect specifications with RPLs.
+%
+\item \emph{Disjointness}, meaning that the set of memory locations
+  represented by one RPL has no common elements with the set of memory
+  locations represented by another RPL.  For example, if \kwd{A} and
+  \kwd{B} are distinct names, then they represent disjoint regions.
+  Or \kwd{R1} and \kwd{R2} are disjoint if they are parameters
+  declared to be disjoint (\S~\ref{sec:classes:params:disjoint}).
+%
+\end{enumerate}
+
+\subsubsection{Equivalence%
+\label{sec:rpls:comparing:equiv}}
+\cutname{rpls.comparing.equiv}
+
+\bfhead{Equivalent RPLs} The meaning of the equivalence relation on
+RPLs is that the sets of regions represented by the RPLs are the same.
+Two RPLs are equivalent if they have the same number of elements, and
+the corresponding pairs of elements are equivalent, as defined below.
+This test is done after adding the implicit \kwd{Root} to the front of
+RPLs that begin with a declared name element, array index element,
+\kwd{*}, or \kwd{[?]}.
+
+For example, the following pairs of RPLs are equivalent:
+%
+\begin{itemize}
+%
+\item \kwd{Root:A} and \kwd{A}
+%
+\item \kwd{this:[i]} and \kwd{this:[i]}, if \kwd{i} is a \kwd{final}
+  local variable or method parameter
+%
+\item \kwd{R:[i+1]} and \kwd{R:[i+1]}, if \kwd{i} is a
+\kwd{final} local variable or method parameter
+%
+\end{itemize}
+%
+The following pairs of RPLs are not equivalent:
+%
+\begin{itemize}
+%
+\item \kwd{Root:A} and \kwd{Root:A:B}
+%
+\item \kwd{this:[i]} and \kwd{this:[i]}, if \kwd{i} is not a
+  \kwd{final} local variable or method parameter
+%
+\item \kwd{this:[i]} and \kwd{this:[j]}
+%
+\item \kwd{R:[i+1]} and \kwd{R:[i+1]}, if \kwd{i} is not a \kwd{final}
+  local variable or method parameter
+%
+\item \kwd{R:[i+1]} and \kwd{R:[i+2]}
+%
+\end{itemize}
+
+\bfhead{Equivalent RPL elements} The following rules govern
+equivalence of RPL elements.
+
+\ithead{Basic names other than array index elements} Two RPL elements
+are equivalent if they refer to the same basic name
+(\S~\ref{sec:rpls:basic}), except for array index elements.
+
+\bfhead{The elements \kwd{*} and \kwd{[?]}} Two RPL elements are
+equivalent if they are both \kwd{*} or \kwd{[?]}.
+
+\ithead{Array index elements} Two array index elements \kwd{[$e_1$]}
+and \kwd{[$e_2$]} equivalent if $e_1$ and $e_2$ always evaluate to the
+same value (i.e., are ``always equal'').
+
+Since the compiler can't always know when two expressions evaluate to
+the same value, it applies the following conservative rules to
+identify pairs of always-equal expressions:
+%
+\begin{itemize}
+%
+\item $e_1$ and $e_2$ are always-equal if they refer to the same
+  compile-time integer constant.
+%
+\item $e_1$ and $e_2$ are always-equal if they are the same local
+  variable or method parameter, and the variable or parameter is
+  declared \kwd{final}.
+%
+\item $e_1$ and $e_2$ are always-equal if they represent the same
+  binary operation, and the corresponding subexpressions are
+  always-equal.  For example, \kwd{i+1} and \kwd{i+1} are
+  always-equal, if \kwd{i} is a \kwd{final} local variable.
+\end{itemize}
+%
+Otherwise, the compiler conservatively assumes that the expressions
+are not always-equal.
+
+
+\subsubsection{Nesting%
+\label{sec:rpls:comparing:nest}}
+\cutname{rpls.comparing.nest}
+
+The meaning of the nesting relation on RPLs is that one RPL is a
+descendant of another in the region tree.  Nesting is important
+because, in conjunction with partially specified RPLs, it defines
+inclusion of RPLs (\S~\ref{sec:rpls:comparing:include}).  Four rules
+govern nesting of RPLs.
+
+\bfhead{Nesting under \kwd{Root}}  Any RPL is nested under
+\kwd{Root}.
+
+\bfhead{Nesting by syntax} One RPL is nested under another if the
+second is a prefix of the first.  For example, \kwd{A:B} is nested
+under \kwd{A}, \kwd{R:A} is nested under \kwd{R}, and \kwd{this:[0]}
+is nested under \kwd{this}.
+
+\bfhead{Nesting by inclusion} If one RPL is included in another, then
+the first RPL is nested under the second.  For example, \kwd{A:B} is
+included in \kwd{A:*} (see \S~\ref{sec:rpls:comparing:include}), so
+\kwd{A:B} is nested under \kwd{A:*}.
+
+\bfhead{Nesting by ownership} An RPL that starts with a variable
+element (\S~\ref{sec:rpls:basic:var}) is nested under the owner RPL of
+the variable (\S~\ref{sec:types:class:owner-rpl}).  For example, in
+the following code, the method parameter \kwd{param} has type
+\kwd{NestByOwnership<R>}, so it is nested under \kwd{R} when used as
+an RPL:
+%
+\begin{dpjlisting}
+class NestByOwnership<region R> {
+    <region R>method(final NestByOwnership<R> param) {
+        // param is used as an RPL here; it is nested under R
+        NestByOwnership<param> localVar = new NestByOwnership<param>();
+    }
+}
+\end{dpjlisting}
+
+\subsubsection{Inclusion%
+\label{sec:rpls:comparing:include}}
+\cutname{rpls.comparing.include}
+
+The meaning of the inclusion relation on RPLs is that the set of
+regions represented by one RPL is included (in the sense of set
+inclusion) in the set of regions represented by another RPL.
+Inclusion of RPLs is important in checking type comparisons
+(\S\S~\ref{sec:types:class:compare},~\ref{sec:types:array:compare})
+and subeffects (\S~\ref{sec:effects:subeffects}).  The following rules
+govern inclusion of RPLs.
+
+\bfhead{Inclusion by equivalence}  One RPL is included in another if
+the RPLs are equivalent (\S~\ref{sec:rpls:comparing:equiv}).
+
+\bfhead{Inclusion by trailing \kwd{*}} One RPL is included in another
+if the second ends with \kwd{*}, and the first is nested under the
+second after the trailing \kwd{*} is removed.  For example,
+\kwd{A:B:C} is included in \kwd{A:*}, because \kwd{A:B:C} is nested
+under \kwd{A} (i.e., \kwd{A:*} with the \kwd{*} removed).
+
+\bfhead{Inclusion by trailing elements other than \kwd{*}} One RPL is
+included in another if the last element of the first is included in
+the last element of the second, and inclusion holds for the RPLs after
+stripping the last elements of both.  One RPL element is included in
+another if the elements are equivalent
+(\S~\ref{sec:rpls:comparing:equiv}) or the first element is any array
+index element or \kwd{[?]}, and the second is \kwd{[?]}.  For example:
+%
+\begin{itemize}
+%
+\item \kwd{A:B} is included in \kwd{A:*:B}, because \kwd{B} is
+  included in \kwd{B}, and \kwd{A} is included in \kwd{A:*}
+%
+\item \kwd {A:[0]} is included in \kwd{A:*:[?]}, because \kwd{[0]} is
+  included in \kwd{[?]}, and \kwd{A} is included in \kwd{A:*}.
+%
+\item \kwd{A:*:B} is not included in \kwd{A:B}, because \kwd{A:*} is
+  not included in \kwd{A}.
+%
+\item \kwd {A:[?]} is not included in \kwd{A:[0]}, because \kwd{[?]}
+  is not included in \kwd{[0]}.
+%
+\end{itemize}
+
+\bfhead{Inclusion by constrant} Two RPLs may be constrained to be
+included, one in the other.  In the current language specification,
+the only way this can happen is when capturing a type
+(\S~\ref{sec:types:exp}).  There is no way for the programmer to
+directly write an inclusion constraint on RPLs.
+
+\subsubsection{Disjointness%
+\label{sec:rpls:comparing:disjoint}}
+\cutname{rpls.comparing.disjoint.html}
+
+The meaning of the disjointness relation on RPLs is that the sets of
+regions represented by the RPLs have no common elements.  This
+relation is important in checking noninterference
+(\S~\ref{sec:effects:nonint}).
+
+\bfhead{Disjoint RPLs}  The following rules govern disjointness of
+RPLs.
+
+\ithead{Distinctions from the left} Two RPLs are disjoint if they
+start with a sequence of one or more equivalent elements, and then
+their elements are disjoint, where disjoint elements are defined
+below.  An application of this rule is called a ``distinction from the
+left,'' because it uses a difference in the RPLs starting on the left
+to infer disjointness.  This rule works because RPLs form a tree, so
+two RPLs that start the same then diverge must be on different
+branches of the tree.
+
+The following are examples of distinctions from the left, assuming
+\kwd{A} and \kwd{B} are class region names
+(\S~\ref{sec:rpls:basic:class}):
+%
+\begin{itemize}
+%
+\item \kwd{A} and \kwd{B} are disjoint, because they are short for
+  \kwd{Root:A} and \kwd{Root:B}, so they start with the same element
+  \kwd{Root} and then diverge.  \kwd{A:*} and \kwd{B:*} are also
+  disjoint, for the same reason.
+%
+\item If \kwd{R} is a region parameter, then \kwd{R:A} and \kwd{R:B}
+  are disjoint, as are \kwd{R:A:*} and \kwd{R:B:*}.
+%
+\item \kwd{this:A} and \kwd{this:B} are disjoint, as are
+  \kwd{this:A:*} and \kwd{this:B:*}.
+%
+\end{itemize}
+%
+Note that there must be at least one equivalent element for a
+distinction to from the left.  For example, region parameters \kwd{R1}
+and \kwd{R2} are not disjoint unless they are constrained to be
+disjoint (see below).
+
+\ithead{Distinctions from the right} Two RPLs are disjoint if they
+end with disjoint elements, where disjoint elements are defined below.
+An application of this rule is called a ``distinction from the
+right,'' because it uses a difference in the RPLs starting on the
+right to infer disjointness.  This rule works because two RPLs that
+end in disjoint elements can never refer to the same regions, even
+after substituting for parameters, \kwd{*}, and \kwd{[?]}.
+
+The following are examples of distinctions from the right, assuming
+\kwd{A} and \kwd{B} are class region names
+(\S~\ref{sec:rpls:basic:class}):
+%
+\begin{itemize}
+%
+\item \kwd{Root:*:A} and \kwd{Root:*:B} are disjoint RPLs.
+%
+\item \kwd{R:*:A} and \kwd{R:*:B} are disjoint RPLs.
+%
+\item \kwd{this:*:A} and \kwd{this:*:B} are disjoint RPLs.
+%
+\end{itemize}
+
+\ithead{Disjointness by constraint} Two RPLs are disjoint if they are
+each included in another RPL (\ref{sec:rpls:comparing:include}) and
+the including RPLs are constrained to be disjoint
+(\ref{sec:classes:params:disjoint}).  For example, in the following
+code, \kwd{R1:r} and \kwd{R2:r} are disjoint RPLs, because \kwd{R1:r}
+is included in \kwd{R1:*}, \kwd{R2:r} is included in \kwd{R2:*}, and
+\kwd{R1:*} and \kwd{R2:*} are constrained to be disjoint.
+%
+\begin{dpjlisting}
+class DisjointConstraints<region R1, R2 | R1:* # R2:*> {
+    region r;
+    void method() {
+        DisjointConstraints<R1:r> dc1 =
+            new DisjointConstraints<R1:r>();
+        DisjointConstraints<R2:r> dc2 =
+            new DisjointConstraints<R2:r>();
+    }
+}
+\end{dpjlisting}
+
+Note that \kwd{R1:r} and \kwd{R2:r} would \emph{not} be disjoint if
+the constraint were the weaker \kwd{R1 \# R2}; the \kwd{*} is
+required.  This is because nesting does not imply inclusion.  For
+example, setting $\kwd{R1}=\kwd{A}$ and $\kwd{R2}=\kwd{A:B}$ satisfies
+\kwd{R1 \# R2}.  But then $\kwd{R1:B}=\kwd{A:B}$ is not disjoint from
+\kwd{R2}, after substituting \kwd{A} for \kwd{R1} and \kwd{A:B} for
+\kwd{R2}.  However, $\kwd{R1}=\kwd{A}$ and $\kwd{R2}=\kwd{A:B}$ does
+not satisfy \kwd{R1:* \# R2:*}, because \kwd{A:B} is included in
+\kwd{A:*}.
+
+
+\bfhead{Disjoint RPL elements} Two RPL elements are disjoint if one
+is a name and the other is an array index (including \kwd{[?]}); or
+they are different names; or they are the array index elements
+\kwd{[$e_1$]} and \kwd{[$e_2$]}, where $e_1$ and $e_2$ always evaluate
+to different values at runtime (i.e., are ``never-equal
+expressions'').
+
+Since the compiler can't always know when two expressions evaluate to
+the same value, it applies the following conservative rules to
+identify pairs of never-equal expressions:
+%
+\begin{itemize}
+%
+\item $e_1$ and $e_2$ are never-equal if they refer to different
+  compile-time constants.  For example, 0 and 1 are never-equal.
+%
+\item $e_1$ and $e_2$ are never-equal if they represent the same
+  binary operation, one of the corresponding subexpressions is
+  always-equal (\S~\ref{sec:rpls:comparing:equiv}), and the other is
+  never-equal.  For example, if \kwd{i} is a \kwd{final} local
+  variable, then \kwd{i+1} and \kwd{i+2} are never-equal.
+%
+\end{itemize}
+%
+Otherwise, the compiler conservatively assumes that the expressions
+are not never-equal.
+

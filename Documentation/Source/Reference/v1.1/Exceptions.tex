@@ -1,0 +1,42 @@
+\section{Exception Behavior%
+\label{sec:exceptions}}
+\cutname{exceptions.html}
+
+In DPJ, an exception thrown outside any parallel construct
+(\kwd{cobegin} or \kwd{foreach}) behaves exactly as in sequential
+Java.  An exception thrown inside a parallel construct and caught
+inside that same parallel construct also behaves as in sequential
+Java.  An exception thrown inside a parallel construct and not caught
+inside that parallel construct has the following behavior:
+
+\begin{enumerate}
+\item If an exception $E$ is thrown in branch $B$ of a \kwd{cobegin}
+  or \kwd{foreach}, then branch $B$ behaves as if it were executed in
+  isolation, starting with the state that existed at the start of the
+  \kwd{cobegin} or \kwd{foreach}.  For example, consider this code,
+  where \kwd{loopBody(int)} is a method:
+
+\begin{dpjlisting}
+foreach (int i in 0, 10) {
+    loopBody(i);
+}
+\end{dpjlisting}
+
+If iteration $I$ throws exception $E$, then replacing the entire
+\kwd{foreach} with \kwd{loopBody(I)} would also cause $E$ to be
+thrown, at the same point in the execution of method \kwd{loopBody} as
+in the parallel case.
+
+\item If multiple branches of a \kwd{cobegin} or \kwd{foreach}, each
+  run in isolation, would throw an exception, then one of those
+  exceptions is guaranteed to be thrown by the entire \kwd{cobegin} or
+  \kwd{foreach}.  Which one is thrown is scheduler dependent (i.e.,
+  different ones may be thrown on different executions).
+
+\item Methods annotated \kwd{commutative}
+  (Section~\ref{sec:classes:methods:commutative}) must respect this
+  exception behavior.  For instance, method invocations $I_1$ and
+  $I_2$ are not considered to commute with each other if execution
+  $I_1; I_2$ throws an exception, but $I_2; I_1$ does not.
+
+\end{enumerate}

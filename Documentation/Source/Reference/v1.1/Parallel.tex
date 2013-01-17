@@ -1,0 +1,209 @@
+\section{Parallel Control Flow%
+\label{sec:parallel}}
+\cutname{parallel.html}
+
+DPJ employs a fork-join model of parallelism.  That means that a task
+may launch several parallel tasks (the fork) and all must complete
+(the join) before the launching task can continue.  Recursive forking
+is supported, i.e., tasks can launch other tasks to arbitrary depth.
+There are two ways to fork tasks: \kwd{cobegin}, which forks several
+statements as parallel tasks, and \kwd{foreach}, which forks groups of
+consecutive loop iterations as parallel tasks.
+
+\subsection{\kwd{cobegin}}
+\label{sec:parallel:cobegin}
+\cutname{parallel.cobegin.html}
+
+The syntax of the \kwd{cobegin} statement is as follows, where $S$ is
+a DPJ statement:
+%
+\begin{description}
+\item \kwd{cobegin} $S$
+\end{description}
+%
+If $S$ is any statement but a block enclosed in curly braces $\kwd{\{}
+\ldots \kwd{\}}$, or if $S$ is a block consisting of a single
+statement, then the \kwd{cobegin} just executes the statement $S$.
+Otherwise, the component statements of $S$ are run as parallel tasks.
+There is an implicit barrier (join) at the end of the \kwd{cobegin}
+statement, so that all the component tasks must finish execution
+before the parent task executes the statement after the \kwd{cobegin}.
+
+For example, the following code executes statements \kwd{S1} and
+\kwd{S2} in parallel:
+%
+\begin{dpjlisting}
+cobegin {
+  S1;
+  S2;
+}
+S3;
+\end{dpjlisting}
+%
+Because \kwd{S3} appears after the \kwd{cobegin}, both \kwd{S1} and
+\kwd{S2} are guaranteed to finish before \kwd{S3} is executed.
+
+In order to guarantee deterministic execution, the compiler checks the
+component statements of a \kwd{cobegin} for noninterference
+(Section~\ref{sec:effects:nonint}).  If interference is discovered,
+then the compiler issues a warning.  For example, the following code
+would cause a warning, because of the interfering writes to variable
+\kwd{x} in the parallel tasks:
+%
+\begin{dpjlisting}
+class C {
+  void m() {
+    int x;
+    cobegin {
+      x = 0;
+      x = 1;
+    }
+  }
+}
+\end{dpjlisting}
+%
+On the other hand, the following code would compile with no warning:
+%
+\begin{dpjlisting}
+class C {
+  void m() {
+    int x, y;
+    cobegin {
+      x = 0;
+      y = 1;
+    }
+  }
+}
+\end{dpjlisting}
+%
+
+The \kwd{cobegin} statement is most often used with recursion.  The
+following pattern is typical:
+%
+\begin{dpjlisting}
+void recursiveMethod(...) {
+  if (...) {
+    // do base case sequentially
+  } else {
+    cobegin {
+      recursiveMethod(...);
+      recursiveMethod(...);
+    }
+  }
+}
+\end{dpjlisting}
+%
+Note that the ``recursion cutoff'' (i.e., when the base case takes
+over) has to be programmed manually.  For example, in a parallel
+recursive sort, the condition might say to do the sort sequentially
+when the input array reaches a certain minimum size.  The minimum
+should be chosen so that (1) there are enough parallel tasks for the
+scheduler to balance the computation, but (2) the task creation
+overhead is not unduly large.  See \tutorial\ for more
+examples of \kwd{cobegin}.
+
+\subsection{\kwd{foreach}%
+\label{sec:parallel:foreach}}
+\cutname{parallel.foreach.html}
+
+\kwd{foreach} operates similarly to \kwd{cobegin}, except that the
+parallel tasks are the iterations of a loop, instead of the component
+statements of a block.  The granularity of parallelism (i.e., how many
+loop iterations to execute in a task) is controllable by the
+programmer.
+
+\subsubsection{Writing the \kwd{foreach} loop%
+\label{sec:parallel:foreach:writing}}
+\cutname{parallel.foreach.writing}
+
+The syntax of the \kwd{foreach} loop is as follows:
+%
+\begin{description}
+\item \kwd{foreach (int
+    }\emph{index-var}\kwd{ in }\emph{start}\kwd{, }\emph{length}\kwd{,
+    }\emph{stride}\kwd{) }\emph{body}\kwd{;}
+\end{description}
+%
+\kwd{index-var} is an identifier, \emph{start}, \emph{length}, and
+\emph{stride} are integer expressions, and \emph{body} is a statement.
+The \emph{stride} expression is optional, and the default is 1. If it
+appears, the \emph{stride} expression must evaluate to an integer
+greater that 0.  The \kwd{foreach} loop executes the loop body once
+for each element of an iteration space given by all integers
+$\nonterm{stride} \cdot i$ such that $i$ ranges between $0$ and
+$\nonterm{length}-1$, inclusive.  The variable \emph{index-var} may
+not be modified in the loop body.
+
+For example, the following code sets the cells of array \kwd{A} with
+even indices to 0:
+
+\begin{dpjlisting}
+foreach (int i in 0, A.length, 2) {
+  A[i] = 0;
+}
+\end{dpjlisting}
+
+The compiler performs the following noninterference check for indexed
+\kwd{foreach} loops:
+\begin{enumerate}
+\item Infer the effect set of \emph{body}
+  (Section~\ref{sec:effects:stmt-exp}).
+\item Create a copy of the effect set generated in (1), but replace
+  every occurrence of \emph{index-var} with a fresh variable that is
+  known to be unequal to \emph{index-var}.  This simulates the effects
+  generated by two distinct iterations of the loop, for which
+  \emph{index-var} will have distinct values.
+\item Check whether the effect sets generated in (1) and (2) are
+  noninterfering (Section~\ref{sec:effects:nonint}).
+\end{enumerate}
+If interference is detected, the compiler issues a warning.
+
+The DPJ runtime divides the \kwd{foreach} iterations into parallel
+work according to the programmer-specified granularity
+(Section~\ref{sec:parallel:foreach:granularity}).  As in the case of
+\kwd{cobegin}, there is an implicit barrier at the end of the
+\kwd{foreach}; i.e., all tasks created by the \kwd{foreach} must
+complete before any code following the \kwd{foreach} is executed.
+
+\subsubsection{Controlling the granularity of parallelism%
+\label{sec:parallel:foreach:granularity}}
+\cutname{parallel.foreach.granularity.html}
+
+In most cases, it would be inefficient to issue every loop iteration
+as a parallel task.  For example, consider a loop iterating over an
+array with 100,000 elements on a machine with 10 cores.  If 100,000
+tasks were issued to do this computation, the task creation overhead
+would swamp the parallelism.
+
+Instead, the DPJ compiler allows the user to control the granularity
+of task creation.  The user can specify a minimum task size, in terms
+of the number of iterations.  The compiler recursively splits the
+iteration space, until the minimum size is reached.  For example, if
+the cutoff were specified to be 1000 in the example above, then the
+compiler would divide the loop into 100 tasks of 1000 iterations
+each.
+
+If the \kwd{foreach} computation is perfecly balanced (i.e., each
+iteration does exactly the same amount of work), then it makes sense
+to make the cutoff $I/T$, where $I$ is the number of loop iterations
+and $T$ is the number of threads available to the DPJ runtime (usually
+equal to the number of cores on the host machine).  Using this
+strategy, in the example with 100,000 iterations and 10 cores, the
+cutoff should be 10,000.
+
+If the computation is not perfectly balanced, then a better strategy
+is to \emph{over-decompose} the computation, specifying more tasks
+than the number of available threads.  This allows the scheduler to
+schedule multiple tasks of varying size per thread, in a such a way
+that the aggregate amount of work per thread is roughly balanced.  As
+in the case of the \kwd{cobegin} cutoff
+(Section~\ref{sec:parallel:cobegin}), the programmer should choose a
+minimum task size that creates enough parallel work without incurring
+too much task creation overhead.
+
+The precise mechanism for specifying the number of DPJ threads and the
+\kwd{foreach} cutoff is implementation-dependent.
+\installmanual\ explains how this mechanism works for the \kwd{dpjc}
+compiler.
+
+

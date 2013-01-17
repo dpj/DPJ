@@ -1,0 +1,1148 @@
+\section{Types%
+\label{sec:types}}
+\cutname{types.html}
+
+DPJ extends the Java type system by adding RPLs (\S~\ref{sec:rpls}) to
+class and array types.  The RPLs in the types support the effect
+system: different class and array objects can be created with
+different RPLs, and the compiler can use the RPLs to infer the effect
+of an operation on the object (i.e., accessing a class field or array
+cell, or invoking a method).
+
+This section discusses DPJ's extensions to the Java type system:
+\S~\ref{sec:types:class} discusses class and interface types,
+\S~\ref{sec:types:array} discusses array types, and
+\S~\ref{sec:types:exp} discusses the rules for determining the type of
+an expression (e.g., what type is returned by calling a method).
+
+\subsection{Class and Interface Types
+\label{sec:types:class}}
+\cutname{types.class.html}
+
+This section discusses DPJ's class and interface types.  We will use
+the term ``class'' throughout this section, with the understanding
+that the concepts apply identically to interfaces, unless otherwise
+noted.  \S~\ref{sec:types:class:instant} discusses the instantiation
+of a class to a type by supplying RPLs for its parameters.
+\S~\ref{sec:types:class:compare} explains how the DPJ compiler
+compares two class types for compatibility, for example in checking an
+assignment statement.  \S~\ref{sec:types:class:cast} discusses casting
+one type to another in DPJ.  \S~\ref{sec:types:class:owner-rpl}
+explains \emph{owner RPLs}, which determine the nesting relation for
+variable RPLs (\S~\ref{sec:rpls:basic:var}).
+
+\subsubsection{Writing Class Types%
+\label{sec:types:class:instant}}
+\cutname{types.class.instant}
+
+In DPJ, as in generic Java, a class with parameters defines a family
+of types, one for each set of arguments to the parameters.  However,
+in addition to type parameters, DPJ classes can have region parameters
+(\S~\ref{sec:classes:params:class}).  When writing a DPJ class type,
+parameter arguments must be supplied.  They can be supplied implicitly
+or explicitly.
+
+\bfhead{Implicit parameter arguments:}  As in generic Java, a DPJ class
+with parameters may always be used as a type by just naming the class,
+without providing any explicit parameter arguments.  For example, the
+following code is valid:
+%
+\begin{dpjlisting}
+class ImplicitArgs<type T, region R> {
+    // ImplicitArgs is a valid type here
+    ImplicitArgs field = null;
+}
+\end{dpjlisting}
+%
+
+When the type arguments are omitted for a class with parameters, the
+following occurs:
+%
+\begin{itemize}
+%
+\item The type parameters, if any, have no argument.  That is, the
+  type functions as a \emph{raw type} in generic Java.
+%
+\item The RPL parameters, if any, become bound to \kwd{Root}.
+%
+\end{itemize}
+%
+In the example written above, \kwd{field} is of class type
+\kwd{ImplicitArgs}, with \kwd{Root} bound to \kwd{R} and no
+argument for \kwd{T}.
+
+Implicit parameter arguments are useful in two ways.  First they help
+with porting legacy Java code to DPJ.  For example, adding a region
+parameter to a preexisting class will not break any code that uses the
+class.  Second, because region arguments are used to compute the
+effects on fields of a class (\S~\ref{sec:effects:stmt-exp}), they are
+usually not important for code that is never invoked in a parallel
+context (for example, in a sequential initialization phase).  For this
+code, the programmer can avoid writing the arguments.
+
+\bfhead{Explicit parameter arguments:} As in Java, if explicit
+arguments to class parameters are given, then they appear in angle
+brackets after the class name.  The arguments must appear in the same
+order in which the parameters appear in the class definition; so, in
+particular, any type arguments must precede any RPL arguments.  Any of
+the type arguments may be preceded by the keyword \kwd{type}, and any
+of the RPL arguments may be preceded by the keyword \kwd{region}; but
+the keywords are optional, as the compiler can infer which are the
+types and which are the RPLs from the class definition.
+
+For example:
+%
+\begin{dpjlisting}
+class ExplicitArgs<type T, region R> {
+    // Instantiate an ExplicitArgs type with T=Object, R=Root
+    ExplicitArgs<Object,Root> field;
+}
+\end{dpjlisting}
+%
+This code defines a class \kwd{ExplicitArgs} with one type parameter
+\kwd{T} and one RPL parameter \kwd{R}.  The field \kwd{field} has
+class type \kwd{ExplicitArgs} with $\kwd{T}=\kwd{Object}$ and
+$\kwd{R}=\kwd{Root}$.
+
+The number of type arguments must exactly match the number of type
+parameters.  However, fewer RPL arguments can be given than the number
+of RPL parameters; any missing RPL arguments (matching the arguments
+that are there from the left) are implicitly bound to \kwd{Root}.  For
+example, in the code above, we could have written the type of field
+\kwd{field} as \kwd{ExplicitArgs<Object>}.  Here is another example:
+%
+\begin{dpjlisting}
+class ImplicitRPLArg<region R1, R2> {
+    region r;
+    ImplicitRPLArg<r> field;
+}
+\end{dpjlisting}
+%
+The class \kwd{ImplicitRPLArg} has two parameters \kwd{R1} and
+\kwd{R2}, but the type \kwd{ImplicitRPLArg<r>} of \kwd{field} has only
+one explicit RPL argument, \kwd{r}.  \kwd{r} is bound to the first
+parameter \kwd{R1}, and the second parameter has no argument, so it is
+bound to \kwd{Root}.  This type is the same as
+\kwd{ImplicitRPLArg<r,Root>}.
+
+\subsubsection{Class Type Comparisons%
+\label{sec:types:class:compare}}
+\cutname{types.class.compare.html}
+
+The notion of \emph{type comparison} is important in Java.  For
+example, if class \kwd{B} extends class \kwd{A}, and variable \kwd{x}
+has type \kwd{A}, then you can assign an object of type \kwd{B} to
+\kwd{x}; but it is not permissible to assign an object of some type
+\kwd{C} that does not extend \kwd{A} (or extend another class that
+extends \kwd{A}, etc.).
+
+DPJ extends Java's type comparison rules to account for the RPL
+information in the class types.  The rules ensure that the actual type
+of an object always corresponds to the type that appears in a program
+variable storing a reference to the object.  This property in turn
+allows the compiler to reason soundly about effects by looking at the
+types of variables.  If the ``wrong'' type of object could be assigned
+to a variable, then this kind of reasoning would not work.
+
+To state the comparison rules for DPJ, we introduce the concept of the
+\emph{DPJ erasure} of a type.  This is the type obtained by ignoring
+all RPL parameters and arguments.  For example, suppose class \kwd{C}
+has a type parameter \kwd{T} and a region parameter \kwd{R}.  Then the
+DPJ erasure of \kwd{C<Object,Root>} is \kwd{C<Object>}.
+
+The following rules determine whether a variable of class type $T_1$
+can be assigned to a variable of class type $T_2$ in DPJ.
+
+\bfhead{Types that instantiate the same class:} $T_1$ may be assigned
+to $T_2$ if the two types instantiate the same class, the DPJ erasure
+of $T_1$ may be assigned to the DPJ erasure of $T_2$ in ordinary Java,
+and the RPL arguments of $T_1$ are included
+(\S~\ref{sec:rpls:comparing:include}) in the corresponding arguments
+of $T_2$.
+
+Here are some examples of compatible types that instantiate the same
+class:
+%
+\begin{itemize}
+%
+\item \kwd{C<Root>} may be assigned to \kwd{C<Root:*>}, because the
+  DPJ erasures are identical, and \kwd{Root:*} includes \kwd{Root}.
+%
+\item \kwd{C<Object,Root>} may be assigned to \kwd{C<Object,Root:*>}
+  for the same reason.
+%
+\item \kwd{C<C<Object,Root>,Root>} may be assigned to \kwd{C<? extends
+  C<Object,Root:*>,Root:*>}.  The reasoning here is a bit more
+  complicated.  First, look at the DPJ erasures of the types, that is
+  \kwd{C<C<Object,Root>>} and \kwd{C<? extends C<Object,Root:*>>}.
+  According to the rules for Java generic wildcards, the first type
+  may be assigned to the second if \kwd{C<Object,Root>} may be
+  assigned to \kwd{C<Object,Root:*>}.  To figure that out, we have to
+  apply the rule recursively.  First look at the DPJ erasures:
+  assigning \kwd{C<Object>} to \kwd{C<Object>} is OK.  Now look at the
+  RPLs: \kwd{Root:*} includes \kwd{Root}.  So that test checks out.
+  Now look at the RPL arguments in the original types: \kwd{Root:*}
+  includes \kwd{Root}.  So that test checks out as well.
+%
+\end{itemize}
+%
+
+Here are some examples of incompatible types that instantiate the same
+class, assuming \kwd{r1} and \kwd{r2} are region names:
+%
+\begin{itemize}
+%
+\item \kwd{C<r1>} may not be assigned to \kwd{C<r2>}, because \kwd{r1}
+is not included in \kwd{r2}.
+%
+\item \kwd{C<Object,r1>} may not be assigned to \kwd{C<Object,r2>} for
+  the same reason.
+%
+\item \kwd{C<C<Object,r1>,Root>} may not be assigned to \kwd{C<?
+  extends C<Object,r2>,Root} because \kwd{C<Object,r1>} may not be
+  assigned to \kwd{C<Object,r2>}.
+%
+\end{itemize}
+
+\bfhead{Types that instantiate different classes:}  $T_1$ may be
+assigned to $T_2$ if $T_2$ is a \emph{direct supertype} or
+\emph{indirect supertype} of $T_1$.
+
+\ithead{Direct supertypes:} $T_2$ is a direct supertype of $T_1$ if a
+type with $T_2$'s class or interface appears in an \kwd{extends} or
+\kwd{implements} clause of $T_1$'s class or interface, and that type
+is assignable to $T_2$ after substituting arguments for parameters
+according to $T_1$.
+
+For example:
+%
+\begin{itemize}
+%
+\item Assume class declarations \kwd{class B<region R> extends A<R>}
+  and \kwd{class A<region R>}.  Then \kwd{A<Root>} is a direct
+  supertype of \kwd{B<Root>}, because \kwd{A<R>} appears in the
+  \kwd{extends} clause of \kwd{B}, and the type obtained by
+  substituting \kwd{Root} for \kwd{R} from the type \kwd{B<Root>} is
+  \kwd{A<Root>}.
+%
+\item With the same assumptions as in (1), \kwd{A<Root:*>} is a direct
+  supertype of \kwd{B<Root>}, because \kwd{A<Root>} is assignable to
+  \kwd{A<Root:*>}.
+%
+\item Assume class declaration \kwd{class B<type T, region R> extends
+  A<B<Root>,R>}.  Then \kwd{A<B<Root>,Root:*>} is a direct supertype
+  of \kwd{B<Object,Root>}.
+%
+\end{itemize}
+%
+
+\ithead{Indirect supertypes:} $T_2$ is an indirect supertype of $T_1$
+if there is a chain of direct supertypes connecting $T_1$ to $T_2$.
+For example, if we have class declarations \kwd{class C<region R>
+  extends B<R>}, \kwd{class B<region R> extends A<R>} and \kwd{class
+  A<region R>}, then \kwd{A<Root>} is an indirect supertype of
+\kwd{C<Root>}, because \kwd{A<Root>} is a direct supertype of
+\kwd{B<Root>}, and \kwd{B<Root>} is a direct supertype of
+\kwd{C<Root>}.
+
+\subsubsection{Class Type Casts%
+\label{sec:types:class:cast}}
+\cutname{types.class.cast.html}
+
+One DPJ type may be cast to another if the cast would be allowed for
+the DPJ erasures of the types (\S~\ref{sec:types:class:compare}) in
+ordinary Java.  For example, assuming a class declared as \kwd{class
+  C<region R>} the following cast is legal:
+%
+\begin{dpjlisting}
+C<r1> x = (C<r1>) new C<r2>();
+\end{dpjlisting}
+%
+This code creates an object of type \kwd{C<r2>} on the right-hand
+side, then casts it to type \kwd{C<r1>} before assigning it to a
+variable \kwd{x} of type \kwd{C<r1>}.  The DPJ erasure of both the
+\kwd{new} expression and the target type is \kwd{C}, so the cast is
+allowed.  Without the cast, \kwd{C<r2>} is not assignable to
+\kwd{C<r1>}, because \kwd{r2} does not include \kwd{r1}.
+
+However, the following cast is not legal, assuming a class declared as
+\kwd{class C<type T, region R>}:
+%
+\begin{dpjlisting}
+// Compile error!
+C<C<Object,r1>,r1 x = 
+  (C<C<Object,r1>,r1>) new C<C<Object,r2>,r2>();
+\end{dpjlisting}
+%
+That is because the DPJ erasure of the type of the \kwd{new}
+expression is \kwd{C<Object,r2>}; the DPJ erasure of the target type
+is \kwd{C<Object,r1>}; and these two types are not compatible.
+
+As in ordinary Java, casts allow assignments that the compiler cannot
+check for correctness.  That is, in general for a statement of the
+form
+%
+\begin{dpjlisting}
+T x = (T) y
+\end{dpjlisting}
+%
+there is no way to ensure at compile time that the type of the object
+\kwd{y} is really consistent with the type \kwd{T} of variable
+\kwd{x}.  Further, for efficiency reasons, DPJ has no checks for
+catching bad assignments at runtime.  Therefore, a DPJ program with
+casts in it is a potentially nondeterministic program!  Casts should
+be used very carefully and only as a last resort, when there is no
+other way to express the program.
+
+\subsubsection{Owner RPLs%
+\label{sec:types:class:owner-rpl}}
+\cutname{types.class.owner-rpl.html}
+
+Owner RPLs define the nesting relationship between \kwd{final} local
+variables used as RPLs (\S~\ref{sec:rpls:basic:var}) and other RPLs.
+A variable RPL is nested under the owner RPL of its class type
+(\S~\ref{sec:rpls:comparing:nest}).
+
+If a class has RPL parameters, then the owner RPL of a type
+instantiating the class is the argument to the first parameter.  For
+example, assuming a class declaration \kwd{class C<region R1,R2>}, and
+region names \kwd{r1} and \kwd{r2}, the owner RPL of the type
+\kwd{C<r1,r2>} is \kwd{r1}.
+
+If a class does not have RPL parameters, then the owner RPL of a type
+instantiating the class is \kwd{Root}.  For example, assuming a class
+declaration \kwd{class C<type T>}, the owner RPL of the type
+\kwd{C<Object>} is \kwd{Root}.
+%
+
+\subsection{Array Types%
+\label{sec:types:array}}
+\cutname{types.array.html}
+
+This section discusses DPJ's array types.
+\S~\ref{sec:types:array:instant} discusses the instantiation of an
+array to a type by supplying an RPL for its parameter.  This assigns
+an RPL to each cell of the array.  \S~\ref{sec:types:array:ipa}
+discusses DPJ's \emph{index-parameterized array type}, which provides
+a way to assign a different region to each cell of an array.  This is
+useful for updating different array cells (or different objects stored
+in different array cells) in parallel.  \S~\ref{sec:types:array:new}
+explains the creation of new array objects.
+\S~\ref{sec:types:array:compare} explains how the DPJ compiler
+compares two array types for compatibility, for example in checking an
+assignment statement.  \S~\ref{sec:types:array:cast} discusses casting
+one array type to another in DPJ.
+
+Because Java arrays do not support slices (e.g., extracting a
+contiguous subsection of an array), DPJ provides a generic class
+called \kwd{DPJArray} with an interface similar to Java's
+\kwd{ArrayList} that supports slices.  There are also versions of
+\kwd{DPJArray} specialized to the various primitive types.
+\S~\ref{sec:runtime:array} discusses these classes.
+
+\subsubsection{Writing Array Types%
+\label{sec:types:array:instant}}
+\cutname{types.array.instant.html}
+
+Every DPJ array type has exactly one RPL parameter.  It works
+similarly to a class RPL parameter.  When you write an array type, you
+must either specify an explicit RPL as an argument to the parameter,
+or use the default RPL.  The explicit argument is given in angle
+brackets, after the square brackets.  If you leave out the explicit
+argument, the default is \kwd{Root}.  In either case, the RPL argument
+specifies the RPL associated with the cells of the array.
+
+For example:
+%
+\begin{dpjlisting}
+// Array of int with cells in Root
+int[]<Root>
+// Same as int[]<Root>
+int[]
+// Array of int with cells in R
+int[]<R>
+\end{dpjlisting}
+
+As in ordinary Java, you can construct arrays whose elements are
+themselves arrays.  In this case the RPL argument to the array type is
+the argument (either implicit or explicit) associated with the
+\emph{leftmost} pair of brackets.  The type of an element is given by
+deleting the leftmost set of brackets and its RPL argument, if any.
+For example:
+%
+\begin{dpjlisting}
+// Array with cells in R1; each element is an int[]<R2>
+int[]<R1>[]<R2>
+// Array with cells in Root; each element is an int[]<R>
+// Same as int[]<Root>[]<R>
+int[][]<R>
+// Array with cells in R; each element is an int[]<Root>
+// Same as int[]<R>[]<Root>
+int[]<R>[]
+\end{dpjlisting}
+%
+This process may be continued to arbitrary depth.  For example,
+\kwd{int[]<R1>[]<R2>[]<R3>} is an array with cells in \kwd{R1} whose
+element type is \kwd{int[]<R2>[]<R3>}.  The element type in turn is an
+array with cells in \kwd{R2} whose element type is \kwd{int[]<R3>}.
+
+Class and method RPL parameters are frequently given as RPL arguments
+to array types.  For example, the following class declares a field
+\kwd{arr} whose type is an array.  Both the field \kwd{arr} and the
+cells of the array are in the RPL given by the class region parameter
+\kwd{R}:
+%
+\begin{dpjlisting}
+class ArrayClassParam<region R> {
+    int[]<R> arr in R;
+}
+\end{dpjlisting}
+%
+Notice that without the capability to bind \kwd{R} as the RPL argument
+to the array type, there would be no way to get the cells of \kwd{arr}
+in region \kwd{R}.  The specifier \kwd{in R} is insufficient, because
+it only specifies the region of the \kwd{arr} reference itself, not
+the region of the cells of the array that the reference points to.
+
+Method region parameters can also be used to write a method that takes
+an array with any region:
+%
+\begin{dpjlisting}
+abstract class ArrayMethodParam {
+    // This method will accept an int[] with any RPL argument
+    <region R>void method(int[]<R> arr);
+}
+\end{dpjlisting}
+
+Non-parametric RPLs are generally bound to array parameters when the
+arrays are global data.  For example, one might declare an array of
+data that is initialized once, in a sequential phase, and then never
+changes during the computation.  One could do that by declaring a
+region \kwd{ReadOnlyData} and then putting the array in that region:
+%
+\begin{dpjlisting}
+region ReadOnlyData;
+final int[]<ReadOnlyData> data = new int[N]<ReadOnlyData>;
+\end{dpjlisting}
+%
+On the right-hand side of the assignment, we have created a new array
+of type \kwd{int[]<ReadOnlyData>} with \kwd{N} elements (see
+\S~\ref{sec:types:array:new}).
+
+Inside the parallel computation, with the proper use of disjointness
+constraints on parameters and disjoint RPLs, read effects on
+\kwd{ReadOnlyData} are noninterfering, and write effects on other
+regions are noninterfering because the regions are disjoint.  See
+\tutorial\ for more details.
+
+
+\subsubsection{Index-Parameterized Array Types%
+\label{sec:types:array:ipa}}
+\cutname{types.array.ipa.html}
+
+For parallel computations on arrays, it is often necessary to update
+different parts of an array in parallel in different tasks.  A DPJ
+feature called an \emph{index-parameterized array} allows this to be
+done safely.  We discuss index-parameterized arrays first for the
+simpler case of arrays of primitive and class types, and then for the
+case of arrays of arrays.
+
+\textbf{Arrays of primitive and class types:} There are two cases to
+consider:
+%
+\begin{enumerate}
+%
+\item Updating different array cells in different tasks.  For example,
+  there could be an array of 10,000 cells, with each of 100 tasks
+  updating 100 cells.  Because the array cells are distinct, there is
+  no inteference.
+%
+\item Updating disjoint objects pointed to through different cells in
+  different tasks.  For example, there could be an array of 10,000
+  cells, each of which stores a reference to a unique object.  Each of
+  100 tasks in parallel could read 100 of the cells, follow the
+  references, and update the objects.  Because the objects are
+  distinct, there is no interference.
+%
+\end{enumerate}
+%
+DPJ's index-parameterized arrays can express both cases.
+
+\ithead{Updating different array cells:} To update different array
+cells, it is necessary to put each cell in a different region.  DPJ
+does this with an \emph{index-parameterized array type}.  An
+index-parameterized array type uses the array index element \kwd{[i]}
+(\S~\ref{sec:rpls:basic:array}) in the RPL associated with cell
+\kwd{i}.  Because the index value of \kwd{i} is different for every
+array cell, every cell has its own region.
+
+To write an index-parameterized array type, you can use the special
+array index element \kwd{[\_]} in the RPL argument of the array type.
+This special element is allowed only inside an array type, where it
+stands in for the array index element \kwd{[i]} associated with each
+cell.  For example:
+%
+\begin{dpjlisting}
+// Array of int such that cell i is in region [i]
+int[]<[_]>
+// Array of int such that cell i is in region R:[i]
+int[]<R:[_]>
+\end{dpjlisting}
+%
+Notice that in the second example, the RPL \kwd{R:[i]} gives us two
+ways to distinguish array components:  we can distinguish whole arrays
+from each other by using different bindings to \kwd{R}; and we can
+distinguish different parts of arrays from each other by using the
+different values of \kwd{i}.
+
+\ithead{Updating different objects through different array cells:}
+Index-parameterized arrays can also handle the case of updates through
+references to different objects, by using \kwd{[\_]} in the RPL
+argument of the element type of the array.  Every object stored in a
+distinct array cell gets its own region, parameterized by the index of
+the cell.  For example, suppose we have the following simple class
+definition:
+%
+\begin{dpjlisting}
+class Data<region R> {
+    int field in R;
+}
+\end{dpjlisting}
+%
+Then we can create the following index-parameterized array:
+%
+\begin{dpjlisting}
+Data<[_]>[]<[_]> arr = new Data<[_]>[N]<[_]>;
+\end{dpjlisting}
+%
+The type of \kwd{arr} is an array such that (1) cell \kwd{i} of the
+array is in region \kwd{[i]}; and (2) cell \kwd{i} of the array has
+type \kwd{Data<[i]>}.  Now we can do disjoint initialization of the
+array, as before:
+%
+\begin{dpjlisting}
+foreach (int i in 0, N)
+    arr[i] = new Data<[i]>();
+\end{dpjlisting}
+%
+Notice that the type \kwd{Data<[i]>} on the left-hand side of the
+assignment matches the type of \kwd{arr[i]}, as it must; see
+\S~\ref{sec:types:array:compare}.
+
+We can also update the objects disjointly through the references in
+the array:
+%
+\begin{dpjlisting}
+foreach (int i in 0, N)
+    // Effect is 'writes [i]'
+    ++arr[i].field;
+\end{dpjlisting}
+%
+This is a very useful pattern in shared-memory parallel programming.
+See \tutorial\ for more realistic examples.
+
+\textbf{Arrays of arrays:} An array of arrays is an array of objects
+(the arrays are objects), so it works similarly to an array of class
+objects, discussed above.  The difference is that with an array of
+arrays, there are multiple index dimensions, so it may not be
+sufficient to use the single name \kwd{[\_]} for the index region of
+an array.  Instead, DPJ allows you to use an explicitly named variable
+for each index dimension.
+
+To do this, you write \kwd{\#}\emph{var} after the RPL argument of an
+array type, where \emph{var} is an identifier declaring a fresh
+variable in scope over the type.  That variable can then be used in an
+array index element to indicate the index associated with each array
+cell.  For example, rewriting the types above using the explicit index
+variable name \kwd{i}:
+%
+\begin{dpjlisting}
+// Same as int[]<[_]>
+int[]<[i]>#i
+// Same as int[]<R:[_]>
+int[]<R:[i]>#i
+\end{dpjlisting}
+%
+The variable name doesn't matter; we could have written \kwd{j} or
+\kwd{k} or anything else.  The only point of the name is to associate
+the variable declaration with an array dimension, so the compiler
+knows what dimension is referred to from the name.  Notice that if we
+use \kwd{\#\_} for the variable declaration, then the index is
+\kwd{[\_]}, as in the default case.  In fact this is just how the
+compiler implements the default: it declares \kwd{\#\_} for you as the
+array index variable if you don't specify one yourself.
+
+In the array-of-array case, each \kwd{\#}\emph{var} declaration is in
+scope for the array where it is declared, and all arrays to the right
+of that one.  For example, the type
+%
+\begin{dpjlisting}
+int[]<[i]>#i[]<[i]:[j]>#j
+\end{dpjlisting}
+%
+defines an array of arrays.  The outermost array has cell \kwd{i} in
+region \kwd{i}, and the type of cell \kwd{i} is an array of \kwd{int}
+with cell \kwd{j} in region \kwd{[i]:[j]}.  If we reversed the \kwd{i}
+and \kwd{j} declarations and wrote \kwd{int[]<[i]>\#j[]<[i]:[j]>\#i},
+then we would get a compile error, because \kwd{i} is used but not in
+scope in the leftmost RPL argument.
+
+This kind of decomposition is useful for dividing a rectangular grid
+into rows and columns for disjoint parallel updates.  For example, an
+initialization of the array might look like this:
+%
+\begin{dpjlisting}
+int[]<[i]>#i[]<[i]:[j]>#j A = new int[N]<[i]>#i[M]<[i]:[j]>#j;
+foreach (int i in 0, N) {
+    // Effect on [i]:[?] is disjoint on different i iterations
+    foreach (int j in 0, M) {
+        // Effect on [i]:[j] is disjoint on different j iterations
+        A[i][j] = INITIAL_VALUE;
+    }
+}
+\end{dpjlisting}
+%
+For the details of how the compiler would check this example, see
+\S~\ref{sec:effects:stmt-exp} (computing effects of statements) and
+\S~\ref{sec:effects:nonint} (noninterfering effects).
+
+
+\subsubsection{New Arrays%
+\label{sec:types:array:new}}
+\cutname{types.array.new}
+
+Creation of new arrays in DPJ works just as in Java, with the extra
+annotations in the array types
+(\S\S~\ref{sec:types:array:instant},~\ref{sec:types:array:ipa}).  
+
+\bfhead{Arrays of primitive and class types:} To create an array of
+$n$ primitive types or class objects, write a DPJ array type with $n$
+in the brackets, instead of empty brackets.  For example:
+%
+\begin{dpjlisting}
+// Create an array of 10 int with cells in Root
+int[]<Root> A1 = new int[10]<Root>;
+// Same as new int[10]<Root>
+int[] A2 = new int[10];
+// Create an array of 10 int with cells in R
+int[]<R> A3 = new int[]<R>;
+// Create an array of 10 int such that cell i is in region [i]
+int[]<[_]> A4 = new int[10]<[_]>;
+// Create an array of 10 int such that cell i is in region R:[i]
+int[]<R:[_]> A5 = new int[10]<[_]>;
+// Create an array of 10 Data objects such that (1) cell i
+// is in region [i]; and (2) cell i has type Data<[i]>
+Data<[_]>[]<[_]> A6 = new Data<[_]>[10]<[_]>;
+\end{dpjlisting}
+
+Unfortunately, Java does not let you create arrays of class types that
+have generic parameters without an explicit cast.  For example, the
+following code is illegal:
+%
+\begin{dpjlisting}
+class Data<type T, region R> {
+    T field in R;
+}
+Data<Integer,[_]>[]<[_]> A;
+// The following line causes a 'generic array creation' compile error
+A = new Data<Integer,[_]>[10]<[_]>;
+\end{dpjlisting}
+%
+To get around this limitation, you need to use a cast:
+%
+\begin{dpjlisting}
+// Rewrite of the last line above so it compiles
+A = (Data<Integer,[_]>[]<[_]>) new Data[10];
+\end{dpjlisting}
+%
+This code is ugly, but it works.  Also, the ugliness is localized to
+the point of array creation.  Once the array is created and assigned,
+everything else works as it should.
+
+An alternative to this ugly code would be to use a \kwd{DPJArray}
+(\S~\ref{sec:runtime:array}) instead of a Java array.  As of the
+current version of DPJ, the \kwd{DPJArray} class cannot be used with
+index-parameterized regions.  It is anticipated that future versions
+of DPJ will support index-parameterized \kwd{DPJArray}s.
+
+\bfhead{Arrays of arrays:} To create an array of arrays, as in
+ordinary Java, at least one of the brackets must have a length
+expression, and any empty brackets must appear to the right:
+%
+\begin{dpjlisting}
+// Array of 10 cells in R1; each element has type int[]<R2> and
+// is initialized to null
+int[]<R1>[]<R2> A1 = new int[10]<R1>[]<R2>;
+// Same as before, but each element of the array is initialized
+// to an array of int[]<R2> with 10 elements
+int[]<R1>[]<R2> A2 = new int[10]<R1>[10]<R2>;
+// ILLEGAL:  Empty brackets must appear to the right
+int[]<R1>[]<R2> A2 = new int[]<R1>[10]<R2>;
+// Array of 10 cells such that cell i is in region i; cell i has
+// type int[]<[i]:[j]>#j and is initialized to null
+int[]<[i]>#i[]<[i]:[j]>#j = new int[10]<[i]>#i[]<[i]:[j]>#j;
+// Same as before, but each cell is initialized to an array
+// with 10 elements
+int[]<[i]>#i[]<[i]:[j]>#j = new int[10]<[i]>#i[10]<[i]:[j]>#j;
+\end{dpjlisting}
+
+
+\subsubsection{Array Type Comparisons%
+\label{sec:types:array:compare}}
+\cutname{types.array.compare}
+
+The following rules determine when $T_1$ may be assigned to $T_2$,
+where $T_1$ and $T_2$ are both array types.
+
+\bfhead{Comparing arrays of primitive types:} $T_1$ may be assigned to
+$T_2$ if the element types of $T_1$ and $T_2$ are both the same
+primitive type, and the RPL argument of $T_1$ is included in the RPL
+argument of $T_2$ (\S~\ref{sec:rpls:comparing:include}).  For example:
+%
+\begin{enumerate}
+\item \kwd{int[]<Root>} may be a assigned to \kwd{int[]<Root>}.
+\item \kwd{int[]} may be assigned to \kwd{int[]}; this is the same as
+  case 1.
+\item \kwd{int[]<R>} may be assigned to \kwd{int[]<R:*>}, because
+  \kwd{R} is included in \kwd{R:*}.
+\item \kwd{int[]<r1>} may not be assigned to \kwd{int[]<r2>}, because
+  \kwd{r1} and \kwd{r2} are incompatible region names.
+\end{enumerate}
+
+\bfhead{Comparing arrays of class and array types:} $T_1$ may be
+assigned to $T_2$ if the element types of $T_1$ and $T_2$ are
+\emph{array-compatible} class or array types, and the RPL argument of
+$T_1$ is included in the RPL argument of $T_2$.  Two class types are
+array-compatible if the element type of $T_1$ can be assigned to the
+element type of $T_2$ using the rules in
+\S\S~\ref{sec:types:class:compare},~\ref{sec:types:array:compare}, but
+requiring equivalence (\S~\ref{sec:rpls:comparing:equiv}) instead of
+inclusion of RPLs.  For example:
+%
+\begin{enumerate}
+\item \kwd{C<R>[]<R>} may be a assigned to \kwd{C<R>[]<R:*>}, because
+  \kwd{C<R>} is array compatible with itself, and \kwd{R} is included
+  in \kwd{R:*}.
+\item \kwd{int[]<R>[]<R>} may be assigned to \kwd{int[]<R>[]<R:*>},
+  because \kwd{int[]<R>} is array compatible with itself, and \kwd{R}
+  is included in \kwd{R}.
+\item \kwd{C<R>[]<R>} may not be assigned to \kwd{C<R:*>[]<R:*>},
+  because \kwd{C<R>} and \kwd{C<R:*>} are not array-compatible.
+\item \kwd{int[]<R>[]<R>} may not be assigned to
+  \kwd{int[]<R:*>[]<R:*>}, because \kwd{int[]<R>} and \kwd{int[]<R:*>}
+  are not array compatible.
+\end{enumerate}
+%
+The extra requirement of array-compatibility is introduced to avoid
+problems like this:
+%
+\begin{dpjlisting}
+class C<region R> { ... }
+region r1, r2;
+// Create an array of 10 C<r1>
+C<r1>[] arr = new C<r1>[10];
+// Not really allowed, but would be without array compatibility
+C<*>[] = badArr;
+// Inconsistent types!  Assigning C<r2> to a cell of arr
+badArr[0] = new C<r2>();
+\end{dpjlisting}
+
+\subsubsection{Array Type Casts%
+\label{sec:types:array:cast}}
+\cutname{types.array.cast.html}
+
+Casts of array types have the same rules as casts of class types
+(\S~\ref{sec:types:class:cast}).  The cast is allowed if it would be
+allowed for the DPJ erasures of the types in ordinary Java.  The DPJ
+erasure of an array type is computed by erasing all the DPJ region
+information from the entire type.  For example:
+%
+\begin{itemize}
+\item The DPJ erasure of \kwd{int[]<R>} is \kwd{int[]}.
+\item The DPJ erasure of \kwd{int[]<r1>[]<r2>} is \kwd{int[][]}.
+\item The DPJ erasure of \kwd{int[]<[i]>\#i[]<[i][j]>\#j} is
+  \kwd{int[][]}.
+\item The DPJ erasure of \kwd{C<[\_]>[]<[\_]>} is \kwd{C[]}.
+\end{itemize}
+
+\subsection{Typing Expressions%
+\label{sec:types:exp}}
+\cutname{typing.exp.html}
+
+In Java, every expression has a type.  For example, if a method
+returns \kwd{int}, then an expression invoking that method has type
+\kwd{int}.  (Some statements have types too, but those statements
+always enclose expressions.)  The types allow the compiler to enforce
+consistency of assignments; for example, to make sure that an
+\kwd{int} is never assigned to a variable of type \kwd{String}.
+
+In DPJ, every expression has a type and an effect.
+\S~\ref{sec:effects:stmt-exp} discusses the effects of statements and
+expressions.  Here we discuss DPJ's extensions to Java's rules for
+determinining the type of an expression.
+
+\subsubsection{Field Access%
+\label{sec:types:exp:field}}
+\cutname{types.exp.field.html}
+
+A field access expression in Java has the general form
+%
+\begin{description}
+\item \emph{selected-exp}\kwd{.}\emph{field-name}
+\end{description}
+%
+where \emph{selected-exp} is an expression of class type $C$, and
+\emph{field-name} is the name of a field of class $C$ (or a superclass
+of $C$).  If a bare field name appears, it is equivalent to
+\kwd{this.}\emph{field-name}.  Here we give the rules for the general
+form.
+
+The compiler carries out the following steps to determine the type of
+an expression \emph{selected-exp}\kwd{.}\emph{field-name}:
+%
+\begin{enumerate}
+%
+\item Determine the type \emph{selected-type} of \emph{selected-exp}, using the rules in
+  this section together with the ordinary rules for Java types.
+%
+\item Look up the type \emph{field-type} of \kwd{field} based on the
+  class $C$ named in \emph{selected-type}.
+%
+\item Compute the \emph{capture} (\S~\ref{sec:types:exp:capture}) of
+  \emph{selected-type} to generate the type
+  \emph{captured-selected-type}.
+%
+\item Make the following subsitutions in \emph{field-type} to generate
+  the answer:
+%
+\begin{enumerate}
+%
+\item Substitute the type and RPL arguments of
+  \emph{captured-selected-type} for the corresponding type and RPL
+  parameters of class $C$.
+%
+\item If \emph{selected-exp} is a \kwd{final} local variable or
+  \kwd{this}, then substitute the variable for \kwd{this}.  Otherwise,
+  substitute a capture parameter (\S~\ref{sec:types:exp:capture})
+  included in \emph{owner-rpl}\kwd{:*}, where \emph{owner-rpl} is the
+  owner RPL of the variable (\S~\ref{sec:types:class:owner-rpl}).
+%
+\end{enumerate}
+%
+\end{enumerate}
+
+Here is some example code for which the capture in step 3 is a no-op,
+and the capture in step 4(b) isn't needed.
+\S~\ref{sec:types:exp:capture} gives examples involving capture.
+%
+\begin{numbereddpjlisting}
+class FieldTypingExample<region R> {
+    region r;
+    FieldTypingExample<R> field1 in R;
+    void FieldTypingExample<r> method1() {
+        return (new FieldTypingExample<r>).field1;
+    }        
+    FieldTypingExample<this> field2 in this;
+    void FieldTypingExample<arg> 
+      method2(final FieldTypingExample<R> arg) {
+        return arg.field;
+    }
+}
+\end{numbereddpjlisting}
+%
+
+Let's see how to compute the type of the expression in the
+\kwd{return} statement in line 5.  Step 1: The selected expression is
+a \kwd{new} expression of type \kwd{FieldTypingExample<r>}.  Step 2:
+The field name is \kwd{field1}, the class $C$ is
+\kwd{FieldTypingExample}, and the declared type of the field is
+\kwd{FieldTypingExample<R>} (line 3).  Step 3: Nothing to do (see
+\S~\ref{sec:types:exp:capture}).  Step 4: Substituting \kwd{r} given
+in the selected type expression for \kwd{R} in the field type, we have
+that the answer is \kwd{FieldTypingExample<r>}.
+
+Now let's see how to compute the type of the expression in the
+\kwd{return} statement in line 10.  Step 1: The selected expression is
+\kwd{arg}, which has type \kwd{FieldTypingExample<R>}.  Step 2: Now
+the field is \kwd{field2}, and its type is
+\kwd{FieldTypingExample<this>} (line 7).  Step 3: Again, nothing to
+do.  Step 4: \kwd{arg} is a \kwd{final} local variable (line 9), so we
+can substitute it for \kwd{this} in the type of \kwd{field2}.
+Therefore the answer is \kwd{FieldTypingExample<arg>}.
+
+\subsubsection{Array Access%
+\label{sec:types:exp:array}}
+\cutname{sec:types:exp:array}
+
+An array access expression has the form
+\emph{array-exp}\kwd{[}\emph{index-exp}\kwd{]}, where \emph{array-exp}
+is an expression of array type, and \emph{index-exp} is an expression
+of integer type.  To compute the type of this kind of expression, the
+compiler does the following:
+%
+\begin{enumerate}
+%
+\item Compute the element type of the array type by deleting the
+  leftmost pair of brackets, RPL argument if any, and index variable
+  declaration, if any.  For example, the element type of
+  \kwd{Data<[\_]>[]<[\_]>} is \kwd{Data<[\_]>}; the element type of
+  \kwd{int[]<R1>[]<R2>} is \kwd{int[]<R2>}; and the element type of
+  \kwd{int[]<[i]>\#i[]<[i]:[j]>\#j} is \kwd{int[]<[i]:[j]>\#j}.
+%
+\item Substitute \emph{index-exp} for the leftmost index variable in
+  the element type to generate the answer.  For example, if \kwd{A}
+  has type \kwd{Data<[\_]>[]<[\_]>}, then expression \kwd{A[0]} has
+  type \kwd{Data<[0]>}.  If \kwd{A} has type \kwd{int[]<R1>[]<R2>},
+  then expression \kwd{A[i]} has type \kwd{int[]<R2>}.  (Notice there
+  is no substitution, because the index variable doesn't appear in the
+  element type.)  If \kwd{A} has type
+  \kwd{int[]<[i]>\#i[]<[i]:[j]>\#j}, then expression \kwd{A[0]} has
+  type \kwd{int[]<[0]:j>\#j}.
+\end{enumerate}
+
+\subsubsection{Method Invocation%
+\label{sec:types:exp:invoke}}
+\cutname{types.exp.invoke.html}
+
+\bfhead{Explicit type and RPL arguments:}  To compute the type of a
+method invocation expression
+%
+\begin{description}
+\item \emph{selected-exp}\kwd{.<}\emph{type-args}\kwd{,}\emph{rpl-args}\kwd{>}\emph{method-name}\kwd{(}\emph{args}\kwd{)}
+\end{description}
+%
+The compiler carries out the following steps:
+%
+\begin{enumerate}
+%
+\item Determine the type \emph{selected-type} of \emph{selected-type}
+  and the types \emph{arg-types} of \emph{args}, using the rules in
+  this section together with the ordinary rules for Java types.
+%
+\item Look up the method in the ordinary Java way, using the method
+  name, \emph{selected-type}, and \emph{arg-types}.  Use the method to
+  find formal value parameter types and return type.
+%
+\item Compute the \emph{capture} (\S~\ref{sec:types:exp:capture}) of
+  \emph{selected-type} to generate the type
+  \emph{captured-selected-type}.
+%
+\item Make the following substitutions in each of the formal argument
+  types then check that the actual argument types \emph{arg-types} are
+  assignable (\S\S~\ref{sec:types:class:compare}
+  and~\ref{sec:types:array:compare}) to the formal argument types:
+%
+\begin{enumerate}
+%
+\item Substitute the type and RPL arguments of
+  \emph{captured-selected-type} for the type and RPL arguments of its
+  class.
+\item Substitute \emph{type-args} and \emph{rpl-args} for the type and
+  RPL parameters of the method.
+\item For every argument in \emph{args} of a type assignable to
+  \kwd{int}, substitute the actual argument expression for the
+  corresponding formal parameter of the method.
+\item If \emph{selected-exp} is a \kwd{final} local variable or
+  \kwd{this}, then substitute the variable for \kwd{this}.  Otherwise
+  substitute a capture parameter (\S~\ref{sec:types:exp:capture})
+  included in \emph{owner-rpl}\kwd{:*}, where \emph{owner-rpl} is the
+  owner RPL of the variable (\S~\ref{sec:types:class:owner-rpl}).
+%
+\end{enumerate}
+%
+\item Make the same substitutions as in step 4 in the return type to
+  compute the answer.
+%
+\end{enumerate}
+
+Here is some example code for which the capture in step 3 is a no-op,
+and the capture in step 4(d) isn't needed.
+\S~\ref{sec:types:exp:capture} gives examples involving capture.
+%
+\begin{numbereddpjlisting}
+abstract class MethodInvocationExample<region R1, R2> {
+    abstract <region R3>
+        MethodInvocationExample<R3, [i]>callee(int i);
+    MethodInvocationExample<Root, [0]>caller() {
+        return this.<Root>callee(0);
+    }
+}
+\end{numbereddpjlisting}
+%
+Lines 1--2 define a method \kwd{callee} with one RPL parameter
+\kwd{R3} and one formal parameter \kwd{int i}.  It returns type
+%
+\begin{description}
+\item \kwd{MethodInvocationExample<R3,[i]>}.  
+\end{description}
+%
+Notice that the return type is written in terms of the method
+parameter (both the RPL and value parameter); these parameters have to
+be substituted away to generate a meaningful type at the call site.
+
+At the call site (line 5), the compiler does the following.  Step 1:
+The selected type is
+%
+\begin{description}
+\item \kwd{MethodRegionInvocationExample<R1,R2>},
+\end{description}
+%
+and the argument type is \kwd{int}.  Step 2: The invoked method is
+\kwd{callee}, defined in lines 1--2.  Step 3: Nothing to do (see
+\S~\ref{sec:types:exp:capture}).  Step 4: Binding 0 to \kwd{int} is
+OK.  Step 5: The return type is
+%
+\begin{description}
+\item \kwd{<MethodInvocationExample<R3,[i]>}.
+\end{description}
+%
+The method arguments are $\kwd{R3}=\kwd{Root}$ and $\kwd{i}=0$.
+Substituting arguments for parameters gives a return type of
+%
+\begin{description}
+\item \kwd{MethodInvocationExample<Root,[0]>}.
+\end{description}
+
+\bfhead{Inferred type and RPL arguments:} If there are no explicit
+type or RPL arguments, the compiler infers them as discussed in
+\S~\ref{sec:classes:params:method} and proceeds as stated above, using
+the inferred arguments in step 4(b).  As in ordinary Java, if there is
+no \emph{selected-exp}, then the implied selected expression is
+\kwd{this}.
+
+\subsubsection{Captured Types%
+\label{sec:types:exp:capture}}
+\cutname{types.exp.capture.html}
+
+The \emph{capture} of a generic type is important in generic Java; it
+prevents bad assignments through wildcard types.  DPJ uses the same
+concept in connection with partially-specified RPLs, which are a kind
+of wildcard, as they can stand in for several different regions.  To
+motivate the problem, consider this example:
+%
+\begin{numbereddpjlisting}
+class CaptureExample<region R> {
+    CaptureExample<R> field;
+    void method() {
+        region r1, r2;
+        // Create a new CaptureExample<R:r1>
+        CaptureExample<R:r1> ce = new CaptureExample<R:r1>();
+        // Assign it to CaptureExample<R:*>; this is allowed
+        CaptureExample<R:*> ceStar = ce;
+        // This should not be allowed!
+        ceStar.field = new CaptureExample<R:r2>();
+    }
+}
+\end{numbereddpjlisting}
+%
+The assignment in line 10 is a problem: the \emph{actual} type of the
+object stored in \kwd{ceStar} is \kwd{CaptureExample<R:r1>}.  That's
+because the assignment in line 8 didn't change the type of the object;
+it just assigned the same object to a different reference with a
+partially specified type.  So the actual type of the \kwd{field} field
+of that object is \kwd{CaptureExample<R:r1>}.  That means it can't
+hold a \kwd{CaptureExample<R:r2>}; that would violate the consistency
+of typing at runtime.  However, the type of the selected expression
+\kwd{ceStar} is \kwd{CaptureExample<R:*>}.  If we computed the type of
+\kwd{ceStar.field} by just substituting the actual for formal
+arguments in the type of the selected expression, we would get
+\kwd{CaptureExample<R:*>} for the type of \kwd{ceStar.field}, and the
+bad assignment would be allowed.
+
+So we don't do that.  Instead, we introduce a new parameter, called a
+\emph{capture parameter}, in the type of the selected expression.  It
+stands in for the unknown actual region of an object stored in a
+variable with partially specified type.  The introduction of the new
+parameter is called \emph{capturing} a type.  It occurs in steps 3 and
+4(b) of typing field access (\S~\ref{sec:types:exp:field}) and steps 3
+and 4(d) of typing method invocation (\S~\ref{sec:types:exp:invoke}).
+As discussed in \S~\ref{sec:classes:params:method}, capturing RPLs can
+also occur when inferring arguments to method region parameters.
+
+In this example, the captured type of the selected expression is
+\kwd{CaptureExample<P>}, where \kwd{P} is the capture parameter.
+\kwd{P} is constrained to be included in \kwd{R:*}, because that is
+all we know about the actual region from the type
+\kwd{CaptureExample<R:*>}.  This is the only way parameters can be
+inclusion-constrained in DPJ (\S~\ref{sec:rpls:comparing:include}).
+In the example above, now the bad assignment is disallowed, because
+the type \kwd{CaptureExample<R:r2>} is not assignable to the type
+\kwd{CaptureExample<P>}, where \kwd{P} is the capture parameter.  Nor
+is the type \kwd{CaptureExample<R:*>} assignable to
+\kwd{CaptureExample<P>}.  However, \kwd{CaptureExample<P>} is
+assignable to \kwd{CaptureExample<R:*>}, because of the inclusion
+constraint.
+
+More generally, this is how the compiler computes the capture of a type
+in DPJ:
+%
+\begin{enumerate}
+\item Take the normal Java capture of the type, substituting for any
+  wildcard generic type arguments but keeping the same RPL
+  arguments, if any.
+\item For each RPL that is partially specified (i.e., contains \kwd{*}
+  or \kwd{[?]}), replace that RPL with a capture parameter constrained
+  to be included in the RPL.
+\end{enumerate}
+%
+Notice that if there are no generic wildcards and no partially
+specified RPL arguments, then the capture operation does nothing to
+the type.
+
+Capturing types is mostly an internal compiler mechanism.  Programmers
+never have to do it, and they shouldn't even have to worry about it,
+except to deal with capture errors when they occur.  For example, the
+above code, if compiled, would generate a type error like ``expected
+type \kwd{CaptureExample<capture of R:*>}, found type
+\kwd{CaptureExample<R:r2>}.''  That error will probably be mysterious
+unless you understand how type capture works.
+
+Here is another common way that capture errors can occur, involving
+method invocations:
+%
+\begin{numbereddpjlisting}
+abstract class CaptureMethodExample<region R> {
+    abstract void callee(CaptureMethodExample<R> x);
+    void caller(CaptureMethodExample<*> y) {
+        // Compile error!
+        y.callee(y);
+    }
+}
+\end{numbereddpjlisting}
+%
+Line 4 causes an error, because it is attempting to assign \kwd{y},
+which has type 
+%
+\begin{description}
+\item \kwd{CaptureMethodExample<*>} 
+\end{description}
+%
+to type 
+%
+\begin{description}
+\item \kwd{CaptureMethodExample<capture of *>}
+\end{description}
+%
+which is the type of the formal parameter \kwd{x} of \kwd{callee},
+after capturing the type of the selected expression.
+
+Usually you can work around these errors by adding a parameter.  For
+example, the code above could be rewritten as follows:
+%
+\begin{numbereddpjlisting}
+abstract class CaptureMethodExample<region R> {
+    abstract void callee(CaptureMethodExample<R> x);
+    <region R>void caller(CaptureMethodExample<R> y) {
+        // OK
+        y.callee(y);
+    }
+}
+\end{numbereddpjlisting}
+%
+By adding a method region parameter \kwd{R}, we ``capture the type
+ourselves.''  Now the code explicitly says that the region in the type
+of \kwd{y} is the same as the region of the type of \kwd{x}: whatever
+it is, it is bound to the same parameter \kwd{R} in both cases.
+
+
+

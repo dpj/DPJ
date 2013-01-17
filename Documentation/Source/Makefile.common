@@ -3,7 +3,8 @@ BIBFILES = $(wildcard *.bib)
 PROGRAMS = $(wildcard ./Programs/dpj/*.java)
 HACHAOPTS = -tocbis
 DOCS_DIR=$(DPJ_ROOT)/Documentation
-HEVEA_STY=$(DPJ_ROOT)/Documentation/Source/hevea.sty
+SOURCE_DIR=$(DOCS_DIR)/Source
+HEVEA_STY=$(SOURCE_DIR)/hevea.sty
 
 all: $(TARGET).pdf multihtml/index.html
 
@@ -12,7 +13,7 @@ $(TARGET).html : $(TEXFILES) $(BIBFILES) $(PROGRAMS) multihtml hevea.sty
 	hevea -s $(TARGET).tex
 	hevea -fix -O $(TARGET).tex
 	# Repair bad section symbols inserted by hevea
-	perl ../repairsection.pl < $(TARGET).html > repaired.html
+	perl $(SOURCE_DIR)/repairsection.pl < $(TARGET).html > repaired.html
 	mv repaired.html $(TARGET).html
 
 multihtml :

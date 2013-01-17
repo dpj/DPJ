@@ -1,0 +1,1067 @@
+\section{Classes and Interfaces%
+\label{sec:classes}}
+\cutname{classes.html}
+
+DPJ classes and interfaces are identical to classes and interfaces in
+Java, with the following additional features:
+%
+\begin{itemize}
+%
+\item New members called \emph{class region name declarations}
+  (\S~\ref{sec:classes:region-names}) declare region names at class or
+  interface scope that can be associated with class fields
+  (\S~\ref{sec:classes:field-region-spec}).
+%
+\item Methods have several new features to support regions and effects
+  (\S~\ref{sec:classes:methods}).
+%
+\item Classes, interfaces, and methods support \emph{region
+  parameters}, so that different objects of the same class or
+  interface, and different invocations of the same method, can use
+  different regions (\S~\ref{sec:classes:params}).
+%
+\end{itemize}
+%
+Throughout this section, we use the term ``class'' with the
+understanding that the concepts apply identically to interfaces,
+unless otherwise noted.
+
+\subsection{Class Region Name Declarations%
+\label{sec:classes:region-names}}
+\cutname{classes.region-names.html}
+
+A \emph{class region name declaration} may appear as a class or
+interface member.  A class region name declaration consists of the
+keyword \kwd{region} followed by one or more identifiers separated by
+commas. For example, the following declaration declares a region name
+\kwd{Data} within the class \kwd{Element}:
+
+\begin{dpjlisting}
+class Element {
+	region Data;
+	...
+}
+\end{dpjlisting}
+
+Class region name declarations function like static class members in
+Java (though the keyword \kwd{static} need not be used with a class
+region declaration --- if it is, it has no effect).  In particular,
+subject to visibilty restrictions, other packages and classes can
+refer to the declared names by prepending the proper package and class
+qualifiers.  For example, outside of class \kwd{Element}, region
+\kwd{Data} could be referred to as \kwd{Element.Data}.
+
+As with Java fields and methods, the programmer may control the access
+to the declared names with the qualifiers \kwd{public}, \kwd{private},
+or \kwd{protected}.  For example, the following code declares two
+regions that can be referred to from anywhere in the program:
+
+\begin{dpjlisting}
+class Node {
+	public region Left, Right;
+	...
+}
+\end{dpjlisting}
+
+Class region name declarations are available for use in RPLs
+(\S~\ref{sec:rpls}) in the scope where they are visible.  A class
+region name standing alone is a particular case of an RPL (see
+\S~\ref{sec:rpls:basic:class}).
+
+\subsection{Field RPL Specifiers%
+\label{sec:classes:field-region-spec}}
+\cutname{classes.field-region-spec.html}
+
+Every class field in DPJ resides in a \emph{region}, named with a
+region path list (\S~\ref{sec:rpls}).  This is a fundamental aspect of
+DPJ versus plain Java; it allows the specification and checking of
+effects (\S~\ref{sec:effects}). There are two ways to specify the RPL
+of a field: (1) with an explicit \emph{field RPL specifier}; and (2)
+by using the \emph{default field RPL}.
+
+\bfhead{Explicit field RPL specifiers} A field RPL specifier has the
+following form:
+%
+\begin{description}
+\item \kwd{in} \emph{rpl}
+\end{description}
+%
+\emph{rpl} is an RPL, as defined in \S~\ref{sec:rpls}.  If the field
+RPL specifier is present, then it must appear immediately after the
+field name (and before the field initializer expression, if there is
+one).  For example:
+%
+\begin{dpjlisting}
+class FieldRPLSpecifiers {
+    region X, Y;             // X and Y name regions
+    int x in X;              // field x is in region X
+    boolean y in Y = false;  // field y is in region Y
+}
+\end{dpjlisting}
+%
+Notice that because a class region name declaration functions like a
+static class member (\S~\ref{sec:classes:region-names}), it creates a
+single region name \emph{per class}, not per object.  Therefore, a
+field RPL specifier such as \kwd{int x in X} assigns the same
+region \kwd{FieldRPLSpecifiers.X} to the field of \emph{every object
+  instance} of class \kwd{FieldRPLSpecifiers} created at runtime.
+\S~\ref{sec:classes:params} explains how to use \emph{region
+  parameters} to assign different regions to the fields of different
+objects of the same class.
+
+
+\emph{Final fields} Effects on \kwd{final} fields are ignored
+(\S~\ref{sec:effects:stmt-exp}), because their values never change
+after initialization.  Therefore, field RPL specifiers are not
+meaningful for \kwd{final} fields.  If a field is declared
+\kwd{final}, then an RPL specifier may be given for the field; but if
+so, it is ignored.
+
+\bfhead{Default field RPL} If a field has no explicit RPL specifier,
+then its RPL is \kwd{Root}.  The name \kwd{Root} is always in scope
+(\S~\ref{sec:rpls:basic:root}).  For example, in the following code,
+field \kwd{x} is in region \kwd{Root}:
+%
+\begin{dpjlisting}
+class DefaultRegionSpecifier {
+    // Equivalent to int x in Root = 5
+    int x = 5;
+}
+\end{dpjlisting}
+
+
+\subsection{Methods%
+\label{sec:classes:methods}}
+\cutname{classes.methods.html}
+
+DPJ adds the following features to Java methods:
+%
+\begin{itemize}
+%
+\item Every method (\S~\ref{sec:classes:methods:summaries}) and
+  constructor (\S~\ref{sec:classes:methods:summaries-constructor})
+  summarizes its effects, either explicitly or through a default
+  effect summary.
+%
+\item The programmer may declare and use \emph{local region names}
+  inside a method body (\S~\ref{sec:classes:methods:local-regions}),
+  to express effects that do not escape the method scope.
+%
+\item Methods may be marked \kwd{commutative} to indicate that their
+  effects commute, even though they have conflicting reads and writes
+  (\S~\ref{sec:classes:methods:commutative}).
+%
+\end{itemize}
+
+\subsubsection{Effect Summaries (Non-Constructor Methods)%
+\label{sec:classes:methods:summaries}}
+\cutname{classes.methods.summaries}
+
+Every DPJ method must summarize its effects.  The compiler uses the
+summaries to check noninterference of effect
+(\S~\ref{sec:effects:nonint}).  This section discusses effect
+summaries for non-constructor methods.
+\S~\ref{sec:classes:methods:summaries-constructor} describes effects
+summaries for constructors.  There are two ways to summarize a
+method's effects: (1) with an explicit method effect summary; or (2)
+with the default method effect summary.
+
+\bfhead{Explicit method effect summaries} An explicit method effect
+summary appears immediately after the method's value parameters and
+before the \kwd{throws} clause, if any.  It has the form given in
+\S~\ref{sec:effects:summaries}.  For example:
+%
+\begin{dpjlisting}
+class Summaries {
+  region X, Y;
+  int x in X;
+  int y in Y;
+  // pureMethod has no effect on the heap
+  int pureMethod(int y) pure { return y+1; }
+  // throwsMethod reads X and throws an exception
+  void throwsMethod() reads X throws Exception {
+    if (x != 0) throw new Exception();
+  }
+  // readWriteMethod reads Y and writes X
+  void readWriteMethod() reads Y writes X {
+    x = y;
+  }
+}
+\end{dpjlisting}
+%
+
+A method effect summary must represent all the effects of the method
+body.  More precisely, the actual method effects must be a
+\emph{subeffect} (\S~\ref{sec:effects:subeffects}) of the summarized
+effects.  The actual effects are computed as described in
+\S~\ref{sec:effects:stmt-exp}, \emph{except} that any local effect
+(\S~\ref{sec:effects:local}) can be omitted from the summary.  The
+representation can be conservative, i.e., it is permissible to include
+effects in the summary that can never occur in executing the method.
+But if any effect of any possible execution of the method is omitted
+from the summary, it is a compile-time error.  
+
+For example:
+%
+\begin{dpjlisting}
+class MoreSummaries {
+  region X;
+  int x in X;
+  // OK, summary is conservative
+  int readsMethod() writes X {
+    // Write effects cover reads
+    return x;
+  }
+  // Error!  Read effect must be reported
+  int pureMethod() pure {
+    return x;
+  }
+}
+\end{dpjlisting}
+%
+
+A method effect summary must also represent all the effects of any
+method that overrides it.  If it does not, then there is a
+compile-time error.  To see why, consider the following classes:
+%
+\begin{dpjlisting}
+class SuperClass {
+  region X;
+  int x in X;
+  void method(int x) writes X {
+    this.x = x;
+  }
+}
+class SubClass extends SuperClass {
+  // Compile-time error:  pure does not cover writes X
+  void method(int x) pure {
+    // Do nothing
+  }
+}
+\end{dpjlisting}
+%
+The method \kwd{method} defined in \kwd{SubClass} overrides the method
+\kwd{method} defined in \kwd{SuperClass}.  There is an error in the
+code, because the effect \kwd{pure} of the subclass method does not
+cover the effect \kwd{writes X} of the superclass method.  While this
+may look innocuous (after all, the \kwd{SubClass} version of method
+really has no effect!), suppose we allowed the code given above and
+then wrote the following method:
+%
+\begin{dpjlisting}
+void callMethod(SubClass subClass) pure {
+  subClass.method();
+}
+\end{dpjlisting}
+%
+Based on the previous code, this looks fine: we are calling
+\kwd{subClass.method}, which has effect \kwd{pure}.  But does it?
+Because of polymorphic dispatch, the \emph{runtime} type of the object
+bound to \kwd{subClass} could be \kwd{SuperClass}.  And in that case,
+the call to \kwd{method} would invoke the \emph{superclass} version of
+\kwd{method}, which has the effect \kwd{writes X}.  The write to
+region \kwd{X} would be ``hidden'' by the polymorphic dispatch.  To
+prevent this kind of hiding, DPJ requires that superclass effects
+cover subclass effects.  Notice that if we change the effect summary
+in the \kwd{SubClass} version of \kwd{method} to \kwd{writes X}, as
+DPJ requires, then this problem goes away.
+
+\bfhead{Default effect summary} Any DPJ method may be written with no
+explicit method effect summary.  In particular, an ordinary Java
+method is always a valid DPJ method.
+
+If a method lacks an explicit effect summary, then the compiler
+assigns it the default summary \kwd{writes Root:*}.  This is the most
+conservative possible effect summary; it says that the method may read
+or write to any globally-visible memory location.  The default effect
+summary is always valid, because it covers all possible effects of any
+method.  For example, the following code is valid:
+%
+\begin{dpjlisting}
+class DefaultEffectSummary {
+    // Equivalent to 'void method() writes Root:*'
+    // OK, because effects may be overreported
+    void defaultSummary() {
+        // No actual effect!
+    }
+    void parallel() {
+        // Reports interference, even though defaultSummary has no
+        // actual effect!
+        cobegin {
+           defaultSummary();
+           defaultSummary();
+        }
+    }
+}
+\end{dpjlisting}
+
+In general, the default effect summary is too coarse-grained for
+methods that are called either directly or indirectly inside a
+parallel task: as shown in the example, it causes DPJ to detect and
+warn about interfering writes, even if the method's actual effects are
+not interfering.  However, for methods that are only ever used in
+sequential parts of the program, the default effect summary saves
+effort, because the effects of those methods are not important.
+
+\subsubsection{Effect Summaries (Constructors)%
+\label{sec:classes:methods:summaries-constructor}}
+\cutname{classes.methods.summaries-constructor}
+
+Constructors are special methods; therefore they must also summarize
+their effects.  All the rules given in
+\S~\ref{sec:classes:methods:summaries} apply, with one important
+exception: the effect summary of a constructor does \emph{not} have to
+report any initialization effects on fields of the object being
+constructed.  For example, the following code is legal:
+%
+\begin{dpjlisting}
+class ConstructorExample {
+    region X, Y;
+    int x in X, y in Y;
+    // Effect 'pure' is valid, because initialization effects
+    // on x and y don't have to be reported
+    ConstructorExample(int x, int y) pure {
+        this.x = x;
+        this.y = y;
+    }
+}
+\end{dpjlisting}
+%
+This works because the DPJ type and effect system guarantees that if
+one parallel task calls a constructor, then the fields of a
+constructed object are never read by any other parallel task until the
+first task is finished.  In particular, that means that no other
+parallel task can ever see object fields in an uninitialized state.
+So there can be no interference due to initialization effects of
+constructors.
+
+However, if we wrote the same initializer as a non-constructor method,
+then the rules in \S~\ref{sec:classes:methods:summaries} would apply,
+and we would have to write the effects:
+%
+\begin{dpjlisting}
+class NonConstructorExample {
+    region X, Y;
+    int x in X, y in Y;
+    // Effect 'pure' would cause a compile error here
+    static void initialize(int x, int y) writes X, Y {
+        this.x = x;
+        this.y = y;
+    }
+}
+\end{dpjlisting}
+
+\subsubsection{Local Region Name Declarations%
+\label{sec:classes:methods:local-regions}}
+\cutname{classes.methods.local-regions}
+
+A region name declaration may appear as a statement in the body of a
+method.  This kind of declaration is called a \emph{local region name
+  declaration}.  Like a class region name declaration
+(\S~\ref{sec:classes:region-names}), a local region name declaration
+consists of the keyword \kwd{region} followed by a comma-separated
+list of identifiers.  The declared names are available for use in RPLs
+(\S~\ref{sec:rpls}) in the scope of the enclosing statement block.  In
+particular, a local region name standing alone is a valid RPL
+(\S~\ref{sec:rpls:basic:local}).
+
+For example, the following code declares
+region names \kwd{A} and \kwd{B} that are available for use as region
+names in the scope of method \kwd{localRegionNames}:
+%
+\begin{dpjlisting}
+void localRegionNames() {
+	region A, B;
+	...
+}
+\end{dpjlisting}
+%
+
+Because of their limited scope, local names (and RPLs constructed from
+them) cannot appear in field RPL specifiers
+(\S~\ref{sec:classes:field-region-spec}).  They can be used
+\emph{only} in arguments to class or method region parameters
+(\S~\ref{sec:classes:params}).  Their purpose is to indicate that the
+effects of operating on the class object, or invoking the method, are
+local to the enclosing method, and need not to be reported in the
+effect summary of the enclosing method or constructor
+(\S\S~\ref{sec:classes:methods:summaries},~\ref{sec:classes:methods:summaries-constructor}).
+This technique is called \emph{effect masking}.  For example:
+%
+\begin{dpjlisting}
+class EffectMasking<region R> {
+  int x in R;
+  // method has no globally-visible effect
+  void method() pure {
+    // Declare region r local to method
+    region r;
+    // Use local region to create new EffectMasking object
+    // 'masking' cannot escape method
+    EffectMasking<r> masking = new EffectMasking<r>();
+    // Effect 'writes r' is masked from callees
+    masking.x = 0;
+  }
+}
+\end{dpjlisting}
+%
+In this example the masked effect is somewhat useless.  But there are
+plenty of realistic cases where objects are created and assigned to
+temporarily to support some computation, then thrown away because only
+the final result is needed by the callee.  By creating the temporary
+objects with local regions, the callee can reduce its effect
+signature, minimizing potential interference and making it more useful
+inside parallel tasks.  See \tutorial\ for more details.
+
+Like Java local variables, a local region name declared in a statement
+block is in scope only in that block; its scope ends when the block
+ends.  For example, the following code would cause a compile error,
+because the name \kwd{OutOfScopeRegion} is not in scope where it is
+used:
+%
+\begin{dpjlisting}
+class ScopeExample<region R> {
+    void method() {
+        {
+            region OutOfScopeRegion;
+            // Scope ends here
+        }
+        // Error:  OutOfScopeRegion is no longer in scope
+        ScopeExample<OutOfScopeRegion> x = null;
+    }
+}
+\end{dpjlisting}
+
+\subsubsection{Commutative Methods%
+\label{sec:classes:methods:commutative}}
+\cutname{classes.methods.commutative}
+
+The keyword \kwd{commutative} may appear as a method qualifier, before
+the return type and before the type and/or region parameters of the
+method, if any:
+
+\begin{dpjlisting}
+commutative int m(...) { ... }
+\end{dpjlisting}
+
+The \kwd{commutative} qualifier is a programmer-specified guarantee
+that any invocation of the method commutes with itself.  It is
+typically used for commutative operations on concurrent data
+structures such as counter updates, set inserts, histograms, and
+reductions.  These operations write to shared data in a way that
+``looks interfering'' to the DPJ effect system, but due to the
+semantics of the data structure (which the effect system does not know
+about), still preserves determinism.  For example, here is a use of
+the \kwd{commutative} qualifier to write a simple counter class:
+
+\begin{dpjlisting}
+class Counter<region R> {
+  private int count in R;
+  void clear() writes R { count = 0; }
+  commutative synchronized void increment() writes R {
+    ++count;
+  }
+  int getCount() reads R { return count; }
+}
+\end{dpjlisting}
+
+When a method $m$ is labeled \kwd{commutative}, the DPJ compiler
+treats the effects of multiple invocations of $m$ as noninterfering,
+even if the read and write effects by themselves, without the
+\kwd{commutative}, would be interfering.  For example, in the case of
+the counter class, concurrent invocations of \kwd{increment} have
+interfering writes to region \kwd{R}.  However, the \kwd{commutative}
+annotation tells the DPJ compiler to ``ignore'' that interference.
+So, for example, the following code compiles with no errors or
+warnings:
+
+\begin{dpjlisting}
+Counter<Root> counter = new Counter<Root>();
+foreach(int i in 0, 10)
+  counter.increment();
+\end{dpjlisting}
+
+Note that the \kwd{commutative} qualifier \emph{only} tells the DPJ
+compiler that it is safe to ignore interference.  It does \emph{not}
+introduce any special synchronization or other concurrency control.
+In particular, it is the programmer's responsibility when using
+\kwd{commutative} to ensure two things:
+%
+\begin{enumerate}
+\item The method is properly synchronized so that concurrent accesses
+  to the method behave as though they have occurred in sequence (i.e.,
+  the accesses have \emph{serializable} semantics).  In the example
+  above, this property is enforced by making method \kwd{increment}
+  \kwd{synchronized}.  Without the \kwd{synchronized} keyword,
+  concurrent invocations of \kwd{increment} would have a
+  read-modify-write race, and some of the updates could be lost.
+
+\item The method behaves so that either order of a pair of invocations
+  produces the same result.  In the example above, this property holds
+  because incrementing a counter twice, in either order, has the same
+  result (i.e., the final counter value is 2 more than the starting
+  value).
+\end{enumerate}
+%
+Typically, in user code, the \kwd{commutative} annotation is used for
+simple commutative read-modify-write operations like the one
+illustrated above.  More complicated operations, e.g. set or tree
+inserts, where the commutativity property is more subtle to verify,
+would typically be provided by library or framework code.  Only very
+skilled programmers should attempt to ``roll their own''
+implementation of such commutative operations, as the potential for
+subtle bugs is high, and the DPJ effect system provides no assistance
+in checking for such bugs.
+
+\subsection{Region Parameters%
+\label{sec:classes:params}}
+\cutname{classes.params.html}
+
+DPJ extends Java's generic type parameters by allowing \emph{region
+  parameters} in class and method definitions.  Class region
+parameters become bound to actual regions when the class is
+instantiated to a type (\S~\ref{sec:types:class:instant}).  Method
+region parameters become bound to actual regions when the method is
+invoked (\S~\ref{sec:classes:params:method}).
+
+\subsubsection{Class Region Parameters%
+\label{sec:classes:params:class}}
+\cutname{classes.params.class.html}
+
+\bfhead{Declaring class region parameters} As in ordinary generic
+Java, the class parameters are given as a comma-separated list of
+identifiers enclosed in angle brackets (\kwd{<>}) immediately after
+the class name.  The new features are as follows:
+%
+\begin{itemize}
+%
+\item Both type and region parameters may appear.  If both appear, all
+  the region parameters must follow the type parameters.
+%
+\item The first region parameter \emph{must} be preceded by the
+  keyword \kwd{region}.  Any of the other region parameters \emph{may}
+  be preceded by the keyword \kwd{region}.
+%
+\item Any of the type parameters \emph{may} be preceded by the keyword
+  \kwd{type}.
+%
+\end{itemize}
+%
+The keyword \kwd{type} is provided for convenience in distinguishing
+type from region parameters; but to preserve compatibility with
+ordinary Java syntax, it is never required.
+
+For example, the following are valid class declarations:
+%
+\begin{dpjlisting}
+// Type parameter T
+class A<T> {}            
+class B<type T> {}
+// Region parameter R
+class C<region R> {}
+// Type parameter T, region parameter R
+class D<T, region R> {}
+class E<type T, region R> {}
+// Type parameters T1, T2, region parameters R1, R2
+class F<type T1, T2, region R1, R2> {}
+\end{dpjlisting}
+
+\bfhead{Using class region parameters} A class region parameter is
+available for use in RPLs (\S~\ref{sec:rpls:param}) within the class
+definition.  In particular, a class region parameter standing alone is
+a valid RPL.  For example, the following code declares a class
+\kwd{ParamInField} with a region parameter \kwd{R} and uses \kwd{R} in
+a field RPL specifier (\S~\ref{sec:classes:field-region-spec}):
+%
+\begin{dpjlisting}
+class ParamInField<region R> {
+    public int x in R;
+}
+\end{dpjlisting}
+%
+This code says that the region of field \kwd{x} of an object
+instantiated from the \kwd{ParamInField} class is given by the RPL
+provided as an argument to \kwd{R} in the type of the object.  For
+example, this code creates a fresh \kwd{ParamInField} object called
+\kwd{p}, such that the field \kwd{p.x} is in region \kwd{Root}:
+%
+\begin{dpjlisting}
+ParamInField<Root> p = new ParamInField<Root>();
+\end{dpjlisting}
+
+As another example of using parameters, the following code declares a
+class region parameter \kwd{R} and uses it to instantiate a type
+(\S~\ref{sec:types:class:instant}):
+%
+\begin{dpjlisting}
+class ParamInType<region R> {
+    ParamInType<R> x in R;
+}
+\end{dpjlisting}
+%
+And this code creates a fresh \kwd{ParamInType} object whose field
+\kwd{x} has type \kwd{ParamInType<Root>}:
+%
+\begin{dpjlisting}
+ParamInType<Root> p = new ParamInType<Root>();
+\end{dpjlisting}
+%
+This pattern is very useful for creating chains or graphs of objects,
+all in the same region.  For example, without the region parameter
+\kwd{R}, there would be no way to get the object pointed to by \kwd{x}
+in the same region as the parent object.  The RPL specifier \kwd{x in
+  R} is insufficient, because that says only that the field \kwd{x} is
+in \kwd{R}, not the object that it points to.  To get both the field
+and the object in the same region, you have to write
+%
+\begin{dpjlisting}
+ParamInType<R> x in R
+\end{dpjlisting}
+%
+as shown.  Moreover, DPJ provides the flexibility to assign different
+regions to the field pointing to the object and the object itself, for
+example:
+%
+\begin{dpjlisting}
+ParamInType<r1> x in r2
+\end{dpjlisting}
+%
+This allows for finer-grain partitioning of memory than if the field
+and the object always had the same region.
+
+%
+As in generic Java, a new declaration of a parameter named \kwd{R}
+hides any parameter named \kwd{R} that is already in scope.  For
+example, the following two definitions of the class \kwd{Hiding} are
+equivalent:
+%
+\begin{dpjlisting}
+// First version
+class Hiding<region R1> {
+    class Inner<region R2> {
+        Hiding<R2> x;
+    }
+}
+// Second version
+class Hiding<region R> {
+    class Inner<region R> {
+        Hiding<R> x;
+    }
+}
+\end{dpjlisting}
+%
+In both versions we are declaring a parameter for the outer class,
+declaring a parameter for the inner class, and using the inner class
+parameter to instantiate a type inside the inner class.  In the first
+version we have given distinct names to the two parameters; while in
+the second version we have used the same name.
+
+Also as with Java generic type parameters, a class region parameter
+may not be used in a static context.  This is because DPJ region
+information (like Java generic information) is \emph{erased} during
+the compilation process.  In particular, only one set of code is
+generated for all types instantiating a given class.  If region
+parameters could be used in a static context, then different code
+would have to be generated for each different type (as with C++
+templates).
+%
+For example, the following code is invalid, because it attemps to use
+region \kwd{R} in a static context:
+%
+\begin{dpjlisting}
+class Outer<region R> {
+    public static class Inner {
+        // Not allowed!
+        public int x in R;
+    }
+}
+\end{dpjlisting}
+
+Fortunately, this limitation is easy to work around.  The standard way
+(again, as with Java generics) is to introduce a new parameter for the
+inner class, and write \kwd{Inner<R1>} to place \kwd{x} in region
+\kwd{R1}:
+
+\begin{dpjlisting}
+class Outer<region R1> {
+    public static class Inner<region R2> {
+        public int x in R2;
+    }
+}
+\end{dpjlisting}
+
+
+\subsubsection{Method Region Parameters%
+\label{sec:classes:params:method}}
+\cutname{classes.params.method.html}
+
+\bfhead{Declaring method region parameters} As in ordinary generic
+Java, the method region parameters are given as a comma-separated list
+of identifiers enclosed in angle brackets (\kwd{<>}) immediately
+before the method return type (for non-constructor methods) or class
+name (for constructors).  A method parameter declaration has the same
+form as a class parameter declaration
+(\S~\ref{sec:classes:params:class}).
+%
+For example, the following code defines a method with type parameter
+\kwd{T} and region parameter \kwd{R}:
+%
+\begin{dpjlisting}
+interface MethodParams {
+    public <type T, region R> void method();
+}
+\end{dpjlisting}
+%
+As for class parameters, the \kwd{type} keyword is always optional,
+and the \kwd{region} keyword is optional except as to the first region
+parameter.
+
+\bfhead{Using method region parameters} A method region parameter is
+available for use in RPLs (\S~\ref{sec:rpls:param}) within the method
+definition.  In particular, a method region parameter standing alone
+is a valid RPL.  For example, the following code declares a method
+\kwd{method} with a region parameter \kwd{R} and uses \kwd{R} in the
+formal (value) parameter and return type of the method:
+%
+\begin{dpjlisting}
+interface MethodParamUses<region R> {
+    <region R1>void method(MethodParamUses<R1> arg);
+}
+\end{dpjlisting}
+%
+As in generic Java, a new declaration of a parameter named \kwd{R}
+hides any parameter named \kwd{R} that is already in scope.  For
+example, the following code is equivalent to the code above:
+%
+\begin{dpjlisting}
+interface MethodParamUses<region R> {
+    <region R>void method(MethodParamUses<R> arg);
+}
+\end{dpjlisting}
+%
+
+\bfhead{Invoking methods defined with region parameters} Subject to
+the restrictions stated below, RPL arguments to method parameters may
+be provided explicitly by the programmer, or they may be inferred from
+the types of the method arguments.  In either case, the arguments must
+obey any disjointness constraints on the method's region parameters
+(\S~\ref{sec:classes:params:disjoint}).
+
+\ithead{Explicit RPL arguments (fully specified)} If the RPL arguments
+to the method are fully specified (i.e., they contain no \kwd{*} or
+\kwd{?}), then the programmer may supply the RPL arguments explicitly,
+using an extension of the Java syntax for generic method arguments.
+For this form, as for Java generic methods, there must be an explicit
+qualifier and a dot preceding the method name; and the arguments must
+appear in angle brackets after the dot, and before the method name.
+For example:
+%
+\begin{description}
+\item \kwd{this.<}\emph{args}\kwd{>}\emph{meth-name}\kwd{()}
+\end{description}
+%
+Here \emph{args} are type and/or RPL arguments (defined below), and
+\emph{meth-name} is the name of the method being invoked.  Notice that
+to invoke a method defined in the enclosing class with explicit RPL
+arguments, \kwd{this} (or the class name, for a \kwd{static} method)
+must be used as a qualifier.
+
+The new DPJ features are as follows:
+%
+\begin{itemize}
+%
+\item Both type and region parameters may appear.  The number of type
+  and RPL arguments must exactly match the number of type and region
+  parameters (so all type arguments come first, because that is true
+  for the parameters).
+%
+\item The first region parameter \emph{must} be preceded by the
+  keyword \kwd{region}.  Any of the other region parameters \emph{may}
+  be preceded by the keyword \kwd{region}.
+%
+\item Any of the type parameters \emph{may} be preceded by the keyword
+  \kwd{type}.
+%
+\end{itemize}
+%
+
+The following code example illustrates the use of explicit RPL
+arguments to a method invocation:
+%
+\begin{dpjlisting}
+abstract class ExplicitArgs<region R> {
+    abstract <type T, region R>T callee(ExplicitArgs<R> param);
+    ExplicitArgs<Root> caller() {
+        ExplicitArgs<Root> arg = new ExplicitArgs<Root>();
+        return this.<ExplicitArgs<Root>,Root>callee(arg);
+    }
+}
+\end{dpjlisting}
+%
+The abstract method \kwd{callee} is generic in type \kwd{T} and
+region \kwd{R}.  It takes an \kwd{ExplicitArgs<R>} object as a value
+argument and returns type \kwd{T}.  In \kwd{caller}, we create
+a new \kwd{ExplicitArgs<Root>} and pass it to \kwd{callee}.  We
+pass \kwd{ExplicitArgs<Root>} as the type argument to \kwd{T} and
+\kwd{Root} as the RPL argument to \kwd{R}, using explicit RPL
+arguments.  Notice that the type of \kwd{arg} matches the type of
+\kwd{param}, after substituting \kwd{Root} for \kwd{R} in \kwd{param}.
+If the types did not match, there would be a compile error.  See
+\S~\ref{sec:types:exp:invoke} for more information about how typing
+works for method invocations in the presence of region parameters.
+
+Note that the keyword \kwd{region} must be present to identify the
+first RPL argument in the list, unlike the case of RPL arguments to
+classes (\S~\ref{sec:types:class:instant}), where the \kwd{region}
+keyword is optional.  The reason for this rule is Java's method
+overloading: because multiple methods can be declared with the same
+name but different parameters, information about which arguments are
+types and which are regions is not always available from the method
+name, as it is from the class name.
+
+\ithead{Explicit RPL arguments (partially specified)} Explicit RPL
+arguments to a method invocation may contain partially specified RPLs
+(\S~\ref{sec:rpls:partial}).  However, if a partially specified RPL is
+bound to a method region parameter \kwd{R}, then \kwd{R} may not
+appear in any of the types of the method arguments.  For example, the
+following code causes a compile error:
+%
+\begin{dpjlisting}
+abstract class PartiallySpecifiedBad<region R> {
+    region r1, r2;
+    abstract <region R>void callee(PartiallySpecifiedBad<R> param1,
+                                          PartiallySpecifiedBad<R> param2);
+    void caller() {
+        PartiallySpecifiedBad<r1> arg1 = new PartiallySpecifiedBad<r1>();
+        PartiallySpecifiedBad<r2> arg2 = new PartiallySpecifiedBad<r2>();
+        return this.<*>callee(arg1,arg2);
+    }
+}
+\end{dpjlisting}
+%
+If this code were allowed, then both \kwd{r1} and \kwd{r2} would be
+bound to \kwd{R} inside the scope of \kwd{callee}.  This would violate
+a key invariant of the system, namely that in any scope a parameter
+\kwd{R} always refers consistently to a single region.  Technically,
+the compiler avoids this problem by \emph{capturing} any fully
+specified RPLs provided as an explicit argument to a method RPL
+parameter (see \S~\ref{sec:types:exp:capture}).  The capture operation
+declares a fresh parameter which stands in for the runtime region
+represented by the \kwd{*}.
+
+In practice, this means that explicit partially-specified arguments to
+method RPLs are rarely used.  Instead, an inferred argument would be
+used (see immediately below).  However, an explicit
+partially-specified argument may be used to specify an effect.  For
+example, this code is legal:
+%
+\begin{dpjlisting}
+abstract class PartiallySpecifiedOK<region R> {
+    abstract <region R>void callee() writes R;
+    void caller() writes * {
+        // Effect is writes *
+        return this.<*>callee(arg1,arg2);
+    }
+}
+\end{dpjlisting}
+%
+
+
+\ithead{Inferred RPL arguments} As in generic Java, a method with type
+and/or region parameters may be written without any explicit generic
+arguments.  In this case the compiler will attempt to infer the type
+and/or region arguments from the types of the value arguments supplied
+to the method.  For example, the \kwd{dpjc} compiler accepts the
+following code, because it is able to infer from the type
+\kwd{InferredArguments<Root>} of \kwd{arg} that the argument to
+\kwd{R} is \kwd{Root}:
+%
+\begin{dpjlisting}
+abstract class InferredArguments<region R> {
+    abstract <region R>void callee(InferredArguments<R> param);
+    void caller() {
+        InferredArguments<Root> arg = new InferredArguments<Root>();
+        callee(arg);
+    }
+}
+\end{dpjlisting}
+%
+This code is equivalent to the following:
+%
+\begin{dpjlisting}
+abstract class InferredArguments<region R> {
+    abstract <region R>void callee(InferredArguments<R> param);
+    void caller() {
+        InferredArguments<Root> arg = new InferredArguments<Root>();
+        this.<Root>callee(arg);
+    }
+}
+\end{dpjlisting}
+
+While the compiler can infer region arguments to methods in many
+cases, sometimes it cannot, either because the inference algorithm is
+insufficiently powerful, or because the information is simply not
+available from the types of the value parameters.  The compiler uses
+\kwd{Root:*} as the argument to any region parameters in the method
+that it cannot infer.  For example, the compiler would infer
+\kwd{Root:*} as the argument to \kwd{R} in the following code:
+%
+\begin{dpjlisting}
+abstract class InferredArguments<region R> {
+    abstract <region R>void callee() writes R;
+    void caller() {
+        // There are no value arguments, so there is no way to infer
+        // the argument to R!  This is equivalent to this.<Root:*>callee();
+        callee();
+    }
+}
+\end{dpjlisting}
+
+Finally, because of the restriction on partially-specified RPLs in
+explicit arguments mentioned above, it is possible to write certain
+method invocations using inferred arguments that it is \emph{not}
+possible to write using explicit arguments.  For example:
+%
+\begin{dpjlisting}
+abstract class InferredArguments<region R> {
+    abstract <region R>void callee(InferredArguments<R> param) writes R;
+    void caller() {
+        InferredArguments<*> arg = new InferredArguments<Root>();
+        callee(arg);
+    }
+}
+\end{dpjlisting}
+%
+Here the compiler infers that at the invocation of \kwd{callee} a
+fresh region parameter should be bound to both the parameter \kwd{R}
+in the method and the parameter \kwd{R} in the type.
+
+Notice that because the invocation of \kwd{callee} binds \kwd{*} to
+\kwd{R}, and \kwd{R} appears in the type of \kwd{param}, it would not
+be legal to provide the RPL argument explicitly:
+%
+\begin{dpjlisting}
+this.<*>callee(arg); // illegal!
+\end{dpjlisting}
+%
+That is because this code provides no assurance that the region bound
+to the method parameter is the same as the region bound to the type of
+\kwd{arg}.  In DPJ, region inference is the only way to declare a
+fresh RPL parameter and bind it to multiple region arguments (this is
+sometimes called ``opening an existential'').  Generic Java has a
+similar mechanism for handling wildcard types in method arguments.
+
+\subsubsection{Disjointness Constraints%
+\label{sec:classes:params:disjoint}}
+\cutname{classes.params.disjoint.html}
+
+It is sometimes necessary to require that two or more region
+parameters (or a region parameter and some other region) be disjoint.
+For example, the following code can have a data race unless regions
+\kwd{R1} and \kwd{R2} are bound to disjoint regions:
+%
+\begin{dpjlisting}
+class Unsafe<region R> {
+    int x in R;
+    <region R1, R2>void method(Unsafe<R1> o1, Unsafe<R2> o2) {
+        cobegin {
+            ++o1.x; // writes R1
+            ++o2.x; // writes R2
+        }
+    }
+}
+\end{dpjlisting}
+%
+To support this reasoning, DPJ provides optional \emph{disjointness
+  constraints} for region parameters.  If used, the constraints must
+appear after the region parameters, and be separated from them by a
+vertical bar:
+%
+\begin{description}
+\item \kwd{<region R1, R2, ... |} \emph{constraints} \kwd{>}
+\end{description}
+%
+\emph{constraints} is a comma-separated list of constraints, where a
+constraint has the form \emph{rpl1} \kwd{\#} \emph{rpl2}, and
+\emph{rpl1} and \emph{rpl2} are valid RPLs (\S~\ref{sec:rpls}).  The
+constraint states that \emph{rpl1} and \emph{rpl2} are disjoint
+regions (\S~\ref{sec:rpls:comparing:disjoint}).  For class region
+parameters, the requirement is enforced when the class is instantiated
+to a type by substituting RPLs for parameters
+(\S~\ref{sec:types:class:instant}).  For method region parameters, the
+requirement is enforced when RPL arguments are provided to an
+invocation of the method (\S~\ref{sec:classes:params:method}).
+
+For example, the code above could be rewritten as follows to make it
+safe:
+%
+\begin{dpjlisting}
+class Safe<region R> {
+    int x in R;
+    <region R1, R2 | R1 # R2> void(Safe<R1> o1, Safe<R2> o2) {
+        cobegin {
+            ++o1.x; // writes R1
+            ++o2.x; // writes R2
+        }
+    }
+}
+\end{dpjlisting}
+%
+There is no interference between the statements of the \kwd{cobegin},
+because \kwd{R1} and \kwd{R2} are guaranteed to be disjoint regions.
+Therefore, the effects of \kwd{++o1.x} and \kwd{++o2.x} are to
+disjoint memory locations.
+
+We can also use constraints to make parameters disjoint from region
+names, not just other parameters.  For example, we can write the
+following:
+%
+\begin{dpjlisting}
+class Safe2<region R> {
+    region r;
+    int x in R;
+    <region R | R # r>void(Safe2<R> o1, Safe2<r> o2) {
+        cobegin {
+            ++o1.x; // writes R
+            ++o2.x; // writes r
+        }
+    }
+}
+\end{dpjlisting}
+%
+This technique is useful when methods need to operate disjointly in
+parallel on global data and data passed in as an an argument.  Of
+course, the region of the global data could also be passed in as an
+RPL argument, but using the global region directly in the constraint
+saves writing parameters and arguments.
+
+It is an error to write a constraint that cannot be satisfied, because
+the RPLs given cannot be disjoint.  For instance, this class
+declaration generates a compile error:
+%
+\begin{dpjlisting}
+class BadConstraint<region R | R # R> {}
+\end{dpjlisting}
+
+It is also an error to provide RPL arguments to a class or method that
+do not satisfy the constraints.  For example:
+%
+\begin{dpjlisting}
+abstract class BadArgs<region R1, R2 | R1 # R2> {
+    // Error:  Instantiating BadArgs with R1=Root, R2=Root
+    BadArgs<Root, Root> x;
+    abstract <region R3, R4 | R3 # R4>void callee();
+    // Error:  Invoking callee with R3=Root, R4=Root
+    void caller() {
+        this.<Root,Root>callee();
+    }
+}
+\end{dpjlisting}
+%
+\kwd{BadArgs<Root, Root>} is an invalid type, because the RPLs
+supplied as arguments to \kwd{R1} and \kwd{R2} are not disjoint, as
+required by the definition of class \kwd{BadArgs}.  Similarly,
+\kwd{this.<Root,Root>callee()} is an invalid invocation of
+\kwd{callee}, because the RPLs supplied as arguments to \kwd{R3} and
+\kwd{R4} are not disjoint, as required by the definition of method
+\kwd{callee}.
+
