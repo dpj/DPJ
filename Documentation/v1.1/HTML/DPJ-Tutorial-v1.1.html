@@ -1,0 +1,1508 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+            "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+
+<HEAD>
+
+<TITLE>The Deterministic Parallel Java 
+ Tutorial 
+Version 1.1</TITLE>
+
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META name="GENERATOR" content="hevea 1.08">
+<STYLE type="text/css">
+.toc{list-style:none;}
+.title{margin:auto;text-align:center}
+.center{text-align:center;margin-left:auto;margin-right:auto;}
+.flushleft{text-align:left;margin-left:0ex;margin-right:auto;}
+.flushright{text-align:right;margin-left:auto;margin-right:0ex;}
+DIV TABLE{margin-left:inherit;margin-right:inherit;}
+PRE{text-align:left;margin-left:0ex;margin-right:auto;}
+BLOCKQUOTE{margin-left:4ex;margin-right:4ex;text-align:left;}
+.part{margin:auto;text-align:center}
+.lstlisting{font-family:monospace;white-space:pre;margin-right:auto;margin-left:0pt;text-align:left}
+.verbatim{margin:1ex 1ex;padding:1ex;}
+.dpjlisting{font-family:monospace;white-space:pre;
+margin:1ex 1ex;padding:1ex;}
+.numbereddpjlisting{font-family:monospace;white-space:pre;
+margin:1ex 1ex;padding:1ex 1ex 1ex 0ex;}
+BODY{backgroundcolor:white}
+.title{padding:1ex;background:#B24D00}
+.titlemain{padding:1ex;background:#B24D00}
+.titlerest{padding:1ex;background:#B24D00}
+.part{padding:1ex;background:#CC5800}
+.section{padding:.5ex;background:#E57D2D}
+.subsection{padding:0.3ex;background:#FFA866}
+.subsubsection{padding:0.5ex;background:#FFC598}
+.ftoc1{list-style:none;margin:0ex 1ex;padding:0ex 1ex;border-left:1ex solid transparent;}
+.ftoc2{list-style:none;margin:0ex 1ex;padding:0ex 1ex;border-left:1ex solid transparent;}
+.ftoc3{list-style:none;margin:0ex 1ex;padding:0ex 1ex;border-left:1ex solid transparent;}
+.ftoc4{list-style:none;margin:0ex 1ex;padding:0ex 1ex;border-left:1ex solid transparent;}
+.ftoc5{list-style:none;margin:0ex 1ex;padding:0ex 1ex;border-left:1ex solid transparent;}
+</STYLE>
+</HEAD>
+
+<BODY >
+<!--HEVEA command line is: hevea -fix -O DPJ-Tutorial-v1.1.tex -->
+<!--HTMLHEAD-->
+<!--ENDHTML-->
+<!--PREFIX <ARG ></ARG>-->
+<!--CUT DEF section 0 -->
+
+<BR>
+<TABLE CLASS="title">
+<TR><TD>
+<H1 CLASS="titlemain"><B>The Deterministic Parallel Java 
+ Tutorial<BR>
+Version 1.1</B></H1>
+<H3 CLASS="titlerest">Revised January 2013</H3></TD>
+</TR></TABLE><BR>
+<!--TOC section Contents-->
+
+<H2 CLASS="section">Contents</H2><!--SEC END -->
+
+<UL CLASS="ftoc1"><LI CLASS="li-toc">
+<A HREF="#htoc1">1&nbsp;&nbsp;Introduction</A>
+<LI CLASS="li-toc"><A HREF="#htoc2">2&nbsp;&nbsp;Overview of DPJ</A>
+<UL CLASS="ftoc2"><LI CLASS="li-toc">
+<A HREF="#htoc3">2.1&nbsp;&nbsp;Basic DPJ Concepts</A>
+<UL CLASS="ftoc3"><LI CLASS="li-toc">
+<A HREF="#htoc4">2.1.1&nbsp;&nbsp;A Simple DPJ Point Class</A>
+<LI CLASS="li-toc"><A HREF="#htoc5">2.1.2&nbsp;&nbsp;Compiling the Point Class</A>
+<LI CLASS="li-toc"><A HREF="#htoc6">2.1.3&nbsp;&nbsp;Where To Learn More</A>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc7">2.2&nbsp;&nbsp;Region Path Lists</A>
+<LI CLASS="li-toc"><A HREF="#htoc8">2.3&nbsp;&nbsp;Class and Method Region Parameters</A>
+<LI CLASS="li-toc"><A HREF="#htoc9">2.4&nbsp;&nbsp;Arrays
+</A>
+<UL CLASS="ftoc3"><LI CLASS="li-toc">
+<A HREF="#htoc10">2.4.1&nbsp;&nbsp;Array Classes
+</A>
+<LI CLASS="li-toc"><A HREF="#htoc11">2.4.2&nbsp;&nbsp;DPJ Runtime Classes
+</A>
+</UL>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc12">3&nbsp;&nbsp;Computations on Arrays</A>
+<UL CLASS="ftoc2"><LI CLASS="li-toc">
+<A HREF="#htoc13">3.1&nbsp;&nbsp;Disjoint Array Update</A>
+<LI CLASS="li-toc"><A HREF="#htoc14">3.2&nbsp;&nbsp;Blocked Array Update</A>
+<LI CLASS="li-toc"><A HREF="#htoc15">3.3&nbsp;&nbsp;Divide-and-Conquer Array Update</A>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc16">4&nbsp;&nbsp;Computations on Trees</A>
+<UL CLASS="ftoc2"><LI CLASS="li-toc">
+<A HREF="#htoc17">4.1&nbsp;&nbsp;Recursive Tree Build</A>
+<LI CLASS="li-toc"><A HREF="#htoc18">4.2&nbsp;&nbsp;Recursive Tree Update</A>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc19">5&nbsp;&nbsp;Computing with Local Objects</A>
+<UL CLASS="ftoc2"><LI CLASS="li-toc">
+<A HREF="#htoc20">5.1&nbsp;&nbsp;Iteration-Local Objects</A>
+<LI CLASS="li-toc"><A HREF="#htoc21">5.2&nbsp;&nbsp;Method-Local Objects</A>
+</UL>
+<LI CLASS="li-toc"><A HREF="#htoc22">6&nbsp;&nbsp;Associative Reductions</A>
+</UL>
+<!--NAME contents.html-->
+<BR>
+<BR>
+
+<!--TOC section 1&nbsp;&nbsp;Introduction-->
+
+<H2 CLASS="section"><A NAME="htoc1">1</A>&nbsp;&nbsp;Introduction<A NAME="sec:introduction"></A></H2><!--SEC END -->
+
+<!--NAME introduction.html-->
+<BR>
+<BR>
+Deterministic Parallel Java (DPJ) is an extension to the Java
+programming language that guarantees <EM>determinism</EM> for programs
+written with fork-join parallelism. That is, if a DPJ program
+compiles without errors or warnings, then it will produce the same
+output on every execution of the program. DPJ achieves its
+determinism guarantee by enforcing <EM>noninterference</EM>: DPJ
+guarantees that for any two parallel tasks, there are no pairs of
+<EM>conflicting accesses</EM> (i.e., accesses to the same memory
+location, with at least one a write) performed by the tasks.<BR>
+<BR>
+DPJ's determinism guarantee provides a significant benefit over
+traditional models such as Java threads. In such models, conflicting
+memory accesses and even data races can occur, so the behavior of the
+program can vary depending on the interleaving of operations from
+different threads on each execution. Such nondeterminism makes many
+parallel programs difficult to reason about and hard to debug.<BR>
+<BR>
+The purpose of this tutorial is to bring you up to speed quickly using
+DPJ. Section&nbsp;<A HREF="#sec:overview">2</A> gives an overview of major DPJ
+concepts, so you can start writing programs as quickly as possible.
+It provides links to <EM>The Deterministic Parallel Java Language Reference Manual</EM> (e.g., Reference Manual &sect;&nbsp;1) so you
+can look up particular features there to get more detail. The rest of
+the sections show how to write common parallel patterns in DPJ. We
+believe that a very good way to get started with DPJ is to (1) look
+for patterns in this guide that are the same as or similar to patterns
+occurring in your parallel algorithm; (2) study and understand the
+relevant pattern or patterns in this guide; and (3) adapt the pattern
+or patterns to your needs.<BR>
+<BR>
+Throughout this tutorial are DPJ code examples. Some are fragments of
+larger programs, but many are short, self-contained programs. We
+recommend that, before reading this tutorial, you download and install
+DPJ. See <EM>The Deterministic Parallel Java Installation Manual</EM> for instructions on how to do it. Then, as
+you read this tutorial, you can compile and run the examples. The
+examples in this tutorial are located in the directory
+<TT>Documentation/v1.1/Source/Tutorial/Programs</TT> of the DPJ release
+at <TT>github.com/dpj/DPJ</TT>. They may be compiled and run from that
+directory.<BR>
+<BR>
+
+<!--TOC section 2&nbsp;&nbsp;Overview of DPJ-->
+
+<H2 CLASS="section"><A NAME="htoc2">2</A>&nbsp;&nbsp;Overview of DPJ<A NAME="sec:overview"></A></H2><!--SEC END -->
+
+<!--NAME overview.html-->
+<BR>
+<BR>
+This section provides an overview of DPJ concepts, to get you started
+quickly using the language. References to <EM>The Deterministic Parallel Java Language Reference Manual</EM> are provided
+throughout.<BR>
+<BR>
+<!--TOC subsection 2.1&nbsp;&nbsp;Basic DPJ Concepts-->
+
+<H3 CLASS="subsection"><A NAME="htoc3">2.1</A>&nbsp;&nbsp;Basic DPJ Concepts<A NAME="sec:overview:basic"></A></H3><!--SEC END -->
+
+DPJ is based on Java. If you know Java, then you know most of DPJ
+already. In fact, every legal Java program is a legal DPJ program!
+However, the reverse is not true, because DPJ adds several features to
+Java to guarantee determinism for parallel programs. We'll start with
+the DPJ equivalent of &#8220;Hello, world&#8221; to explain the most basic DPJ
+features.<BR>
+<BR>
+<!--TOC subsubsection 2.1.1&nbsp;&nbsp;A Simple DPJ Point Class-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc4">2.1.1</A>&nbsp;&nbsp;A Simple DPJ Point Class<A NAME="sec:overview:basic:simple"></A></H4><!--SEC END -->
+
+At the most fundamental level, DPJ adds just three concepts to Java:
+explicit fork-join parallelism, regions, and effects.
+Figure&nbsp;<A HREF="#fig:overview">1</A> shows a simple DPJ class <TT>Point</TT> that
+illustrates the concepts.
+<BLOCKQUOTE CLASS="figure"><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV>
+
+ <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>class</B> Point {
+<FONT SIZE=2>   2</FONT>     <FONT COLOR="blue"><B>region</B></FONT> X, Y;
+<FONT SIZE=2>   3</FONT>     <B>double</B> x <FONT COLOR="blue"><B>in</B></FONT> X;
+<FONT SIZE=2>   4</FONT>     <B>double</B> y <FONT COLOR="blue"><B>in</B></FONT> Y;
+<FONT SIZE=2>   5</FONT>     <B>void</B> setX(<B>double</B> x) <FONT COLOR="blue"><B>writes</B></FONT> X { <B>this</B>.x = x; }
+<FONT SIZE=2>   6</FONT>     <B>void</B> setY(<B>double</B> y) <FONT COLOR="blue"><B>writes</B></FONT> Y { <B>this</B>.y = y; }
+<FONT SIZE=2>   7</FONT>     <B>void</B> setXAndY(<B>double</B> x, <B>double</B> y)
+<FONT SIZE=2>   8</FONT>         <FONT COLOR="blue"><B>writes</B></FONT> X, Y
+<FONT SIZE=2>   9</FONT>     {
+<FONT SIZE=2>  10</FONT>         <FONT COLOR="blue"><B>cobegin</B></FONT> {
+<FONT SIZE=2>  11</FONT>             <B>this</B>.setX(x);
+<FONT SIZE=2>  12</FONT>             <B>this</B>.setY(y);
+<FONT SIZE=2>  13</FONT>         }
+<FONT SIZE=2>  14</FONT>     }
+<FONT SIZE=2>  15</FONT> }</TT></DIV>
+<BR>
+<BR>
+<DIV CLASS="center">Figure 1: A simple DPJ class to illustrate basic concepts.</DIV><BR>
+<BR>
+
+<A NAME="fig:overview"></A>
+<DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV></BLOCKQUOTE>
+<B>Explicit fork-join parallelism:</B> The DPJ language syntax shows
+explicitly where a parallel code section begins (a fork point) and
+ends (the join point). At a join point, execution is suspended until
+all the parallel tasks created at the corresponding fork point have
+finished executing. In Figure&nbsp;<A HREF="#fig:overview">1</A>, the <TT>cobegin</TT>
+statement (lines 10&ndash;13) executes its component statements (lines 11
+and 12) in parallel. The fork point is at the start of the
+<TT>cobegin</TT> statement, and the join point is at the end of the
+statement. Execution does not continue after the <TT>cobegin</TT>
+statement until lines 9 and 10 have both completed execution.<BR>
+<BR>
+DPJ's fork-join model makes the structure of the parallelism explicit,
+in contrast to an unstructured model such as Java threads. Together
+with the determinism guarantee, this structure allows the programmer
+to reason about the behavior of the parallel program as if it were the
+equivalent sequential program with the parallel constructs elided.
+For example, DPJ guarantees that the code shown in
+Figure&nbsp;<A HREF="#fig:overview">1</A> will compute the same results as the code in
+which the <TT>cobegin</TT> statement in lines 10&ndash;13 were replaced with
+an ordinary sequential statement block. Thus we say that DPJ has a
+sequential <EM>correctness model</EM> and a parallel <EM>performance
+ model</EM>.<BR>
+<BR>
+<B>Regions:</B> To facilitate the analysis of reads and writes to
+the heap, DPJ groups memory locations into named sets called
+<EM>regions</EM>. The programmer explicitly partitions the heap into
+regions by marking class fields and array cells with region
+information. In Figure&nbsp;<A HREF="#fig:overview">1</A>, line 2 declares region
+names <TT>X</TT> and <TT>Y</TT>. Lines 3 and 4 say that field <TT>x</TT> is
+located in region <TT>X</TT> and field <TT>y</TT> is located in region
+<TT>Y</TT>. Two or more variables may be grouped in the same region.
+For example, it would be permissible to add a field <TT>double z in
+ Y</TT> to class <TT>Point</TT>. However, every variable always resides in
+exactly one region.<BR>
+<BR>
+<B>Effects:</B> The DPJ compiler infers the read and write effects
+of each statement in the program in terms of regions. For example, in
+line 5 of Figure&nbsp;<A HREF="#fig:overview">1</A>, the effect of the statement
+<TT>this.x = x</TT> is <TT>writes X</TT>, because the statement assigns a
+value to variable <TT>x</TT>, which is declared to be in region <TT>X</TT>
+(line 3).<BR>
+<BR>
+To make the compiler analysis simple and modular, and to document the
+effects at API boundaries, the DPJ programmer writes <EM>effect
+ summaries</EM> on methods that specify their read and write effects in
+terms of regions. Examples of effect summaries are shown in lines 5,
+6, and 8 of Figure&nbsp;<A HREF="#fig:overview">1</A>. The compiler checks that every
+method's summary includes all the actual effects of the method body
+(including the effects of methods called in the body, using those
+methods' summaries to compute the effects of the invocations). For
+example, in line 8, it would be a compile-time error to omit the
+effect <TT>writes Y</TT> from the summary of <TT>setXAndY</TT>, because of
+the write to region <TT>Y</TT> in line 12.<BR>
+<BR>
+The compiler uses the inferred statement effects and method effect
+summaries to compute the effects of parallel tasks, and check that all
+pairs of parallel tasks are mutually noninterfering. For example, the
+effect of line 9 is <TT>writes X</TT>, and the effect of line 10 is
+<TT>writes Y</TT>. Because <TT>X</TT> and <TT>Y</TT> name different regions,
+the two writes are to disjoint memory locations, so the parallel tasks
+in the <TT>cobegin</TT> statement are safe to run in parallel. <BR>
+<BR>
+Some effects don't need to be reported in a method summary. These
+are:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+Any read or write of a local variable (i.e., a variable declared
+ inside method scope, including method formal parameters). For
+ instance, the read of parameter <TT>x</TT> in line 10 doesn't generate
+ any effect that needs to be reported. That's because Java doesn't
+ allow you to take the reference of a local variable, so the compiler
+ can confirm noninterference for local variables without any help
+ from the programmer.
+<LI CLASS="li-itemize">Any effect on a <TT>final</TT> variable. That's because the value
+ of a <TT>final</TT> variable never changes after it is initialized, so
+ reading it cannot cause interference.
+<LI CLASS="li-itemize">Any initialization effect on fields of <TT>this</TT> by a
+ constructor. That's because in DPJ, other parallel tasks can never
+ see the constructed object until all the initialization is done.
+</UL>
+<!--TOC subsubsection 2.1.2&nbsp;&nbsp;Compiling the Point Class-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc5">2.1.2</A>&nbsp;&nbsp;Compiling the Point Class<A NAME="sec:overview:basic:compiling"></A></H4><!--SEC END -->
+
+Try compiling the <TT>Point</TT> class shown in
+Figure&nbsp;<A HREF="#fig:overview">1</A>. If your DPJ environment is set up
+correctly, it should compile with no errors or warnings.<BR>
+<BR>
+Now try modifying the example a bit to see how DPJ responds to the
+changes. Playing around with programs like this is one of the best
+ways to learn new language features.<BR>
+<BR>
+First, delete <TT>in X</TT> at the end of line 3, and recompile. You
+should get an error that the effect summary <TT>writes X</TT> in line 5
+doesn't cover the effects of the method <TT>setX</TT>. That's because
+when you take out the explicit declaration <TT>in X</TT>, the variable
+<TT>x</TT> gets put in a default region called <TT>Root</TT>. Now replace
+<TT>writes X</TT> in line 5 with <TT>writes Root</TT>. The code should
+compile again without errors.<BR>
+<BR>
+Now delete the effect summary in line 5 entirely. This time the
+code should compile, but it gives a warning. Since you didn't give
+any explicit effect summary for <TT>setX</TT>, the compiler assumes the
+most conservative effect for that method &mdash; in effect, &#8220;writes the
+entire heap.&#8221; The code compiles, because the assumed effect
+covers the effects of <TT>setX</TT>. However, the assumed effect
+conflicts with the effect <TT>writes Y</TT> of <TT>setY</TT>. So the
+compiler is warning you that there is potential interference between
+lines 11 and 12 in the <TT>cobegin</TT>.<BR>
+<BR>
+Please notice three things about this example. First, there really
+isn't any interference; the compiler is just warning you because you
+haven't satisfied all its rules for <EM>proving</EM> there is no
+interference. This may seem like a minor point for this trivial
+class, but for a large and complex program, proving determinism can be
+quite tricky. So following the rules is important, because it gives a
+<EM>guarantee</EM> of correctness that would otherwise be hard to show.<BR>
+<BR>
+Second, notice that the DPJ compiler gives an error when your declared
+method effects are too small, but a warning when your parallel effects
+are interfering. This behavior is so that you can write a DPJ program
+incrementally, without getting all the annotations right on the first
+go. For example, you could have written the class in
+Figure&nbsp;<A HREF="#fig:overview">1</A> by putting in the <TT>cobegin</TT> first,
+leaving out the region and effect annotations entirely. That code
+would compile, but it would give a warning. Then you could add the
+region and effect annotations incrementally, until the warnings go
+away. This is usually a good strategy for writing programs in DPJ.
+Writing bad method effects causes an error (not just a warning)
+because it is both easier to deal with (if you write nothing you get
+the default effect, which always works) and less localized &mdash; a bad
+method effect in one place could cause interference to be
+underreported in a different one.<BR>
+<BR>
+Third, the defaults are designed so that you don't have to worry about
+region and effect annotations for code that is never called inside a
+parallel task. You only need to annotate code that is going to run in
+parallel.<BR>
+<BR>
+<!--TOC subsubsection 2.1.3&nbsp;&nbsp;Where To Learn More-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc6">2.1.3</A>&nbsp;&nbsp;Where To Learn More<A NAME="sec:overview:basic:where-tolearn"></A></H4><!--SEC END -->
+
+The Reference Manual has more detailed information on the topics
+discussed above. In addition to <TT>cobegin</TT> for parallel
+statements, DPJ has a <TT>foreach</TT> construct for parallel loop
+iterations. See Reference Manual &sect;&nbsp;6 for more details. Reference
+Manual &sect;&sect;&nbsp;2.1 and 2.2 have more information on declaring and using
+regions. For further information about summarizing and checking
+effects, see the following sections of the Reference Manual:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+&sect;&sect;&nbsp;2.3.1, 2.3.2, and 6.2 explain how to write method effect summaries.
+<LI CLASS="li-itemize">&sect;&nbsp;6.4 explains how the compiler computes a method's actual effects.
+<LI CLASS="li-itemize">&sect;&nbsp;6.6 explains how the compiler compares a method's actual effects to
+its summarized effects.
+<LI CLASS="li-itemize">&sect;&nbsp;6.7 explains noninterference of effect.
+</UL>
+It may be best to read at least the rest of this section of this
+tutorial before consulting these sections of the reference manual,
+because the full explanation of these features requires concepts (such
+as region path lists and region parameters) introduced in later
+subsections here. However, the Reference Manual contains plenty of
+cross references (hyperlinked in the HTML version), so you can also
+just start reading the Reference Manual, following cross references
+when you don't understand something, if you prefer learning that way.<BR>
+<BR>
+<!--TOC subsection 2.2&nbsp;&nbsp;Region Path Lists-->
+
+<H3 CLASS="subsection"><A NAME="htoc7">2.2</A>&nbsp;&nbsp;Region Path Lists<A NAME="sec:overview:rpls"></A></H3><!--SEC END -->
+
+Every region in DPJ is described by a <EM>region path list</EM>, or RPL.
+A basic region name, shown in &sect;&nbsp;<A HREF="#sec:overview:basic:simple">2.1.1</A>, is a
+particular kind of RPL. More generally, a <EM>sequence of names</EM>
+separated by colons is an RPL. For example, if <TT>A</TT> and <TT>B</TT>
+are declared region names, then <TT>A</TT>, <TT>B</TT>, <TT>A:B</TT>,
+<TT>A:A:B</TT>, etc., are RPLs. RPLs can be <EM>partially specified</EM>,
+by writing a <TT>*</TT> in place of some sequence of names. For example,
+<TT>A:*:B</TT> stands in for <TT>A:B</TT>, <TT>A:A:B</TT>, <TT>A:B:B</TT>,
+<TT>A:A:A:B</TT>, etc. Nesting and partial specification are useful for
+describing <EM>sets of regions</EM> in effects. For example, in
+conjunction with region parameters (&sect;&nbsp;<A HREF="#sec:overview:params">2.3</A>),
+RPLs let you write an effect that says &#8220;writes all nodes in the left
+subtree.&#8221;<BR>
+<BR>
+Here is a simple example of RPLs in action:
+
+ <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>class</B> RPLExample {
+<FONT SIZE=2>   2</FONT>     <FONT COLOR="blue"><B>region</B></FONT> A, B, C;
+<FONT SIZE=2>   3</FONT>     <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> A:B;
+<FONT SIZE=2>   4</FONT>     <B>int</B> y <FONT COLOR="blue"><B>in</B></FONT> A:C;
+<FONT SIZE=2>   5</FONT>     <B>void</B> method(<B>int</B> x, <B>int</B> y)
+<FONT SIZE=2>   6</FONT>         <FONT COLOR="blue"><B>writes</B></FONT> A:*
+<FONT SIZE=2>   7</FONT>     {
+<FONT SIZE=2>   8</FONT>         <B>this</B>.x = x;
+<FONT SIZE=2>   9</FONT>         <B>this</B>.y = y;
+<FONT SIZE=2>  10</FONT>     }
+<FONT SIZE=2>  11</FONT> }</TT></DIV>
+We have declared region names <TT>A</TT>, <TT>B</TT>, and <TT>C</TT> (line 2),
+and we use them to construct the RPLs <TT>A:B</TT> and <TT>A:C</TT>. We put
+field <TT>x</TT> in region <TT>A:B</TT> and field <TT>y</TT> in region
+<TT>A:C</TT> (lines 3&ndash;4). In line 6, we use the partially specified RPL
+<TT>A:*</TT> to cover both <TT>A:B</TT> and <TT>A:C</TT>. Note in particular
+that <EM><TT>A</TT> and <TT>A:B</TT> are different regions</EM>. So
+<TT>writes A</TT> does <EM>not</EM> cover a write to <TT>A:B</TT>; the <TT>*</TT>
+is needed to get the inclusion. This is because to get more precision
+with RPLs, DPJ separates the concepts of <EM>nesting</EM> (<TT>A:B</TT> is
+nested under <TT>A</TT>) and <EM>inclusion</EM> (<TT>A:B</TT> is included in
+<TT>A:*</TT> but not in <TT>A</TT>). It may help to think of RPLs like a
+file system. For example, given the UNIX path <TT>foo/bar</TT>, the file
+system is a tree with <TT>bar</TT> nested under <TT>foo</TT>; but <TT>rm
+ foo</TT> won't remove <TT>bar</TT>; you have to say either <TT>rm foo/bar</TT>
+or <TT>rm foo/*</TT>.<BR>
+<BR>
+RPLs are useful in several ways:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+Covering effects in method effect summaries, as shown in the
+ example above.
+<LI CLASS="li-itemize">Distinguishing different sets of regions from each other. For
+ example, <TT>A:*</TT> is distinct from <TT>B:*</TT>, and <TT>*:A</TT> is
+ distinct from <TT>*:B</TT>. This technique is useful for proving
+ noninterference.
+<LI CLASS="li-itemize">Describing partially specified types, to allow flexible
+ assignments to variables with region arguments in their types. See
+ the next section of this tutorial for more information.
+</UL>
+Later sections of this tutorial give more examples of using RPLs. For
+the full details, see &sect;&sect;&nbsp;3 (RPLs), 5 (Types), and 6 (Effects) of the
+Reference Manual.<BR>
+<BR>
+<!--TOC subsection 2.3&nbsp;&nbsp;Class and Method Region Parameters-->
+
+<H3 CLASS="subsection"><A NAME="htoc8">2.3</A>&nbsp;&nbsp;Class and Method Region Parameters<A NAME="sec:overview:params"></A></H3><!--SEC END -->
+
+<B>Class region parameters:</B> DPJ allows you to write classes with
+region parameters. This works similarly to Java generic type
+parameters and allows you to have different instances of the same
+class with the fields in different regions.<BR>
+<BR>
+Here is a simple example to illustrate class region parameters:
+
+ <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>class</B> Data&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
+<FONT SIZE=2>   2</FONT>     <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
+<FONT SIZE=2>   3</FONT> }
+<FONT SIZE=2>   4</FONT> <B>class</B> DataPair {
+<FONT SIZE=2>   5</FONT>     <FONT COLOR="blue"><B>region</B></FONT> First, Second;
+<FONT SIZE=2>   6</FONT>     <B>final</B> Data&lt;First&gt; first;
+<FONT SIZE=2>   7</FONT>     <B>final</B> Data&lt;Second&gt; second;
+<FONT SIZE=2>   8</FONT>     <FONT COLOR="fuchsia"><EM>// Constructor initialization effects don't have to be reported</EM></FONT>
+<FONT SIZE=2>   9</FONT>     <FONT COLOR="fuchsia"><EM>// See Reference Manual s. 2.3.2</EM></FONT>
+<FONT SIZE=2>  10</FONT>     DataPair(Data&lt;First&gt; first, Data&lt;Second&gt; second)
+<FONT SIZE=2>  11</FONT>         <FONT COLOR="blue"><B>pure</B></FONT>
+<FONT SIZE=2>  12</FONT>     {
+<FONT SIZE=2>  13</FONT>         <B>this</B>.first = first;
+<FONT SIZE=2>  14</FONT>         <B>this</B>.second = second;
+<FONT SIZE=2>  15</FONT>     }
+<FONT SIZE=2>  16</FONT>     <B>void</B> updateBoth(<B>int</B> firstX, <B>int</B> secondX) {
+<FONT SIZE=2>  17</FONT>         <FONT COLOR="blue"><B>cobegin</B></FONT> {
+<FONT SIZE=2>  18</FONT>             <FONT COLOR="fuchsia"><EM>// Effect is 'writes First'</EM></FONT>
+<FONT SIZE=2>  19</FONT>             first.x = firstX;
+<FONT SIZE=2>  20</FONT>             <FONT COLOR="fuchsia"><EM>// Effect is 'writes Second'</EM></FONT>
+<FONT SIZE=2>  21</FONT>             second.x = secondX;
+<FONT SIZE=2>  22</FONT>         }
+<FONT SIZE=2>  23</FONT>     }
+<FONT SIZE=2>  24</FONT> }</TT></DIV>
+Lines 1&ndash;3 define a simple <TT>Data</TT> class with an integer field
+<TT>x</TT>. The class has one <EM>region parameter</EM>, <TT>R</TT>, and
+field <TT>x</TT> is located in <TT>R</TT>. That means that when an object
+of type <TT>Data&lt;r&gt;</TT> is created, for some actual region <TT>r</TT>, its
+<TT>x</TT> field will reside region <TT>r</TT>.<BR>
+<BR>
+The rest of the program is a simple class <TT>DataPair</TT> which stores
+two <TT>Data</TT> objects in fields <TT>first</TT> and <TT>second</TT> (lines
+6&ndash;7). Note that we have made the fields <TT>final</TT>. That is
+because we are not going to assign into the fields themselves, as in
+Figure&nbsp;<A HREF="#fig:overview">1</A>; instead we are going to read the fields and
+assign into the objects they refer to. We do this in method
+<TT>updateBoth</TT>. In line 19, the effect is <TT>writes First</TT>.
+That's because the write is to field <TT>x</TT>, <TT>x</TT> is in region
+<TT>R</TT> (line 2), and <TT>R=First</TT> in the type of the selector
+<TT>first</TT>. See Reference Manual &sect;&nbsp;2.4.1 for more information on
+defining class region parameters, and Reference Manual &sect;&nbsp;4 for more
+information on using parametric classes as types. See Reference
+Manual &sect;&nbsp;6.4 for more information on how the compiler computes the
+effect of a field access through a parametric type.<BR>
+<BR>
+<B>Method region parameters:</B> Methods can also have region
+parameters in DPJ. Method region parameters allow the same method to
+be invoked with different regions. See Reference Manual &sect;&nbsp;2.4.2.<BR>
+<BR>
+<B>Disjointness constraints on parameters:</B> You can put
+disjointness constraints on class and method parameters. This allows
+you, for example, to require that two parameters coming into a class
+or method be different names. The requirement is checked by the
+compiler at the point where the region arguments are given to the
+parameters. Inside the class or method definition, the compiler can
+use the disjointness constraint to prove noninterference. For
+example, if two parameters are constrained to be disjoint, then
+effects on them are disjoint. See Reference Manual &sect;&nbsp;2.4.3 for
+more details.<BR>
+<BR>
+<B>Assignment restrictions:</B> In order to ensure sound reasoning
+about types, some assignments aren't allowed when two types with the
+same class have different region arguments. The rules are in
+Reference Manual &sect;&nbsp;5.1.2. Sometimes this means you can't do an
+assignment you want to do. For example, if variable <TT>a</TT> has type
+<TT>C&lt;A&gt;</TT> and <TT>b</TT> has type <TT>C&lt;B&gt;</TT>, you can't say <TT>b=a</TT>.
+In this case, you have three options:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+Use partially specified RPLs (Reference Manual &sect;&nbsp;3.4) and/or
+ additional region parameters to express the assignment. DPJ's
+ subtyping features are fairly powerful, so often you can do this.
+ For example, if you give <TT>b</TT> the type <TT>C&lt;*&gt;</TT>, now you can
+ assign <TT>a</TT> to it, as well as <TT>C&lt;B&gt;</TT> objects. However, the
+ <TT>*</TT> causes the compiler to infer coarser information about
+ effects. So this strategy doesn't always work.
+<LI CLASS="li-enumerate">Clone an object with the new type. For example, <TT>b =
+ a.&lt;B&gt;clone()</TT>. Here <TT>clone</TT> is a generic method that takes as an
+ arguments the region parameter arguments of the outgoing object, and
+ clones <TT>this</TT> with the new type:
+
+ <DIV CLASS="dpjlisting"><TT>&lt;<FONT COLOR="blue"><B>region</B></FONT> Out&gt;C&lt;Out&gt;clone() {
+    C&lt;Out&gt; result = <B>new</B> C&lt;Out&gt;();
+    <FONT COLOR="fuchsia"><EM>// Copy fields from this to result</EM></FONT>
+    ...
+    <B>return</B> result;
+}</TT></DIV>This strategy adds some overhead, which is a price of DPJ's
+determinism guarantee in this case.
+<LI CLASS="li-enumerate">As a last resort, use a type cast (Reference Manual
+ &sect;&nbsp;5.1.3). For example, <TT>b = (C&lt;B&gt;) a</TT>. This is usually not a
+ good option, because it breaks DPJ's determinism guarantee.
+</OL>
+<!--TOC subsection 2.4&nbsp;&nbsp;Arrays
+-->
+
+<H3 CLASS="subsection"><A NAME="htoc9">2.4</A>&nbsp;&nbsp;Arrays
+<A NAME="sec:arrays"></A></H3><!--SEC END -->
+
+<!--NAME arrays.html-->
+<BR>
+<BR>
+Arrays are important in parallel programming, so DPJ has several
+features to support them.<BR>
+<BR>
+<!--TOC subsubsection 2.4.1&nbsp;&nbsp;Array Classes
+-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc10">2.4.1</A>&nbsp;&nbsp;Array Classes
+<A NAME="sec:arrays:array-classes"></A></H4><!--SEC END -->
+
+<!--NAME arrays.array-classes.html-->
+<BR>
+<BR>
+DPJ v1.1 introduces a feature called an <EM>array class</EM> to support
+parallel programming with arrays. An array class is like a Java class
+with a single field, except the field has no name and it defines the
+type of an array cell. For example, the following array class
+describes an array of <TT>int</TT> cells all located in region <TT>R</TT>:
+
+ <DIV CLASS="dpjlisting"><TT>arrayclass ArrayInt&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
+    <B>int <FONT COLOR="blue">in</FONT></B> R;
+}</TT></DIV>Array classes are used similarly to Java arrays. Array class
+instances are created by calling a constructor and specifying the
+length, e.g., <TT>new ArrayInt&lt;r&gt;(10)</TT>. They are accessed using the
+<TT>[&hellip;]</TT> dereference operator, just like normal Java arrays
+(and they are in fact translated to normal Java arrays during
+compilation). See Reference Manual &sect;&nbsp;4 for more details.<BR>
+<BR>
+Sometimes it's useful to put different array cells in different
+regions, in particular if you want to update different parts of the
+array in parallel. To do this, you use a DPJ feature called an
+<EM>index-parameterized array class</EM>. For example, the following
+array class defines an array of <TT>int</TT> such that cell <TT>i</TT> is in
+region <TT>[i]</TT>:
+
+ <DIV CLASS="dpjlisting"><TT>arrayclass IPArrayInt&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
+    <B>int <FONT COLOR="blue">in</FONT></B> R:[index];
+}</TT></DIV>An RPL <TT>[<I>e</I>]</TT>, where <I>e</I> is an integer expression, is called an
+<EM>array index RPL</EM>; it refers to the array index given by the
+runtime value of <I>e</I>. Every array class has an <TT>index</TT> field that
+refers to the index of a cell.<BR>
+<BR>
+The two strategies can also be mixed. For example, you can give array
+<TT>A</TT> the type <TT>IPArrayInt&lt;rA&gt;</TT> and array <TT>B</TT> type
+<TT>IPArrayInt&lt;rB&gt;</TT>. Then if you want to write in parallel to the
+two arrays, you can express the effects on <TT>A</TT> as <TT>writes
+ rA:[?]</TT> and the effects on <TT>B</TT> as <TT>writes rB:[?]</TT>. The
+<TT>[?]</TT> is an RPL element that stands in for any array index element
+(see Reference Manual &sect;&nbsp;3.4.2). However, you can also express
+disjoint effects on different parts of <TT>A</TT> or <TT>B</TT>. For
+example, writing to cells 0 and 1 of <TT>A</TT> generates effects
+<TT>writes rA:[0]</TT> and <TT>writes rA:[1]</TT>, which are disjoint.<BR>
+<BR>
+Index-parameterized arrays are also useful with arrays of class
+objects and arrays of arrays. See Reference Manual &sect;&nbsp;4 for more
+information. Later sections of this tutorial also provide concrete
+examples.<BR>
+<BR>
+<!--TOC subsubsection 2.4.2&nbsp;&nbsp;DPJ Runtime Classes
+-->
+
+<H4 CLASS="subsubsection"><A NAME="htoc11">2.4.2</A>&nbsp;&nbsp;DPJ Runtime Classes
+<A NAME="sec:arrays:runtime"></A></H4><!--SEC END -->
+
+<!--NAME arrays.runtime.html-->
+<BR>
+<BR>
+The DPJ runtime provides several classes that are useful for
+manipulating arrays. First, it provides array classes similar to
+<TT>ArrayInt</TT> and <TT>IPArrayInt</TT> shown above for each of the Java
+primitive types; there are also generic versions. Second, the DPJ
+runtime provides classes <TT>ArraySlice</TT> and <TT>Partition</TT> for
+manipulating subsections (i.e., &#8220;slices&#8221;) of arrays. These classes
+are useful for divide and conquer traversals that update disjoint
+parts of the same array.<BR>
+<BR>
+Reference Manual &sect;&nbsp;8 gives an overview of how these classes work.
+They are fully documented in the HTML documentation included with the
+DPJ release. Later sections of this tutorial also give concrete
+examples for how to use the classes.<BR>
+<BR>
+Please note that, as described in &sect;&nbsp;8 of the Reference Manual, it is
+not sufficient to put the DPJ runtime classes in your class path when
+compiling DPJ code that uses the runtime classes. Instead, you must
+compile the runtime together with your code that depends on the
+runtime. This is because the DPJ bytecode does not yet properly
+support separate compilation of DPJ annotations, so the compiler needs
+all the source code to process the annotations.
+<BR>
+<BR>
+
+<!--TOC section 3&nbsp;&nbsp;Computations on Arrays-->
+
+<H2 CLASS="section"><A NAME="htoc12">3</A>&nbsp;&nbsp;Computations on Arrays<A NAME="sec:array"></A></H2><!--SEC END -->
+
+<!--NAME array.html-->
+<BR>
+<BR>
+This section explains how to write common parallel patterns for array
+processing, using DPJ's features for supporting arrays:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+&sect;&nbsp;<A HREF="#sec:array:disjoint">3.1</A>, Disjoint Array Update, shows how to
+ create an array whose cells all point to different objects, then
+ traverse the array in parallel and update the objects.
+<LI CLASS="li-itemize">&sect;&nbsp;<A HREF="#sec:array:blocked">3.2</A>, Blocked Array Update, shows how to
+ divide an array into segments and process the segments in parallel
+ using a loop. 
+<LI CLASS="li-itemize">&sect;&nbsp;<A HREF="#sec:array:dandc">3.3</A>, Divide-and-Conquer Array Update, shows
+ how to partition and recurse on arrays in parallel.
+</UL>
+<!--TOC subsection 3.1&nbsp;&nbsp;Disjoint Array Update-->
+
+<H3 CLASS="subsection"><A NAME="htoc13">3.1</A>&nbsp;&nbsp;Disjoint Array Update<A NAME="sec:array:disjoint"></A></H3><!--SEC END -->
+
+Here we explain how to use DPJ to create an array of objects, put a
+different object into every element of the array, and then iterate
+over the array in parallel and update the objects. We call this
+pattern Disjoint Array Update. Because objects are stored as
+references in Java, in general, multiple array cells could point to
+the same object, causing a race. We'll show how to use the DPJ type
+and effect system to ensure that no such race can occur.<BR>
+<BR>
+<B>How to write the pattern:</B> Figure &nbsp;<A HREF="#fig:array:disjoint">2</A>
+illustrates the Disjoint Array Update pattern in DPJ, for a simple
+computation (creating an array of objects, then incrementing a field
+of each one).
+<BLOCKQUOTE CLASS="figure"><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV>
+
+ <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>class</B> DisjointArrayUpdate {
+<FONT SIZE=2>   2</FONT>     <B>static class</B> Data&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
+<FONT SIZE=2>   3</FONT>         <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
+<FONT SIZE=2>   4</FONT>         <B>static</B> arrayclass Array {
+<FONT SIZE=2>   5</FONT>             Data&lt;[index]&gt; <FONT COLOR="blue"><B>in</B></FONT> [index];
+<FONT SIZE=2>   6</FONT>         }
+<FONT SIZE=2>   7</FONT>     }
+<FONT SIZE=2>   8</FONT>     Data.Array arr;
+<FONT SIZE=2>   9</FONT>     <B>void</B> initialize() {
+<FONT SIZE=2>  10</FONT>         arr = <B>new</B> Data.Array(10);
+<FONT SIZE=2>  11</FONT>         <FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, 10)
+<FONT SIZE=2>  12</FONT>             arr[i] = <B>new</B> Data&lt;[i]&gt;();
+<FONT SIZE=2>  13</FONT>     }
+<FONT SIZE=2>  14</FONT>     <B>void</B> compute() {
+<FONT SIZE=2>  15</FONT>         <FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, 10)
+<FONT SIZE=2>  16</FONT>             ++arr[i].x;
+<FONT SIZE=2>  17</FONT>     }
+<FONT SIZE=2>  18</FONT>     <B>public static void</B> main(String[] args) {
+<FONT SIZE=2>  19</FONT>         DisjointArrayUpdate example = <B>new</B> DisjointArrayUpdate();
+<FONT SIZE=2>  20</FONT>         example.initialize();
+<FONT SIZE=2>  21</FONT>         example.compute();
+<FONT SIZE=2>  22</FONT>         <B>for</B> (Data&lt;[?]&gt; data : example.arr)
+<FONT SIZE=2>  23</FONT>             System.out.print(data.x + " ");
+<FONT SIZE=2>  24</FONT>         System.out.println();
+<FONT SIZE=2>  25</FONT>     }
+<FONT SIZE=2>  26</FONT> }</TT></DIV>
+<BR>
+<BR>
+<DIV CLASS="center">Figure 2: Disjoint Array Update.</DIV><BR>
+<BR>
+
+<A NAME="fig:array:disjoint"></A>
+<DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV></BLOCKQUOTE>
+Class <TT>Data</TT> (lines 2&ndash;7) has an integer field <TT>x</TT> and one
+region parameter <TT>R</TT> (Reference Manual, &sect;&nbsp;2.4.1). The field
+<TT>x</TT> is in region <TT>R</TT>; that means that when <TT>Data</TT> is used
+as a type, the field of the object instance will be in whatever region
+is supplied as an argument to the type. See Reference Manual,
+&sect;&nbsp;5.1.1. The <TT>Data</TT> class also defines a static inner array
+class <TT>Array</TT> representing an array of <TT>Data</TT> objects (lines
+4&ndash;6). The <TT>Data.Array</TT> class is index-parameterized, as
+discussed in &sect;&nbsp;<A HREF="#sec:arrays:array-classes">2.4.1</A>.<BR>
+<BR>
+The rest of the code consists of an array <TT>arr</TT> of <TT>Data</TT>
+objects and three methods that operate on the array:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+<TT>initialize</TT> assigns a new array to <TT>arr</TT> and uses a
+ <TT>foreach</TT> loop (Reference Manual, &sect;&nbsp;7.2) to assign a fresh
+ <TT>Data</TT> object to every element of <TT>arr</TT> in parallel.
+<LI CLASS="li-enumerate"><TT>compute</TT> increments the <TT>x</TT> field of each <TT>Data</TT>
+ object in <TT>arr</TT> in parallel.
+<LI CLASS="li-enumerate"><TT>main</TT> creates a new <TT>DisjointArrayUpdate</TT> object, calls
+ <TT>initialize</TT> on it, then calls <TT>compute</TT> on it, prints out
+ the array, and exits.
+</OL>
+The compiler can prove that the parallelism is safe because:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+In line 12, the update to <TT>arr[i]</TT> has effect <TT>writes
+ [i]</TT>. The value of <TT>i</TT> is different in each loop iteration, so
+ the updates are all to disjoint regions, i.e., there are no
+ conflicting writes.
+<LI CLASS="li-itemize">In line 16, each iteration of the loop reads cell <TT>arr[i]</TT>
+ (in region <TT>[i]</TT>) and writes field <TT>arr[i].x</TT>. Again, the
+ operations are to disjoint regions in different iterations, so there
+ is no interference.
+</UL>
+<B>Further examples:</B> This pattern appears in the parallel
+Barnes-Hut force computation in method <TT>computegrav</TT> of file
+<TT>Tree.java</TT> in directory
+<TT>Benchmarks/Applications/BarnesHut/dpj</TT> of the DPJ release. The
+force computation iterates in parallel over a disjoint array of
+<TT>Body</TT> objects and writes into the <TT>force</TT> field of each one.<BR>
+<BR>
+<!--TOC subsection 3.2&nbsp;&nbsp;Blocked Array Update-->
+
+<H3 CLASS="subsection"><A NAME="htoc14">3.2</A>&nbsp;&nbsp;Blocked Array Update<A NAME="sec:array:blocked"></A></H3><!--SEC END -->
+
+When you write a <TT>foreach</TT> loop in DPJ, the runtime repeatedly
+divides the iteration space in half, until a programmer-specified
+depth is reached. See Reference Manual, &sect;&nbsp;7.2.2. In conjunction
+with an index-parameterized array that has each cell in its own region
+(Reference Manual, &sect;&nbsp;4.3), this is usually the easiest and best way
+to write a loop that traverses an array in parallel and updates its
+elements. However, sometimes you may want to control the partition
+directly, by dividing the array into blocks (or tiles) and having each
+task operate on a block. We call this pattern Blocked Array Update.<BR>
+<BR>
+<B>How to write the pattern:</B> Figure &nbsp;<A HREF="#fig:array:blocked">3</A>
+illustrates the Blocked Array Update pattern in DPJ, for a simple
+computation (initializing an array of integers so that cell <TT>i</TT>
+contains the value <TT>i</TT>).
+<BLOCKQUOTE CLASS="figure"><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV>
+
+ <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>import</B> DPJRuntime.*;
+<FONT SIZE=2>   2</FONT> 
+<FONT SIZE=2>   3</FONT> <B>class</B> BlockedArrayUpdate {
+<FONT SIZE=2>   4</FONT>     <B>public static void</B> main(String[] args) {
+<FONT SIZE=2>   5</FONT>         ArraySliceInt array = <B>new</B> ArraySliceInt(100);
+<FONT SIZE=2>   6</FONT>         <B>final</B> PartitionInt segs =
+<FONT SIZE=2>   7</FONT>             PartitionInt.stridedPartition(array, 10);
+<FONT SIZE=2>   8</FONT>         <FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, segs.length) {
+<FONT SIZE=2>   9</FONT>             ArraySliceInt&lt;segs:[i]:*&gt; seg = segs.get(i);
+<FONT SIZE=2>  10</FONT>             <B>for</B> (<B>int</B> j = 0; j &lt; seg.length; ++j) {
+<FONT SIZE=2>  11</FONT>                 seg.put(j, 10*i+j);
+<FONT SIZE=2>  12</FONT>             }
+<FONT SIZE=2>  13</FONT>         }
+<FONT SIZE=2>  14</FONT>     }
+<FONT SIZE=2>  15</FONT> }</TT></DIV>
+<BR>
+<BR>
+<DIV CLASS="center">Figure 3: Blocked Array Update.</DIV><BR>
+<BR>
+
+<A NAME="fig:array:blocked"></A>
+<DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV></BLOCKQUOTE>
+The code uses the <TT>ArraySliceInt</TT> and <TT>PartitionInt</TT> classes
+discussed in ReferenceManual, &sect;&nbsp;8, and the DPJ runtime documentation.
+(<TT>ArraySliceInt</TT> and <TT>PartitionInt</TT> are specializations of
+the <TT>ArraySlice</TT> and <TT>Partition</TT> classes to the primitive
+type <TT>int</TT>.) Line 5 creates a fresh <TT>ArraySliceInt</TT> called
+<TT>array</TT> with 100 elements. A <TT>ArraySliceInt</TT> wraps an ordinary
+Java array (of type <TT>int[]</TT>) and behaves much like a
+<TT>java.util.ArrayList</TT>: for example, it has <TT>put</TT> and <TT>get</TT>
+methods for accessing the array elements. Lines 6&ndash;7 create a
+<EM>strided partition</EM> of <TT>array</TT> called <TT>segs</TT>. The
+partition has stride 10, which means that the array is divided into 10
+segments of length 10 each. The variable <TT>segs</TT> is declared
+<TT>final</TT> so that it can be used as a region (Reference Manual,
+&sect;&nbsp;3.1.5).<BR>
+<BR>
+Lines 8&ndash;13 represent the parallel computation. The outer parallel
+<TT>foreach</TT> loop iterates over the segments in <TT>segs</TT>. Line 4
+pulls segment <TT>i</TT> out of the partition. Segment <TT>i</TT> is itself
+a <TT>ArraySlice</TT>, representing the segment consisting of indices
+10*<I>i</I> through 10*<I>i</I>+9 of the original array. Its type is
+<TT>ArraySlice&lt;segs:[i]:*&gt;</TT>. As explained in Reference Manual, &sect;&nbsp;7.2,
+the <TT>[i]</TT> in the type allows different segments of the same array
+to be treated as disjoint, and the variable <TT>segs</TT> in the type
+ensures that different partitions of the same array are not treated as
+disjoint. For now, all you really need to know to write the pattern
+is that you have to declare the partition variable <TT>segs</TT>
+<TT>final</TT>, as shown in line 6, and you have to write the type of a
+segment as shown in line 9.<BR>
+<BR>
+The inner sequential loop iterates over the elements of a segment and
+writes values into its elements. Notice that in iteration <TT>i</TT> of
+the outer loop, the inner loop is zero-indexed, even though it is
+accessing elements 10*<I>i</I>, 10*<I>i</I>+1, &hellip; of the underlying array.
+That's because when you create a <TT>Partition</TT> out of a
+<TT>ArraySlice</TT>, each segment provides a zero-indexed <EM>view</EM> of
+some segment of the original <TT>ArraySlice</TT>. The <TT>ArraySlice</TT> class
+takes care of the index translation for you, which is handy.<BR>
+<BR>
+<B>Further examples:</B> This pattern appears in the International
+Data Encryption Algorithm (IDEA), in method <TT>Do</TT> of file
+<TT>IDEATest.java</TT> in directory
+<TT>Benchmarks/Applications/IDEA/dpj</TT> of the DPJ release. The
+pattern is useful for IDEA, because the IDEA algorithm operates on
+fixed-size blocks of the input data.<BR>
+<BR>
+This pattern is also useful for implementing reductions. See
+&sect;&nbsp;<A HREF="#sec:reductions">6</A> of this tutorial for more details.<BR>
+<BR>
+<!--TOC subsection 3.3&nbsp;&nbsp;Divide-and-Conquer Array Update-->
+
+<H3 CLASS="subsection"><A NAME="htoc15">3.3</A>&nbsp;&nbsp;Divide-and-Conquer Array Update<A NAME="sec:array:dandc"></A></H3><!--SEC END -->
+
+A common pattern in parallel array algorithms is to divide an array in
+pieces, and work independently on the pieces, then recursively divide
+again, etc., until a base case is reached. This pattern is often
+called <EM>divide and conquer</EM>, because it recursively divides the
+problem into smaller subproblems, then &#8220;conquers&#8221; the subproblems by
+solving the base case.<BR>
+<BR>
+<B>How to write the pattern:</B> Figure&nbsp;<A HREF="#fig:array:dandc">4</A>
+illustrates the Divide-And-Conquer Array Update pattern in DPJ, for a
+simple computation (initializing an array of integers so that every
+cell contains the same value). 
+<BLOCKQUOTE CLASS="figure"><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV>
+
+ <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>import</B> DPJRuntime.*;
+<FONT SIZE=2>   2</FONT> 
+<FONT SIZE=2>   3</FONT> <B>class</B> DivideAndConquerArrayUpdate {
+<FONT SIZE=2>   4</FONT>     <B>static</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> recursiveInit(ArraySliceInt&lt;R&gt; arr,
+<FONT SIZE=2>   5</FONT>                                         <B>int</B> val,
+<FONT SIZE=2>   6</FONT>                                         <B>int</B> sequentialSize)
+<FONT SIZE=2>   7</FONT>       <FONT COLOR="blue"><B>writes</B></FONT> R:* {
+<FONT SIZE=2>   8</FONT>         <B>if</B> (arr.length &lt;= sequentialSize) {
+<FONT SIZE=2>   9</FONT>             <FONT COLOR="fuchsia"><EM>// Base case: sequential</EM></FONT>
+<FONT SIZE=2>  10</FONT>             <B>for</B> (<B>int</B> i = 0; i &lt; arr.length; ++i)
+<FONT SIZE=2>  11</FONT>                 arr.put(i, val);
+<FONT SIZE=2>  12</FONT>         }
+<FONT SIZE=2>  13</FONT>         <FONT COLOR="fuchsia"><EM>// Recursive case: parallel</EM></FONT>
+<FONT SIZE=2>  14</FONT>         <B>int</B> mid = arr.length / 2;
+<FONT SIZE=2>  15</FONT>         <B>final</B> PartitionInt&lt;R&gt; segs =
+<FONT SIZE=2>  16</FONT>             <B>new</B> PartitionInt&lt;R&gt;(arr, mid);
+<FONT SIZE=2>  17</FONT>         <FONT COLOR="blue"><B>cobegin</B></FONT> {
+<FONT SIZE=2>  18</FONT>             <FONT COLOR="fuchsia"><EM>// Effect is 'writes segs:[0]:*'</EM></FONT>
+<FONT SIZE=2>  19</FONT>             recursiveInit(segs.get(0), val, sequentialSize);
+<FONT SIZE=2>  20</FONT>             <FONT COLOR="fuchsia"><EM>// Effect is 'writes segs:[1]:*'</EM></FONT>
+<FONT SIZE=2>  21</FONT>             recursiveInit(segs.get(1), val, sequentialSize);
+<FONT SIZE=2>  22</FONT>         }
+<FONT SIZE=2>  23</FONT>     }
+<FONT SIZE=2>  24</FONT> }</TT></DIV>
+<BR>
+<BR>
+<DIV CLASS="center">Figure 4: Divide-And-Conquer Array Update.</DIV><BR>
+<BR>
+
+<A NAME="fig:array:dandc"></A>
+<DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV></BLOCKQUOTE>
+The code uses the <TT>ArraySliceInt</TT> and <TT>PartitionInt</TT>
+classes also used for Blocked Array Update
+(&sect;&nbsp;<A HREF="#sec:array:blocked">3.2</A>). The method <TT>recursiveInit</TT> (line 4)
+takes as input a <TT>ArraySliceInt</TT> parameterized by a method region
+parameter <TT>R</TT> (Reference Manual, &sect;&nbsp;2.4.2). Its effect is
+<TT>writes R:*</TT>, i.e., it reads and writes regions under the
+parameter. If the array is sufficiently small, the initialization is
+done sequentially (lines 8&ndash;12). Otherwise the program creates a
+<TT>Partition</TT> that splits the array in half. Lines 17&ndash;22
+recursively and in parallel call <TT>recursiveInit</TT> on the halves.
+The effects of the recursive calls are as shown, for the reasons
+explained in Reference Manual, &sect;&nbsp;8.2, and they are disjoint for the
+two parallel tasks (see Reference Manual, &sect;&nbsp;3.6.4).<BR>
+<BR>
+<B>Further examples:</B> For a more realistic example of this
+pattern, see the implementation of parallel merge sort in file
+<TT>MergeSort4.java</TT> in directory <TT>Benchmarks/Kernels/dpj</TT> of the
+DPJ release.<BR>
+<BR>
+
+<!--TOC section 4&nbsp;&nbsp;Computations on Trees-->
+
+<H2 CLASS="section"><A NAME="htoc16">4</A>&nbsp;&nbsp;Computations on Trees<A NAME="sec:tree"></A></H2><!--SEC END -->
+
+<!--NAME tree.html-->
+<BR>
+<BR>
+This section explains how to write two common parallel patterns for
+tree processing in DPJ:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+&sect;&nbsp;<A HREF="#sec:tree:build">4.1</A> shows how to build a tree data structure
+ in parallel, using a divide-and-conquer strategy.
+<LI CLASS="li-itemize">&sect;&nbsp;<A HREF="#sec:tree:update">4.2</A> shows how to recurse over a tree in
+ parallel and update its nodes.
+</UL>
+
+<!--TOC subsection 4.1&nbsp;&nbsp;Recursive Tree Build-->
+
+<H3 CLASS="subsection"><A NAME="htoc17">4.1</A>&nbsp;&nbsp;Recursive Tree Build<A NAME="sec:tree:build"></A></H3><!--SEC END -->
+
+This section shows how to use DPJ to implement a divide-and-conquer
+build of a tree data structure. We show how to build the tree so it
+can be used for a parallel algorithm that traverses and updates its
+nodes. This requires that every node have a different region in its
+type, and the regions have a tree structure. If read-only access to
+the tree is desired, then the DPJ types can be simplified. We leave
+that simplification to the reader as an exercise.
+<BLOCKQUOTE CLASS="figure"><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV>
+
+ <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>package</B> Tree;
+<FONT SIZE=2>   2</FONT> 
+<FONT SIZE=2>   3</FONT> <B>import</B> DPJRuntime.*;
+<FONT SIZE=2>   4</FONT> 
+<FONT SIZE=2>   5</FONT> <B>class</B> RecursiveTreeBuild {
+<FONT SIZE=2>   6</FONT>     <B>static class</B> Body {
+<FONT SIZE=2>   7</FONT>         <B>final double</B> mass, pos;
+<FONT SIZE=2>   8</FONT>         Body(<B>double</B> m, <B>double</B> p) { <B>this</B>.mass = m; <B>this</B>.pos = p; }
+<FONT SIZE=2>   9</FONT>     }
+<FONT SIZE=2>  10</FONT>     <B>static abstract class</B> Node&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; { Body centerOfMass <FONT COLOR="blue"><B>in</B></FONT> R; }
+<FONT SIZE=2>  11</FONT>     <B>static class</B> InnerNode&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; <B>extends</B> Node&lt;R&gt; {
+<FONT SIZE=2>  12</FONT>         <B>final double</B> leftBound, rightBound;
+<FONT SIZE=2>  13</FONT>         <FONT COLOR="blue"><B>region</B></FONT> LeftRgn, RightRgn;
+<FONT SIZE=2>  14</FONT>         Node&lt;R:LeftRgn&gt; leftChild <FONT COLOR="blue"><B>in</B></FONT> R:LeftRgn;
+<FONT SIZE=2>  15</FONT>         Node&lt;R:RightRgn&gt; rightChild <FONT COLOR="blue"><B>in</B></FONT> R:RightRgn;
+<FONT SIZE=2>  16</FONT>         InnerNode(<B>double</B> lb, <B>double</B> rb) <FONT COLOR="blue"><B>pure</B></FONT> { leftBound = lb; rightBound = rb; }
+<FONT SIZE=2>  17</FONT>     }
+<FONT SIZE=2>  18</FONT>     <B>static class</B> LeafNode&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; <B>extends</B> Node&lt;R&gt; {
+<FONT SIZE=2>  19</FONT>         LeafNode(Body b) <FONT COLOR="blue"><B>pure</B></FONT> { centerOfMass = b; }
+<FONT SIZE=2>  20</FONT>     }
+<FONT SIZE=2>  21</FONT>     <B>private static</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;
+<FONT SIZE=2>  22</FONT>         <B>int</B> computeSplitPoint(ArraySlice&lt;Body,R&gt; arr,
+<FONT SIZE=2>  23</FONT>                               <B>double</B> midpoint)
+<FONT SIZE=2>  24</FONT>         <FONT COLOR="blue"><B>reads</B></FONT> R
+<FONT SIZE=2>  25</FONT>     {
+<FONT SIZE=2>  26</FONT>         <B>int</B> result = 0;
+<FONT SIZE=2>  27</FONT>         <FONT COLOR="fuchsia"><EM>// Set result to the first index position in arr whose</EM></FONT>
+<FONT SIZE=2>  28</FONT>         <FONT COLOR="fuchsia"><EM>// position is to the right of midpoint</EM></FONT>
+<FONT SIZE=2>  29</FONT>         <B>return</B> result;
+<FONT SIZE=2>  30</FONT>     }
+<FONT SIZE=2>  31</FONT>     <B>public static</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> RN,RA | RN:* # RA:*&gt;
+<FONT SIZE=2>  32</FONT>         Node&lt;RN&gt;makeTree(ArraySlice&lt;Body,RA:*&gt; arr, <B>double</B> leftBound,
+<FONT SIZE=2>  33</FONT>                          <B>double</B> rightBound)
+<FONT SIZE=2>  34</FONT>         <FONT COLOR="blue"><B>reads</B></FONT> RA:* <FONT COLOR="blue"><B>writes</B></FONT> RN:*
+<FONT SIZE=2>  35</FONT>     {
+<FONT SIZE=2>  36</FONT>         <B>if</B> (arr.length == 0) <B>return null</B>;
+<FONT SIZE=2>  37</FONT>         <B>if</B> (arr.length == 1) <B>return new</B> LeafNode&lt;RN&gt;(arr.get(0));
+<FONT SIZE=2>  38</FONT>         <B>double</B> midpoint = (leftBound + rightBound) / 2;
+<FONT SIZE=2>  39</FONT>         <B>int</B> splitPoint = computeSplitPoint(arr, midpoint);
+<FONT SIZE=2>  40</FONT>         Partition&lt;Body,RA:*&gt; segs = <B>new</B> Partition&lt;Body,RA:*&gt;(arr, splitPoint);
+<FONT SIZE=2>  41</FONT>         InnerNode&lt;RN&gt; node = <B>new</B> InnerNode&lt;RN&gt;(leftBound, rightBound);
+<FONT SIZE=2>  42</FONT>         <FONT COLOR="blue"><B>cobegin</B></FONT> {
+<FONT SIZE=2>  43</FONT>             node.leftChild = RecursiveTreeBuild.&lt;<FONT COLOR="blue"><B>region</B></FONT> RN:InnerNode.LeftRgn,RA&gt;
+<FONT SIZE=2>  44</FONT>                 makeTree(segs.get(0), leftBound, midpoint);
+<FONT SIZE=2>  45</FONT>             node.rightChild = RecursiveTreeBuild.&lt;<FONT COLOR="blue"><B>region</B></FONT> RN:InnerNode.RightRgn,RA&gt;
+<FONT SIZE=2>  46</FONT>                 makeTree(segs.get(1), midpoint, rightBound);
+<FONT SIZE=2>  47</FONT>         }
+<FONT SIZE=2>  48</FONT>         <B>return</B> node;
+<FONT SIZE=2>  49</FONT>     }
+<FONT SIZE=2>  50</FONT> }</TT></DIV>
+<BR>
+<BR>
+<DIV CLASS="center">Figure 5: Recursive Tree Build.</DIV><BR>
+<BR>
+
+<A NAME="fig:tree:build"></A>
+<DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV></BLOCKQUOTE>
+<B>How to write the pattern:</B> Figure&nbsp;<A HREF="#fig:tree:build">5</A>
+illustrates the Recursive Tree Build pattern, for an algorithm that
+builds a binary region tree for partitioning bodies in one-dimensional
+space. In this kind of tree, the data (the bodies) are in the leaf
+nodes; the inner nodes are there just to facilitate searching the
+data. For example, computing whether a ray intersects a body can be
+done in log(<I>n</I>) time, where <I>n</I> is the number of points.<BR>
+<BR>
+Lines 6&ndash;20 of Figure&nbsp;<A HREF="#fig:tree:build">5</A> define the classes that the
+algorithm uses:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+Class <TT>Body</TT> (lines 6&ndash;9) defines a body with a mass and a
+ position. The fields are declared <TT>final</TT>, so reading them has
+ no effect.
+<LI CLASS="li-itemize">Class <TT>Node</TT> (line 10) defines an abstract node of the tree.
+ It contains a <TT>Body</TT> representing its center of mass. For a
+ leaf node, this is an actual physical body; and for an inner node,
+ this is the average of all the bodies in the leaves under the node.
+ There is one region parameter <TT>R</TT>, so that different instances
+ of <TT>Node</TT> can have different regions, and the <TT>centerOfMass</TT>
+ field is in region <TT>R</TT>.
+<LI CLASS="li-itemize">Class <TT>InnerNode</TT> (lines 11&ndash;17) defines an inner node of
+ the tree. It inherits the <TT>centerOfMass</TT> field from <TT>Node</TT>.
+ Additionally, it has a left bound and a right bound, defining a
+ region of 1-D space; and it has a left child and a right child,
+ defining the tree. Here we have used the RPLs <TT>R:LeftRgn</TT> and
+ <TT>R:RightRgn</TT> to give the region of the tree node a region
+ structure that mirrors the tree structure. For example, at runtime,
+ the left child of the right child of the root node would have the
+ type <TT>Node&lt;Root:RightRgn:LeftRgn&gt;</TT>.
+<LI CLASS="li-itemize">Class <TT>LeafNode</TT> (lines 18&ndash;20) just adds a constructor to
+ <TT>Node</TT>, so that a leaf node representing a physical body may be
+ created.
+</UL>
+The rest of the code defines the methods that do the tree building:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+Method <TT>computeSplitPoint</TT> (lines 21&ndash;30) is a helper method
+ that takes an array of bodies and a point in space. It computes and
+ returns the index into the array such that the elements to the left
+ of the index are all and only the elements to the left of the point
+ in space. The array is assumed to be sorted by position. We don't
+ show this code. It can easily be implemented in parallel using a
+ divide-and-conquer strategy.
+<LI CLASS="li-itemize">Method <TT>makeTree</TT> (lines 31 and following) does the actual
+ tree building and is discussed below.
+</UL>
+Method <TT>makeTree</TT> uses divide-and-conquer recursion to build the
+tree. It takes an array of bodies to build into a tree (assumed to be
+pre-sorted by position), and a left and right bound representing the
+region of space that the tree is partitioning. It returns a node
+representing the root of the tree. The method has two region
+parameters, <TT>RN</TT> and <TT>RA</TT>. <TT>RN</TT> is the region associated
+with the type of the node returned, while <TT>RA</TT> is the region
+associated with the array of bodies coming in. The parameters are
+constrained so that writes under <TT>RN</TT> and under <TT>RA</TT> are
+noninterfering. (For example two different names <TT>A</TT> and <TT>B</TT>
+would satisfy this constraint, but <TT>A</TT> and <TT>A:B</TT> would not.)<BR>
+<BR>
+The body of <TT>makeTree</TT> does the following:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+If the input array is empty, return <TT>null</TT> (line 36).
+<LI CLASS="li-itemize">If the input array has just one element, then create a fresh
+ leaf node for it (line 37).
+<LI CLASS="li-itemize">Otherwise, handle the recursive case.
+</UL>
+The recursive case works as follows:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+Compute the index into the array corresponding to the midpoint
+ of the current region of space, and split the array there (lines
+ 38&ndash;40).
+<LI CLASS="li-itemize">Make a new <TT>InnerNode</TT> corresponding to the current region
+ of space (line 41).
+<LI CLASS="li-itemize">In parallel, populate the left and right children of the new
+ inner node, by calling <TT>makeTree</TT> recursively (lines 42&ndash;47).
+<LI CLASS="li-itemize">Return the created node (line 48).
+</UL>
+The interesting types and effects are inside the <TT>cobegin</TT>.
+Notice that lines 43&ndash;44 call <TT>makeTree</TT> with
+<TT>RN</TT>=<TT>RN:InnerNode.LeftRgn</TT>, which creates the right type
+for assigning into <TT>node.leftChild</TT>. Notice also that the effects
+of the two branches of the <TT>cobegin</TT> are <TT>reads RA:* writes
+ RN:InnerNode.LeftRgn:*</TT> and <TT>reads RA:* writes
+ RN:InnerNode.RightRgn:*</TT>, and these two effects are disjoint.<BR>
+<BR>
+<B>Further examples:</B> The file <TT>Quadtree.java</TT> in directory
+<TT>Benchmarks/Kernels/dpj</TT> of the DPJ uses this pattern to build a
+quadtree (i.e., a tree in which each node has up to four children) for
+partitioning two-dimensional space. The main difference is that
+index-parameterized arrays (Reference Manual &sect;&nbsp;4.3) are used instead
+of the regions <TT>LeftRgn</TT> and <TT>RightRgn</TT> to distinguish the
+different branches of the tree. The partition step is implemented
+sequentially, but it could easily be parallelized.<BR>
+<BR>
+The Barnes-Hut benchmark in the DPJ release
+(<TT>Benchmarks/Applications/Barnes-Hut/dpj</TT>) builds an octree for
+partitioning three-dimensional space. The tree build phase is not
+parallelized in that benchmark, but it could be using this pattern.<BR>
+<BR>
+<!--TOC subsection 4.2&nbsp;&nbsp;Recursive Tree Update-->
+
+<H3 CLASS="subsection"><A NAME="htoc18">4.2</A>&nbsp;&nbsp;Recursive Tree Update<A NAME="sec:tree:update"></A></H3><!--SEC END -->
+
+This section shows how to traverse the tree created in
+&sect;&nbsp;<A HREF="#sec:tree:build">4.1</A> in parallel and update its nodes. The tree
+structure of the regions in the types of the nodes allow this
+traversal and update to be done with provable noninterference.
+<BLOCKQUOTE CLASS="figure"><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV>
+
+ <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>package</B> Tree;
+<FONT SIZE=2>   2</FONT> 
+<FONT SIZE=2>   3</FONT> <B>import</B> DPJRuntime.*;
+<FONT SIZE=2>   4</FONT> <B>import</B> Tree.RecursiveTreeBuild.*;
+<FONT SIZE=2>   5</FONT> 
+<FONT SIZE=2>   6</FONT> <B>class</B> RecursiveTreeUpdate {
+<FONT SIZE=2>   7</FONT>     <B>public static</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;Body updateCenterOfMass(Node&lt;R&gt; node)
+<FONT SIZE=2>   8</FONT>         <FONT COLOR="blue"><B>writes</B></FONT> R:*
+<FONT SIZE=2>   9</FONT>     {
+<FONT SIZE=2>  10</FONT>         <B>if</B> (node == <B>null</B>) <B>return null</B>;
+<FONT SIZE=2>  11</FONT>         <B>if</B> (node <B>instanceof</B> LeafNode&lt;R&gt;)
+<FONT SIZE=2>  12</FONT>             <B>return</B> node.centerOfMass;
+<FONT SIZE=2>  13</FONT>         Body leftCoM, rightCoM;
+<FONT SIZE=2>  14</FONT>         InnerNode&lt;R&gt; innerNode = (InnerNode&lt;R&gt;) node;
+<FONT SIZE=2>  15</FONT>         <FONT COLOR="blue"><B>cobegin</B></FONT> {
+<FONT SIZE=2>  16</FONT>             <FONT COLOR="fuchsia"><EM>// Effect is 'writes R:InnerNode.LeftRgn:*'</EM></FONT>
+<FONT SIZE=2>  17</FONT>             leftCoM = updateCenterOfMass(innerNode.leftChild);
+<FONT SIZE=2>  18</FONT>             <FONT COLOR="fuchsia"><EM>// Effect is 'writes R:InnerNode.RightRgn:*'</EM></FONT>
+<FONT SIZE=2>  19</FONT>             rightCoM = updateCenterOfMass(innerNode.rightChild);
+<FONT SIZE=2>  20</FONT>         }
+<FONT SIZE=2>  21</FONT>         Body result = <B>null</B>;
+<FONT SIZE=2>  22</FONT>         <B>if</B> (leftCoM != <B>null</B> &amp;&amp; rightCoM != <B>null</B>)
+<FONT SIZE=2>  23</FONT>             result = <B>new</B> Body((leftCoM.mass+rightCoM.mass)/2,
+<FONT SIZE=2>  24</FONT>                               (leftCoM.pos+rightCoM.pos)/2);
+<FONT SIZE=2>  25</FONT>         <B>else if</B> (leftCoM != <B>null</B>)
+<FONT SIZE=2>  26</FONT>             result = <B>new</B> Body(leftCoM.mass, leftCoM.pos);
+<FONT SIZE=2>  27</FONT>         <B>else if</B> (rightCoM != <B>null</B>)
+<FONT SIZE=2>  28</FONT>             result = <B>new</B> Body(rightCoM.mass, rightCoM.pos);
+<FONT SIZE=2>  29</FONT>         innerNode.centerOfMass = result;
+<FONT SIZE=2>  30</FONT>         <B>return</B> result;
+<FONT SIZE=2>  31</FONT>     }
+<FONT SIZE=2>  32</FONT> }</TT></DIV>
+<BR>
+<BR>
+<DIV CLASS="center">Figure 6: Recursive Tree Update.</DIV><BR>
+<BR>
+
+<A NAME="fig:tree:update"></A>
+<DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV></BLOCKQUOTE>
+<B>How to write the pattern:</B> Figure&nbsp;<A HREF="#fig:tree:update">6</A>
+illustrates the Recursive Tree Update pattern, for an algorithm that
+traverses the tree constructed in Figure&nbsp;<A HREF="#fig:tree:build">5</A> and
+updates the center of mass of each node. The work is done by a single
+method, <TT>updateCenterOfMass</TT>, which accepts a tree node, updates
+the center of mass fields of that node and all its descendants, and
+returns the center of mass of that node.<BR>
+<BR>
+The method body works as follows. If the input node is a leaf node,
+then the method just returns its body as the center of mass (lines
+10&ndash;11). Otherwise, the method recursively and in parallel calls
+<TT>updateCenterOfMass</TT> on the left and right nodes (lines 13&ndash;20)
+and constructs a new <TT>Body</TT> representing the center of mass (lines
+21&ndash;28). It then stores the <TT>Body</TT> representing the center of
+mass into the input node and returns the <TT>Body</TT>.<BR>
+<BR>
+In lines 15&ndash;20, the effects of each of the two branches of the
+<TT>cobegin</TT> statement are as shown. Because of the tree structure
+of the regions of the tree nodes, the effects on the left and write
+subtrees are disjoint.<BR>
+<BR>
+<B>Further examples:</B> The Barnes-Hut benchmark in the DPJ release
+(<TT>Benchmarks/Applications/Barnes-Hut/dpj</TT>) does a similar
+center-of-mass computation on an octtree. The center-of-mass phase is
+not parallelized in that benchmark, but it could be using this
+pattern.<BR>
+<BR>
+
+<!--TOC section 5&nbsp;&nbsp;Computing with Local Objects-->
+
+<H2 CLASS="section"><A NAME="htoc19">5</A>&nbsp;&nbsp;Computing with Local Objects<A NAME="sec:local"></A></H2><!--SEC END -->
+
+This section discusses a common parallel pattern that we call Local
+Objects. Often an object is created by some task, and not seen by any
+other task running in parallel with that one. Either it is used only
+by the creating task, and its lifetime ends with that task; or it is
+stored into global memory, but no reference to it is seen until after
+all the parallel tasks have completed. We call this kind of object a
+<EM>local object</EM>. Local objects are useful, because effects on
+them by the creating task are hidden from other tasks running in
+parallel, so the effects cannot cause interference.<BR>
+<BR>
+This section discusses two kinds of local objects:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+&sect;&nbsp;<A HREF="#sec:local:iteration">5.1</A> discusses <EM>iteration-local
+ objects</EM>. These objects are created inside a <TT>foreach</TT>
+ iteration, and are local to that iteration.
+<LI CLASS="li-enumerate">&sect;&nbsp;<A HREF="#sec:local:method">5.2</A> discusses <EM>method-local objects</EM>.
+ These objects are created inside a method, and are local to that
+ method scope and its callees.
+</OL>
+
+<!--TOC subsection 5.1&nbsp;&nbsp;Iteration-Local Objects-->
+
+<H3 CLASS="subsection"><A NAME="htoc20">5.1</A>&nbsp;&nbsp;Iteration-Local Objects<A NAME="sec:local:iteration"></A></H3><!--SEC END -->
+
+There are two ways to write the Iteration-Local Objects pattern in
+DPJ: using local regions, and using array regions.
+<BLOCKQUOTE CLASS="figure"><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV>
+
+ <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>import</B> DPJRuntime.*;
+<FONT SIZE=2>   2</FONT> 
+<FONT SIZE=2>   3</FONT> <B>class</B> IterationLocalObjects {
+<FONT SIZE=2>   4</FONT>     <B>class</B> LocalObject&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
+<FONT SIZE=2>   5</FONT>         <B>int</B> value <FONT COLOR="blue"><B>in</B></FONT> R;
+<FONT SIZE=2>   6</FONT>         <B>int</B> produceValue(<B>int</B> val) <FONT COLOR="blue"><B>writes</B></FONT> R {
+<FONT SIZE=2>   7</FONT>             value = val;
+<FONT SIZE=2>   8</FONT>             <B>return</B> value;
+<FONT SIZE=2>   9</FONT>         }
+<FONT SIZE=2>  10</FONT>     }
+<FONT SIZE=2>  11</FONT>     IPArrayInt results = <B>new</B> IPArrayInt(10);
+<FONT SIZE=2>  12</FONT>     <B>void</B> usingLocalRegions() {
+<FONT SIZE=2>  13</FONT>         <FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, 10) {
+<FONT SIZE=2>  14</FONT>             <FONT COLOR="blue"><B>region</B></FONT> LocalRegion;
+<FONT SIZE=2>  15</FONT>             LocalObject&lt;LocalRegion&gt; localObject =
+<FONT SIZE=2>  16</FONT>                 <B>new</B> LocalObject&lt;LocalRegion&gt;();
+<FONT SIZE=2>  17</FONT>             <FONT COLOR="fuchsia"><EM>// Effect 'writes LocalRegion' is local to an iteration</EM></FONT>
+<FONT SIZE=2>  18</FONT>             results[i] = localObject.produceValue(i);
+<FONT SIZE=2>  19</FONT>         }
+<FONT SIZE=2>  20</FONT>     }
+<FONT SIZE=2>  21</FONT>     <B>void</B> usingArrayRegions() {
+<FONT SIZE=2>  22</FONT>         <FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, 10) {
+<FONT SIZE=2>  23</FONT>             LocalObject&lt;[i]&gt; localObject =
+<FONT SIZE=2>  24</FONT>                 <B>new</B> LocalObject&lt;[i]&gt;();
+<FONT SIZE=2>  25</FONT>             <FONT COLOR="fuchsia"><EM>// Effect 'writes [i]' is local to an iteration</EM></FONT>
+<FONT SIZE=2>  26</FONT>             results[i] = localObject.produceValue(i);
+<FONT SIZE=2>  27</FONT>         }
+<FONT SIZE=2>  28</FONT>     }
+<FONT SIZE=2>  29</FONT> }</TT></DIV>
+<BR>
+<BR>
+<DIV CLASS="center">Figure 7: Iteration-Local Objects.</DIV><BR>
+<BR>
+
+<A NAME="fig:local:iteration:pattern"></A>
+<DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV></BLOCKQUOTE>
+<B>How to write the pattern with local regions:</B> Method
+<TT>usingLocalRegions</TT> (line 12 of
+Figure&nbsp;<A HREF="#fig:local:iteration:pattern">7</A>) illustrates the
+Iteration-Local Objects pattern using local regions. Class
+<TT>LocalObject</TT> (lines 4&ndash;10) has an integer field <TT>value</TT> and a
+method <TT>produceValue</TT>. The <TT>produceValue</TT> method accepts an
+integer value, stores it to the object's <TT>value</TT> field, and
+returns it. The effect of <TT>produceValue</TT> is to write to <TT>R</TT>,
+the region of the <TT>LocalObject</TT> type. The rest of the program
+(lines 11 and following) creates an array and writes to it in
+parallel. Line 11 creates an array of integers called <TT>results</TT>.
+The array is index-parameterized (Reference Manual &sect;&nbsp;4.2.2), so that
+every cell is in its own region.<BR>
+<BR>
+Line 18 produces two effects, both disjoint for distinct iterations of
+the <TT>foreach</TT> loop at line 13. First, because <TT>results</TT> is
+index-parameterized, the effect of the assignment to <TT>results[i]</TT>
+is <TT>writes [i]</TT>; the write is to a different region for each value
+of <TT>i</TT> in each distinct iteration. Second, the effect of invoking
+<TT>produceValue</TT> is <TT>writes R</TT> with <TT>R</TT>=<TT>LocalRegion</TT>,
+that is, <TT>writes LocalRegion</TT>. Since the scope of
+<TT>LocalRegion</TT> is local to an iteration of the <TT>foreach</TT>, this
+effect does not cause any interference across <TT>foreach</TT>
+iterations.<BR>
+<BR>
+<B>How to write the pattern with array regions:</B> Method
+<TT>usingArrayRegions</TT> (line 21 of
+Figure&nbsp;<A HREF="#fig:local:iteration:pattern">7</A> illustrates the
+Iteration-Local Objects pattern using array regions. The code is the
+same as in method <TT>usingLocalRegions</TT>, except that instead of an
+iteration-local region, it binds the array region <TT>[i]</TT> to the RPL
+parameter of the <TT>LocalObject</TT> class in iteration <TT>i</TT> of the
+<TT>foreach</TT> loop. The effect of invoking <TT>produceValue</TT> in line
+14 is <TT>writes [i]</TT>, which is a distinct region for each iteration
+of the loop.<BR>
+<BR>
+<B>Further examples:</B> The Monte Carlo benchmark in the DPJ
+release uses the array region version of this pattern. Monte Carlo
+operates in parallel on a set of independent tasks, and uses a local
+object called <TT>PriceStock</TT>, parameterized by an iteration index
+region, to store temporary data for processing the task. See the file
+<TT>AppDemo.java</TT> in the directory
+<TT>Benchmarks/Applications/MonteCarlo/dpj</TT>. <BR>
+<BR>
+<!--TOC subsection 5.2&nbsp;&nbsp;Method-Local Objects-->
+
+<H3 CLASS="subsection"><A NAME="htoc21">5.2</A>&nbsp;&nbsp;Method-Local Objects<A NAME="sec:local:method"></A></H3><!--SEC END -->
+
+<BLOCKQUOTE CLASS="figure"><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV>
+
+ <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>import</B> DPJRuntime.*;
+<FONT SIZE=2>   2</FONT> 
+<FONT SIZE=2>   3</FONT> <B>class</B> MethodLocalObjects {
+<FONT SIZE=2>   4</FONT>     <B>class</B> LocalObject&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
+<FONT SIZE=2>   5</FONT>         <B>int</B> value <FONT COLOR="blue"><B>in</B></FONT> R;
+<FONT SIZE=2>   6</FONT>         <B>int</B> produceValue(<B>int</B> val) <FONT COLOR="blue"><B>writes</B></FONT> R {
+<FONT SIZE=2>   7</FONT>             value = val;
+<FONT SIZE=2>   8</FONT>             <B>return</B> value;
+<FONT SIZE=2>   9</FONT>         }
+<FONT SIZE=2>  10</FONT>     }
+<FONT SIZE=2>  11</FONT>     &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>int</B> sumReduce(ArraySliceInt&lt;R&gt; arr) <FONT COLOR="blue"><B>reads</B></FONT> R {
+<FONT SIZE=2>  12</FONT>         <B>if</B> (arr.length == 0) <B>return</B> 0;
+<FONT SIZE=2>  13</FONT>         <B>if</B> (arr.length == 1) <B>return</B> arr.get(0);
+<FONT SIZE=2>  14</FONT>         <B>int</B> mid = arr.length/2;
+<FONT SIZE=2>  15</FONT>         <B>int</B> left, right;
+<FONT SIZE=2>  16</FONT>         <FONT COLOR="blue"><B>cobegin</B></FONT> {
+<FONT SIZE=2>  17</FONT>             left = sumReduce(arr.subslice(0,mid));
+<FONT SIZE=2>  18</FONT>             right = sumReduce(arr.subslice(mid+1,arr.length-mid));
+<FONT SIZE=2>  19</FONT>         }
+<FONT SIZE=2>  20</FONT>         <FONT COLOR="blue"><B>region</B></FONT> LocalRegion;
+<FONT SIZE=2>  21</FONT>         LocalObject&lt;LocalRegion&gt; localObject =
+<FONT SIZE=2>  22</FONT>             <B>new</B> LocalObject&lt;LocalRegion&gt;();
+<FONT SIZE=2>  23</FONT>         <FONT COLOR="fuchsia"><EM>// Effect 'writes LocalRegion' is local to method</EM></FONT>
+<FONT SIZE=2>  24</FONT>         <B>int</B> result = localObject.produceValue(left + right);
+<FONT SIZE=2>  25</FONT>         <B>return</B> result;
+<FONT SIZE=2>  26</FONT>     }
+<FONT SIZE=2>  27</FONT> }</TT></DIV>
+<BR>
+<BR>
+<DIV CLASS="center">Figure 8: Method-Local Objects.</DIV><BR>
+<BR>
+
+<A NAME="fig:local:method:pattern"></A>
+<DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV></BLOCKQUOTE>
+<B>How to write the pattern:</B>
+Figure&nbsp;<A HREF="#fig:local:method:pattern">8</A> illustrates the Method-Local
+Objects pattern with a simple sum reduction that also performs an
+incidental computation on local data. Class <TT>LocalObject</TT> (lines
+4&ndash;10) is the same as in &sect;&nbsp;<A HREF="#sec:local:iteration">5.1</A>. Method
+<TT>sumReduce</TT> (lines 11 and following) takes as input a
+<TT>ArraySliceInt</TT> (Reference Manual &sect;&nbsp;8.2). In the base cases it
+either does nothing (empty array) or returns the only value (array
+with one element). Otherwise, it divides the array in half and
+processes each half recursively and in parallel. This part of the
+computation is similar to the Divide-and-Conquer Array Update pattern
+(&sect;&nbsp;<A HREF="#sec:array:dandc">3.3</A>), except that the array is only read, not
+written.<BR>
+<BR>
+The rest of the computation (lines 20 and following) declares a local
+region (Reference Manual &sect;&nbsp;2.3.3) called <TT>LocalRegion</TT>, and
+creates a <TT>LocalObject</TT> with the local region as its RPL argument.
+The effect of invoking <TT>localObject.produceValue</TT> in line 24 is
+<TT>writes LocalRegion</TT>, as shown in line 23. This effect is a local
+effect (Reference Manual &sect;&nbsp;5.3), so it doesn't have to be reported in
+the declared effect of <TT>sumReduce</TT> (Reference Manual &sect;&nbsp;2.3.1).
+The write effect on the <TT>LocalObject</TT> instance in each invocation
+of <TT>sumReduce</TT> is therefore hidden, or <EM>masked</EM>, from the
+callee, and doesn't cause any interference at the <TT>cobegin</TT> in
+line 16.<BR>
+<BR>
+<B>Further examples:</B> The Collision Tree benchmark in the DPJ
+release uses method-local objects. Collision Tree computes whether
+two trees representing objects in space have any intersection, by
+recursively traversing the trees in parallel. The computation is
+read-only on the trees, but the computation on each tree node passes
+results (a list of intersecting triangles) up to its parent. Before
+recursively calling itself in parallel on two subtrees, the
+<TT>intersect</TT> method creates fresh objects to hold the results
+from one of the subtrees, placing their data in a local region.
+The computation on the other subtree reuses the data structures 
+used for the parent node, so the computations on the two subtrees
+write their results to different regions and can be safely run in
+parallel. See the file <TT>CollisionTree.java</TT> in the directory
+<TT>Benchmarks/Applications/CollisionTree/src/com/jme/bounding</TT>.<BR>
+<BR>
+Method-local regions are also useful for algorithms that explore a
+tree-shaped search space: for example, a recursive solver (such as a
+tic-tac-toe or n queens solver). In such algorithms, typically some
+local state (like a board position) is copied and sent to all possible
+next moves. Each next move does its computation on its private copy
+of the state, then returns its result to the parent. The private copy
+of the state is a method-local object.<BR>
+<BR>
+
+<!--TOC section 6&nbsp;&nbsp;Associative Reductions-->
+
+<H2 CLASS="section"><A NAME="htoc22">6</A>&nbsp;&nbsp;Associative Reductions<A NAME="sec:reductions"></A></H2><!--SEC END -->
+
+<!--NAME reductions.html-->
+<BR>
+<BR>
+This section discusses how to implement associative reductions in DPJ.
+A reduction is a common parallel pattern for computing a single datum
+from a collection of data. The transformation from the collection of
+data to the single datum is called &#8220;reducing&#8221; the collection. For
+example, a sum reduction of a collection of integers sums all the
+elements in the collection to produce a single integer representing
+the sum.<BR>
+<BR>
+A reduction is <EM>associative</EM> if it can be represented as an
+associative binary operation on the elements. For example, a sum
+reduction is associative because it is represented by the binary
+operation +, which is associative; that means that for any integers
+<I>a</I>, <I>b</I>, and <I>c</I>, <I>a</I>+(<I>b</I>+<I>c</I>)=(<I>a</I>+<I>b</I>)+<I>c</I>. <BR>
+<BR>
+<B>How to write the pattern:</B> Associative reductions can be
+written efficiently as parallel algorithms. There are at least two
+ways to do it, both supported in DPJ:
+<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+<EM>Recursive reduction</EM> Use divide-and-conquer recursion.
+<LI CLASS="li-enumerate"><EM>Iterative reduction</EM> Divide the input collection up into
+ pieces, loop over all the pieces in parallel and reduce each piece
+ to a partial result, then reduce the partial results to the final
+ result, either sequentially or in parallel.
+</OL>
+Below we illustrate method (2) (iterative reduction).
+&sect;&nbsp;<A HREF="#sec:local:method">5.2</A> shows an example of a divide-and-conquer sum
+reduction.
+<BLOCKQUOTE CLASS="figure"><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV>
+
+ <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>import</B> DPJRuntime.*;
+<FONT SIZE=2>   2</FONT> 
+<FONT SIZE=2>   3</FONT> <B>public class</B> IntegerSumReduction {
+<FONT SIZE=2>   4</FONT>     <B>private <FONT COLOR="blue">region</FONT></B> AccumRgn;
+<FONT SIZE=2>   5</FONT>     <B>private static int</B> sum <FONT COLOR="blue"><B>in</B></FONT> AccumRgn;
+<FONT SIZE=2>   6</FONT>     <B>public static</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R | R:* # AccumRgn&gt;
+<FONT SIZE=2>   7</FONT>       <B>int</B> reduce(ArraySliceInt&lt;R&gt; arr, <B>int</B> tileSize)
+<FONT SIZE=2>   8</FONT>         <FONT COLOR="blue"><B>reads</B></FONT> R:* <FONT COLOR="blue"><B>writes</B></FONT> AccumRgn
+<FONT SIZE=2>   9</FONT>     {
+<FONT SIZE=2>  10</FONT>         sum = 0;
+<FONT SIZE=2>  11</FONT>         PartitionInt&lt;R&gt; segs =
+<FONT SIZE=2>  12</FONT>             PartitionInt.&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;
+<FONT SIZE=2>  13</FONT>             stridedPartition(arr, tileSize);
+<FONT SIZE=2>  14</FONT>         <FONT COLOR="blue"><B>foreach</B></FONT>(<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, segs.length) {
+<FONT SIZE=2>  15</FONT>             <B>int</B> partialSum = 0;
+<FONT SIZE=2>  16</FONT>             ArraySliceInt&lt;R:*&gt; seg = segs.get(i);
+<FONT SIZE=2>  17</FONT>             <B>for</B> (<B>int</B> j = 0; j &lt; seg.length; ++j)
+<FONT SIZE=2>  18</FONT>                 partialSum += seg.get(j);
+<FONT SIZE=2>  19</FONT>             updateSum(partialSum);
+<FONT SIZE=2>  20</FONT>         }
+<FONT SIZE=2>  21</FONT>         <B>return</B> sum;
+<FONT SIZE=2>  22</FONT>     }
+<FONT SIZE=2>  23</FONT>     <B>private static <FONT COLOR="blue">commutative</FONT> synchronized</B>
+<FONT SIZE=2>  24</FONT>         <B>void</B> updateSum(<B>int</B> partialSum)
+<FONT SIZE=2>  25</FONT>             <FONT COLOR="blue"><B>writes</B></FONT> AccumRgn
+<FONT SIZE=2>  26</FONT>     {
+<FONT SIZE=2>  27</FONT>             sum += partialSum;
+<FONT SIZE=2>  28</FONT>     }
+<FONT SIZE=2>  29</FONT>     <B>public static void</B> main(String[] args) {
+<FONT SIZE=2>  30</FONT>         <FONT COLOR="blue"><B>region</B></FONT> MainRgn;
+<FONT SIZE=2>  31</FONT>         <B>int</B> SIZE = 1000000;
+<FONT SIZE=2>  32</FONT>         <B>int</B> TILESIZE = 1000;
+<FONT SIZE=2>  33</FONT>         ArraySliceInt&lt;MainRgn&gt; arr =
+<FONT SIZE=2>  34</FONT>             <B>new</B> ArraySliceInt&lt;MainRgn&gt;(SIZE);
+<FONT SIZE=2>  35</FONT>         arr.put(42, 42);
+<FONT SIZE=2>  36</FONT>         <B>int</B> sum = reduce(arr, TILESIZE);
+<FONT SIZE=2>  37</FONT>         System.out.println("sum="+sum);
+<FONT SIZE=2>  38</FONT>     }
+<FONT SIZE=2>  39</FONT> }</TT></DIV>
+<BR>
+<BR>
+<DIV CLASS="center">Figure 9: Iterative sum reduction in DPJ.</DIV><BR>
+<BR>
+
+<A NAME="fig:reductions:pattern"></A>
+<DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV></BLOCKQUOTE>
+Figure&nbsp;<A HREF="#fig:reductions:pattern">9</A> lists a simple DPJ program that
+implements an iterative integer sum reduction. Line 4 declares a
+private region <TT>AccumRgn</TT> for holding the accumulated results.
+Line 5 declares an accumulation variable <TT>sum</TT> in <TT>AccumRgn</TT>.
+Lines 6&ndash;8 give the signature for the public method <TT>reduce</TT>,
+which takes a <TT>ArraySliceInt</TT> and a tile size (i.e., the number of
+array elements to process in each task) and does the reduction.
+Method <TT>reduce</TT> has a region parameter <TT>R</TT>, so a
+<TT>ArraySliceInt</TT> with any RPL argument can be passed to its
+<TT>arr</TT> parameter. The region parameter is declared so that binding
+<TT>R=r</TT> at a call site must satisfy <TT>r:* # AccumRgn</TT> (Reference
+Manual &sect;&nbsp;2.4.3). The method is declared to read under <TT>R</TT>
+(because it is reading the array), and to write <TT>AccumRgn</TT>
+(because it uses <TT>AccumRgn</TT> to compute the sum)<BR>
+<BR>
+The body of the <TT>reduce</TT> method sets <TT>sum</TT> to zero and uses a
+blocked array to do the partial sums. The array blocking is similar
+to Blocked Array Update (&sect;&nbsp;<A HREF="#sec:array:blocked">3.2</A>), except the array
+is only read, and not written. Inside the <TT>foreach</TT> loop (lines
+14&ndash;20), there is a sequential partial sum computation, followed by a
+global accumulation. The accumulation invokes the private method
+<TT>updateSum</TT> (defined starting in line 23). That method is
+declared <TT>commutative</TT> (Reference Manual &sect;&nbsp;2.3.4), because it is
+properly synchronized to allow concurrent execution, and the operation
+it performs commutes with itself. This is a typical way to write an
+accumulation operation in DPJ. If the number of parallel tasks is
+small, one could also have each task store its partial result into an
+array cell, and then sum the elements of that array in a separate
+sequential phase.<BR>
+<BR>
+Lines 29 and following show a <TT>main</TT> method that creates a new
+integer array of size 1,000,000, initializes element 42 of the array
+with the value 42, and calls <TT>reduce</TT> with a tile size of 1000.
+Since Java initializes the other array cells to 0, hopefully the
+answer is 42.<BR>
+<BR>
+<B>Further examples:</B> The following benchmarks in the DPJ release
+implement reductions:
+<UL CLASS="itemize"><LI CLASS="li-itemize">
+<TT>SumReduce.java</TT> in <TT>Benchmarks/Kernels/dpj</TT> is a simple
+ sum reduction kernel, using the divide-and-conquer strategy.
+<LI CLASS="li-itemize">The Monte Carlo benchmark computes results for many tasks, then
+ reduces the partial results to a single answer using an iterative
+ reduction. The final accumulation step is sequential. See method
+ <TT>processResults</TT> in file <TT>AppDemo.java</TT> in directory
+ <DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>Benchmarks/Applications/MonteCarlo/dpj</TT>.</DL>
+<LI CLASS="li-itemize">The k-means clustering benchmark uses an iterative reduction to
+ compute a histogram. See method <TT>work</TT> in file
+ <TT>Normal.java</TT> in directory
+ <TT>Benchmarks/Applications/KMeans/dpj</TT>.
+</UL>
+
+
+<!--HTMLFOOT-->
+<!--ENDHTML-->
+<!--FOOTER-->
+<HR SIZE=2><BLOCKQUOTE CLASS="quote"><EM>This document was translated from L<sup>A</sup>T<sub>E</sub>X by
+<A HREF="http://pauillac.inria.fr/~maranget/hevea/index.html">H<FONT SIZE=2><sup>E</sup></FONT>V<FONT SIZE=2><sup>E</sup></FONT>A</A>.</EM></BLOCKQUOTE></BODY>
+</HTML>
