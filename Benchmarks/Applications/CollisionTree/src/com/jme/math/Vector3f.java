@@ -50,6 +50,13 @@ import DPJRuntime.*;
 public class Vector3f<region R> implements Externalizable {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * An array of Vector3f
+     */    
+    public static arrayclass Array<region R> {
+	Vector3f<R> in R;
+    }
+
 	/**
      * the x value of the vector.
      */

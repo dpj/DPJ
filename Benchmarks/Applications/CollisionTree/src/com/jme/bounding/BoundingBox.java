@@ -94,7 +94,7 @@ public class BoundingBox<region R> extends BoundingVolume<R> {
     	Vector3f min = new Vector3f(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
         Vector3f max = new Vector3f(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
         Vector3f point;
-    	Vector3f[] verts = new Vector3f[3];
+    	Vector3f.Array verts = new Vector3f.Array(3);
         
         for (int i = start; i < end; i++) {
         	mesh.<region Root>getTriangle(indices[i], verts);

@@ -84,9 +84,11 @@ public class TriMesh<region RMesh> implements Externalizable {
      * @param i
      * @param vertices
      */
-    public <region R> void getTriangle(int i, Vector3f<R>[]<R> vertices) reads RMesh:* writes R:* {
+    public <region R> void getTriangle(int i, Vector3f.Array<R> vertices) 
+	reads RMesh:* writes R:* 
+    {
         if (vertices == null) {
-            vertices = new Vector3f<R>[3]<R>;
+            vertices = new Vector3f.Array<R>(3);
         }
         if (i < getTriangleCount() && i >= 0) {
             for (int x = 0; x < 3; x++) {

@@ -376,8 +376,8 @@ public class CollisionTree<region R, RMesh> {
         final Vector3f<RTemps> tempVe = new Vector3f<RTemps>();
         final Vector3f<RTemps> tempVf = new Vector3f<RTemps>();
 
-        Vector3f<RTemps>[]<RTemps> verts = new Vector3f<RTemps>[3]<RTemps>;
-        Vector3f<RTemps>[]<RTemps> target = new Vector3f<RTemps>[3]<RTemps>;
+        Vector3f.Array<RTemps> verts = new Vector3f.Array<RTemps>(3);
+        Vector3f.Array<RTemps> target = new Vector3f.Array<RTemps>(3);
         
         // Temporaries for Intersection.intersection_r
 		Vector3f<RTemps> e1 = new Vector3f<RTemps>();
