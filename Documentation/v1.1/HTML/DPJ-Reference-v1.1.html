@@ -2098,8 +2098,8 @@ arrayclass IPArrayInt {
 <FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, N) {
   <FONT COLOR="fuchsia"><EM>// Write to each distinct arr[i] in parallel</EM></FONT>
   arr[i] = i;
-}</TT></DIV>The compiler knows this is safe, because the writes to arr[i] touch a
-different region for each iteration of the parallel loop.<BR>
+}</TT></DIV>The compiler knows this is safe, because the writes to <TT>arr[i]</TT>
+touch a different region for each iteration of the parallel loop.<BR>
 <BR>
 Index-parameterized arrays also support updates through references to
 different objects, by using <TT>[index]</TT> in the RPL argument of the
