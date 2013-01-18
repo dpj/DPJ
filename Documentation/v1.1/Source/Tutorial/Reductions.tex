@@ -1,0 +1,99 @@
+\section{Associative Reductions%
+\label{sec:reductions}}
+\cutname{reductions.html}
+
+This section discusses how to implement associative reductions in DPJ.
+A reduction is a common parallel pattern for computing a single datum
+from a collection of data.  The transformation from the collection of
+data to the single datum is called ``reducing'' the collection.  For
+example, a sum reduction of a collection of integers sums all the
+elements in the collection to produce a single integer representing
+the sum.
+
+A reduction is \emph{associative} if it can be represented as an
+associative binary operation on the elements.  For example, a sum
+reduction is associative because it is represented by the binary
+operation $+$, which is associative; that means that for any integers
+$a$, $b$, and $c$, $a+(b+c)=(a+b)+c$.  
+
+\bfhead{How to write the pattern:} Associative reductions can be
+written efficiently as parallel algorithms.  There are at least two
+ways to do it, both supported in DPJ:
+%
+\begin{enumerate}
+%
+\item \emph{Recursive reduction:} Use divide-and-conquer recursion.
+%
+\item \emph{Iterative reduction:} Divide the input collection up into
+  pieces, loop over all the pieces in parallel and reduce each piece
+  to a partial result, then reduce the partial results to the final
+  result, either sequentially or in parallel.
+%
+\end{enumerate}
+%
+Below we illustrate method (2) (iterative reduction).
+\S~\ref{sec:local:method} shows an example of a divide-and-conquer sum
+reduction.
+
+\begin{figure}
+\input{Listings/IntegerSumReduction.tex}
+\caption{Iterative sum reduction in DPJ.}
+\label{fig:reductions:pattern}
+\end{figure}
+
+Figure~\ref{fig:reductions:pattern} lists a simple DPJ program that
+implements an iterative integer sum reduction.  Line 4 declares a
+private region \kwd{AccumRgn} for holding the accumulated results.
+Line 5 declares an accumulation variable \kwd{sum} in \kwd{AccumRgn}.
+Lines 6--8 give the prototype for the public method \kwd{reduce},
+which takes a \kwd{DPJArrayInt} and a tile size (i.e., the number of
+array elements to process in each task) and does the reduction.
+Method \kwd{reduce} has a region parameter \kwd{R}, so a
+\kwd{DPJArrayInt} with any RPL argument can be passed to its \kwd{arr}
+parameter.  The region parameter is declared so that binding
+\kwd{R=$r$} at a call site must satisfy \kwd{$r$:* \# AccumRgn}
+(Reference Manual, \S~2.4.3).  The method is declared to read under
+\kwd{R} (because it is reading the array), and to write \kwd{AccumRgn}
+(because it uses \kwd{AccumRgn} to compute the sum)
+
+The body of the \kwd{reduce} method sets \kwd{sum} to zero and uses a
+blocked array to do the partial sums.  The array blocking is similar
+to Blocked Array Update (\S~\ref{sec:array:blocked}), except the array
+is only read, and not written.  Inside the \kwd{foreach} loop (lines
+13--19), there is a sequential partial sum computation, followed by a
+global accumulation.  The accumulation invokes the private method
+\kwd{updateSum} (defined at line 22).  That method is declared
+\kwd{commutative} (Reference Manual, \S~2.3.4), because it is properly
+synchronized to allow concurrent execution, and the operation it
+performs commutes with itself.  This is a typical way to write an
+accumulation operation in DPJ.  If the number of parallel tasks is
+small, one could also have each task store its partial result into an
+array cell, and then sum the elements of that array in a separate
+sequential phase.
+
+Lines 26 and following show a \kwd{main} method that creates a new
+integer array of size 1,000,000, initializes element 42 of the array
+with the value 42, and calls \kwd{reduce} with a tile size of 1000.
+Since Java initializes the other array cells to 0, hopefully the
+answer is 42.
+
+\bfhead{Further examples:} The following benchmarks in the DPJ release
+implement reductions:
+%
+\begin{itemize}
+%
+\item \kwd{SumReduce.java} in \kwd{Benchmarks/Kernels/dpj} is a simple
+  sum reduction kernel, using the divide-and-conquer strategy.
+%
+\item The Monte Carlo benchmark computes results for many tasks, then
+  reduces the partial results to a single answer using an iterative
+  reduction.  The final accumulation step is sequential.  See method
+  \kwd{processResults} in file \kwd{AppDemo.java} in directory
+  \descr{\kwd{Benchmarks/Applications/MonteCarlo/dpj}.}
+%
+\item The k-means clustering benchmark uses an iterative reduction to
+  compute a histogram.  See method \kwd{work} in file
+  \kwd{Normal.java} in directory
+  \kwd{Benchmarks/Applications/KMeans/dpj}.
+%
+\end{itemize}

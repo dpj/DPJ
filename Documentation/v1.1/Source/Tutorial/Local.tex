@@ -1,0 +1,161 @@
+\section{Computing with Local Objects%
+\label{sec:local}}
+
+This section discusses a common parallel pattern that we call Local
+Objects.  Often an object is created by some task, and not seen by any
+other task running in parallel with that one.  Either it is used only
+by the creating task, and its lifetime ends with that task; or it is
+stored into global memory, but no reference to it is seen until after
+all the parallel tasks have completed.  We call this kind of object a
+\emph{local object}.  Local objects are useful, because effects on
+them by the creating task are hidden from other tasks running in
+parallel, so the effects cannot cause interference.
+
+This section discusses two kinds of local objects:
+%
+\begin{enumerate}
+%
+\item \S~\ref{sec:local:iteration} discusses \emph{iteration-local
+  objects}.  These objects are created inside a \kwd{foreach}
+  iteration, and are local to that iteration.
+%
+\item \S~\ref{sec:local:method} discusses \emph{method-local objects}.
+  These objects are created inside a method, and are local to that
+  method scope and its callees.
+%
+\end{enumerate}
+%
+
+
+\subsection{Iteration-Local Objects%
+\label{sec:local:iteration}}
+
+There are two ways to write the Iteration-Local Objects pattern in
+DPJ: using local regions, and using array regions.
+
+\begin{figure}
+\input{Listings/IterationLocalObjects}
+\caption{Iteration-Local Objects.}
+\label{fig:local:iteration:pattern}
+\end{figure}
+
+\bfhead{How to write the pattern with local regions:} Method
+\kwd{usingLocalRegions} (line 10 of
+Figure~\ref{fig:local:iteration:pattern}) illustrates the
+Iteration-Local Objects pattern using local regions.  Class
+\kwd{LocalObject} (lines 2--8) has an integer field called \kwd{value}
+and a method \kwd{produceValue}.  The \kwd{produceValue} method
+accepts an integer value, stores it to the object's \kwd{value} field,
+and returns it.  The effect of \kwd{produceValue} is to write to
+\kwd{R}, the region of the \kwd{LocalObject} type.  The rest of the
+program (lines 9 and following) creates an array and writes to it in
+parallel.  Line 9 creates an array of integers called \kwd{results}.
+The array is index-parameterized (Reference Manual, \S~4.2.2), so that
+every cell is in its own region.
+
+Line 16 produces two effects, both disjoint for distinct iterations of
+the \kwd{foreach} loop at line 11.  First, because \kwd{results} is
+index-parameterized, the effect of the assignment to \kwd{results[i]}
+is \kwd{writes [i]}; the write is to a different region for each value
+of \kwd{i} in each distinct iteration.  Second, the effect of invoking
+\kwd{produceValue} is \kwd{writes R} with $\kwd{R}=\kwd{LocalRegion}$,
+that is, \kwd{writes LocalRegion}.  Since the scope of
+\kwd{LocalRegion} is local to an iteration of the \kwd{foreach}, this
+effect does not cause any interference across \kwd{foreach}
+iterations.
+
+
+\bfhead{How to write the pattern with array regions:} Method
+\kwd{usingArrayRegions} (line 19 of
+Figure~\ref{fig:local:iteration:pattern} illustrates the
+Iteration-Local Objects pattern using array regions.  The code is the
+same as in method \kwd{usingLocalRegions}, except that instead of an
+iteration-local region, it binds the array region \kwd{[i]} to the RPL
+parameter of the \kwd{LocalObject} class in iteration \kwd{i} of the
+\kwd{foreach} loop.  The effect of invoking \kwd{produceValue} in line
+14 is \kwd{writes [i]}, which is a distinct region for each iteration
+of the loop.
+
+\bfhead{Further examples:} The Monte Carlo benchmark in the DPJ
+release uses the array region version of this pattern.  Monte Carlo
+operates in parallel on a set of independent tasks, and uses a local
+object called \kwd{PriceStock}, parameterized by an iteration index
+region, to store temporary data for processing the task.  See the file
+\kwd{AppDemo.java} in the directory
+\kwd{Benchmarks/Applications/MonteCarlo/dpj}.  
+
+
+\begin{comment}
+\subsubsection{Algorithm Example:  Monte Carlo Path Computation%
+\label{sec:local:iteration:mc}}
+
+TODO
+
+\begin{figure}
+\begin{numbereddpjlisting}
+TODO
+\end{numbereddpjlisting}
+\caption{Iteration-Local Objects in the Monte Carlo path computation.}
+\label{fig:local:iteration:mc}
+\end{figure}
+\end{comment}
+
+\subsection{Method-Local Objects%
+\label{sec:local:method}}
+
+\begin{figure}
+\input{Listings/MethodLocalObjects}
+\caption{Method-Local Objects.}
+\label{fig:local:method:pattern}
+\end{figure}
+
+\bfhead{How to write the pattern:}
+Figure~\ref{fig:local:method:pattern} illustrates the Method-Local
+Objects pattern with a simple sum reduction that also performs an
+incidental computation on local data.  Class \kwd{LocalObject} (lines
+4--10) is the same as in \S~\ref{sec:local:iteration}.  Method
+\kwd{sumReduce} (lines 11 and following) takes as input a
+\kwd{DPJArrayInt} (Reference Manual, \S~7.1).  In the base cases it
+either does nothing (empty array) or returns the only value (array
+with one element).  Otherwise, it divides the array in half and
+processes each half recursively and in parallel.  This part of the
+computation is similar to the Divide-and-Conquer Array Update pattern
+(\S~\ref{sec:array:dandc}), except that the array is only read, not
+written.
+
+The rest of the computation (lines 20 and following) declares a local
+region (Reference Manual, \S~2.3.3) called \kwd{LocalRegion}, and
+creates a \kwd{LocalObject} with the local region as its RPL argument.
+The effect of invoking \kwd{localObject.produceValue} in line 24 is
+\kwd{writes LocalRegion}, as shown in line 23.  This effect is a local
+effect (Reference Manual, \S~5.3), so it doesn't have to be reported
+in the declared effect of \kwd{sumReduce} (Reference Manual,
+\S~2.3.1).  The write effect on the \kwd{LocalObject} instance in each
+invocation of \kwd{sumReduce} is therefore hidden, or \emph{masked},
+from the callee, and doesn't cause any interference at the
+\kwd{cobegin} in line 16.
+
+
+\bfhead{Further examples:} The Collision Tree benchmark in the DPJ
+release uses method-local objects.  Collision Tree computes whether
+two trees representing objects in space have any intersection, by
+recursively traversing the trees in parallel.  The computation is
+read-only on the trees, but the computation on each tree node passes
+results (a list of intersecting triangles) up to its parent.  Before
+recursively calling itself in parallel on two subtrees, the
+\kwd{intersect} method creates fresh objects to hold the results
+from one of the subtrees, placing their data in a local region.
+The computation on the other subtree reuses the data structures 
+used for the parent node, so the computations on the two subtrees
+write their results to different regions and can be safely run in
+parallel.  See the file \kwd{CollisionTree.java} in the directory
+\kwd{Benchmarks/Applications/CollisionTree/src/com/jme/bounding}.
+
+Method-local regions are also useful for algorithms that explore a
+tree-shaped search space: for example, a recursive solver (such as a
+tic-tac-toe or n queens solver).  In such algorithms, typically some
+local state (like a board position) is copied and sent to all possible
+next moves.  Each next move does its computation on its private copy
+of the state, then returns its result to the parent.  The private copy
+of the state is a method-local object.
+
