@@ -4,7 +4,9 @@ import DPJRuntime.*;
 import Tree.RecursiveTreeBuild.*;
 
 class RecursiveTreeUpdate {
-    public static <region R>Body updateCenterOfMass(Node<R> node) writes R:* {
+    public static <region R>Body updateCenterOfMass(Node<R> node) 
+        writes R:*
+    {
         if (node == null) return null;
         if (node instanceof LeafNode<R>)
             return node.centerOfMass;

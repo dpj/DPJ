@@ -77,15 +77,15 @@ The rest of the code defines the methods that do the tree building:
 %
 \begin{itemize}
 %
-\item Method \kwd{partition} (lines 21--27) is a helper method that
-  takes an array of bodies and a point in space.  It computes and
+\item Method \kwd{computeSplitPoint} (lines 21--30) is a helper method
+  that takes an array of bodies and a point in space.  It computes and
   returns the index into the array such that the elements to the left
   of the index are all and only the elements to the left of the point
   in space.  The array is assumed to be sorted by position.  We don't
   show this code.  It can easily be implemented in parallel using a
   divide-and-conquer strategy.
 %
-\item Method \kwd{makeTree} (lines 28 and following) does the actual
+\item Method \kwd{makeTree} (lines 31 and following) does the actual
   tree building and is discussed below.
 %
 \end{itemize}
@@ -100,16 +100,16 @@ with the type of the node returned, while \kwd{RA} is the region
 associated with the array of bodies coming in.  The parameters are
 constrained so that writes under \kwd{RN} and under \kwd{RA} are
 noninterfering.  (For example two different names \kwd{A} and \kwd{B}
-would satisfy this constraint, but \kwd{A} and \kwd{A:B} would not).
+would satisfy this constraint, but \kwd{A} and \kwd{A:B} would not.)
 
 The body of \kwd{makeTree} does the following:
 %
 \begin{itemize}
 %
-\item If the input array is empty, return \kwd{null} (line 31).
+\item If the input array is empty, return \kwd{null} (line 36).
 %
 \item If the input array has just one element, then create a fresh
-  leaf node for it (line 32).
+  leaf node for it (line 37).
 %
 \item Otherwise, handle the recursive case.
 %
@@ -121,23 +121,23 @@ The recursive case works as follows:
 %
 \item Compute the index into the array corresponding to the midpoint
   of the current region of space, and split the array there (lines
-  33--35).
+  38--40).
 %
 \item Make a new \kwd{InnerNode} corresponding to the current region
-  of space (line 36).
+  of space (line 41).
 %
 \item In parallel, populate the left and right children of the new
-  inner node, by calling \kwd{makeTree} recursively (lines 37--42).
+  inner node, by calling \kwd{makeTree} recursively (lines 42--47).
 %
-\item Return the created node (line 43).
+\item Return the created node (line 48).
 %
 \end{itemize}
 
 The interesting types and effects are inside the \kwd{cobegin}.
-Notice that line 38 calls \kwd{makeTree} is called with
-$\kwd{RN}=\kwd{RN:InnerNode}$, which creates the right type for
-assigning into \kwd{node.leftChild}.  Notice also that the effects of
-the two branches of the \kwd{cobegin} are \kwd{reads RA:* writes
+Notice that lines 43--44 call \kwd{makeTree} with
+$\kwd{RN}=\kwd{RN:InnerNode.LeftRgn}$, which creates the right type
+for assigning into \kwd{node.leftChild}.  Notice also that the effects
+of the two branches of the \kwd{cobegin} are \kwd{reads RA:* writes
   RN:InnerNode.LeftRgn:*} and \kwd{reads RA:* writes
   RN:InnerNode.RightRgn:*}, and these two effects are disjoint.
 
@@ -179,16 +179,16 @@ returns the center of mass of that node.
 
 The method body works as follows.  If the input node is a leaf node,
 then the method just returns its body as the center of mass (lines
-9--10).  Otherwise, the method recursively and in parallel calls
-\kwd{updateCenterOfMass} on the left and right nodes (lines 13--18),
+10--11).  Otherwise, the method recursively and in parallel calls
+\kwd{updateCenterOfMass} on the left and right nodes (lines 13--20)
 and constructs a new \kwd{Body} representing the center of mass (lines
-19--26).  It then stores the \kwd{Body} representing the center of
+21--28).  It then stores the \kwd{Body} representing the center of
 mass into the input node and returns the \kwd{Body}.
 
-In lines 14--17, the effects of the two \kwd{cobegin} statements are
-as shown.  Because of the tree structure of the regions of the tree
-nodes, the effects on the left and write subtrees are disjoint.
-
+In lines 15--20, the effects of each of the two branches of the
+\kwd{cobegin} statement are as shown.  Because of the tree structure
+of the regions of the tree nodes, the effects on the left and write
+subtrees are disjoint.
 
 \bfhead{Further examples} The Barnes-Hut benchmark in the DPJ release
 (\kwd{Benchmarks/Applications/Barnes-Hut/dpj}) does a similar

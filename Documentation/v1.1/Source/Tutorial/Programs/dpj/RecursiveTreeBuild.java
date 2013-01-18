@@ -18,8 +18,9 @@ class RecursiveTreeBuild {
     static class LeafNode<region R> extends Node<R> {
         LeafNode(Body b) pure { centerOfMass = b; }
     }
-    private static <region R>int computeSplitPoint(ArraySlice<Body,R> arr, 
-                                                   double midpoint) 
+    private static <region R>
+        int computeSplitPoint(ArraySlice<Body,R> arr, 
+                              double midpoint) 
         reads R 
     {
         int result = 0;
@@ -27,9 +28,9 @@ class RecursiveTreeBuild {
         // position is to the right of midpoint
         return result;
     }
-    public static <region RN,RA | RN:* # RA:*>Node<RN> 
-        makeTree(ArraySlice<Body,RA:*> arr, double leftBound,
-                 double rightBound) 
+    public static <region RN,RA | RN:* # RA:*>
+        Node<RN>makeTree(ArraySlice<Body,RA:*> arr, double leftBound,
+                         double rightBound) 
         reads RA:* writes RN:* 
     {
         if (arr.length == 0) return null;
