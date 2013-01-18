@@ -3700,8 +3700,21 @@ defined like this:
 
 <B>public</B> arrayclass Array&lt;<FONT COLOR="blue"><B>type</B></FONT> T, <FONT COLOR="blue"><B>region</B></FONT> R&gt; {
   T <FONT COLOR="blue"><B>in</B></FONT> R;
-}</TT></DIV>It also provides a similar array class for each primitive type,
-specialized to that type.<BR>
+}</TT></DIV>It provides a similar array class for each primitive type, specialized
+to that type.<BR>
+<BR>
+The DPJ runtime also provides an index-parameterized array
+<TT>IPArray</TT> that is identical to the <TT>Array</TT> class shown above,
+except that the cell region specifier is <TT>R:[index]</TT> instead of
+<TT>R</TT>. Specialized versions of <TT>IPArray</TT> are also provided for
+each primitive type.<BR>
+<BR>
+These array classes handle many of the common cases involving arrays
+and regions. For other cases, it is easy to define custom array
+classes. In particular, because Java generics and arrays don't work
+well together, it's often useful to define a custom array class
+specialized to a particular class type, rather than using a generic
+array class.<BR>
 <BR>
 <!--TOC subsection 8.2&nbsp;&nbsp;ArraySlice-->
 

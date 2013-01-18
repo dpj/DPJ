@@ -53,8 +53,21 @@ public arrayclass Array<type T, region R> {
 }
 \end{dpjlisting}
 %
-It also provides a similar array class for each primitive type,
-specialized to that type.
+It provides a similar array class for each primitive type, specialized
+to that type.
+
+The DPJ runtime also provides an index-parameterized array
+\kwd{IPArray} that is identical to the \kwd{Array} class shown above,
+except that the cell region specifier is \kwd{R:[index]} instead of
+\kwd{R}.  Specialized versions of \kwd{IPArray} are also provided for
+each primitive type.
+
+These array classes handle many of the common cases involving arrays
+and regions.  For other cases, it is easy to define custom array
+classes.  In particular, because Java generics and arrays don't work
+well together, it's often useful to define a custom array class
+specialized to a particular class type, rather than using a generic
+array class.
 
 \subsection{ArraySlice%
 \label{sec:runtime:array-slice}}
