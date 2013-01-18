@@ -19,18 +19,19 @@ an expression (e.g., what type is returned by calling a method).
 \label{sec:types:class}}
 \cutname{types.class.html}
 
-This section discusses DPJ's class types (including array classes) and
-interface types.  We will use the term ``class'' throughout this
-section, with the understanding that the concepts apply identically to
-array classes and interfaces, unless otherwise noted.
-\S~\ref{sec:types:class:instant} discusses the instantiation of a
-class to a type by supplying RPLs for its parameters.
-\S~\ref{sec:types:class:compare} explains how the DPJ compiler
-compares two class types for compatibility, for example in checking an
-assignment statement.  \S~\ref{sec:types:class:cast} discusses casting
-one type to another in DPJ.  \S~\ref{sec:types:class:owner-rpl}
-explains \emph{owner RPLs}, which determine the nesting relation for
-variable RPLs (\S~\ref{sec:rpls:basic:var}).
+This section discusses DPJ's class types (including array classes, see
+\S~\ref{sec:array-classes}) and interface types.  We will use the term
+``class'' throughout this section, with the understanding that the
+concepts apply identically to array classes and interfaces, unless
+otherwise noted.  \S~\ref{sec:types:class:instant} discusses the
+instantiation of a class to a type by supplying RPLs for its
+parameters.  \S~\ref{sec:types:class:compare} explains how the DPJ
+compiler compares two class types for compatibility, for example in
+checking an assignment statement.  \S~\ref{sec:types:class:cast}
+discusses casting one type to another in DPJ.
+\S~\ref{sec:types:class:owner-rpl} explains \emph{owner RPLs}, which
+determine the nesting relation for variable RPLs
+(\S~\ref{sec:rpls:basic:var}).
 
 \subsubsection{Writing Class Types%
 \label{sec:types:class:instant}}
@@ -322,7 +323,7 @@ declaration \kwd{class C<type T>}, the owner RPL of the type
 
 This section discusses DPJ's support for Java-style array types, i.e.,
 types of the form \kwd{T[]}.  For the most part, array classes
-(\S~\ref{sec:classes:array}) should be more convenient to use than
+(\S~\ref{sec:array-classes}) should be more convenient to use than
 Java-style array types.  However, for backwards compatibility,
 Java-style array types are still supported.
 
@@ -348,7 +349,7 @@ Java.  For example, \kwd{new String[10]} creates a new array of 10
 
 Access to an array cell via an index operation always touches the
 region \kwd{Root}.  If an array in a different region is desired, an
-array class must be used (\S~\ref{sec:classes:array}).
+array class must be used (\S~\ref{sec:array-classes}).
 
 \subsubsection{Array Type Comparisons%
 \label{sec:types:array:compare}}

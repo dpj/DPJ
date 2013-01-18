@@ -9,7 +9,7 @@ fully-specified RPL names a \emph{region}, which represents a set of
 memory locations on the heap. The correspondence between memory
 locations and regions is given by the way that the programmer has
 assigned RPLs to class fields (\S~\ref{sec:classes:field-region-spec})
-and array class cells (\S~\ref{sec:classes:array}) and bound RPLs to
+and array class cells (\S~\ref{sec:array-classes}) and bound RPLs to
 region parameters in class types (\S~\ref{sec:types:class:instant})
 and method invocations (\S~\ref{sec:classes:params:method}). A
 partially-specified RPL names a \emph{set of regions} and is useful
@@ -177,7 +177,7 @@ functions as an RPL, called an \emph{array index RPL}.  The array
 index RPL represents a region indexed by the number that $e$
 evaluates to at runtime (so there is a different region for each
 natural number).  It is useful in conjunction with
-\emph{index-parameterized arrays} (\S~\ref{sec:classes:array:ipa}) and
+\emph{index-parameterized arrays} (\S~\ref{sec:array-classes:ipa}) and
 with DPJ's built-in features for array partitioning
 (\S~\ref{sec:runtime:partition}).
 
