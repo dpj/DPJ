@@ -3,11 +3,12 @@
 # Expand all template files
 
 my @targets = ( 
-    ["int", "Int"], 
     ["char", "Char"], 
-    ["byte", "Byte"], 
     ["boolean", "Boolean"],
+    ["byte", "Byte"], 
     ["double", "Double"],
+    ["float", "Float"],
+    ["int", "Int"], 
     ["String", "String"]
 );
 
