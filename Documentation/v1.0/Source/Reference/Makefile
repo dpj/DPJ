@@ -1,5 +1,5 @@
-TARGET=DPJ-Reference-v1.1
-include ../../Makefile.common
+TARGET=DPJ-Reference-v1.0
+include ../Makefile.common
 
 ${TARGET}.pdf : ${TEXFILES} hevea.sty
 	-rm -f *.aux

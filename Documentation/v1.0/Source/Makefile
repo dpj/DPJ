@@ -1,4 +1,4 @@
-DIRS= Installation Tutorial Reference/v1.0 Reference/v1.1 Spec
+DIRS= Installation Tutorial Reference Spec
 
 all :
 	@(for dir in $(DIRS); do make -C $$dir; done)
