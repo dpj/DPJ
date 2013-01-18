@@ -1,3 +1,5 @@
+import DPJRuntime.*;
+
 class IterationLocalObjects {
     class LocalObject<region R> {
         int value in R;
@@ -6,7 +8,7 @@ class IterationLocalObjects {
             return value;
         }
     }
-    int[]<[_]> results = new int[10]<[_]>;
+    IPArrayInt results = new IPArrayInt(10);
     void usingLocalRegions() {
         foreach (int i in 0, 10) {
             region LocalRegion;

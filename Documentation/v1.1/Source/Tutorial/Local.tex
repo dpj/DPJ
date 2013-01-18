@@ -40,21 +40,21 @@ DPJ: using local regions, and using array regions.
 \end{figure}
 
 \bfhead{How to write the pattern with local regions} Method
-\kwd{usingLocalRegions} (line 10 of
+\kwd{usingLocalRegions} (line 12 of
 Figure~\ref{fig:local:iteration:pattern}) illustrates the
 Iteration-Local Objects pattern using local regions.  Class
-\kwd{LocalObject} (lines 2--8) has an integer field called \kwd{value}
-and a method \kwd{produceValue}.  The \kwd{produceValue} method
-accepts an integer value, stores it to the object's \kwd{value} field,
-and returns it.  The effect of \kwd{produceValue} is to write to
-\kwd{R}, the region of the \kwd{LocalObject} type.  The rest of the
-program (lines 9 and following) creates an array and writes to it in
-parallel.  Line 9 creates an array of integers called \kwd{results}.
+\kwd{LocalObject} (lines 4--10) has an integer field \kwd{value} and a
+method \kwd{produceValue}.  The \kwd{produceValue} method accepts an
+integer value, stores it to the object's \kwd{value} field, and
+returns it.  The effect of \kwd{produceValue} is to write to \kwd{R},
+the region of the \kwd{LocalObject} type.  The rest of the program
+(lines 11 and following) creates an array and writes to it in
+parallel.  Line 11 creates an array of integers called \kwd{results}.
 The array is index-parameterized (Reference Manual \S~4.2.2), so that
 every cell is in its own region.
 
-Line 16 produces two effects, both disjoint for distinct iterations of
-the \kwd{foreach} loop at line 11.  First, because \kwd{results} is
+Line 18 produces two effects, both disjoint for distinct iterations of
+the \kwd{foreach} loop at line 13.  First, because \kwd{results} is
 index-parameterized, the effect of the assignment to \kwd{results[i]}
 is \kwd{writes [i]}; the write is to a different region for each value
 of \kwd{i} in each distinct iteration.  Second, the effect of invoking
@@ -64,9 +64,8 @@ that is, \kwd{writes LocalRegion}.  Since the scope of
 effect does not cause any interference across \kwd{foreach}
 iterations.
 
-
 \bfhead{How to write the pattern with array regions} Method
-\kwd{usingArrayRegions} (line 19 of
+\kwd{usingArrayRegions} (line 21 of
 Figure~\ref{fig:local:iteration:pattern} illustrates the
 Iteration-Local Objects pattern using array regions.  The code is the
 same as in method \kwd{usingLocalRegions}, except that instead of an
@@ -85,21 +84,6 @@ region, to store temporary data for processing the task.  See the file
 \kwd{Benchmarks/Applications/MonteCarlo/dpj}.  
 
 
-\begin{comment}
-\subsubsection{Algorithm Example:  Monte Carlo Path Computation%
-\label{sec:local:iteration:mc}}
-
-TODO
-
-\begin{figure}
-\begin{numbereddpjlisting}
-TODO
-\end{numbereddpjlisting}
-\caption{Iteration-Local Objects in the Monte Carlo path computation.}
-\label{fig:local:iteration:mc}
-\end{figure}
-\end{comment}
-
 \subsection{Method-Local Objects%
 \label{sec:local:method}}
 
@@ -115,7 +99,7 @@ Objects pattern with a simple sum reduction that also performs an
 incidental computation on local data.  Class \kwd{LocalObject} (lines
 4--10) is the same as in \S~\ref{sec:local:iteration}.  Method
 \kwd{sumReduce} (lines 11 and following) takes as input a
-\kwd{DPJArrayInt} (Reference Manual \S~7.1).  In the base cases it
+\kwd{ArraySliceInt} (Reference Manual \S~8.2).  In the base cases it
 either does nothing (empty array) or returns the only value (array
 with one element).  Otherwise, it divides the array in half and
 processes each half recursively and in parallel.  This part of the

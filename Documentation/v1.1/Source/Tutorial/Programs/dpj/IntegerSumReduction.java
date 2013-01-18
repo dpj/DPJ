@@ -3,9 +3,10 @@ import DPJRuntime.*;
 public class IntegerSumReduction {
     private region AccumRgn;
     private static int sum in AccumRgn;
-    public static <region R | R:* # AccumRgn> int
-      reduce(ArraySliceInt<R> arr, int tileSize)
-        reads R:* writes AccumRgn {
+    public static <region R | R:* # AccumRgn>
+      int reduce(ArraySliceInt<R> arr, int tileSize)
+        reads R:* writes AccumRgn 
+    {
         sum = 0;
         PartitionInt<R> segs =
             PartitionInt.<region R>
@@ -20,7 +21,9 @@ public class IntegerSumReduction {
         return sum;
     }
     private static commutative synchronized
-        void updateSum(int partialSum) writes AccumRgn {
+        void updateSum(int partialSum) 
+            writes AccumRgn 
+    {
             sum += partialSum;
     }
     public static void main(String[] args) {
