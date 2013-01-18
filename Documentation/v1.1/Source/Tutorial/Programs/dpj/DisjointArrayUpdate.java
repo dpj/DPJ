@@ -1,11 +1,13 @@
 class DisjointArrayUpdate {
     static class Data<region R> {
         int x in R;
+        static arrayclass Array {
+            Data<[index]> in [index];
+        }
     }
-
-    Data<[_]>[]<[_]> arr;
+    Data.Array arr;
     void initialize() {
-        arr = new Data<[_]>[10]<[_]>;
+        arr = new Data.Array(10);
         foreach (int i in 0, 10)
             arr[i] = new Data<[i]>();
     }

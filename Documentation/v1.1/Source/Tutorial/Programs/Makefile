@@ -1,3 +1,6 @@
+# To run a program, you can specify arguments to the variables on the
+# command line.  E.g.: make run-seq PROG=DisjointArrayUpdate
+
 include ${DPJ_ROOT}/Benchmarks/Makefile.common
 
 CUTOFF ?= 1

@@ -39,7 +39,7 @@ DPJ: using local regions, and using array regions.
 \label{fig:local:iteration:pattern}
 \end{figure}
 
-\bfhead{How to write the pattern with local regions:} Method
+\bfhead{How to write the pattern with local regions} Method
 \kwd{usingLocalRegions} (line 10 of
 Figure~\ref{fig:local:iteration:pattern}) illustrates the
 Iteration-Local Objects pattern using local regions.  Class
@@ -50,7 +50,7 @@ and returns it.  The effect of \kwd{produceValue} is to write to
 \kwd{R}, the region of the \kwd{LocalObject} type.  The rest of the
 program (lines 9 and following) creates an array and writes to it in
 parallel.  Line 9 creates an array of integers called \kwd{results}.
-The array is index-parameterized (Reference Manual, \S~4.2.2), so that
+The array is index-parameterized (Reference Manual \S~4.2.2), so that
 every cell is in its own region.
 
 Line 16 produces two effects, both disjoint for distinct iterations of
@@ -65,7 +65,7 @@ effect does not cause any interference across \kwd{foreach}
 iterations.
 
 
-\bfhead{How to write the pattern with array regions:} Method
+\bfhead{How to write the pattern with array regions} Method
 \kwd{usingArrayRegions} (line 19 of
 Figure~\ref{fig:local:iteration:pattern} illustrates the
 Iteration-Local Objects pattern using array regions.  The code is the
@@ -76,7 +76,7 @@ parameter of the \kwd{LocalObject} class in iteration \kwd{i} of the
 14 is \kwd{writes [i]}, which is a distinct region for each iteration
 of the loop.
 
-\bfhead{Further examples:} The Monte Carlo benchmark in the DPJ
+\bfhead{Further examples} The Monte Carlo benchmark in the DPJ
 release uses the array region version of this pattern.  Monte Carlo
 operates in parallel on a set of independent tasks, and uses a local
 object called \kwd{PriceStock}, parameterized by an iteration index
@@ -109,13 +109,13 @@ TODO
 \label{fig:local:method:pattern}
 \end{figure}
 
-\bfhead{How to write the pattern:}
+\bfhead{How to write the pattern}
 Figure~\ref{fig:local:method:pattern} illustrates the Method-Local
 Objects pattern with a simple sum reduction that also performs an
 incidental computation on local data.  Class \kwd{LocalObject} (lines
 4--10) is the same as in \S~\ref{sec:local:iteration}.  Method
 \kwd{sumReduce} (lines 11 and following) takes as input a
-\kwd{DPJArrayInt} (Reference Manual, \S~7.1).  In the base cases it
+\kwd{DPJArrayInt} (Reference Manual \S~7.1).  In the base cases it
 either does nothing (empty array) or returns the only value (array
 with one element).  Otherwise, it divides the array in half and
 processes each half recursively and in parallel.  This part of the
@@ -124,19 +124,19 @@ computation is similar to the Divide-and-Conquer Array Update pattern
 written.
 
 The rest of the computation (lines 20 and following) declares a local
-region (Reference Manual, \S~2.3.3) called \kwd{LocalRegion}, and
+region (Reference Manual \S~2.3.3) called \kwd{LocalRegion}, and
 creates a \kwd{LocalObject} with the local region as its RPL argument.
 The effect of invoking \kwd{localObject.produceValue} in line 24 is
 \kwd{writes LocalRegion}, as shown in line 23.  This effect is a local
-effect (Reference Manual, \S~5.3), so it doesn't have to be reported
-in the declared effect of \kwd{sumReduce} (Reference Manual,
-\S~2.3.1).  The write effect on the \kwd{LocalObject} instance in each
-invocation of \kwd{sumReduce} is therefore hidden, or \emph{masked},
-from the callee, and doesn't cause any interference at the
-\kwd{cobegin} in line 16.
+effect (Reference Manual \S~5.3), so it doesn't have to be reported in
+the declared effect of \kwd{sumReduce} (Reference Manual \S~2.3.1).
+The write effect on the \kwd{LocalObject} instance in each invocation
+of \kwd{sumReduce} is therefore hidden, or \emph{masked}, from the
+callee, and doesn't cause any interference at the \kwd{cobegin} in
+line 16.
 
 
-\bfhead{Further examples:} The Collision Tree benchmark in the DPJ
+\bfhead{Further examples} The Collision Tree benchmark in the DPJ
 release uses method-local objects.  Collision Tree computes whether
 two trees representing objects in space have any intersection, by
 recursively traversing the trees in parallel.  The computation is

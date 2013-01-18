@@ -187,17 +187,17 @@ effects, see the following sections of the Reference Manual:
 \begin{itemize}
 %
 \item 
-\S\S~2.3.1, 2.3.2, and 5.2 explain how to write method effect summaries.
+\S\S~2.3.1, 2.3.2, and 6.2 explain how to write method effect summaries.
 %
 \item
-\S~5.4 explains how the compiler computes a method's actual effects.
+\S~6.4 explains how the compiler computes a method's actual effects.
 %
 \item
-\S~5.6 explains how the compiler compares a method's actual effects to
+\S~6.6 explains how the compiler compares a method's actual effects to
 its summarized effects.
 %
 \item
-\S~5.7 explains noninterference of effect.
+\S~6.7 explains noninterference of effect.
 \end{itemize}
 %
 It may be best to read at least the rest of this section of this
@@ -265,7 +265,7 @@ RPLs are useful in several ways:
 \end{itemize}
 %
 Later sections of this tutorial give more examples of using RPLs.  For
-the full details, see \S\S~3 (RPLs), 4 (Types), and 5 (Effects) of the
+the full details, see \S\S~3 (RPLs), 5 (Types), and 6 (Effects) of the
 Reference Manual.
 
 \subsection{Class and Method Region Parameters%
@@ -298,7 +298,7 @@ That's because the write is to field \kwd{x}, \kwd{x} is in region
 \kwd{first}.  See Reference Manual \S~2.4.1 for more information on
 defining class region parameters, and Reference Manual \S~4 for more
 information on using parametric classes as types.  See Reference
-Manual \S~5.4 for more information on how the compiler computes the
+Manual \S~6.4 for more information on how the compiler computes the
 effect of a field access through a parametric type.
 
 \bfhead{Method region parameters} Methods can also have region
@@ -319,7 +319,7 @@ more details.
 \bfhead{Assignment restrictions} In order to ensure sound reasoning
 about types, some assignments aren't allowed when two types with the
 same class have different region arguments.  The rules are in
-Reference Manual \S~4.1.2.  Sometimes this means you can't do an
+Reference Manual \S~5.1.2.  Sometimes this means you can't do an
 assignment you want to do.  For example, if variable \kwd{a} has type
 \kwd{C<A>} and \kwd{b} has type \kwd{C<B>}, you can't say \kwd{b=a}.
 In this case, you have three options:
@@ -351,17 +351,21 @@ This strategy adds some overhead, which is a price of DPJ's
 determinism guarantee in this case.
 %
 \item As a last resort, use a type cast (Reference Manual
-  \S~4.1.3). For example, \kwd{b = (C<B>) a}.  This is usually not a
+  \S~5.1.3). For example, \kwd{b = (C<B>) a}.  This is usually not a
   good option, because it breaks DPJ's determinism guarantee.
 %
 \end{enumerate}
 
-\subsection{Arrays}
+\subsection{Arrays
+\label{sec:arrays}}
+\cutname{arrays.html}
 
 Arrays are important in parallel programming, so DPJ has several
 features to support them.
 
-\subsubsection{Array Classes}
+\subsubsection{Array Classes
+\label{sec:arrays:array-classes}}
+\cutname{arrays.array-classes.html}
 
 DPJ v1.1 introduces a feature called an \emph{array class} to support
 parallel programming with arrays.  An array class is like a Java class
@@ -416,7 +420,9 @@ objects and arrays of arrays.  See Reference Manual \S~4 for more
 information.  Later sections of this tutorial also provide concrete
 examples.
 
-\subsubsection{DPJ Runtime Classes}
+\subsubsection{DPJ Runtime Classes
+\label{sec:arrays:runtime}}
+\cutname{arrays.runtime.html}
 
 The DPJ runtime provides several classes that are useful for
 manipulating arrays.  First, it provides array classes similar to
@@ -425,14 +431,14 @@ primitive types; there are also generic versions.  Second, the DPJ
 runtime provides classes \kwd{ArraySlice} and \kwd{Partition} for
 manipulating subsections (i.e., ``slices'') of arrays.  These classes
 are useful for divide and conquer traversals that update disjoint
-parts of the same array.  
+parts of the same array.
 
-Reference Manual \S~7 gives an overview of how these classes work.
+Reference Manual \S~8 gives an overview of how these classes work.
 They are fully documented in the HTML documentation included with the
 DPJ release.  Later sections of this tutorial also give concrete
 examples for how to use the classes.
 
-Please note that, as described in \S~7 of the Reference Manual, it is
+Please note that, as described in \S~8 of the Reference Manual, it is
 not sufficient to put the DPJ runtime classes in your class path when
 compiling DPJ code that uses the runtime classes.  Instead, you must
 compile the runtime together with your code that depends on the

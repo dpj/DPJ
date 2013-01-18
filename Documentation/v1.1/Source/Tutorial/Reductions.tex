@@ -16,15 +16,15 @@ reduction is associative because it is represented by the binary
 operation $+$, which is associative; that means that for any integers
 $a$, $b$, and $c$, $a+(b+c)=(a+b)+c$.  
 
-\bfhead{How to write the pattern:} Associative reductions can be
+\bfhead{How to write the pattern} Associative reductions can be
 written efficiently as parallel algorithms.  There are at least two
 ways to do it, both supported in DPJ:
 %
 \begin{enumerate}
 %
-\item \emph{Recursive reduction:} Use divide-and-conquer recursion.
+\item \emph{Recursive reduction} Use divide-and-conquer recursion.
 %
-\item \emph{Iterative reduction:} Divide the input collection up into
+\item \emph{Iterative reduction} Divide the input collection up into
   pieces, loop over all the pieces in parallel and reduce each piece
   to a partial result, then reduce the partial results to the final
   result, either sequentially or in parallel.
@@ -52,7 +52,7 @@ Method \kwd{reduce} has a region parameter \kwd{R}, so a
 \kwd{DPJArrayInt} with any RPL argument can be passed to its \kwd{arr}
 parameter.  The region parameter is declared so that binding
 \kwd{R=$r$} at a call site must satisfy \kwd{$r$:* \# AccumRgn}
-(Reference Manual, \S~2.4.3).  The method is declared to read under
+(Reference Manual \S~2.4.3).  The method is declared to read under
 \kwd{R} (because it is reading the array), and to write \kwd{AccumRgn}
 (because it uses \kwd{AccumRgn} to compute the sum)
 
@@ -63,7 +63,7 @@ is only read, and not written.  Inside the \kwd{foreach} loop (lines
 13--19), there is a sequential partial sum computation, followed by a
 global accumulation.  The accumulation invokes the private method
 \kwd{updateSum} (defined at line 22).  That method is declared
-\kwd{commutative} (Reference Manual, \S~2.3.4), because it is properly
+\kwd{commutative} (Reference Manual \S~2.3.4), because it is properly
 synchronized to allow concurrent execution, and the operation it
 performs commutes with itself.  This is a typical way to write an
 accumulation operation in DPJ.  If the number of parallel tasks is
@@ -77,7 +77,7 @@ with the value 42, and calls \kwd{reduce} with a tile size of 1000.
 Since Java initializes the other array cells to 0, hopefully the
 answer is 42.
 
-\bfhead{Further examples:} The following benchmarks in the DPJ release
+\bfhead{Further examples} The following benchmarks in the DPJ release
 implement reductions:
 %
 \begin{itemize}

@@ -33,7 +33,7 @@ that simplification to the reader as an exercise.
 \label{fig:tree:build}
 \end{figure}
 
-\bfhead{How to write the pattern:} Figure~\ref{fig:tree:build}
+\bfhead{How to write the pattern} Figure~\ref{fig:tree:build}
 illustrates the Recursive Tree Build pattern, for an algorithm that
 builds a binary region tree for partitioning bodies in one-dimensional
 space.  In this kind of tree, the data (the bodies) are in the leaf
@@ -141,13 +141,13 @@ the two branches of the \kwd{cobegin} are \kwd{reads RA:* writes
   RN:InnerNode.LeftRgn:*} and \kwd{reads RA:* writes
   RN:InnerNode.RightRgn:*}, and these two effects are disjoint.
 
-\bfhead{Further examples:} The file \kwd{Quadtree.java} in directory
+\bfhead{Further examples} The file \kwd{Quadtree.java} in directory
 \kwd{Benchmarks/Kernels/dpj} of the DPJ uses this pattern to build a
-quadtree (i.e., a tree in which each node has up to four children)
-for partitioning two-dimensional space.  The main difference is that
-index-parameterized arrays (Reference Manual, \S~4.2.2) are used
-instead of the regions \kwd{LeftRgn} and \kwd{RightRgn} to distinguish
-the different branches of the tree.  The partition step is implemented
+quadtree (i.e., a tree in which each node has up to four children) for
+partitioning two-dimensional space.  The main difference is that
+index-parameterized arrays (Reference Manual \S~4.3) are used instead
+of the regions \kwd{LeftRgn} and \kwd{RightRgn} to distinguish the
+different branches of the tree.  The partition step is implemented
 sequentially, but it could easily be parallelized.
 
 The Barnes-Hut benchmark in the DPJ release
@@ -169,7 +169,7 @@ traversal and update to be done with provable noninterference.
 \label{fig:tree:update}
 \end{figure}
 
-\bfhead{How to write the pattern:} Figure~\ref{fig:tree:update}
+\bfhead{How to write the pattern} Figure~\ref{fig:tree:update}
 illustrates the Recursive Tree Update pattern, for an algorithm that
 traverses the tree constructed in Figure~\ref{fig:tree:build} and
 updates the center of mass of each node.  The work is done by a single
@@ -190,7 +190,7 @@ as shown.  Because of the tree structure of the regions of the tree
 nodes, the effects on the left and write subtrees are disjoint.
 
 
-\bfhead{Further examples:} The Barnes-Hut benchmark in the DPJ release
+\bfhead{Further examples} The Barnes-Hut benchmark in the DPJ release
 (\kwd{Benchmarks/Applications/Barnes-Hut/dpj}) does a similar
 center-of-mass computation on an octtree.  The center-of-mass phase is
 not parallelized in that benchmark, but it could be using this
