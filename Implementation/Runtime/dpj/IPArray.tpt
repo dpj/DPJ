@@ -1,0 +1,5 @@
+package DPJRuntime;
+
+public arrayclass IPArray$$<region R> {
+    $ in R:[index];
+}
