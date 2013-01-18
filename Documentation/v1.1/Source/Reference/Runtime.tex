@@ -7,11 +7,7 @@ This section gives an overview of the classes \kwd{ArraySlice} and
 part of the runtime supplied with DPJ and are useful for manipulating
 arrays.  For full documentation of these classes, and for coverage of
 the other DPJ runtime classes, see the HTML documentation included in
-the DPJ release at 
-%
-\begin{description}
-\item \kwd{DPJ/Implementation/Runtime/dpjdoc}.
-\end{description}
+the DPJ release at \kwd{DPJ/Implementation/Runtime/dpjdoc}.
 
 To use the DPJ runtime, you have to do the following:
 %
@@ -20,14 +16,14 @@ To use the DPJ runtime, you have to do the following:
 \item Put \kwd{import DPJRuntime.*} at the top of your code (or just
   import the class or classes you want to use), as for regular Java.
 %
-\item When compiling your code, you must compile the runtime classes
-  located at \kwd{Implementation/Runtime/dpj} in the DPJ release
-  together with any code that uses the runtime.  For example, if class
-  file \kwd{Foo.java} depends on the DPJ runtime, then you need to do
+\item Compile the runtime classes located at
+  \kwd{Implementation/Runtime/dpj} in the DPJ release together with
+  any code that uses the runtime.  For example, if class file
+  \kwd{Foo.java} depends on the DPJ runtime, then you need to do
   something like this:
 %
 \begin{description}
-\item \kwd{dpj Foo.java \$\{DPJ\_ROOT\}/Implementation/Runtime/dpj/*java}
+\item \kwd{dpjc Foo.java \$\{DPJ\_ROOT\}/Implementation/Runtime/dpj/*java}
 \end{description}
 %
 \emph{It is not sufficient to put the runtime classes in your class
@@ -42,9 +38,27 @@ annotated code to process the annotations.
 %
 \end{enumerate}
 
-\subsection{ArraySlice%
+\subsection{Array Classes%
 \label{sec:runtime:array}}
 \cutname{runtime.array.html}
+
+The DPJ runtime provides a generic array class \kwd{Array} that is
+defined like this:
+%
+\begin{dpjlisting}
+package DPJRuntime;
+
+public arrayclass Array<type T, region R> {
+  T in R;
+}
+\end{dpjlisting}
+%
+It also provides a similar array class for each primitive type,
+specialized to that type.
+
+\subsection{ArraySlice%
+\label{sec:runtime:array-slice}}
+\cutname{runtime.array-slice.html}
 
 In parallel algorithms that operate on arrays, especially
 divide-and-conquer algorithms, it is often necessary to split an array
@@ -78,16 +92,16 @@ ArraySlice<Integer,r> A = new ArraySlice<Integer,r>(10);
 \end{dpjlisting}
 %
 
-Creating a fresh DPJ array is useful, but sometimes you have a Java
-array and you want to make an \kwd{ArraySlice} out of it.  So the second
-way to create an \kwd{ArraySlice} is to call a constructor that takes an
-ordinary Java array as an argument.  For example, the following code
-creates a Java array of 10 \kwd{Integer} objects, and wraps it in a
+Creating a fresh DPJ array is useful, but sometimes you have an array
+and you want to make an \kwd{ArraySlice} out of it.  So the second way
+to create an \kwd{ArraySlice} is to call a constructor that takes an
+array class as an argument.  For example, the following code creates a
+Java array of 10 \kwd{Integer} objects, and wraps it in a
 \kwd{ArraySlice}:
 %
 \begin{dpjlisting}
 region r;
-Integer[]<r> a = new Integer[10]<r>;
+ArrayInt<r> a = new ArrayInt<r>(10);
 ArraySlice<Integer,r> A = new ArraySlice<Integer,r>(a);
 \end{dpjlisting}
 %
@@ -95,9 +109,9 @@ Note that the type and RPL of the array being passed in (here,
 \kwd{Integer} and \kwd{r}) must match the type and RPL argument of the
 \kwd{ArraySlice} type; if not, a compile error occurs.
 
-The third way to create an \kwd{ArraySlice} is to make a \emph{subslice}
-(i.e., a slice) of an existing \kwd{ArraySlice}.  This is explained
-below.
+The third way to create an \kwd{ArraySlice} is to make a
+\emph{subslice} (i.e., a smaller slice) of an existing
+\kwd{ArraySlice}.  This is explained below.
 
 \ithead{Accessing elements} \kwd{ArraySlice} has \kwd{put} and
 \kwd{get} operations similar to the ones in \kwd{java.util.ArrayList}.
@@ -120,12 +134,11 @@ than 0 or greater than the array length minus one throws an
 \kwd{ArrayIndexOutOfBoundsException}.
 
 \ithead{Subslices} The real usefulness of \kwd{ArraySlice} is its
-support for \emph{subslices}, which are contiguous subsections of an
-array.  To create a subslice of an \kwd{ArraySlice}, you call the
-\kwd{subslice} instance method with a start and length argument.  For
-example, the following code creates an \kwd{ArraySlice} and then extracts
-the subslice of length 2 starting at position 5 (here we use the
-default RPL of \kwd{Root}):
+support for \emph{subslices}.  To create a subslice of an
+\kwd{ArraySlice}, you call the \kwd{subslice} instance method with a
+start and length argument.  For example, the following code creates an
+\kwd{ArraySlice} and then extracts the subslice of length 2 starting
+at position 5 (here we use the default RPL of \kwd{Root}):
 %
 \begin{dpjlisting}
 ArraySlice<Integer> A = new ArraySlice<Integer>(10);
@@ -161,13 +174,13 @@ increments every position of an \kwd{ArraySlice} by 1:
 %
 \begin{dpjlisting}
 <type T, region R>void increment(ArraySlice<T,R> A) {
-    if (A.length == 0) return;
-    if (A.length == 1) {
-        A.put(0, A.get(0)+1);
-    }
-    int mid = A.length / 2;
-    increment(A.subslice(0, mid));
-    increment(A.subslice(mid, length-mid));
+  if (A.length == 0) return;
+  if (A.length == 1) {
+    A.put(0, A.get(0)+1);
+  }
+  int mid = A.length / 2;
+  increment(A.subslice(0, mid));
+  increment(A.subslice(mid, length-mid));
 }
 \end{dpjlisting}
 %
@@ -175,22 +188,8 @@ Without the subslice feature, this code would have to be written by
 passing the index ranges as parameters to the \kwd{increment} method,
 which is ugly.
 
-\bfhead{Specialized ArraySlices} Because Java does not support
-binding primitive types to generic parameters, the DPJ runtime also
-has versions of \kwd{ArraySlice} specialized to the primitive types
-(\kwd{DPJInt} for \kwd{int}, \kwd{DPJBoolean} for \kwd{boolean},
-etc.).  These operate identically to the generic \kwd{ArraySlice},
-except that the element type is given by the class, and there is no
-generic parameter.
-
-Another way to write such arrays is to create a generic \kwd{ArraySlice}
-using the class corresponding to the primitive type.  For example,
-instead of an \kwd{ArraySliceInt}, one could use a
-\kwd{ArraySlice<Integer>}, as described above.  This works, but the code
-is more verbose, as well as more memory-intensive and slower, as Java
-has to box and unbox all those primitive types when putting them into
-and getting them out of the array.
-
+\bfhead{Specialized ArraySlice} The DPJ runtime has a version of
+\kwd{ArraySlice} specialized to each primitive type.
 
 \subsection{Partition%
 \label{sec:runtime:partition}}
@@ -202,13 +201,13 @@ parallel sorting algorithm might repeatedly divide an array into
 disjoint halves (or quarters, etc.) and operate recursively in
 parallel on the pieces.  To support effect checking for this kind of
 algorithm, the DPJ runtime includes a class \kwd{Partition} for
-representing disjoint collections of subslices of the same array.
-Each of the subslices in the collection is called a \emph{segment} of
-the partition.  As with \kwd{ArraySlice}, there is a generic version,
-and there are specialized versions.
+representing disjoint collections of slice of the same array.  Each of
+the slices in the collection is called a \emph{segment} of the
+partition.  As with \kwd{ArraySlice}, there is a generic version, and
+there are specialized versions.
 
-\bfhead{Generic \kwd{Partition}}  The generic \kwd{Partition}
-class represents an array of subslices of an \kwd{ArraySlice}.  It has
+\bfhead{Generic Partition}  The generic \kwd{Partition}
+class represents an array of slices of an \kwd{ArraySlice}.  It has
 one type parameter and one RPL parameter:
 %
 \begin{dpjlisting}
@@ -218,7 +217,7 @@ class Partition<type T, region R>
 The type parameter is the element type of the \kwd{ArraySlice} being
 partitioned, and the RPL parameter is the RPL of the array storage.
 
-\ithead{Creating a \kwd{Partition}} There are several ways to
+\ithead{Creating a Partition} There are several ways to
 create a \kwd{Partition}; for a full list, see the HTML
 documentation.  Here are two useful ways.  First, \kwd{Partition}
 has a constructor that takes an \kwd{ArraySlice} to partition, an index
@@ -271,20 +270,21 @@ shown in \S~\ref{sec:runtime:array}:
 %
 \begin{dpjlisting}
 <type T, region R>void parallelIncrement(ArraySlice<T,R> A) 
-  writes R:* {
-    if (A.length == 0) return;
-    if (A.length == 1) {
-        // Effect is 'writes R'
-        A.put(0, A.get(0)+1);
-    }
-    int mid = A.length / 2;
-    final Partition<T,R> segs = new Partition<T,R>(A,mid)
-    cobegin {
-        // Effect is 'writes segs:[0]:*'
-        parallelIncrement(segs.get(0));
-        // Effect is 'writes segs:[1]:*'
-        parallelIncrement(segs.get(1));
-    }
+  writes R:* 
+{
+  if (A.length == 0) return;
+  if (A.length == 1) {
+    // Effect is 'writes R'
+    A.put(0, A.get(0)+1);
+  }
+  int mid = A.length / 2;
+  final Partition<T,R> segs = new Partition<T,R>(A,mid)
+  cobegin {
+    // Effect is 'writes segs:[0]:*'
+    parallelIncrement(segs.get(0));
+    // Effect is 'writes segs:[1]:*'
+    parallelIncrement(segs.get(1));
+  }
 }
 \end{dpjlisting}
 %
@@ -307,10 +307,7 @@ Partition<Integer> segs1 = new Partition(A, 2);
 Partition<Integer> segs2 = new Partition(A, 8);
 \end{dpjlisting}
 
-\bfhead{Specialized \kwd{Partition}s} As with \kwd{ArraySlice},
-there are versions of \kwd{Partition} specialized to the various
-primitive types.  They are provided for convenience and efficiency, as
-Java does not support binding primitive types to generic type
-parameters.
+\bfhead{Specialized Partition} As with \kwd{ArraySlice}, there are
+versions of \kwd{Partition} specialized to each primitive type.
 
 

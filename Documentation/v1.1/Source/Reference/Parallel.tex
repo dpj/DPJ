@@ -10,8 +10,8 @@ There are two ways to fork tasks: \kwd{cobegin}, which forks several
 statements as parallel tasks, and \kwd{foreach}, which forks groups of
 consecutive loop iterations as parallel tasks.
 
-\subsection{\kwd{cobegin}}
-\label{sec:parallel:cobegin}
+\subsection{cobegin
+\label{sec:parallel:cobegin}}
 \cutname{parallel.cobegin.html}
 
 The syntax of the \kwd{cobegin} statement is as follows, where $S$ is
@@ -102,7 +102,7 @@ scheduler to balance the computation, but (2) the task creation
 overhead is not unduly large.  See \tutorial\ for more
 examples of \kwd{cobegin}.
 
-\subsection{\kwd{foreach}%
+\subsection{foreach%
 \label{sec:parallel:foreach}}
 \cutname{parallel.foreach.html}
 
@@ -112,7 +112,7 @@ statements of a block.  The granularity of parallelism (i.e., how many
 loop iterations to execute in a task) is controllable by the
 programmer.
 
-\subsubsection{Writing the \kwd{foreach} loop%
+\subsubsection{Writing the foreach Loop%
 \label{sec:parallel:foreach:writing}}
 \cutname{parallel.foreach.writing}
 
@@ -165,7 +165,7 @@ work according to the programmer-specified granularity
 \kwd{foreach}; i.e., all tasks created by the \kwd{foreach} must
 complete before any code following the \kwd{foreach} is executed.
 
-\subsubsection{Controlling the granularity of parallelism%
+\subsubsection{Controlling the Granularity of Parallelism%
 \label{sec:parallel:foreach:granularity}}
 \cutname{parallel.foreach.granularity.html}
 

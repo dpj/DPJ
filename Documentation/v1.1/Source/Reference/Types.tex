@@ -50,8 +50,8 @@ following code is valid:
 %
 \begin{dpjlisting}
 class ImplicitArgs<type T, region R> {
-    // ImplicitArgs is a valid type here
-    ImplicitArgs field = null;
+  // ImplicitArgs is a valid type here
+  ImplicitArgs field = null;
 }
 \end{dpjlisting}
 %
@@ -95,8 +95,8 @@ For example:
 %
 \begin{dpjlisting}
 class ExplicitArgs<type T, region R> {
-    // Instantiate an ExplicitArgs type with T=Object, R=Root
-    ExplicitArgs<Object,Root> field;
+  // Instantiate an ExplicitArgs type with T=Object, R=Root
+  ExplicitArgs<Object,Root> field;
 }
 \end{dpjlisting}
 %
@@ -114,8 +114,8 @@ example, in the code above, we could have written the type of field
 %
 \begin{dpjlisting}
 class ImplicitRPLArg<region R1, R2> {
-    region r;
-    ImplicitRPLArg<r> field;
+  region r;
+  ImplicitRPLArg<r> field;
 }
 \end{dpjlisting}
 %
@@ -480,16 +480,16 @@ and the capture in step 4(b) isn't needed.
 %
 \begin{numbereddpjlisting}
 class FieldTypingExample<region R> {
-    region r;
-    FieldTypingExample<R> field1 in R;
-    void FieldTypingExample<r> method1() {
-        return (new FieldTypingExample<r>).field1;
-    }        
-    FieldTypingExample<this> field2 in this;
-    void FieldTypingExample<arg> 
-      method2(final FieldTypingExample<R> arg) {
-        return arg.field;
-    }
+  region r;
+  FieldTypingExample<R> field1 in R;
+  void FieldTypingExample<r> method1() {
+    return (new FieldTypingExample<r>).field1;
+  }        
+  FieldTypingExample<this> field2 in this;
+  void FieldTypingExample<arg> 
+  method2(final FieldTypingExample<R> arg) {
+    return arg.field;
+  }
 }
 \end{numbereddpjlisting}
 %
@@ -548,7 +548,7 @@ then do the following:
 %
 \begin{enumerate}
 %
-\item perform the same conversion as for field access
+\item Perform the same conversion as for field access
   (\S~\ref{sec:types:exp:field}), treating the cell type of the array
   class as the field type.
 %
@@ -560,9 +560,9 @@ For example, given the following code
 %
 \begin{dpjlisting}
 class Data<region R> {
-    static arrayclass Array<region R> {
-        Data<R:[i]> in R:[i];
-    }
+  static arrayclass Array<region R> {
+    Data<R:[i]> in R:[i];
+  }
 }
 region r;
 Data.Array<r> a = new Data.Array<r>(10);
@@ -635,11 +635,11 @@ are no-ops, and the capture in step 4(d) isn't needed.
 %
 \begin{numbereddpjlisting}
 abstract class MethodInvocationExample<region R1, R2> {
-    abstract <region R3>
-        MethodInvocationExample<R3, [i]>callee(int i);
-    MethodInvocationExample<Root, [0]>caller() {
-        return this.<Root>callee(0);
-    }
+  abstract <region R3>
+    MethodInvocationExample<R3, [i]>callee(int i);
+  MethodInvocationExample<Root, [0]>caller() {
+    return this.<Root>callee(0);
+  }
 }
 \end{numbereddpjlisting}
 %
@@ -693,16 +693,16 @@ motivate the problem, consider this example:
 %
 \begin{numbereddpjlisting}
 class CaptureExample<region R> {
-    CaptureExample<R> field;
-    void method() {
-        region r1, r2;
-        // Create a new CaptureExample<R:r1>
-        CaptureExample<R:r1> ce = new CaptureExample<R:r1>();
-        // Assign it to CaptureExample<R:*>; this is allowed
-        CaptureExample<R:*> ceStar = ce;
-        // This should not be allowed!
-        ceStar.field = new CaptureExample<R:r2>();
-    }
+  CaptureExample<R> field;
+  void method() {
+    region r1, r2;
+    // Create a new CaptureExample<R:r1>
+    CaptureExample<R:r1> ce = new CaptureExample<R:r1>();
+    // Assign it to CaptureExample<R:*>; this is allowed
+    CaptureExample<R:*> ceStar = ce;
+    // This should not be allowed!
+    ceStar.field = new CaptureExample<R:r2>();
+  }
 }
 \end{numbereddpjlisting}
 %
@@ -773,11 +773,11 @@ method invocations:
 %
 \begin{numbereddpjlisting}
 abstract class CaptureMethodExample<region R> {
-    abstract void callee(CaptureMethodExample<R> x);
-    void caller(CaptureMethodExample<*> y) {
-        // Compile error!
-        y.callee(y);
-    }
+  abstract void callee(CaptureMethodExample<R> x);
+  void caller(CaptureMethodExample<*> y) {
+    // Compile error!
+    y.callee(y);
+  }
 }
 \end{numbereddpjlisting}
 %
@@ -802,11 +802,11 @@ example, the code above could be rewritten as follows:
 %
 \begin{numbereddpjlisting}
 abstract class CaptureMethodExample<region R> {
-    abstract void callee(CaptureMethodExample<R> x);
-    <region R>void caller(CaptureMethodExample<R> y) {
-        // OK
-        y.callee(y);
-    }
+  abstract void callee(CaptureMethodExample<R> x);
+  <region R>void caller(CaptureMethodExample<R> y) {
+    // OK
+    y.callee(y);
+  }
 }
 \end{numbereddpjlisting}
 %

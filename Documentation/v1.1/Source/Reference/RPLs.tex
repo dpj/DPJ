@@ -9,11 +9,12 @@ fully-specified RPL names a \emph{region}, which represents a set of
 memory locations on the heap. The correspondence between memory
 locations and regions is given by the way that the programmer has
 assigned RPLs to class fields (\S~\ref{sec:classes:field-region-spec})
-and bound RPLs to region parameters in class types
-(\S~\ref{sec:types:class:instant}) and method invocations
-(\S~\ref{sec:classes:params:method}). A partially-specified RPL names
-a \emph{set of regions} and is useful for expressing hierarchical
-effects (e.g., ``all regions under this one'').
+and array class cells (\S~\ref{sec:classes:array}) and bound RPLs to
+region parameters in class types (\S~\ref{sec:types:class:instant})
+and method invocations (\S~\ref{sec:classes:params:method}). A
+partially-specified RPL names a \emph{set of regions} and is useful
+for expressing hierarchical effects (e.g., ``all regions under this
+one'').
 
 RPLs are naturally nested.  In fact the motivation for name ``region
 path list'' is that an RPL is a sequence of names that describes a
@@ -115,7 +116,7 @@ and to instantiate a class type (\S~\ref{sec:types:class:instant}):
 %
 \begin{dpjlisting}
 class RootExample<region R> {
-    RootExample<Root> x in Root;
+  RootExample<Root> x in Root;
 }
 \end{dpjlisting}
 %
@@ -138,8 +139,8 @@ and to instantiate a class type (\S~\ref{sec:types:class:instant}):
 %
 \begin{dpjlisting}
 class ClassRegionExample<region R> {
-    region ClassRegion;
-    int ClassRegionExample<ClassRegion> x in ClassRegion;
+  region ClassRegion;
+  int ClassRegionExample<ClassRegion> x in ClassRegion;
 }
 \end{dpjlisting}
 %
@@ -148,10 +149,10 @@ Java static fields, the following code is also legal:
 %
 \begin{dpjlisting}
 class Class1 {
-    region ClassRegion;
+  region ClassRegion;
 }
 class Class2 {
-    int x in Class1.ClassRegion;
+  int x in Class1.ClassRegion;
 }
 \end{dpjlisting}
 
@@ -162,7 +163,7 @@ the name sequence \kwd{Root}:$R$, as described in
 %
 \begin{dpjlisting}
 class Class2 {
-    int x in Root:Class1.ClassRegion;
+  int x in Root:Class1.ClassRegion;
 }
 \end{dpjlisting}
 
@@ -197,11 +198,11 @@ uses it to instantiate a type:
 %
 \begin{dpjlisting}
 class LocalRegionExample<region R> {
-    void method() {
-        region LocalRegion;
-        LocalRegionExample<LocalRegion> lre = 
-          new LocalRegionExample<LocalRegion>();
-    }
+  void method() {
+    region LocalRegion;
+    LocalRegionExample<LocalRegion> lre = 
+      new LocalRegionExample<LocalRegion>();
+  }
 }
 \end{dpjlisting}
 %
@@ -212,11 +213,11 @@ example, the class definition above is equivalent to the following:
 %
 \begin{dpjlisting}
 class LocalRegionExample<region R> {
-    void method() {
-        region LocalRegion;
-        LocalRegionExample<Root:LocalRegion> lre = 
-          new LocalRegionExample<Root:LocalRegion>();
-    }
+  void method() {
+    region LocalRegion;
+    LocalRegionExample<Root:LocalRegion> lre = 
+      new LocalRegionExample<Root:LocalRegion>();
+  }
 }
 \end{dpjlisting}
 %
@@ -245,10 +246,12 @@ type (\S~\ref{sec:types:class:instant}), and in an effect summary
 %
 \begin{dpjlisting}
 class VarRegionExample<region R> {
-    VarRegionExample<this> x in this;
-    void setX(VarRegionExample<this> x) writes this {
-        this.x = x;
-    }
+  VarRegionExample<this> x in this;
+  void setX(VarRegionExample<this> x) 
+    writes this 
+  {
+    this.x = x;
+  }
 }
 \end{dpjlisting}
 %
@@ -377,8 +380,8 @@ class definition:
 %
 \begin{dpjlisting}
 class ParameterExample<region R> {
-    region r;
-    int x in R:r
+  region r;
+  int x in R:r
 }
 \end{dpjlisting}
 %
@@ -485,17 +488,16 @@ parameterized and/or partially specified.  For example:
 %
 \begin{dpjlisting}
 class LocalRPLs<region R> {
-    region ClassRegion;
-    void method() {
-        region LocalRegion;
-        // LocalRegion is a local RPL; it is equivalent 
-        // to Root:LocalRegion
-        LocalRPLs<LocalRegion> x = null;
-        // R:LocalRegion:* is a local RPL
-        LocalRpls<ClassRegion:LocalRegion:*> y = null;
-        // ClassRegion is not a local RPL
-        LocalRpls<ClassRegion> z = null;
-    }
+  region ClassRegion;
+  void method() {
+    region LocalRegion;
+    // LocalRegion is a local RPL; it is equivalent to Root:LocalRegion
+    LocalRPLs<LocalRegion> x = null;
+    // R:LocalRegion:* is a local RPL
+    LocalRpls<ClassRegion:LocalRegion:*> y = null;
+    // ClassRegion is not a local RPL
+    LocalRpls<ClassRegion> z = null;
+  }
 }
 \end{dpjlisting}
 %
@@ -657,10 +659,10 @@ an RPL:
 %
 \begin{dpjlisting}
 class NestByOwnership<region R> {
-    <region R>method(final NestByOwnership<R> param) {
-        // param is used as an RPL here; it is nested under R
-        NestByOwnership<param> localVar = new NestByOwnership<param>();
-    }
+  <region R>method(final NestByOwnership<R> param) {
+    // param is used as an RPL here; it is nested under R
+    NestByOwnership<param> localVar = new NestByOwnership<param>();
+  }
 }
 \end{dpjlisting}
 
@@ -792,13 +794,13 @@ is included in \kwd{R1:*}, \kwd{R2:r} is included in \kwd{R2:*}, and
 %
 \begin{dpjlisting}
 class DisjointConstraints<region R1, R2 | R1:* # R2:*> {
-    region r;
-    void method() {
-        DisjointConstraints<R1:r> dc1 =
-            new DisjointConstraints<R1:r>();
-        DisjointConstraints<R2:r> dc2 =
-            new DisjointConstraints<R2:r>();
-    }
+  region r;
+  void method() {
+    DisjointConstraints<R1:r> dc1 =
+    new DisjointConstraints<R1:r>();
+    DisjointConstraints<R2:r> dc2 =
+    new DisjointConstraints<R2:r>();
+  }
 }
 \end{dpjlisting}
 
@@ -828,6 +830,11 @@ identify pairs of never-equal expressions:
 %
 \item $e_1$ and $e_2$ are never-equal if they refer to different
   compile-time constants.  For example, 0 and 1 are never-equal.
+%
+\item Index variables $i_1$ and $i_2$ are never-equal if they
+  represent the values attained by the same index variable $i$ on
+  different iterations of a \kwd{foreach} loop
+  (\S~\ref{sec:parallel:foreach}).
 %
 \item $e_1$ and $e_2$ are never-equal if they represent the same
   binary operation, one of the corresponding subexpressions is
