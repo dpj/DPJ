@@ -222,7 +222,7 @@ need to iterate to a fixed point.)
 In more detail, here is how the compiler computes the effects of a
 DPJ statement or expression:
 
-\bfhead{Field access:} For field access expressions
+\bfhead{Field access} For field access expressions
 \emph{selector-exp}\kwd{.}\emph{field-name} that directly access a
 non-\kwd{final} field, the compiler first computes the RPL accessed by
 the expression.  It uses the same procedure as for typing field access
@@ -239,7 +239,7 @@ than initialization, are not allowed).  Because the value of
 a \kwd{final} field does not change after initialization, reading it
 cannot cause a conflicting access.
 
-\bfhead{Array access:} For array access expressions \kwd{$e_1$[$e_2$]}
+\bfhead{Array access} For array access expressions \kwd{$e_1$[$e_2$]}
 that access an array cell, the compiler first computes the RPL of the
 cell.  To do this it substitutes $e_2$ for the leftmost index variable
 in the leftmost RPL argument appearing in the type of $e_1$.  For
@@ -259,7 +259,7 @@ read, while \kwd{B[0][1] = x} generates a write.  In fact, this is
 just a special case of the rules stated in the previous paragraph,
 together with the rules for compound expressions (see below).
 
-\bfhead{Method invocation:} For method invocation expressions, the
+\bfhead{Method invocation} For method invocation expressions, the
 compiler computes and accumulates the effects of evaluating the
 selector and argument expressions as described in this section.  Then
 it uses the method's effect summary
@@ -271,13 +271,13 @@ there are no substitutions for type parameters in steps 4(a) or 4(b).
 The compiler records an invocation effect (\S~\ref{sec:effects:basic})
 with the invoked method and the computed effect.
 
-\bfhead{Local variable access:}  For statements and expressions that
+\bfhead{Local variable access}  For statements and expressions that
 access a non-\kwd{final} local variable (i.e., variable declared in a
 method scope or method formal parameter), the compiler records a read
 or write effect on the variable.  Effects on \kwd{final} local
 variables are ignored.
 
-\bfhead{Compound statements and expressions:} For any statement or
+\bfhead{Compound statements and expressions} For any statement or
 expression made up of other statements or expressions (including, for
 example, an assignment that has a method invocation on its right-hand
 side, or an array access to an expression which is itself an array
@@ -313,7 +313,7 @@ covers all the effects \kwd{writes [i]} for all \kwd{i} inside the
 loop, so that is what we use.  This is called \emph{effect
   coarsening}.
 
-\bfhead{Coarsening of local effects:} An effect on a local RPL
+\bfhead{Coarsening of local effects} An effect on a local RPL
 (\S~\ref{sec:rpls:local}) or local variable is simply deleted from the
 effect set when the RPL or variable goes out of scope.  For example,
 in the following code fragment, neither block contained in the
@@ -361,10 +361,10 @@ This technique is useful for creating private objects in each
 iteration that manipulate data local to that iteration.  See
 \tutorial\ for more examples.
 
-\bfhead{Coarsening of nonlocal effects:} Coarsening of nonlocal
+\bfhead{Coarsening of nonlocal effects} Coarsening of nonlocal
 effects works as follows.
 
-\ithead{Variable RPLs:} An effect on an RPL starting with a
+\ithead{Variable RPLs} An effect on an RPL starting with a
 \kwd{final} local variable
 (\S\S~\ref{sec:rpls:basic:var},~\ref{sec:rpls:sequences}) is coarsened
 when the variable goes out of scope.  The effect is replaced by a new
@@ -404,7 +404,7 @@ abstract class ParamRPLs<region R> {
 }
 \end{dpjlisting}
 
-\ithead{Array index RPLs:} An effect on an RPL containing the array
+\ithead{Array index RPLs} An effect on an RPL containing the array
 index \kwd{[$e$]} is coarsened to \kwd{[?]} if the expression $e$
 includes an integer variable that goes out of scope.  An example is
 the \kwd{foreach} code given at the beginning of this section.
@@ -420,7 +420,7 @@ relation to check that a method's declared effects
 (\S~\ref{sec:classes:methods:summaries}) include the actual effects of
 its body and the effects of any overriding methods.
 
-\bfhead{Basic effects:}  The following rules determine when one basic
+\bfhead{Basic effects}  The following rules determine when one basic
 effect (\S~\ref{sec:effects:basic}) is a subeffect of another:
 %
 \begin{itemize}
@@ -445,7 +445,7 @@ effect (\S~\ref{sec:effects:basic}) is a subeffect of another:
 %
 \end{itemize}
 
-\bfhead{Effect sets:}  The following rules determine when one set of
+\bfhead{Effect sets}  The following rules determine when one set of
 basic effects is a subeffect of another:
 %
 \begin{itemize}
@@ -473,7 +473,7 @@ effects are safe to be run in parallel.  The compiler uses the
 noninterference relation to check that there are no conflicting
 effects in mutually parallel tasks (\S~\ref{sec:parallel}).
 
-\bfhead{Basic effects:}  The following rules determine when one basic
+\bfhead{Basic effects}  The following rules determine when one basic
 effect (\S~\ref{sec:effects:basic}) is a subeffect of another:
 %
 \begin{itemize}
@@ -491,7 +491,7 @@ effect (\S~\ref{sec:effects:basic}) is a subeffect of another:
 %
 \end{itemize}
 
-\bfhead{Effect sets:}  The following rules determine when one effect
+\bfhead{Effect sets}  The following rules determine when one effect
 set is a subeffect of another:
 %
 \begin{itemize}

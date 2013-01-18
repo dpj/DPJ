@@ -2,8 +2,8 @@
 \label{sec:runtime}}
 \cutname{runtime.html}
 
-This section gives an overview of the classes \kwd{DPJArray} and
-\kwd{DPJPartition} in the package \kwd{DPJRuntime}.  These classes are
+This section gives an overview of the classes \kwd{ArraySlice} and
+\kwd{Partition} in the package \kwd{DPJRuntime}.  These classes are
 part of the runtime supplied with DPJ and are useful for manipulating
 arrays.  For full documentation of these classes, and for coverage of
 the other DPJ runtime classes, see the HTML documentation included in
@@ -27,7 +27,7 @@ To use the DPJ runtime, you have to do the following:
   something like this:
 %
 \begin{description}
-\item \kwd{dpj Foo.java \$\{DPJ\_ROOT\}/Implementation/Runtime/dpj}
+\item \kwd{dpj Foo.java \$\{DPJ\_ROOT\}/Implementation/Runtime/dpj/*java}
 \end{description}
 %
 \emph{It is not sufficient to put the runtime classes in your class
@@ -42,71 +42,66 @@ annotated code to process the annotations.
 %
 \end{enumerate}
 
-\subsection{\kwd{DPJArray}%
+\subsection{\kwd{ArraySlice}%
 \label{sec:runtime:array}}
 \cutname{runtime.array.html}
 
 In parallel algorithms that operate on arrays, especially
 divide-and-conquer algorithms, it is often necessary to split an array
-into parts and operate separately on the separate parts.  Because this
-operation is so useful, some languages (e.g., Fortran 90) include
-first-class support for extracting such ``slices'' from arrays.
-Unfortunately, Java does not.  Instead of adding slices directly to
-arrays, which would require redefining Java array types and array
-operations (and would be hard to make consistent with legacy Java),
-DPJ provides array slices as an operation of a library class, called
-\kwd{DPJArray}.  There are two kinds of \kwd{DPJArray} classes: the
-generic \kwd{DPJArray} class, and a set of \kwd{DPJArray} classes
-specialized to primitive types.
+into parts and operate separately on the separate parts.  DPJ provides
+array slices as an operation of a library class, called
+\kwd{ArraySlice}.  There are two kinds of \kwd{ArraySlice} classes:
+the generic \kwd{ArraySlice} class, and a set of \kwd{ArraySlice}
+classes specialized to primitive types.
 
-\bfhead{Generic \kwd{DPJArray}:} The generic \kwd{DPJArray} class
+\bfhead{Generic \kwd{ArraySlice}} The generic \kwd{ArraySlice} class
 represents an array of objects.  It has one type parameter and one RPL
 parameter:
 %
 \begin{dpjlisting}
-class DPJArray<type T, region R>
+class ArraySlice<type T, region R>
 \end{dpjlisting}
 %
 The type parameter is the element type of the array, and the RPL
 parameter is the RPL of the array storage.
 
-\ithead{Creating a \kwd{DPJArray}:} There are three ways to create a
-\kwd{DPJArray} object.  The first is to call a constructor that takes
-just a length argument.  This operation creates a new \kwd{DPJArray}
-with the specified length, type, and RPL.  For example, the following
-code creates a \kwd{DPJArray} storing 10 \kwd{Integer} objects, and
-the storage is in RPL \kwd{r}:
+\ithead{Creating an \kwd{ArraySlice}} There are three ways to create a
+\kwd{ArraySlice} object.  The first is to call a constructor that
+takes just a length argument.  This operation creates a new
+\kwd{ArraySlice} with the specified length, type, and RPL.  For
+example, the following code creates an \kwd{ArraySlice} storing 10
+\kwd{Integer} objects, and the storage is in RPL \kwd{r}:
 %
 \begin{dpjlisting}
 region r;
-DPJArray<Integer,r> A = new DPJArray<Integer,r>(10);
+ArraySlice<Integer,r> A = new ArraySlice<Integer,r>(10);
 \end{dpjlisting}
 %
 
 Creating a fresh DPJ array is useful, but sometimes you have a Java
-array and you want to make a \kwd{DPJArray} out of it.  So the second
-way to create a \kwd{DPJArray} is to call a constructor that takes an
+array and you want to make an \kwd{ArraySlice} out of it.  So the second
+way to create an \kwd{ArraySlice} is to call a constructor that takes an
 ordinary Java array as an argument.  For example, the following code
 creates a Java array of 10 \kwd{Integer} objects, and wraps it in a
-\kwd{DPJArray}:
+\kwd{ArraySlice}:
 %
 \begin{dpjlisting}
 region r;
 Integer[]<r> a = new Integer[10]<r>;
-DPJArray<Integer,r> A = new DPJArray<Integer,r>(a);
+ArraySlice<Integer,r> A = new ArraySlice<Integer,r>(a);
 \end{dpjlisting}
 %
 Note that the type and RPL of the array being passed in (here,
 \kwd{Integer} and \kwd{r}) must match the type and RPL argument of the
-\kwd{DPJArray} type; if not, a compile error occurs.
+\kwd{ArraySlice} type; if not, a compile error occurs.
 
-The third way to create a \kwd{DPJArray} is to make a \emph{subarray}
-(i.e., a slice) of an existing \kwd{DPJArray}.  This is explained
+The third way to create an \kwd{ArraySlice} is to make a \emph{subslice}
+(i.e., a slice) of an existing \kwd{ArraySlice}.  This is explained
 below.
 
-\ithead{Accessing elements:} \kwd{DPJArray} has \kwd{put} and
+\ithead{Accessing elements} \kwd{ArraySlice} has \kwd{put} and
 \kwd{get} operations similar to the ones in \kwd{java.util.ArrayList}.
-For example, if \kwd{A1} and \kwd{A2} are \kwd{DPJArray}s, then the
+For example, if \kwd{A1} and \kwd{A2} are \kwd{ArraySlice}s, then the
 following code fragment gets element 0 out of \kwd{A1} and stores it
 into element 0 of \kwd{A2}:
 %
@@ -114,40 +109,40 @@ into element 0 of \kwd{A2}:
 A2.put(0, A1.get(0));
 \end{dpjlisting}
 %
-If the \kwd{DPJArray} was created by wrapping a Java array, then the
+If the \kwd{ArraySlice} was created by wrapping a Java array, then the
 \kwd{put} operation modifies the wrapped array.  The effect of a
-\kwd{get} operation is a read on the region of the \kwd{DPJArray}, and
+\kwd{get} operation is a read on the region of the \kwd{ArraySlice}, and
 the effect of a \kwd{put} operation is a write to the region of the
-\kwd{DPJArray}.
+\kwd{ArraySlice}.
 
 Accesses are bounds-checked.  Any attempt to access a position less
 than 0 or greater than the array length minus one throws an
 \kwd{ArrayIndexOutOfBoundsException}.
 
-\ithead{Subarrays:} The real usefulness of \kwd{DPJArray} is its
-support for \emph{subarrays}, which are contiguous subsections of an
-array.  To create a subarray of a \kwd{DPJArray}, you call the
-\kwd{subarray} instance method with a start and length argument.  For
-example, the following code creates a \kwd{DPJArray} and then extracts
-the subarray of length 2 starting at position 5 (here we use the
+\ithead{Subslices} The real usefulness of \kwd{ArraySlice} is its
+support for \emph{subslices}, which are contiguous subsections of an
+array.  To create a subslice of an \kwd{ArraySlice}, you call the
+\kwd{subslice} instance method with a start and length argument.  For
+example, the following code creates an \kwd{ArraySlice} and then extracts
+the subslice of length 2 starting at position 5 (here we use the
 default RPL of \kwd{Root}):
 %
 \begin{dpjlisting}
-DPJArray<Integer> A = new DPJArray<Integer>(10);
-DPJArray<Integer> B = A.subarray(5,2);
+ArraySlice<Integer> A = new ArraySlice<Integer>(10);
+ArraySlice<Integer> B = A.subslice(5,2);
 \end{dpjlisting}
 
-There are two nice things about subarrays.  First, creating a subarray
+There are two nice things about subslices.  First, creating a subslice
 takes minimal time and space overhead.  Nothing is copied, and no new
 storage allocated to hold any array elements.  A small object is
 created that stores the start position, length, and a reference to the
 underlying array.
 
-Second, as far as its API is concerned, a subarray is
-indistinguishable from a freshly created \kwd{DPJArray}.  For example,
-the subarray created above is zero-indexed, it has length 2, and
+Second, as far as its API is concerned, a subslice is
+indistinguishable from a freshly created \kwd{ArraySlice}.  For example,
+the subslice created above is zero-indexed, it has length 2, and
 attempts to access indices other than 0 and 1 throw an exception.
-However, the subarray also provides a view into the original array.
+However, the subslice also provides a view into the original array.
 For example, the following code stores 1 into position 0 of \kwd{B},
 which is the same as position 5 of \kwd{A}:
 %
@@ -155,127 +150,127 @@ which is the same as position 5 of \kwd{A}:
 B.put(0,1);
 \end{dpjlisting}
 %
-You can get the start position out of a \kwd{DPJArray} by reading the
+You can get the start position out of an \kwd{ArraySlice} by reading the
 field \kwd{start}, and you can get the length by reading the field
 \kwd{length}.
 
 These features allow methods that operate on array subranges to be
 zero-indexed, without worrying about the index parameters of the
 subranges.  For example, here is some simple recursive code that
-increments every position of a \kwd{DPJArray} by 1:
+increments every position of an \kwd{ArraySlice} by 1:
 %
 \begin{dpjlisting}
-<type T, region R>void increment(DPJArray<T,R> A) {
+<type T, region R>void increment(ArraySlice<T,R> A) {
     if (A.length == 0) return;
     if (A.length == 1) {
         A.put(0, A.get(0)+1);
     }
     int mid = A.length / 2;
-    increment(A.subarray(0, mid));
-    increment(A.subarray(mid, length-mid));
+    increment(A.subslice(0, mid));
+    increment(A.subslice(mid, length-mid));
 }
 \end{dpjlisting}
 %
-Without the subarray feature, this code would have to be written by
+Without the subslice feature, this code would have to be written by
 passing the index ranges as parameters to the \kwd{increment} method,
 which is ugly.
 
-\bfhead{Specialized \kwd{DPJArray}s:} Because Java does not support
+\bfhead{Specialized \kwd{ArraySlice}s} Because Java does not support
 binding primitive types to generic parameters, the DPJ runtime also
-has versions of \kwd{DPJArray} specialized to the primitive types
+has versions of \kwd{ArraySlice} specialized to the primitive types
 (\kwd{DPJInt} for \kwd{int}, \kwd{DPJBoolean} for \kwd{boolean},
-etc.).  These operate identically to the generic \kwd{DPJArray},
+etc.).  These operate identically to the generic \kwd{ArraySlice},
 except that the element type is given by the class, and there is no
 generic parameter.
 
-Another way to write such arrays is to create a generic \kwd{DPJArray}
+Another way to write such arrays is to create a generic \kwd{ArraySlice}
 using the class corresponding to the primitive type.  For example,
-instead of a \kwd{DPJArrayInt}, one could use a
-\kwd{DPJArray<Integer>}, as described above.  This works, but the code
+instead of an \kwd{ArraySliceInt}, one could use a
+\kwd{ArraySlice<Integer>}, as described above.  This works, but the code
 is more verbose, as well as more memory-intensive and slower, as Java
 has to box and unbox all those primitive types when putting them into
 and getting them out of the array.
 
 
-\subsection{\kwd{DPJPartition}%
+\subsection{\kwd{Partition}%
 \label{sec:runtime:partition}}
 \cutname{runtime.partition.html}
 
 For parallel divide-and-conquer algorithms on arrays, it is often
-important to create disjoint collections of subarrays.  For example, a
+important to create disjoint collections of subslices.  For example, a
 parallel sorting algorithm might repeatedly divide an array into
 disjoint halves (or quarters, etc.) and operate recursively in
 parallel on the pieces.  To support effect checking for this kind of
-algorithm, the DPJ runtime includes a class \kwd{DPJPartition} for
-representing disjoint collections of subarrays of the same array.
-Each of the subarrays in the collection is called a \emph{segment} of
-the partition.  As with \kwd{DPJArray}, there is a generic version,
+algorithm, the DPJ runtime includes a class \kwd{Partition} for
+representing disjoint collections of subslices of the same array.
+Each of the subslices in the collection is called a \emph{segment} of
+the partition.  As with \kwd{ArraySlice}, there is a generic version,
 and there are specialized versions.
 
-\bfhead{Generic \kwd{DPJPartition}:}  The generic \kwd{DPJPartition}
-class represents an array of subarrays of a \kwd{DPJArray}.  It has
+\bfhead{Generic \kwd{Partition}}  The generic \kwd{Partition}
+class represents an array of subslices of an \kwd{ArraySlice}.  It has
 one type parameter and one RPL parameter:
 %
 \begin{dpjlisting}
-class DPJPartition<type T, region R>
+class Partition<type T, region R>
 \end{dpjlisting}
 %
-The type parameter is the element type of the \kwd{DPJArray} being
+The type parameter is the element type of the \kwd{ArraySlice} being
 partitioned, and the RPL parameter is the RPL of the array storage.
 
-\ithead{Creating a \kwd{DPJPartition}:} There are several ways to
-create a \kwd{DPJPartition}; for a full list, see the HTML
-documentation.  Here are two useful ways.  First, \kwd{DPJPartition}
-has a constructor that takes a \kwd{DPJArray} to partition, an index
+\ithead{Creating a \kwd{Partition}} There are several ways to
+create a \kwd{Partition}; for a full list, see the HTML
+documentation.  Here are two useful ways.  First, \kwd{Partition}
+has a constructor that takes an \kwd{ArraySlice} to partition, an index
 at which to partition, and a \kwd{boolean} value that says whether to
 exclude or include the element at the index position.  For example, if
-\kwd{A} is a \kwd{DPJArray<Integer>} of length 10, then
+\kwd{A} is an \kwd{ArraySlice<Integer>} of length 10, then
 %
 \begin{dpjlisting}
-new DPJArray<Integer>(A, 5, true)
+new ArraySlice<Integer>(A, 5, true)
 \end{dpjlisting}
 %
 partitions \kwd{A} into the segments $[0,4]$ and $[6,9]$ (excluding
 position 5), while
 %
 \begin{dpjlisting}
-new DPJArray<Integer>(A, 5, false)
+new ArraySlice<Integer>(A, 5, false)
 \end{dpjlisting}
 %
 partitions \kwd{A} into the segments $[0,4]$ and $[5,9]$ (including
 position 5).  This constructor is useful for parallel
 divide-and-conquer algorithms with a fanout of 2.
 
-Second, \kwd{DPJPartition} has a static factory method
-\kwd{stridedPartition} that takes a \kwd{DPJArray} to partition and a
+Second, \kwd{Partition} has a static factory method
+\kwd{stridedPartition} that takes an \kwd{ArraySlice} to partition and a
 stride at which to partition.  For example, if \kwd{A} is a
-\kwd{DPJArray<Integer>} of length 10, then
+\kwd{ArraySlice<Integer>} of length 10, then
 %
 \begin{dpjlisting}
-new DPJPartition<Integer>(A, 2)
+new Partition<Integer>(A, 2)
 \end{dpjlisting}
 %
-creates a \kwd{DPJPartition<Integer>} with five segments, each of
+creates a \kwd{Partition<Integer>} with five segments, each of
 length 2.  This feature is useful for parallel divide-and-conquer
 algorithms with a fanout of greater than two, as well as flat
 partitions (such as tiling an array).
 
-\ithead{Accessing segments:} The field \kwd{length} stores the number
+\ithead{Accessing segments} The field \kwd{length} stores the number
 of segments in the partition.  It is \kwd{final}, so reading it has no
 effect (\S~\ref{sec:effects:stmt-exp}).  The method \kwd{get} takes an
 integer index \kwd{idx} and returns the segment corresponding to that
 index (and throws an exception if the index is out of range).  The
-type of the segment is \kwd{DPJArray<T,this:[idx]:*>}.
+type of the segment is \kwd{ArraySlice<T,this:[idx]:*>}.
 
 The index-parameterized type returned by \kwd{get} allows the
 different segments to be operated on in parallel without interference,
 similarly to an index-parameterized array
 (\S~\ref{sec:types:array:ipa}).  For example, the following code uses
-\kwd{DPJPartition} to parallelize the simple recursive \kwd{increment}
+\kwd{Partition} to parallelize the simple recursive \kwd{increment}
 shown in \S~\ref{sec:runtime:array}:
 %
 \begin{dpjlisting}
-<type T, region R>void parallelIncrement(DPJArray<T,R> A) 
+<type T, region R>void parallelIncrement(ArraySlice<T,R> A) 
   writes R:* {
     if (A.length == 0) return;
     if (A.length == 1) {
@@ -283,7 +278,7 @@ shown in \S~\ref{sec:runtime:array}:
         A.put(0, A.get(0)+1);
     }
     int mid = A.length / 2;
-    final DPJPartition<T,R> segs = new DPJPartition<T,R>(A,mid)
+    final Partition<T,R> segs = new Partition<T,R>(A,mid)
     cobegin {
         // Effect is 'writes segs:[0]:*'
         parallelIncrement(segs.get(0));
@@ -293,7 +288,7 @@ shown in \S~\ref{sec:runtime:array}:
 }
 \end{dpjlisting}
 %
-For more examples of how to use \kwd{DPJPartition}, see \tutorial.
+For more examples of how to use \kwd{Partition}, see \tutorial.
 
 The variable \kwd{this} in the type gets substituted by the selector
 expression at the call site (\S~\ref{sec:types:exp:invoke}), so it is
@@ -305,15 +300,15 @@ the same array.  For example, in the following code,
 overlap at $[2,7]$):
 %
 \begin{dpjlisting}
-DPJArray<Integer> A = new DPJArray<Integer>(10);
+ArraySlice<Integer> A = new ArraySlice<Integer>(10);
 // Create segments [0,1] and [2,9]
-DPJPartition<Integer> segs1 = new DPJPartition(A, 2);
+Partition<Integer> segs1 = new Partition(A, 2);
 // Create segments [0,7] and [8,9]
-DPJPartition<Integer> segs2 = new DPJPartition(A, 8);
+Partition<Integer> segs2 = new Partition(A, 8);
 \end{dpjlisting}
 
-\bfhead{Specialized \kwd{DPJPartition}s:} As with \kwd{DPJArray},
-there are versions of \kwd{DPJPartition} specialized to the various
+\bfhead{Specialized \kwd{Partition}s} As with \kwd{ArraySlice},
+there are versions of \kwd{Partition} specialized to the various
 primitive types.  They are provided for convenience and efficiency, as
 Java does not support binding primitive types to generic type
 parameters.

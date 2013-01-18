@@ -42,7 +42,7 @@ in addition to type parameters, DPJ classes can have region parameters
 parameter arguments must be supplied.  They can be supplied implicitly
 or explicitly.
 
-\bfhead{Implicit parameter arguments:}  As in generic Java, a DPJ class
+\bfhead{Implicit parameter arguments}  As in generic Java, a DPJ class
 with parameters may always be used as a type by just naming the class,
 without providing any explicit parameter arguments.  For example, the
 following code is valid:
@@ -80,7 +80,7 @@ usually not important for code that is never invoked in a parallel
 context (for example, in a sequential initialization phase).  For this
 code, the programmer can avoid writing the arguments.
 
-\bfhead{Explicit parameter arguments:} As in Java, if explicit
+\bfhead{Explicit parameter arguments} As in Java, if explicit
 arguments to class parameters are given, then they appear in angle
 brackets after the class name.  The arguments must appear in the same
 order in which the parameters appear in the class definition; so, in
@@ -153,7 +153,7 @@ DPJ erasure of \kwd{C<Object,Root>} is \kwd{C<Object>}.
 The following rules determine whether a variable of class type $T_1$
 can be assigned to a variable of class type $T_2$ in DPJ.
 
-\bfhead{Types that instantiate the same class:} $T_1$ may be assigned
+\bfhead{Types that instantiate the same class} $T_1$ may be assigned
 to $T_2$ if the two types instantiate the same class, the DPJ erasure
 of $T_1$ may be assigned to the DPJ erasure of $T_2$ in ordinary Java,
 and the RPL arguments of $T_1$ are included
@@ -204,11 +204,11 @@ is not included in \kwd{r2}.
 %
 \end{itemize}
 
-\bfhead{Types that instantiate different classes:}  $T_1$ may be
+\bfhead{Types that instantiate different classes}  $T_1$ may be
 assigned to $T_2$ if $T_2$ is a \emph{direct supertype} or
 \emph{indirect supertype} of $T_1$.
 
-\ithead{Direct supertypes:} $T_2$ is a direct supertype of $T_1$ if a
+\ithead{Direct supertypes} $T_2$ is a direct supertype of $T_1$ if a
 type with $T_2$'s class or interface appears in an \kwd{extends} or
 \kwd{implements} clause of $T_1$'s class or interface, and that type
 is assignable to $T_2$ after substituting arguments for parameters
@@ -236,7 +236,7 @@ For example:
 \end{itemize}
 %
 
-\ithead{Indirect supertypes:} $T_2$ is an indirect supertype of $T_1$
+\ithead{Indirect supertypes} $T_2$ is an indirect supertype of $T_1$
 if there is a chain of direct supertypes connecting $T_1$ to $T_2$.
 For example, if we have class declarations \kwd{class C<region R>
   extends B<R>}, \kwd{class B<region R> extends A<R>} and \kwd{class
@@ -447,7 +447,7 @@ done safely.  We discuss index-parameterized arrays first for the
 simpler case of arrays of primitive and class types, and then for the
 case of arrays of arrays.
 
-\textbf{Arrays of primitive and class types:} There are two cases to
+\bfhead{Arrays of primitive and class types} There are two cases to
 consider:
 %
 \begin{enumerate}
@@ -468,7 +468,7 @@ consider:
 %
 DPJ's index-parameterized arrays can express both cases.
 
-\ithead{Updating different array cells:} To update different array
+\ithead{Updating different array cells} To update different array
 cells, it is necessary to put each cell in a different region.  DPJ
 does this with an \emph{index-parameterized array type}.  An
 index-parameterized array type uses the array index element \kwd{[i]}
@@ -495,7 +495,7 @@ from each other by using different bindings to \kwd{R}; and we can
 distinguish different parts of arrays from each other by using the
 different values of \kwd{i}.
 
-\ithead{Updating different objects through different array cells:}
+\ithead{Updating different objects through different array cells}
 Index-parameterized arrays can also handle the case of updates through
 references to different objects, by using \kwd{[\_]} in the RPL
 argument of the element type of the array.  Every object stored in a
@@ -541,7 +541,7 @@ foreach (int i in 0, N)
 This is a very useful pattern in shared-memory parallel programming.
 See \tutorial\ for more realistic examples.
 
-\textbf{Arrays of arrays:} An array of arrays is an array of objects
+\bfhead{Arrays of arrays} An array of arrays is an array of objects
 (the arrays are objects), so it works similarly to an array of class
 objects, discussed above.  The difference is that with an array of
 arrays, there are multiple index dimensions, so it may not be
@@ -615,7 +615,7 @@ Creation of new arrays in DPJ works just as in Java, with the extra
 annotations in the array types
 (\S\S~\ref{sec:types:array:instant},~\ref{sec:types:array:ipa}).  
 
-\bfhead{Arrays of primitive and class types:} To create an array of
+\bfhead{Arrays of primitive and class types} To create an array of
 $n$ primitive types or class objects, write a DPJ array type with $n$
 in the brackets, instead of empty brackets.  For example:
 %
@@ -665,7 +665,7 @@ current version of DPJ, the \kwd{DPJArray} class cannot be used with
 index-parameterized regions.  It is anticipated that future versions
 of DPJ will support index-parameterized \kwd{DPJArray}s.
 
-\bfhead{Arrays of arrays:} To create an array of arrays, as in
+\bfhead{Arrays of arrays} To create an array of arrays, as in
 ordinary Java, at least one of the brackets must have a length
 expression, and any empty brackets must appear to the right:
 %
@@ -694,7 +694,7 @@ int[]<[i]>#i[]<[i]:[j]>#j = new int[10]<[i]>#i[10]<[i]:[j]>#j;
 The following rules determine when $T_1$ may be assigned to $T_2$,
 where $T_1$ and $T_2$ are both array types.
 
-\bfhead{Comparing arrays of primitive types:} $T_1$ may be assigned to
+\bfhead{Comparing arrays of primitive types} $T_1$ may be assigned to
 $T_2$ if the element types of $T_1$ and $T_2$ are both the same
 primitive type, and the RPL argument of $T_1$ is included in the RPL
 argument of $T_2$ (\S~\ref{sec:rpls:comparing:include}).  For example:
@@ -709,7 +709,7 @@ argument of $T_2$ (\S~\ref{sec:rpls:comparing:include}).  For example:
   \kwd{r1} and \kwd{r2} are incompatible region names.
 \end{enumerate}
 
-\bfhead{Comparing arrays of class and array types:} $T_1$ may be
+\bfhead{Comparing arrays of class and array types} $T_1$ may be
 assigned to $T_2$ if the element types of $T_1$ and $T_2$ are
 \emph{array-compatible} class or array types, and the RPL argument of
 $T_1$ is included in the RPL argument of $T_2$.  Two class types are
@@ -904,7 +904,7 @@ compiler does the following:
 \label{sec:types:exp:invoke}}
 \cutname{types.exp.invoke.html}
 
-\bfhead{Explicit type and RPL arguments:}  To compute the type of a
+\bfhead{Explicit type and RPL arguments}  To compute the type of a
 method invocation expression
 %
 \begin{description}
@@ -1003,7 +1003,7 @@ Substituting arguments for parameters gives a return type of
 \item \kwd{MethodInvocationExample<Root,[0]>}.
 \end{description}
 
-\bfhead{Inferred type and RPL arguments:} If there are no explicit
+\bfhead{Inferred type and RPL arguments} If there are no explicit
 type or RPL arguments, the compiler infers them as discussed in
 \S~\ref{sec:classes:params:method} and proceeds as stated above, using
 the inferred arguments in step 4(b).  As in ordinary Java, if there is
