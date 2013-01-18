@@ -1,6 +1,7 @@
 package com.jme.bounding;
 import com.jme.math.*;
 import com.jme.scene.*;
+import DPJRuntime.*;
 
 /*
  * Copyright (c) 2003-2008 jMonkeyEngine
@@ -83,7 +84,9 @@ public class BoundingBox<region R> extends BoundingVolume<R> {
     	}
     }
     
-    public <region Rindices> void computeFromTris(int[]<Rindices> indices, TriMesh<Rindices> mesh, int start, int end) {
+    public <region Rindices> void computeFromTris(ArrayInt<Rindices> indices, 
+						  TriMesh<Rindices> mesh, 
+						  int start, int end) {
     	if (end - start <= 0) {
             return;
         }

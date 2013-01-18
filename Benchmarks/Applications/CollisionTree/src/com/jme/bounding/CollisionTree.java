@@ -40,6 +40,8 @@ import com.jme.math.*;
 import com.jme.scene.*;
 import com.jme.util.*;
 
+import DPJRuntime.*;
+
 /**
  * CollisionTree defines a well balanced red black tree used for triangle
  * accurate collision detection. The CollisionTree supports three types:
@@ -86,7 +88,7 @@ public class CollisionTree<region R, RMesh> {
     // the list of triangle indices that compose the tree. This list
     // contains all the triangles of the mesh and is shared between
     // all nodes of this tree.
-    protected int[]<RMesh> triIndex in RMesh;
+    protected ArrayInt<RMesh> triIndex in RMesh;
 
     // Defines the pointers into the triIndex array that this node is
     // directly responsible for.

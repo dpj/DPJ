@@ -37,6 +37,8 @@ import java.io.Serializable;
 import com.jme.math.*;
 import com.jme.scene.*;
 
+import DPJRuntime.*;
+
 /**
  * <code>BoundingVolume</code> defines an interface for dealing with
  * containment of a collection of points.
@@ -86,6 +88,8 @@ public abstract class BoundingVolume<region R> {
 	 */
 	public abstract <region Rbb> boolean intersectsBoundingBox(BoundingBox<Rbb> bb) reads R, Rbb;
 	
-	public abstract <region Rindices> void computeFromTris(int[]<Rindices> triIndex, TriMesh<Rindices> mesh, int start, int end);
+	public abstract <region Rindices> void computeFromTris(ArrayInt<Rindices> triIndex, 
+							       TriMesh<Rindices> mesh, 
+							       int start, int end);
 }
 

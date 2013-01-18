@@ -31,6 +31,16 @@
 		<mkdir dir="${class}" />
 	</target>
 
+	<target name="run" depends="compile" description="run benchmark">
+	        <exec executable="dpj">
+		        <arg value="-cp" />
+			<arg value="bin" />
+			<arg value="jmetest/collisiontree/BenchmarkCollisionTree" />
+			<arg value="newct_60_24.dat" />
+			<arg value="17" />
+		</exec>
+	</target>
+
 	<!-- Compiles all the jME classes, including com.jmex.* -->
 	<!-- This now compiles everything, including jmetest. Don't use the compile-test target. -->
 	<target name="compile" depends="init" description="generate jme classes">
@@ -65,6 +75,7 @@
 			<arg value="${dpj_java}" />
 			
 			<arg value="@dpjfiles.txt" />
+			<arg value="${env.DPJ_ROOT}/Implementation/Runtime/dpj/*.java" />
 		</exec>
 		
 		<!-- Now compile everything with regular Java compiler -->

@@ -6,6 +6,8 @@ import java.io.Externalizable;
 
 import com.jme.math.*;
 
+import DPJRuntime.*;
+
 /*
  * Copyright (c) 2003-2008 jMonkeyEngine
  * All rights reserved.
@@ -52,7 +54,7 @@ public class TriMesh<region RMesh> implements Externalizable {
 	private static final long serialVersionUID = 1001L;
 	
 	public float[]<RMesh> vertexArray in RMesh;
-	public int[]<RMesh> indexArray in RMesh;
+	public ArrayInt<RMesh> indexArray in RMesh;
 	
 	public Quaternion<RMesh> worldRotation in RMesh;
 	public Vector3f<RMesh> worldScale in RMesh;
@@ -101,10 +103,10 @@ public class TriMesh<region RMesh> implements Externalizable {
         }
     }
     
-    public <region Rindices> int[]<Rindices> getTriangleIndices(int[]<Rindices> indices) {
+    public <region Rindices> ArrayInt<Rindices> getTriangleIndices(ArrayInt<Rindices> indices) {
         int maxCount = getTriangleCount();
         if (indices == null || indices.length != maxCount)
-            indices = new int[maxCount]<Rindices>;
+            indices = new ArrayInt<Rindices>(maxCount);
 
         for (int i = 0, tLength = maxCount; i < tLength; i++) {
             indices[i] = i;
@@ -127,7 +129,7 @@ public class TriMesh<region RMesh> implements Externalizable {
         worldScale = (Vector3f<RMesh>)in.readObject();
         worldTranslation = (Vector3f<RMesh>)in.readObject();
         vertexArray = (float[]<RMesh>)in.readObject();
-        indexArray = (int[]<RMesh>)in.readObject();
+        indexArray = (ArrayInt<RMesh>)in.readObject();
     }
 
     /**
