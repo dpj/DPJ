@@ -1081,13 +1081,15 @@ ordinary Java class.  However, instead of specifying an ordinary Java
 class object with fields and methods, it specifies a Java array object
 by assigning a type and region to each cell of the array.
 
-\subsubsection{Defining Array Classes}
+\subsubsection{Defining Array Classes
+\label{sec:classes:array:defining}}
+\cutname{classes.array.defining}
 
 An array class definition is like an ordinary class definition with a
 single field.  The differences are: (1) the definition begins with the
 keyword \kwd{arrayclass} instead of \kwd{class}; (2) the ``field'' has
 no name (since it actually defines the type of an array cell); and (3)
-in addition to the cell definition the class definition may declare
+in addition to defining the cell the class definition may declare
 regions, but it may have no other members.
 
 For example, the following code defines an array whose cells have type
@@ -1138,7 +1140,9 @@ arrayclass Illegal2 {
 }
 \end{dpjlisting}
 
-\subsubsection{Creating and Using Array Class Objects}
+\subsubsection{Creating and Using Array Class Objects
+\label{sec:classes:array:creating}}
+\cutname{classes.array.creating}
 
 Every array class has an implicit constructor that takes a single
 integer length argument.  Calling the constructor creates a new array
@@ -1176,7 +1180,9 @@ for (int i : a)
 \end{dpjlisting}
 %
 
-\subsubsection{Index-Parameterized Array Classes}
+\subsubsection{Index-Parameterized Array Classes
+\label{sec:classes:array:ipa}}
+\cutname{classes.array.ipa}
 
 For parallel computations on arrays, it is often necessary to place
 different array cells in different regions, so they can be updated in
@@ -1289,15 +1295,13 @@ them in parallel.  Here is another example that uses
 index-parameterized arrays to do just that:
 %
 \begin{dpjlisting}
-class Array2DExample {
+class MatrixExample {
     static arrayclass MatrixInt<region R> {
         ArrayInt<R:[index]> in R:[index];
     }
-
     static arrayclass ArrayInt<region R> {
         int in R:[index];
     }
-
     public static final int N = 10;
 
     public static void main(String[] args) {

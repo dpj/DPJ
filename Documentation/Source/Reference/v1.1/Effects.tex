@@ -40,17 +40,17 @@ represents the following kinds of effects:
 %
 \begin{enumerate}
 %
-\item \emph{Read effects:} A read effect indicates a read operation on
-  an RPL (\S~\ref{sec:rpls}) or local variable.  Such an effect
+\item \ithead{Read effects} A read effect indicates a read operation
+  on an RPL (\S~\ref{sec:rpls}) or local variable.  Such an effect
   summarizes one or more reads to one or more memory locations
   associated with the region or regions named by the RPL.
 %
-\item \emph{Write effects:} A write effect indicates a write operation
+\item \ithead{Write effects} A write effect indicates a write operation
   on an RPL (\S~\ref{sec:rpls}) or local variable.  Such an effect
   summarizes one or more writes \emph{or reads} to one or more memory
   locations associated with the region or regions named by the RPL.
 %
-\item \emph{Invocation effects:} An invocation effects indicates an
+\item \ithead{Invocation effects} An invocation effect indicates an
   invocation of some method, causing some set of basic effects (the
   effects of invoking the method).  The basic effects associated with
   the invocation are called the \emph{underlying effects} of the
@@ -197,7 +197,7 @@ the effects, the compiler uses the following information:
   an assignment statements generates a write on the left-hand side,
   and a read on the right-hand side.
 %
-\item The type of a field access selector, method invocation selector,
+\item The type of a field access receiver, method invocation receiver,
   or array, together with the RPL of the field (for field access) or
   declared method efects (for method invocations).  For example, if a
   class \kwd{C<region R>} has a field \kwd{x in R}, then access
@@ -223,7 +223,7 @@ In more detail, here is how the compiler computes the effects of a
 DPJ statement or expression:
 
 \bfhead{Field access} For field access expressions
-\emph{selector-exp}\kwd{.}\emph{field-name} that directly access a
+\emph{receiver-exp}\kwd{.}\emph{field-name} that directly access a
 non-\kwd{final} field, the compiler first computes the RPL accessed by
 the expression.  It uses the same procedure as for typing field access
 (\S~\ref{sec:types:exp:field}), except that it uses the RPL specifier
@@ -261,7 +261,7 @@ together with the rules for compound expressions (see below).
 
 \bfhead{Method invocation} For method invocation expressions, the
 compiler computes and accumulates the effects of evaluating the
-selector and argument expressions as described in this section.  Then
+receiver and argument expressions as described in this section.  Then
 it uses the method's effect summary
 (\S~\ref{sec:classes:methods:summaries}) to compute the effect of the
 invocation itself.  It uses the same procedure as for computng the
@@ -295,7 +295,7 @@ longer in scope at the outer level.
 A statement or expression may generate an effect that is no longer in
 scope where the effect must be reported.  For example, consider the
 following \kwd{foreach} loop (\S~\ref{sec:parallel:foreach}) on an
-index-parameterized array (\S~\ref{sec:types:array:ipa}):
+index-parameterized array (\S~\ref{sec:classes:array:ipa}):
 %
 \begin{numbereddpjlisting}
 int[]<[_]> A = new int[N]<[_]>;

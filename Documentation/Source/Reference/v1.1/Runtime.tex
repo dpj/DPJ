@@ -42,7 +42,7 @@ annotated code to process the annotations.
 %
 \end{enumerate}
 
-\subsection{\kwd{ArraySlice}%
+\subsection{ArraySlice%
 \label{sec:runtime:array}}
 \cutname{runtime.array.html}
 
@@ -54,7 +54,7 @@ array slices as an operation of a library class, called
 the generic \kwd{ArraySlice} class, and a set of \kwd{ArraySlice}
 classes specialized to primitive types.
 
-\bfhead{Generic \kwd{ArraySlice}} The generic \kwd{ArraySlice} class
+\bfhead{Generic ArraySlice} The generic \kwd{ArraySlice} class
 represents an array of objects.  It has one type parameter and one RPL
 parameter:
 %
@@ -65,7 +65,7 @@ class ArraySlice<type T, region R>
 The type parameter is the element type of the array, and the RPL
 parameter is the RPL of the array storage.
 
-\ithead{Creating an \kwd{ArraySlice}} There are three ways to create a
+\ithead{Creating an ArraySlice} There are three ways to create a
 \kwd{ArraySlice} object.  The first is to call a constructor that
 takes just a length argument.  This operation creates a new
 \kwd{ArraySlice} with the specified length, type, and RPL.  For
@@ -175,7 +175,7 @@ Without the subslice feature, this code would have to be written by
 passing the index ranges as parameters to the \kwd{increment} method,
 which is ugly.
 
-\bfhead{Specialized \kwd{ArraySlice}s} Because Java does not support
+\bfhead{Specialized ArraySlices} Because Java does not support
 binding primitive types to generic parameters, the DPJ runtime also
 has versions of \kwd{ArraySlice} specialized to the primitive types
 (\kwd{DPJInt} for \kwd{int}, \kwd{DPJBoolean} for \kwd{boolean},
@@ -192,7 +192,7 @@ has to box and unbox all those primitive types when putting them into
 and getting them out of the array.
 
 
-\subsection{\kwd{Partition}%
+\subsection{Partition%
 \label{sec:runtime:partition}}
 \cutname{runtime.partition.html}
 
@@ -265,7 +265,7 @@ type of the segment is \kwd{ArraySlice<T,this:[idx]:*>}.
 The index-parameterized type returned by \kwd{get} allows the
 different segments to be operated on in parallel without interference,
 similarly to an index-parameterized array
-(\S~\ref{sec:types:array:ipa}).  For example, the following code uses
+(\S~\ref{sec:classes:array:ipa}).  For example, the following code uses
 \kwd{Partition} to parallelize the simple recursive \kwd{increment}
 shown in \S~\ref{sec:runtime:array}:
 %
@@ -290,7 +290,7 @@ shown in \S~\ref{sec:runtime:array}:
 %
 For more examples of how to use \kwd{Partition}, see \tutorial.
 
-The variable \kwd{this} in the type gets substituted by the selector
+The variable \kwd{this} in the type gets substituted by the recevier
 expression at the call site (\S~\ref{sec:types:exp:invoke}), so it is
 usually most useful to call \kwd{get} through a \kwd{final} local
 variable.  Including the variable in the RPL ensures that the compiler

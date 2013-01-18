@@ -10,8 +10,7 @@ memory locations on the heap. The correspondence between memory
 locations and regions is given by the way that the programmer has
 assigned RPLs to class fields (\S~\ref{sec:classes:field-region-spec})
 and bound RPLs to region parameters in class types
-(\S~\ref{sec:types:class:instant}), array types
-(\S~\ref{sec:types:array:instant}), and method invocations
+(\S~\ref{sec:types:class:instant}) and method invocations
 (\S~\ref{sec:classes:params:method}). A partially-specified RPL names
 a \emph{set of regions} and is useful for expressing hierarchical
 effects (e.g., ``all regions under this one'').
@@ -61,8 +60,7 @@ those uses:
   of a code statement.
 %
 \item RPLs can appear as arguments to parametric class types
-  (\S~\ref{sec:types:class:instant}) and to array types
-  (\S~\ref{sec:types:array:instant}).  These RPLs provide actual
+  (\S~\ref{sec:types:class:instant}).  These RPLs provide actual
   regions for the parameters in the instantiation of a class or array.
 %
 \item RPLs can appear in method invocations, as arguments to method
@@ -178,7 +176,7 @@ functions as an RPL, called an \emph{array index RPL}.  The array
 index RPL represents a region indexed by the number that $e$
 evaluates to at runtime (so there is a different region for each
 natural number).  It is useful in conjunction with
-\emph{index-parameterized arrays} (\S~\ref{sec:types:array:ipa}) and
+\emph{index-parameterized arrays} (\S~\ref{sec:classes:array:ipa}) and
 with DPJ's built-in features for array partitioning
 (\S~\ref{sec:runtime:partition}).
 

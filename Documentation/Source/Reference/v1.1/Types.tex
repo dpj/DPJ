@@ -19,11 +19,12 @@ an expression (e.g., what type is returned by calling a method).
 \label{sec:types:class}}
 \cutname{types.class.html}
 
-This section discusses DPJ's class and interface types.  We will use
-the term ``class'' throughout this section, with the understanding
-that the concepts apply identically to interfaces, unless otherwise
-noted.  \S~\ref{sec:types:class:instant} discusses the instantiation
-of a class to a type by supplying RPLs for its parameters.
+This section discusses DPJ's class types (including array classes) and
+interface types.  We will use the term ``class'' throughout this
+section, with the understanding that the concepts apply identically to
+array classes and interfaces, unless otherwise noted.
+\S~\ref{sec:types:class:instant} discusses the instantiation of a
+class to a type by supplying RPLs for its parameters.
 \S~\ref{sec:types:class:compare} explains how the DPJ compiler
 compares two class types for compatibility, for example in checking an
 assignment statement.  \S~\ref{sec:types:class:cast} discusses casting
@@ -174,7 +175,7 @@ class:
 \item \kwd{C<C<Object,Root>,Root>} may be assigned to \kwd{C<? extends
   C<Object,Root:*>,Root:*>}.  The reasoning here is a bit more
   complicated.  First, look at the DPJ erasures of the types, that is
-  \kwd{C<C<Object,Root>>} and \kwd{C<? extends C<Object,Root:*>>}.
+  \kwd{C<C<Object,Root>{>}} and \kwd{C<? extends C<Object,Root:*>{>}}.
   According to the rules for Java generic wildcards, the first type
   may be assigned to the second if \kwd{C<Object,Root>} may be
   assigned to \kwd{C<Object,Root:*>}.  To figure that out, we have to
@@ -319,373 +320,35 @@ declaration \kwd{class C<type T>}, the owner RPL of the type
 \label{sec:types:array}}
 \cutname{types.array.html}
 
-This section discusses DPJ's array types.
-\S~\ref{sec:types:array:instant} discusses the instantiation of an
-array to a type by supplying an RPL for its parameter.  This assigns
-an RPL to each cell of the array.  \S~\ref{sec:types:array:ipa}
-discusses DPJ's \emph{index-parameterized array type}, which provides
-a way to assign a different region to each cell of an array.  This is
-useful for updating different array cells (or different objects stored
-in different array cells) in parallel.  \S~\ref{sec:types:array:new}
-explains the creation of new array objects.
-\S~\ref{sec:types:array:compare} explains how the DPJ compiler
+This section discusses DPJ's support for Java-style array types, i.e.,
+types of the form \kwd{T[]}.  For the most part, array classes
+(\S~\ref{sec:classes:array}) should be more convenient to use than
+Java-style array types.  However, for backwards compatibility,
+Java-style array types are still supported.
+
+\S~\ref{sec:types:array:writing} explains how to use array types in
+DPJ.  \S~\ref{sec:types:array:compare} explains how the DPJ compiler
 compares two array types for compatibility, for example in checking an
 assignment statement.  \S~\ref{sec:types:array:cast} discusses casting
 one array type to another in DPJ.
 
-Because Java arrays do not support slices (e.g., extracting a
-contiguous subsection of an array), DPJ provides a generic class
-called \kwd{DPJArray} with an interface similar to Java's
-\kwd{ArrayList} that supports slices.  There are also versions of
-\kwd{DPJArray} specialized to the various primitive types.
-\S~\ref{sec:runtime:array} discusses these classes.
+\subsubsection{Using Array Types%
+\label{sec:types:array:writing}}
+\cutname{types.array.writing.html}
 
-\subsubsection{Writing Array Types%
-\label{sec:types:array:instant}}
-\cutname{types.array.instant.html}
+A DPJ array type is the same as an ordinary Java array type, i.e., it
+has the form \kwd{T[]} for some type \kwd{T} (which may itself be an
+array type).  The only difference is that \kwd{T} may be a class with
+region parameter arguments, or it may be an array type constructed
+from such a class.  
 
-Every DPJ array type has exactly one RPL parameter.  It works
-similarly to a class RPL parameter.  When you write an array type, you
-must either specify an explicit RPL as an argument to the parameter,
-or use the default RPL.  The explicit argument is given in angle
-brackets, after the square brackets.  If you leave out the explicit
-argument, the default is \kwd{Root}.  In either case, the RPL argument
-specifies the RPL associated with the cells of the array.
+Creation of array objects via \kwd{new} is exactly the same as in
+Java.  For example, \kwd{new String[10]} creates a new array of 10
+\kwd{String} objects.
 
-For example:
-%
-\begin{dpjlisting}
-// Array of int with cells in Root
-int[]<Root>
-// Same as int[]<Root>
-int[]
-// Array of int with cells in R
-int[]<R>
-\end{dpjlisting}
-
-As in ordinary Java, you can construct arrays whose elements are
-themselves arrays.  In this case the RPL argument to the array type is
-the argument (either implicit or explicit) associated with the
-\emph{leftmost} pair of brackets.  The type of an element is given by
-deleting the leftmost set of brackets and its RPL argument, if any.
-For example:
-%
-\begin{dpjlisting}
-// Array with cells in R1; each element is an int[]<R2>
-int[]<R1>[]<R2>
-// Array with cells in Root; each element is an int[]<R>
-// Same as int[]<Root>[]<R>
-int[][]<R>
-// Array with cells in R; each element is an int[]<Root>
-// Same as int[]<R>[]<Root>
-int[]<R>[]
-\end{dpjlisting}
-%
-This process may be continued to arbitrary depth.  For example,
-\kwd{int[]<R1>[]<R2>[]<R3>} is an array with cells in \kwd{R1} whose
-element type is \kwd{int[]<R2>[]<R3>}.  The element type in turn is an
-array with cells in \kwd{R2} whose element type is \kwd{int[]<R3>}.
-
-Class and method RPL parameters are frequently given as RPL arguments
-to array types.  For example, the following class declares a field
-\kwd{arr} whose type is an array.  Both the field \kwd{arr} and the
-cells of the array are in the RPL given by the class region parameter
-\kwd{R}:
-%
-\begin{dpjlisting}
-class ArrayClassParam<region R> {
-    int[]<R> arr in R;
-}
-\end{dpjlisting}
-%
-Notice that without the capability to bind \kwd{R} as the RPL argument
-to the array type, there would be no way to get the cells of \kwd{arr}
-in region \kwd{R}.  The specifier \kwd{in R} is insufficient, because
-it only specifies the region of the \kwd{arr} reference itself, not
-the region of the cells of the array that the reference points to.
-
-Method region parameters can also be used to write a method that takes
-an array with any region:
-%
-\begin{dpjlisting}
-abstract class ArrayMethodParam {
-    // This method will accept an int[] with any RPL argument
-    <region R>void method(int[]<R> arr);
-}
-\end{dpjlisting}
-
-Non-parametric RPLs are generally bound to array parameters when the
-arrays are global data.  For example, one might declare an array of
-data that is initialized once, in a sequential phase, and then never
-changes during the computation.  One could do that by declaring a
-region \kwd{ReadOnlyData} and then putting the array in that region:
-%
-\begin{dpjlisting}
-region ReadOnlyData;
-final int[]<ReadOnlyData> data = new int[N]<ReadOnlyData>;
-\end{dpjlisting}
-%
-On the right-hand side of the assignment, we have created a new array
-of type \kwd{int[]<ReadOnlyData>} with \kwd{N} elements (see
-\S~\ref{sec:types:array:new}).
-
-Inside the parallel computation, with the proper use of disjointness
-constraints on parameters and disjoint RPLs, read effects on
-\kwd{ReadOnlyData} are noninterfering, and write effects on other
-regions are noninterfering because the regions are disjoint.  See
-\tutorial\ for more details.
-
-
-\subsubsection{Index-Parameterized Array Types%
-\label{sec:types:array:ipa}}
-\cutname{types.array.ipa.html}
-
-For parallel computations on arrays, it is often necessary to update
-different parts of an array in parallel in different tasks.  A DPJ
-feature called an \emph{index-parameterized array} allows this to be
-done safely.  We discuss index-parameterized arrays first for the
-simpler case of arrays of primitive and class types, and then for the
-case of arrays of arrays.
-
-\bfhead{Arrays of primitive and class types} There are two cases to
-consider:
-%
-\begin{enumerate}
-%
-\item Updating different array cells in different tasks.  For example,
-  there could be an array of 10,000 cells, with each of 100 tasks
-  updating 100 cells.  Because the array cells are distinct, there is
-  no inteference.
-%
-\item Updating disjoint objects pointed to through different cells in
-  different tasks.  For example, there could be an array of 10,000
-  cells, each of which stores a reference to a unique object.  Each of
-  100 tasks in parallel could read 100 of the cells, follow the
-  references, and update the objects.  Because the objects are
-  distinct, there is no interference.
-%
-\end{enumerate}
-%
-DPJ's index-parameterized arrays can express both cases.
-
-\ithead{Updating different array cells} To update different array
-cells, it is necessary to put each cell in a different region.  DPJ
-does this with an \emph{index-parameterized array type}.  An
-index-parameterized array type uses the array index element \kwd{[i]}
-(\S~\ref{sec:rpls:basic:array}) in the RPL associated with cell
-\kwd{i}.  Because the index value of \kwd{i} is different for every
-array cell, every cell has its own region.
-
-To write an index-parameterized array type, you can use the special
-array index element \kwd{[\_]} in the RPL argument of the array type.
-This special element is allowed only inside an array type, where it
-stands in for the array index element \kwd{[i]} associated with each
-cell.  For example:
-%
-\begin{dpjlisting}
-// Array of int such that cell i is in region [i]
-int[]<[_]>
-// Array of int such that cell i is in region R:[i]
-int[]<R:[_]>
-\end{dpjlisting}
-%
-Notice that in the second example, the RPL \kwd{R:[i]} gives us two
-ways to distinguish array components:  we can distinguish whole arrays
-from each other by using different bindings to \kwd{R}; and we can
-distinguish different parts of arrays from each other by using the
-different values of \kwd{i}.
-
-\ithead{Updating different objects through different array cells}
-Index-parameterized arrays can also handle the case of updates through
-references to different objects, by using \kwd{[\_]} in the RPL
-argument of the element type of the array.  Every object stored in a
-distinct array cell gets its own region, parameterized by the index of
-the cell.  For example, suppose we have the following simple class
-definition:
-%
-\begin{dpjlisting}
-class Data<region R> {
-    int field in R;
-}
-\end{dpjlisting}
-%
-Then we can create the following index-parameterized array:
-%
-\begin{dpjlisting}
-Data<[_]>[]<[_]> arr = new Data<[_]>[N]<[_]>;
-\end{dpjlisting}
-%
-The type of \kwd{arr} is an array such that (1) cell \kwd{i} of the
-array is in region \kwd{[i]}; and (2) cell \kwd{i} of the array has
-type \kwd{Data<[i]>}.  Now we can do disjoint initialization of the
-array, as before:
-%
-\begin{dpjlisting}
-foreach (int i in 0, N)
-    arr[i] = new Data<[i]>();
-\end{dpjlisting}
-%
-Notice that the type \kwd{Data<[i]>} on the left-hand side of the
-assignment matches the type of \kwd{arr[i]}, as it must; see
-\S~\ref{sec:types:array:compare}.
-
-We can also update the objects disjointly through the references in
-the array:
-%
-\begin{dpjlisting}
-foreach (int i in 0, N)
-    // Effect is 'writes [i]'
-    ++arr[i].field;
-\end{dpjlisting}
-%
-This is a very useful pattern in shared-memory parallel programming.
-See \tutorial\ for more realistic examples.
-
-\bfhead{Arrays of arrays} An array of arrays is an array of objects
-(the arrays are objects), so it works similarly to an array of class
-objects, discussed above.  The difference is that with an array of
-arrays, there are multiple index dimensions, so it may not be
-sufficient to use the single name \kwd{[\_]} for the index region of
-an array.  Instead, DPJ allows you to use an explicitly named variable
-for each index dimension.
-
-To do this, you write \kwd{\#}\emph{var} after the RPL argument of an
-array type, where \emph{var} is an identifier declaring a fresh
-variable in scope over the type.  That variable can then be used in an
-array index element to indicate the index associated with each array
-cell.  For example, rewriting the types above using the explicit index
-variable name \kwd{i}:
-%
-\begin{dpjlisting}
-// Same as int[]<[_]>
-int[]<[i]>#i
-// Same as int[]<R:[_]>
-int[]<R:[i]>#i
-\end{dpjlisting}
-%
-The variable name doesn't matter; we could have written \kwd{j} or
-\kwd{k} or anything else.  The only point of the name is to associate
-the variable declaration with an array dimension, so the compiler
-knows what dimension is referred to from the name.  Notice that if we
-use \kwd{\#\_} for the variable declaration, then the index is
-\kwd{[\_]}, as in the default case.  In fact this is just how the
-compiler implements the default: it declares \kwd{\#\_} for you as the
-array index variable if you don't specify one yourself.
-
-In the array-of-array case, each \kwd{\#}\emph{var} declaration is in
-scope for the array where it is declared, and all arrays to the right
-of that one.  For example, the type
-%
-\begin{dpjlisting}
-int[]<[i]>#i[]<[i]:[j]>#j
-\end{dpjlisting}
-%
-defines an array of arrays.  The outermost array has cell \kwd{i} in
-region \kwd{i}, and the type of cell \kwd{i} is an array of \kwd{int}
-with cell \kwd{j} in region \kwd{[i]:[j]}.  If we reversed the \kwd{i}
-and \kwd{j} declarations and wrote \kwd{int[]<[i]>\#j[]<[i]:[j]>\#i},
-then we would get a compile error, because \kwd{i} is used but not in
-scope in the leftmost RPL argument.
-
-This kind of decomposition is useful for dividing a rectangular grid
-into rows and columns for disjoint parallel updates.  For example, an
-initialization of the array might look like this:
-%
-\begin{dpjlisting}
-int[]<[i]>#i[]<[i]:[j]>#j A = new int[N]<[i]>#i[M]<[i]:[j]>#j;
-foreach (int i in 0, N) {
-    // Effect on [i]:[?] is disjoint on different i iterations
-    foreach (int j in 0, M) {
-        // Effect on [i]:[j] is disjoint on different j iterations
-        A[i][j] = INITIAL_VALUE;
-    }
-}
-\end{dpjlisting}
-%
-For the details of how the compiler would check this example, see
-\S~\ref{sec:effects:stmt-exp} (computing effects of statements) and
-\S~\ref{sec:effects:nonint} (noninterfering effects).
-
-
-\subsubsection{New Arrays%
-\label{sec:types:array:new}}
-\cutname{types.array.new}
-
-Creation of new arrays in DPJ works just as in Java, with the extra
-annotations in the array types
-(\S\S~\ref{sec:types:array:instant},~\ref{sec:types:array:ipa}).  
-
-\bfhead{Arrays of primitive and class types} To create an array of
-$n$ primitive types or class objects, write a DPJ array type with $n$
-in the brackets, instead of empty brackets.  For example:
-%
-\begin{dpjlisting}
-// Create an array of 10 int with cells in Root
-int[]<Root> A1 = new int[10]<Root>;
-// Same as new int[10]<Root>
-int[] A2 = new int[10];
-// Create an array of 10 int with cells in R
-int[]<R> A3 = new int[]<R>;
-// Create an array of 10 int such that cell i is in region [i]
-int[]<[_]> A4 = new int[10]<[_]>;
-// Create an array of 10 int such that cell i is in region R:[i]
-int[]<R:[_]> A5 = new int[10]<[_]>;
-// Create an array of 10 Data objects such that (1) cell i
-// is in region [i]; and (2) cell i has type Data<[i]>
-Data<[_]>[]<[_]> A6 = new Data<[_]>[10]<[_]>;
-\end{dpjlisting}
-
-Unfortunately, Java does not let you create arrays of class types that
-have generic parameters without an explicit cast.  For example, the
-following code is illegal:
-%
-\begin{dpjlisting}
-class Data<type T, region R> {
-    T field in R;
-}
-Data<Integer,[_]>[]<[_]> A;
-// The following line causes a 'generic array creation' compile error
-A = new Data<Integer,[_]>[10]<[_]>;
-\end{dpjlisting}
-%
-To get around this limitation, you need to use a cast:
-%
-\begin{dpjlisting}
-// Rewrite of the last line above so it compiles
-A = (Data<Integer,[_]>[]<[_]>) new Data[10];
-\end{dpjlisting}
-%
-This code is ugly, but it works.  Also, the ugliness is localized to
-the point of array creation.  Once the array is created and assigned,
-everything else works as it should.
-
-An alternative to this ugly code would be to use a \kwd{DPJArray}
-(\S~\ref{sec:runtime:array}) instead of a Java array.  As of the
-current version of DPJ, the \kwd{DPJArray} class cannot be used with
-index-parameterized regions.  It is anticipated that future versions
-of DPJ will support index-parameterized \kwd{DPJArray}s.
-
-\bfhead{Arrays of arrays} To create an array of arrays, as in
-ordinary Java, at least one of the brackets must have a length
-expression, and any empty brackets must appear to the right:
-%
-\begin{dpjlisting}
-// Array of 10 cells in R1; each element has type int[]<R2> and
-// is initialized to null
-int[]<R1>[]<R2> A1 = new int[10]<R1>[]<R2>;
-// Same as before, but each element of the array is initialized
-// to an array of int[]<R2> with 10 elements
-int[]<R1>[]<R2> A2 = new int[10]<R1>[10]<R2>;
-// ILLEGAL:  Empty brackets must appear to the right
-int[]<R1>[]<R2> A2 = new int[]<R1>[10]<R2>;
-// Array of 10 cells such that cell i is in region i; cell i has
-// type int[]<[i]:[j]>#j and is initialized to null
-int[]<[i]>#i[]<[i]:[j]>#j = new int[10]<[i]>#i[]<[i]:[j]>#j;
-// Same as before, but each cell is initialized to an array
-// with 10 elements
-int[]<[i]>#i[]<[i]:[j]>#j = new int[10]<[i]>#i[10]<[i]:[j]>#j;
-\end{dpjlisting}
-
+Access to an array cell via an index operation always touches the
+region \kwd{Root}.  If an array in a different region is desired, an
+array class must be used (\S~\ref{sec:classes:array}).
 
 \subsubsection{Array Type Comparisons%
 \label{sec:types:array:compare}}
@@ -696,23 +359,11 @@ where $T_1$ and $T_2$ are both array types.
 
 \bfhead{Comparing arrays of primitive types} $T_1$ may be assigned to
 $T_2$ if the element types of $T_1$ and $T_2$ are both the same
-primitive type, and the RPL argument of $T_1$ is included in the RPL
-argument of $T_2$ (\S~\ref{sec:rpls:comparing:include}).  For example:
-%
-\begin{enumerate}
-\item \kwd{int[]<Root>} may be a assigned to \kwd{int[]<Root>}.
-\item \kwd{int[]} may be assigned to \kwd{int[]}; this is the same as
-  case 1.
-\item \kwd{int[]<R>} may be assigned to \kwd{int[]<R:*>}, because
-  \kwd{R} is included in \kwd{R:*}.
-\item \kwd{int[]<r1>} may not be assigned to \kwd{int[]<r2>}, because
-  \kwd{r1} and \kwd{r2} are incompatible region names.
-\end{enumerate}
+primitive type.
 
 \bfhead{Comparing arrays of class and array types} $T_1$ may be
 assigned to $T_2$ if the element types of $T_1$ and $T_2$ are
-\emph{array-compatible} class or array types, and the RPL argument of
-$T_1$ is included in the RPL argument of $T_2$.  Two class types are
+\emph{array-compatible} class or array types.  Two class types are
 array-compatible if the element type of $T_1$ can be assigned to the
 element type of $T_2$ using the rules in
 \S\S~\ref{sec:types:class:compare},~\ref{sec:types:array:compare}, but
@@ -720,17 +371,10 @@ requiring equivalence (\S~\ref{sec:rpls:comparing:equiv}) instead of
 inclusion of RPLs.  For example:
 %
 \begin{enumerate}
-\item \kwd{C<R>[]<R>} may be a assigned to \kwd{C<R>[]<R:*>}, because
-  \kwd{C<R>} is array compatible with itself, and \kwd{R} is included
-  in \kwd{R:*}.
-\item \kwd{int[]<R>[]<R>} may be assigned to \kwd{int[]<R>[]<R:*>},
-  because \kwd{int[]<R>} is array compatible with itself, and \kwd{R}
-  is included in \kwd{R}.
-\item \kwd{C<R>[]<R>} may not be assigned to \kwd{C<R:*>[]<R:*>},
+\item \kwd{C<R>[]} may be a assigned to \kwd{C<R>[]}, because
+  \kwd{C<R>} is array compatible with itself.
+\item \kwd{C<R>[]} may not be assigned to \kwd{C<R:*>[]},
   because \kwd{C<R>} and \kwd{C<R:*>} are not array-compatible.
-\item \kwd{int[]<R>[]<R>} may not be assigned to
-  \kwd{int[]<R:*>[]<R:*>}, because \kwd{int[]<R>} and \kwd{int[]<R:*>}
-  are not array compatible.
 \end{enumerate}
 %
 The extra requirement of array-compatibility is introduced to avoid
@@ -754,16 +398,9 @@ badArr[0] = new C<r2>();
 Casts of array types have the same rules as casts of class types
 (\S~\ref{sec:types:class:cast}).  The cast is allowed if it would be
 allowed for the DPJ erasures of the types in ordinary Java.  The DPJ
-erasure of an array type is computed by erasing all the DPJ region
-information from the entire type.  For example:
-%
-\begin{itemize}
-\item The DPJ erasure of \kwd{int[]<R>} is \kwd{int[]}.
-\item The DPJ erasure of \kwd{int[]<r1>[]<r2>} is \kwd{int[][]}.
-\item The DPJ erasure of \kwd{int[]<[i]>\#i[]<[i][j]>\#j} is
-  \kwd{int[][]}.
-\item The DPJ erasure of \kwd{C<[\_]>[]<[\_]>} is \kwd{C[]}.
-\end{itemize}
+erasure of an array type is computed by taking the erasure of the
+class type appearing to the left of all brackets.  For example, the
+DPJ erasure of \kwd{C<R>[]} is \kwd{C[]}.
 
 \subsection{Typing Expressions%
 \label{sec:types:exp}}
@@ -788,29 +425,32 @@ determinining the type of an expression.
 A field access expression in Java has the general form
 %
 \begin{description}
-\item \emph{selected-exp}\kwd{.}\emph{field-name}
+\item \emph{receiver-exp}\kwd{.}\emph{field-name}
 \end{description}
 %
-where \emph{selected-exp} is an expression of class type $C$, and
-\emph{field-name} is the name of a field of class $C$ (or a superclass
-of $C$).  If a bare field name appears, it is equivalent to
-\kwd{this.}\emph{field-name}.  Here we give the rules for the general
-form.
+where \emph{receiver-exp} is a class name $C$ or expression of class
+type $C$, and \emph{field-name} is the name of a field of class $C$
+(or a superclass of $C$).  If a bare field name appears, then the
+implied receiver is either \kwd{C.}\emph{field-name} where \kwd{C} is
+the enclosing class (for a static field), or
+\kwd{this.}\emph{field-name} (for an instance field).  Here we give
+the rules for the general form.
 
-The compiler carries out the following steps to determine the type of
-an expression \emph{selected-exp}\kwd{.}\emph{field-name}:
+For instance fields (i.e., \emph{receiver-exp} is an expression of
+class type), the compiler carries out the following steps to determine
+the type of an expression \emph{receiver-exp}\kwd{.}\emph{field-name}:
 %
 \begin{enumerate}
 %
-\item Determine the type \emph{selected-type} of \emph{selected-exp}, using the rules in
+\item Determine the type \emph{receiver-type} of \emph{receiver-exp}, using the rules in
   this section together with the ordinary rules for Java types.
 %
 \item Look up the type \emph{field-type} of \kwd{field} based on the
-  class $C$ named in \emph{selected-type}.
+  class $C$ named in \emph{receiver-type}.
 %
 \item Compute the \emph{capture} (\S~\ref{sec:types:exp:capture}) of
-  \emph{selected-type} to generate the type
-  \emph{captured-selected-type}.
+  \emph{receiver-type} to generate the type
+  \emph{captured-receiver-type}.
 %
 \item Make the following subsitutions in \emph{field-type} to generate
   the answer:
@@ -818,10 +458,10 @@ an expression \emph{selected-exp}\kwd{.}\emph{field-name}:
 \begin{enumerate}
 %
 \item Substitute the type and RPL arguments of
-  \emph{captured-selected-type} for the corresponding type and RPL
+  \emph{captured-receiver-type} for the corresponding type and RPL
   parameters of class $C$.
 %
-\item If \emph{selected-exp} is a \kwd{final} local variable or
+\item If \emph{receiver-exp} is a \kwd{final} local variable or
   \kwd{this}, then substitute the variable for \kwd{this}.  Otherwise,
   substitute a capture parameter (\S~\ref{sec:types:exp:capture})
   included in \emph{owner-rpl}\kwd{:*}, where \emph{owner-rpl} is the
@@ -830,6 +470,9 @@ an expression \emph{selected-exp}\kwd{.}\emph{field-name}:
 \end{enumerate}
 %
 \end{enumerate}
+%
+For static fields (i.e., \emph{receiver-exp} is a class name), only
+steps 1 and 2 are required.
 
 Here is some example code for which the capture in step 3 is a no-op,
 and the capture in step 4(b) isn't needed.
@@ -852,23 +495,43 @@ class FieldTypingExample<region R> {
 %
 
 Let's see how to compute the type of the expression in the
-\kwd{return} statement in line 5.  Step 1: The selected expression is
-a \kwd{new} expression of type \kwd{FieldTypingExample<r>}.  Step 2:
-The field name is \kwd{field1}, the class $C$ is
-\kwd{FieldTypingExample}, and the declared type of the field is
-\kwd{FieldTypingExample<R>} (line 3).  Step 3: Nothing to do (see
-\S~\ref{sec:types:exp:capture}).  Step 4: Substituting \kwd{r} given
-in the selected type expression for \kwd{R} in the field type, we have
-that the answer is \kwd{FieldTypingExample<r>}.
+\kwd{return} statement in line 5.  
+%
+\begin{enumerate}
+%
+\item The receiver expression is a \kwd{new} expression of type
+  \kwd{FieldTypingExample<r>}.
+%
+\item The field name is \kwd{field1}, the class $C$ is
+  \kwd{FieldTypingExample}, and the declared type of the field is
+  \kwd{FieldTypingExample<R>} (line 3).
+%
+\item Nothing to do (see \S~\ref{sec:types:exp:capture}).  
+%
+\item Substituting \kwd{r} given in the receiver type
+  expression for \kwd{R} in the field type, we have that the answer is
+  \kwd{FieldTypingExample<r>}.
+%
+\end{enumerate} 
 
 Now let's see how to compute the type of the expression in the
-\kwd{return} statement in line 10.  Step 1: The selected expression is
-\kwd{arg}, which has type \kwd{FieldTypingExample<R>}.  Step 2: Now
-the field is \kwd{field2}, and its type is
-\kwd{FieldTypingExample<this>} (line 7).  Step 3: Again, nothing to
-do.  Step 4: \kwd{arg} is a \kwd{final} local variable (line 9), so we
-can substitute it for \kwd{this} in the type of \kwd{field2}.
-Therefore the answer is \kwd{FieldTypingExample<arg>}.
+\kwd{return} statement in line 10.  
+%
+\begin{enumerate}
+%
+\item The receiver expression is \kwd{arg}, which has type
+  \kwd{FieldTypingExample<R>}.  
+%
+\item Now the field is \kwd{field2}, and its type is
+  \kwd{FieldTypingExample<this>} (line 7).
+%
+\item Again, nothing to do.
+%
+\item \kwd{arg} is a \kwd{final} local variable (line 9), so we can
+  substitute it for \kwd{this} in the type of \kwd{field2}.  Therefore
+  the answer is \kwd{FieldTypingExample<arg>}.
+%
+\end{enumerate}
 
 \subsubsection{Array Access%
 \label{sec:types:exp:array}}
@@ -876,29 +539,39 @@ Therefore the answer is \kwd{FieldTypingExample<arg>}.
 
 An array access expression has the form
 \emph{array-exp}\kwd{[}\emph{index-exp}\kwd{]}, where \emph{array-exp}
-is an expression of array type, and \emph{index-exp} is an expression
-of integer type.  To compute the type of this kind of expression, the
-compiler does the following:
+is an expression of array class type (\S~\ref{sec:types:class}) or
+array type (\S~\ref{sec:types:array}), and \emph{index-exp} is an
+expression of integer type.
+
+\bfhead{Array class type} If \emph{array-exp} has array class type,
+then do the following:
 %
 \begin{enumerate}
 %
-\item Compute the element type of the array type by deleting the
-  leftmost pair of brackets, RPL argument if any, and index variable
-  declaration, if any.  For example, the element type of
-  \kwd{Data<[\_]>[]<[\_]>} is \kwd{Data<[\_]>}; the element type of
-  \kwd{int[]<R1>[]<R2>} is \kwd{int[]<R2>}; and the element type of
-  \kwd{int[]<[i]>\#i[]<[i]:[j]>\#j} is \kwd{int[]<[i]:[j]>\#j}.
+\item perform the same conversion as for field access
+  (\S~\ref{sec:types:exp:field}), treating the cell type of the array
+  class as the field type.
 %
-\item Substitute \emph{index-exp} for the leftmost index variable in
-  the element type to generate the answer.  For example, if \kwd{A}
-  has type \kwd{Data<[\_]>[]<[\_]>}, then expression \kwd{A[0]} has
-  type \kwd{Data<[0]>}.  If \kwd{A} has type \kwd{int[]<R1>[]<R2>},
-  then expression \kwd{A[i]} has type \kwd{int[]<R2>}.  (Notice there
-  is no substitution, because the index variable doesn't appear in the
-  element type.)  If \kwd{A} has type
-  \kwd{int[]<[i]>\#i[]<[i]:[j]>\#j}, then expression \kwd{A[0]} has
-  type \kwd{int[]<[0]:j>\#j}.
+\item Substitute \emph{receiver-exp} for \kwd{index} in the result.
+%
 \end{enumerate}
+%
+For example, given the following code
+%
+\begin{dpjlisting}
+class Data<region R> {
+    static arrayclass Array<region R> {
+        Data<R:[i]> in R:[i];
+    }
+}
+region r;
+Data.Array<r> a = new Data.Array<r>(10);
+\end{dpjlisting}
+%
+The access expression \kwd{a[0]} has type \kwd{Data<r:[0]>}.
+
+\bfhead{Array type} If \emph{array-exp} has array type, then delete
+one set of brackets to get the type, as in ordinary Java.
 
 \subsubsection{Method Invocation%
 \label{sec:types:exp:invoke}}
@@ -908,24 +581,24 @@ compiler does the following:
 method invocation expression
 %
 \begin{description}
-\item \emph{selected-exp}\kwd{.<}\emph{type-args}\kwd{,}\emph{rpl-args}\kwd{>}\emph{method-name}\kwd{(}\emph{args}\kwd{)}
+\item \emph{receiver-exp}\kwd{.<}\emph{type-args}\kwd{,}\emph{rpl-args}\kwd{>}\emph{method-name}\kwd{(}\emph{args}\kwd{)}
 \end{description}
 %
 The compiler carries out the following steps:
 %
 \begin{enumerate}
 %
-\item Determine the type \emph{selected-type} of \emph{selected-type}
+\item Determine the type \emph{receiver-type} of \emph{receiver-exp}
   and the types \emph{arg-types} of \emph{args}, using the rules in
   this section together with the ordinary rules for Java types.
 %
 \item Look up the method in the ordinary Java way, using the method
-  name, \emph{selected-type}, and \emph{arg-types}.  Use the method to
+  name, \emph{receiver-type}, and \emph{arg-types}.  Use the method to
   find formal value parameter types and return type.
 %
 \item Compute the \emph{capture} (\S~\ref{sec:types:exp:capture}) of
-  \emph{selected-type} to generate the type
-  \emph{captured-selected-type}.
+  \emph{receiver-type} to generate the type
+  \emph{captured-receiver-type}.
 %
 \item Make the following substitutions in each of the formal argument
   types then check that the actual argument types \emph{arg-types} are
@@ -935,14 +608,15 @@ The compiler carries out the following steps:
 \begin{enumerate}
 %
 \item Substitute the type and RPL arguments of
-  \emph{captured-selected-type} for the type and RPL arguments of its
+  \emph{captured-receiver-type} for the type and RPL arguments of its
   class.
-\item Substitute \emph{type-args} and \emph{rpl-args} for the type and
-  RPL parameters of the method.
+\item Capture \emph{type-args} and \emph{rpl-args} and substitute the
+  captured types and RPLs for the type and RPL parameters of the
+  method.
 \item For every argument in \emph{args} of a type assignable to
   \kwd{int}, substitute the actual argument expression for the
   corresponding formal parameter of the method.
-\item If \emph{selected-exp} is a \kwd{final} local variable or
+\item If \emph{receiver-exp} is a \kwd{final} local variable or
   \kwd{this}, then substitute the variable for \kwd{this}.  Otherwise
   substitute a capture parameter (\S~\ref{sec:types:exp:capture})
   included in \emph{owner-rpl}\kwd{:*}, where \emph{owner-rpl} is the
@@ -955,8 +629,8 @@ The compiler carries out the following steps:
 %
 \end{enumerate}
 
-Here is some example code for which the capture in step 3 is a no-op,
-and the capture in step 4(d) isn't needed.
+Here is some example code for which the capture in steps 3 and 4(b)
+are no-ops, and the capture in step 4(d) isn't needed.
 \S~\ref{sec:types:exp:capture} gives examples involving capture.
 %
 \begin{numbereddpjlisting}
@@ -980,34 +654,31 @@ Notice that the return type is written in terms of the method
 parameter (both the RPL and value parameter); these parameters have to
 be substituted away to generate a meaningful type at the call site.
 
-At the call site (line 5), the compiler does the following.  Step 1:
-The selected type is
+At the call site (line 5), the compiler does the following.  
 %
-\begin{description}
-\item \kwd{MethodRegionInvocationExample<R1,R2>},
-\end{description}
+\begin{enumerate}
 %
-and the argument type is \kwd{int}.  Step 2: The invoked method is
-\kwd{callee}, defined in lines 1--2.  Step 3: Nothing to do (see
-\S~\ref{sec:types:exp:capture}).  Step 4: Binding 0 to \kwd{int} is
-OK.  Step 5: The return type is
+\item The receiver type is \kwd{MethodRegionInvocationExample<R1,R2>},
+  and the argument type is \kwd{int}.
 %
-\begin{description}
-\item \kwd{<MethodInvocationExample<R3,[i]>}.
-\end{description}
+\item The invoked method is \kwd{callee}, defined in lines 1--2.  
 %
-The method arguments are $\kwd{R3}=\kwd{Root}$ and $\kwd{i}=0$.
-Substituting arguments for parameters gives a return type of
+\item Nothing to do (see \S~\ref{sec:types:exp:capture}).
 %
-\begin{description}
-\item \kwd{MethodInvocationExample<Root,[0]>}.
-\end{description}
+\item Binding 0 to \kwd{int} is OK.  
+%
+\item The return type is \kwd{<MethodInvocationExample<R3,[i]>}.  The
+  method arguments are $\kwd{R3}=\kwd{Root}$ and $\kwd{i}=0$.
+  Substituting arguments for parameters gives a return type of
+  \kwd{MethodInvocationExample<Root,[0]>}.
+%
+\end{enumerate}
 
 \bfhead{Inferred type and RPL arguments} If there are no explicit
 type or RPL arguments, the compiler infers them as discussed in
 \S~\ref{sec:classes:params:method} and proceeds as stated above, using
 the inferred arguments in step 4(b).  As in ordinary Java, if there is
-no \emph{selected-exp}, then the implied selected expression is
+no \emph{receiver-exp}, then the implied receiver expression is
 \kwd{this}.
 
 \subsubsection{Captured Types%
@@ -1042,15 +713,15 @@ it just assigned the same object to a different reference with a
 partially specified type.  So the actual type of the \kwd{field} field
 of that object is \kwd{CaptureExample<R:r1>}.  That means it can't
 hold a \kwd{CaptureExample<R:r2>}; that would violate the consistency
-of typing at runtime.  However, the type of the selected expression
+of typing at runtime.  However, the type of the receiver expression
 \kwd{ceStar} is \kwd{CaptureExample<R:*>}.  If we computed the type of
 \kwd{ceStar.field} by just substituting the actual for formal
-arguments in the type of the selected expression, we would get
+arguments in the type of the receiver expression, we would get
 \kwd{CaptureExample<R:*>} for the type of \kwd{ceStar.field}, and the
 bad assignment would be allowed.
 
 So we don't do that.  Instead, we introduce a new parameter, called a
-\emph{capture parameter}, in the type of the selected expression.  It
+\emph{capture parameter}, in the type of the receiver expression.  It
 stands in for the unknown actual region of an object stored in a
 variable with partially specified type.  The introduction of the new
 parameter is called \emph{capturing} a type.  It occurs in steps 3 and
@@ -1059,7 +730,7 @@ and 4(d) of typing method invocation (\S~\ref{sec:types:exp:invoke}).
 As discussed in \S~\ref{sec:classes:params:method}, capturing RPLs can
 also occur when inferring arguments to method region parameters.
 
-In this example, the captured type of the selected expression is
+In this example, the captured type of the receiver expression is
 \kwd{CaptureExample<P>}, where \kwd{P} is the capture parameter.
 \kwd{P} is constrained to be included in \kwd{R:*}, because that is
 all we know about the actual region from the type
@@ -1124,7 +795,7 @@ to type
 \end{description}
 %
 which is the type of the formal parameter \kwd{x} of \kwd{callee},
-after capturing the type of the selected expression.
+after capturing the type of the receiver expression.
 
 Usually you can work around these errors by adding a parameter.  For
 example, the code above could be rewritten as follows:
