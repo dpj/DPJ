@@ -154,19 +154,21 @@ Version 1.1</B></H1>
 </UL>
 <LI CLASS="li-toc"><A HREF="#htoc61">6&nbsp;&nbsp;Parallel Control Flow</A>
 <UL CLASS="ftoc2"><LI CLASS="li-toc">
-<A HREF="#htoc62">6.1&nbsp;&nbsp;<TT>cobegin</TT></A>
-<LI CLASS="li-toc"><A HREF="#htoc63">6.2&nbsp;&nbsp;<TT>foreach</TT></A>
+<A HREF="#htoc62">6.1&nbsp;&nbsp;cobegin
+</A>
+<LI CLASS="li-toc"><A HREF="#htoc63">6.2&nbsp;&nbsp;foreach</A>
 <UL CLASS="ftoc3"><LI CLASS="li-toc">
-<A HREF="#htoc64">6.2.1&nbsp;&nbsp;Writing the <TT>foreach</TT> loop</A>
-<LI CLASS="li-toc"><A HREF="#htoc65">6.2.2&nbsp;&nbsp;Controlling the granularity of parallelism</A>
+<A HREF="#htoc64">6.2.1&nbsp;&nbsp;Writing the foreach Loop</A>
+<LI CLASS="li-toc"><A HREF="#htoc65">6.2.2&nbsp;&nbsp;Controlling the Granularity of Parallelism</A>
 </UL>
 </UL>
 <LI CLASS="li-toc"><A HREF="#htoc66">7&nbsp;&nbsp;The DPJ Runtime</A>
 <UL CLASS="ftoc2"><LI CLASS="li-toc">
-<A HREF="#htoc67">7.1&nbsp;&nbsp;ArraySlice</A>
-<LI CLASS="li-toc"><A HREF="#htoc68">7.2&nbsp;&nbsp;Partition</A>
+<A HREF="#htoc67">7.1&nbsp;&nbsp;Array Classes</A>
+<LI CLASS="li-toc"><A HREF="#htoc68">7.2&nbsp;&nbsp;ArraySlice</A>
+<LI CLASS="li-toc"><A HREF="#htoc69">7.3&nbsp;&nbsp;Partition</A>
 </UL>
-<LI CLASS="li-toc"><A HREF="#htoc69">8&nbsp;&nbsp;Exception Behavior</A>
+<LI CLASS="li-toc"><A HREF="#htoc70">8&nbsp;&nbsp;Exception Behavior</A>
 </UL>
 <!--NAME contents.html-->
 <BR>
@@ -274,8 +276,8 @@ commas. For example, the following declaration declares a region name
 <BR>
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> Element {
- <FONT COLOR="blue"><B>region</B></FONT> Data;
- ...
+  <FONT COLOR="blue"><B>region</B></FONT> Data;
+  ...
 }</TT></DIV><BR>
 <BR>
 Class region name declarations function like static class members in
@@ -293,8 +295,8 @@ regions that can be referred to from anywhere in the program:<BR>
 <BR>
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> Node {
- <B>public <FONT COLOR="blue">region</FONT></B> Left, Right;
- ...
+  <B>public <FONT COLOR="blue">region</FONT></B> Left, Right;
+  ...
 }</TT></DIV><BR>
 <BR>
 Class region name declarations are available for use in RPLs
@@ -326,9 +328,9 @@ field name (and before the field initializer expression, if there is
 one). For example:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> FieldRPLSpecifiers {
-    <FONT COLOR="blue"><B>region</B></FONT> X, Y;             <FONT COLOR="fuchsia"><EM>// X and Y name regions</EM></FONT>
-    <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> X;              <FONT COLOR="fuchsia"><EM>// field x is in region X</EM></FONT>
-    <B>boolean</B> y <FONT COLOR="blue"><B>in</B></FONT> Y = <B>false</B>;  <FONT COLOR="fuchsia"><EM>// field y is in region Y</EM></FONT>
+  <FONT COLOR="blue"><B>region</B></FONT> X, Y;             <FONT COLOR="fuchsia"><EM>// X and Y name regions</EM></FONT>
+  <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> X;              <FONT COLOR="fuchsia"><EM>// field x is in region X</EM></FONT>
+  <B>boolean</B> y <FONT COLOR="blue"><B>in</B></FONT> Y = <B>false</B>;  <FONT COLOR="fuchsia"><EM>// field y is in region Y</EM></FONT>
 }</TT></DIV>Notice that because a class region name declaration functions like a
 static class member (&sect;&nbsp;<A HREF="#sec:classes:region-names">2.1</A>), it creates a
 single region name <EM>per class</EM>, not per object. Therefore, a
@@ -352,8 +354,8 @@ then its RPL is <TT>Root</TT>. The name <TT>Root</TT> is always in scope
 field <TT>x</TT> is in region <TT>Root</TT>:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> DefaultRegionSpecifier {
-    <FONT COLOR="fuchsia"><EM>// Equivalent to int x in Root = 5</EM></FONT>
-    <B>int</B> x = 5;
+  <FONT COLOR="fuchsia"><EM>// Equivalent to int x in Root = 5</EM></FONT>
+  <B>int</B> x = 5;
 }</TT></DIV><BR>
 <BR>
 <!--TOC subsection 2.3&nbsp;&nbsp;Methods-->
@@ -404,11 +406,17 @@ before the <TT>throws</TT> clause, if any. It has the form given in
   <FONT COLOR="fuchsia"><EM>// pureMethod has no effect on the heap</EM></FONT>
   <B>int</B> pureMethod(<B>int</B> y) <FONT COLOR="blue"><B>pure</B></FONT> { <B>return</B> y+1; }
   <FONT COLOR="fuchsia"><EM>// throwsMethod reads X and throws an exception</EM></FONT>
-  <B>void</B> throwsMethod() <FONT COLOR="blue"><B>reads</B></FONT> X <B>throws</B> Exception {
+  <B>void</B> throwsMethod()
+    <FONT COLOR="blue"><B>reads</B></FONT> X
+    <B>throws</B> Exception
+  {
     <B>if</B> (x != 0) <B>throw new</B> Exception();
   }
   <FONT COLOR="fuchsia"><EM>// readWriteMethod reads Y and writes X</EM></FONT>
-  <B>void</B> readWriteMethod() <FONT COLOR="blue"><B>reads</B></FONT> Y <FONT COLOR="blue"><B>writes</B></FONT> X {
+  <B>void</B> readWriteMethod()
+    <FONT COLOR="blue"><B>reads</B></FONT> Y
+    <FONT COLOR="blue"><B>writes</B></FONT> X
+  {
     x = y;
   }
 }</TT></DIV><BR>
@@ -430,12 +438,16 @@ For example:
   <FONT COLOR="blue"><B>region</B></FONT> X;
   <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> X;
   <FONT COLOR="fuchsia"><EM>// OK, summary is conservative</EM></FONT>
-  <B>int</B> readsMethod() <FONT COLOR="blue"><B>writes</B></FONT> X {
+  <B>int</B> readsMethod()
+    <FONT COLOR="blue"><B>writes</B></FONT> X
+  {
     <FONT COLOR="fuchsia"><EM>// Write effects cover reads</EM></FONT>
     <B>return</B> x;
   }
   <FONT COLOR="fuchsia"><EM>// Error!  Read effect must be reported</EM></FONT>
-  <B>int</B> pureMethod() <FONT COLOR="blue"><B>pure</B></FONT> {
+  <B>int</B> pureMethod()
+    <FONT COLOR="blue"><B>pure</B></FONT>
+  {
     <B>return</B> x;
   }
 }</TT></DIV><BR>
@@ -447,13 +459,17 @@ compile-time error. To see why, consider the following classes:
  <DIV CLASS="dpjlisting"><TT><B>class</B> SuperClass {
   <FONT COLOR="blue"><B>region</B></FONT> X;
   <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> X;
-  <B>void</B> method(<B>int</B> x) <FONT COLOR="blue"><B>writes</B></FONT> X {
+  <B>void</B> method(<B>int</B> x)
+    <FONT COLOR="blue"><B>writes</B></FONT> X
+  {
     <B>this</B>.x = x;
   }
 }
 <B>class</B> SubClass <B>extends</B> SuperClass {
   <FONT COLOR="fuchsia"><EM>// Compile-time error:  pure does not cover writes X</EM></FONT>
-  <B>void</B> method(<B>int</B> x) <FONT COLOR="blue"><B>pure</B></FONT> {
+  <B>void</B> method(<B>int</B> x)
+    <FONT COLOR="blue"><B>pure</B></FONT>
+  {
     <FONT COLOR="fuchsia"><EM>// Do nothing</EM></FONT>
   }
 }</TT></DIV>The method <TT>method</TT> defined in <TT>SubClass</TT> overrides the method
@@ -464,7 +480,9 @@ may look innocuous (after all, the <TT>SubClass</TT> version of method
 really has no effect!), suppose we allowed the code given above and
 then wrote the following method:
 
- <DIV CLASS="dpjlisting"><TT><B>void</B> callMethod(SubClass subClass) <FONT COLOR="blue"><B>pure</B></FONT> {
+ <DIV CLASS="dpjlisting"><TT><B>void</B> callMethod(SubClass subClass)
+  <FONT COLOR="blue"><B>pure</B></FONT>
+{
   subClass.method();
 }</TT></DIV>Based on the previous code, this looks fine: we are calling
 <TT>subClass.method</TT>, which has effect <TT>pure</TT>. But does it?
@@ -490,19 +508,19 @@ summary is always valid, because it covers all possible effects of any
 method. For example, the following code is valid:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> DefaultEffectSummary {
-    <FONT COLOR="fuchsia"><EM>// Equivalent to 'void method() writes Root:*'
-    // OK, because effects may be overreported</EM></FONT>
-    <B>void</B> defaultSummary() {
-        <FONT COLOR="fuchsia"><EM>// No actual effect!</EM></FONT>
+  <FONT COLOR="fuchsia"><EM>// Equivalent to 'void method() writes Root:*'
+  // OK, because effects may be overreported</EM></FONT>
+  <B>void</B> defaultSummary() {
+    <FONT COLOR="fuchsia"><EM>// No actual effect!</EM></FONT>
+  }
+  <B>void</B> parallel() {
+    <FONT COLOR="fuchsia"><EM>// Reports interference, even though defaultSummary has no
+    // actual effect!</EM></FONT>
+    <FONT COLOR="blue"><B>cobegin</B></FONT> {
+      defaultSummary();
+      defaultSummary();
     }
-    <B>void</B> parallel() {
-        <FONT COLOR="fuchsia"><EM>// Reports interference, even though defaultSummary has no
-        // actual effect!</EM></FONT>
-        <FONT COLOR="blue"><B>cobegin</B></FONT> {
-           defaultSummary();
-           defaultSummary();
-        }
-    }
+  }
 }</TT></DIV><BR>
 <BR>
 In general, the default effect summary is too coarse-grained for
@@ -528,14 +546,16 @@ report any initialization effects on fields of the object being
 constructed. For example, the following code is legal:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> ConstructorExample {
-    <FONT COLOR="blue"><B>region</B></FONT> X, Y;
-    <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> X, y <FONT COLOR="blue"><B>in</B></FONT> Y;
-    <FONT COLOR="fuchsia"><EM>// Effect 'pure' is valid, because initialization effects
-    // on x and y don't have to be reported</EM></FONT>
-    ConstructorExample(<B>int</B> x, <B>int</B> y) <FONT COLOR="blue"><B>pure</B></FONT> {
-        <B>this</B>.x = x;
-        <B>this</B>.y = y;
-    }
+  <FONT COLOR="blue"><B>region</B></FONT> X, Y;
+  <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> X, y <FONT COLOR="blue"><B>in</B></FONT> Y;
+  <FONT COLOR="fuchsia"><EM>// Effect 'pure' is valid, because initialization effects
+  // on x and y don't have to be reported</EM></FONT>
+  ConstructorExample(<B>int</B> x, <B>int</B> y)
+    <FONT COLOR="blue"><B>pure</B></FONT>
+  {
+    <B>this</B>.x = x;
+    <B>this</B>.y = y;
+  }
 }</TT></DIV>This works because the DPJ type and effect system guarantees that if
 one parallel task calls a constructor, then the fields of a
 constructed object are never read by any other parallel task until the
@@ -549,13 +569,13 @@ then the rules in &sect;&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>
 and we would have to write the effects:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> NonConstructorExample {
-    <FONT COLOR="blue"><B>region</B></FONT> X, Y;
-    <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> X, y <FONT COLOR="blue"><B>in</B></FONT> Y;
-    <FONT COLOR="fuchsia"><EM>// Effect 'pure' would cause a compile error here</EM></FONT>
-    <B>static void</B> initialize(<B>int</B> x, <B>int</B> y) <FONT COLOR="blue"><B>writes</B></FONT> X, Y {
-        <B>this</B>.x = x;
-        <B>this</B>.y = y;
-    }
+  <FONT COLOR="blue"><B>region</B></FONT> X, Y;
+  <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> X, y <FONT COLOR="blue"><B>in</B></FONT> Y;
+  <FONT COLOR="fuchsia"><EM>// Effect 'pure' would cause a compile error here</EM></FONT>
+  <B>static void</B> initialize(<B>int</B> x, <B>int</B> y) <FONT COLOR="blue"><B>writes</B></FONT> X, Y {
+    <B>this</B>.x = x;
+    <B>this</B>.y = y;
+  }
 }</TT></DIV><BR>
 <BR>
 <!--TOC subsubsection 2.3.3&nbsp;&nbsp;Local Region Name Declarations-->
@@ -580,8 +600,8 @@ region names <TT>A</TT> and <TT>B</TT> that are available for use as region
 names in the scope of method <TT>localRegionNames</TT>:
 
  <DIV CLASS="dpjlisting"><TT><B>void</B> localRegionNames() {
- <FONT COLOR="blue"><B>region</B></FONT> A, B;
- ...
+  <FONT COLOR="blue"><B>region</B></FONT> A, B;
+  ...
 }</TT></DIV><BR>
 <BR>
 Because of their limited scope, local names (and RPLs constructed from
@@ -598,7 +618,9 @@ This technique is called <EM>effect masking</EM>. For example:
  <DIV CLASS="dpjlisting"><TT><B>class</B> EffectMasking&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
   <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
   <FONT COLOR="fuchsia"><EM>// method has no globally-visible effect</EM></FONT>
-  <B>void</B> method() <FONT COLOR="blue"><B>pure</B></FONT> {
+  <B>void</B> method()
+    <FONT COLOR="blue"><B>pure</B></FONT>
+  {
     <FONT COLOR="fuchsia"><EM>// Declare region r local to method</EM></FONT>
     <FONT COLOR="blue"><B>region</B></FONT> r;
     <FONT COLOR="fuchsia"><EM>// Use local region to create new EffectMasking object
@@ -622,14 +644,14 @@ because the name <TT>OutOfScopeRegion</TT> is not in scope where it is
 used:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> ScopeExample&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>void</B> method() {
-        {
-            <FONT COLOR="blue"><B>region</B></FONT> OutOfScopeRegion;
-            <FONT COLOR="fuchsia"><EM>// Scope ends here</EM></FONT>
-        }
-        <FONT COLOR="fuchsia"><EM>// Error:  OutOfScopeRegion is no longer in scope</EM></FONT>
-        ScopeExample&lt;OutOfScopeRegion&gt; x = <B>null</B>;
+  <B>void</B> method() {
+    {
+      <FONT COLOR="blue"><B>region</B></FONT> OutOfScopeRegion;
+      <FONT COLOR="fuchsia"><EM>// Scope ends here</EM></FONT>
     }
+    <FONT COLOR="fuchsia"><EM>// Error:  OutOfScopeRegion is no longer in scope</EM></FONT>
+    ScopeExample&lt;OutOfScopeRegion&gt; x = <B>null</B>;
+  }
 }</TT></DIV><BR>
 <BR>
 <!--TOC subsubsection 2.3.4&nbsp;&nbsp;Commutative Methods-->
@@ -660,7 +682,9 @@ the <TT>commutative</TT> qualifier to write a simple counter class:<BR>
  <DIV CLASS="dpjlisting"><TT><B>class</B> Counter&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
   <B>private int</B> count <FONT COLOR="blue"><B>in</B></FONT> R;
   <B>void</B> clear() <FONT COLOR="blue"><B>writes</B></FONT> R { count = 0; }
-  <B><FONT COLOR="blue">commutative</FONT> synchronized void</B> increment() <FONT COLOR="blue"><B>writes</B></FONT> R {
+  <B><FONT COLOR="blue">commutative</FONT> synchronized void</B> increment()
+    <FONT COLOR="blue"><B>writes</B></FONT> R
+  {
     ++count;
   }
   <B>int</B> getCount() <FONT COLOR="blue"><B>reads</B></FONT> R { <B>return</B> count; }
@@ -784,7 +808,7 @@ class region parameter <TT>R</TT> and uses it to instantiate a type
 (&sect;&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>):
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> ParamInType&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    ParamInType&lt;R&gt; x <FONT COLOR="blue"><B>in</B></FONT> R;
+  ParamInType&lt;R&gt; x <FONT COLOR="blue"><B>in</B></FONT> R;
 }</TT></DIV>And this code creates a fresh <TT>ParamInType</TT> object whose field
 <TT>x</TT> has type <TT>ParamInType&lt;Root&gt;</TT>:
 
@@ -810,15 +834,15 @@ equivalent:
 
  <DIV CLASS="dpjlisting"><TT><FONT COLOR="fuchsia"><EM>// First version</EM></FONT>
 <B>class</B> Hiding&lt;<FONT COLOR="blue"><B>region</B></FONT> R1&gt; {
-    <B>class</B> Inner&lt;<FONT COLOR="blue"><B>region</B></FONT> R2&gt; {
-        Hiding&lt;R2&gt; x;
-    }
+  <B>class</B> Inner&lt;<FONT COLOR="blue"><B>region</B></FONT> R2&gt; {
+    Hiding&lt;R2&gt; x;
+  }
 }
 <FONT COLOR="fuchsia"><EM>// Second version</EM></FONT>
 <B>class</B> Hiding&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>class</B> Inner&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-        Hiding&lt;R&gt; x;
-    }
+  <B>class</B> Inner&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
+    Hiding&lt;R&gt; x;
+  }
 }</TT></DIV>In both versions we are declaring a parameter for the outer class,
 declaring a parameter for the inner class, and using the inner class
 parameter to instantiate a type inside the inner class. In the first
@@ -837,10 +861,10 @@ For example, the following code is invalid, because it attemps to use
 region <TT>R</TT> in a static context:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> Outer&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>public static class</B> Inner {
-        <FONT COLOR="fuchsia"><EM>// Not allowed!</EM></FONT>
-        <B>public int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
-    }
+  <B>public static class</B> Inner {
+    <FONT COLOR="fuchsia"><EM>// Not allowed!</EM></FONT>
+    <B>public int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
+  }
 }</TT></DIV><BR>
 <BR>
 Fortunately, this limitation is easy to work around. The standard way
@@ -850,9 +874,9 @@ inner class, and write <TT>Inner&lt;R1&gt;</TT> to place <TT>x</TT> in region
 <BR>
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> Outer&lt;<FONT COLOR="blue"><B>region</B></FONT> R1&gt; {
-    <B>public static class</B> Inner&lt;<FONT COLOR="blue"><B>region</B></FONT> R2&gt; {
-        <B>public int</B> x <FONT COLOR="blue"><B>in</B></FONT> R2;
-    }
+  <B>public static class</B> Inner&lt;<FONT COLOR="blue"><B>region</B></FONT> R2&gt; {
+    <B>public int</B> x <FONT COLOR="blue"><B>in</B></FONT> R2;
+  }
 }</TT></DIV><BR>
 <BR>
 <!--TOC subsubsection 2.4.2&nbsp;&nbsp;Method Region Parameters-->
@@ -873,7 +897,7 @@ For example, the following code defines a method with type parameter
 <TT>T</TT> and region parameter <TT>R</TT>:
 
  <DIV CLASS="dpjlisting"><TT><B>interface</B> MethodParams {
-    <B>public</B> &lt;<FONT COLOR="blue"><B>type</B></FONT> T, <FONT COLOR="blue"><B>region</B></FONT> R&gt; <B>void</B> method();
+  <B>public</B> &lt;<FONT COLOR="blue"><B>type</B></FONT> T, <FONT COLOR="blue"><B>region</B></FONT> R&gt; <B>void</B> method();
 }</TT></DIV>As for class parameters, the <TT>type</TT> keyword is always optional,
 and the <TT>region</TT> keyword is optional except as to the first region
 parameter.<BR>
@@ -886,13 +910,13 @@ is a valid RPL. For example, the following code declares a method
 formal (value) parameter and return type of the method:
 
  <DIV CLASS="dpjlisting"><TT><B>interface</B> MethodParamUses&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    &lt;<FONT COLOR="blue"><B>region</B></FONT> R1&gt;<B>void</B> method(MethodParamUses&lt;R1&gt; arg);
+  &lt;<FONT COLOR="blue"><B>region</B></FONT> R1&gt;<B>void</B> method(MethodParamUses&lt;R1&gt; arg);
 }</TT></DIV>As in generic Java, a new declaration of a parameter named <TT>R</TT>
 hides any parameter named <TT>R</TT> that is already in scope. For
 example, the following code is equivalent to the code above:
 
  <DIV CLASS="dpjlisting"><TT><B>interface</B> MethodParamUses&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> method(MethodParamUses&lt;R&gt; arg);
+  &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> method(MethodParamUses&lt;R&gt; arg);
 }</TT></DIV><BR>
 <BR>
 <B>Invoking methods defined with region parameters:</B> Subject to
@@ -904,12 +928,12 @@ obey any disjointness constraints on the method's region parameters
 <BR>
 <I>Explicit RPL arguments (fully specified):</I> If the RPL arguments
 to the method are fully specified (i.e., they contain no <TT>*</TT> or
-<TT>?</TT>), then the programmer may supply the RPL arguments explicitly,
-using an extension of the Java syntax for generic method arguments.
-For this form, as for Java generic methods, there must be an explicit
-qualifier and a dot preceding the method name; and the arguments must
-appear in angle brackets after the dot, and before the method name.
-For example:
+<TT>?</TT>, see &sect;&nbsp;<A HREF="#sec:rpls:partial">3.4</A>), then the programmer may
+supply the RPL arguments explicitly, using an extension of the Java
+syntax for generic method arguments. For this form, as for Java
+generic methods, there must be an explicit qualifier and a dot
+preceding the method name; and the arguments must appear in angle
+brackets after the dot, and before the method name. For example:
 <DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>this.&lt;</TT><EM>args</EM><TT>&gt;</TT><EM>meth-name</EM><TT>()</TT>
 </DL>
 Here <EM>args</EM> are type and/or RPL arguments (defined below), and
@@ -935,11 +959,11 @@ The following code example illustrates the use of explicit RPL
 arguments to a method invocation:
 
  <DIV CLASS="dpjlisting"><TT><B>abstract class</B> ExplicitArgs&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>abstract</B> &lt;<FONT COLOR="blue"><B>type</B></FONT> T, <FONT COLOR="blue"><B>region</B></FONT> R&gt;T callee(ExplicitArgs&lt;R&gt; param);
-    ExplicitArgs&lt;Root&gt; caller() {
-        ExplicitArgs&lt;Root&gt; arg = <B>new</B> ExplicitArgs&lt;Root&gt;();
-        <B>return this</B>.&lt;ExplicitArgs&lt;Root&gt;,Root&gt;callee(arg);
-    }
+  <B>abstract</B> &lt;<FONT COLOR="blue"><B>type</B></FONT> T, <FONT COLOR="blue"><B>region</B></FONT> R&gt;T callee(ExplicitArgs&lt;R&gt; param);
+  ExplicitArgs&lt;Root&gt; caller() {
+    ExplicitArgs&lt;Root&gt; arg = <B>new</B> ExplicitArgs&lt;Root&gt;();
+    <B>return this</B>.&lt;ExplicitArgs&lt;Root&gt;,Root&gt;callee(arg);
+  }
 }</TT></DIV>The abstract method <TT>callee</TT> is generic in type <TT>T</TT> and
 region <TT>R</TT>. It takes an <TT>ExplicitArgs&lt;R&gt;</TT> object as a value
 argument and returns type <TT>T</TT>. In <TT>caller</TT>, we create
@@ -969,14 +993,14 @@ appear in any of the types of the method arguments. For example, the
 following code causes a compile error:
 
  <DIV CLASS="dpjlisting"><TT><B>abstract class</B> PartiallySpecifiedBad&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <FONT COLOR="blue"><B>region</B></FONT> r1, r2;
-    <B>abstract</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> callee(PartiallySpecifiedBad&lt;R&gt; param1,
-                                          PartiallySpecifiedBad&lt;R&gt; param2);
-    <B>void</B> caller() {
-        PartiallySpecifiedBad&lt;r1&gt; arg1 = <B>new</B> PartiallySpecifiedBad&lt;r1&gt;();
-        PartiallySpecifiedBad&lt;r2&gt; arg2 = <B>new</B> PartiallySpecifiedBad&lt;r2&gt;();
-        <B>return this</B>.&lt;*&gt;callee(arg1,arg2);
-    }
+  <FONT COLOR="blue"><B>region</B></FONT> r1, r2;
+  <B>abstract</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> callee(PartiallySpecifiedBad&lt;R&gt; param1,
+                                 PartiallySpecifiedBad&lt;R&gt; param2);
+  <B>void</B> caller() {
+    PartiallySpecifiedBad&lt;r1&gt; arg1 = <B>new</B> PartiallySpecifiedBad&lt;r1&gt;();
+    PartiallySpecifiedBad&lt;r2&gt; arg2 = <B>new</B> PartiallySpecifiedBad&lt;r2&gt;();
+    <B>return this</B>.&lt;*&gt;callee(arg1,arg2);
+  }
 }</TT></DIV>If this code were allowed, then both <TT>r1</TT> and <TT>r2</TT> would be
 bound to <TT>R</TT> inside the scope of <TT>callee</TT>. This would violate
 a key invariant of the system, namely that in any scope a parameter
@@ -994,11 +1018,13 @@ partially-specified argument may be used to specify an effect. For
 example, this code is legal:
 
  <DIV CLASS="dpjlisting"><TT><B>abstract class</B> PartiallySpecifiedOK&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>abstract</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> callee() <FONT COLOR="blue"><B>writes</B></FONT> R;
-    <B>void</B> caller() <FONT COLOR="blue"><B>writes</B></FONT> * {
-        <FONT COLOR="fuchsia"><EM>// Effect is writes *</EM></FONT>
-        <B>return this</B>.&lt;*&gt;callee(arg1,arg2);
-    }
+  <B>abstract</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> callee() <FONT COLOR="blue"><B>writes</B></FONT> R;
+  <B>void</B> caller()
+    <FONT COLOR="blue"><B>writes</B></FONT> *
+  {
+    <FONT COLOR="fuchsia"><EM>// Effect is writes *</EM></FONT>
+    <B>return this</B>.&lt;*&gt;callee(arg1,arg2);
+  }
 }</TT></DIV><BR>
 <BR>
 <I>Inferred RPL arguments:</I> As in generic Java, a method with type
@@ -1011,19 +1037,19 @@ following code, because it is able to infer from the type
 <TT>R</TT> is <TT>Root</TT>:
 
  <DIV CLASS="dpjlisting"><TT><B>abstract class</B> InferredArguments&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>abstract</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> callee(InferredArguments&lt;R&gt; param);
-    <B>void</B> caller() {
-        InferredArguments&lt;Root&gt; arg = <B>new</B> InferredArguments&lt;Root&gt;();
-        callee(arg);
-    }
+  <B>abstract</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> callee(InferredArguments&lt;R&gt; param);
+  <B>void</B> caller() {
+    InferredArguments&lt;Root&gt; arg = <B>new</B> InferredArguments&lt;Root&gt;();
+    callee(arg);
+  }
 }</TT></DIV>This code is equivalent to the following:
 
  <DIV CLASS="dpjlisting"><TT><B>abstract class</B> InferredArguments&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>abstract</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> callee(InferredArguments&lt;R&gt; param);
-    <B>void</B> caller() {
-        InferredArguments&lt;Root&gt; arg = <B>new</B> InferredArguments&lt;Root&gt;();
-        <B>this</B>.&lt;Root&gt;callee(arg);
-    }
+  <B>abstract</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> callee(InferredArguments&lt;R&gt; param);
+  <B>void</B> caller() {
+    InferredArguments&lt;Root&gt; arg = <B>new</B> InferredArguments&lt;Root&gt;();
+    <B>this</B>.&lt;Root&gt;callee(arg);
+  }
 }</TT></DIV><BR>
 <BR>
 While the compiler can infer region arguments to methods in many
@@ -1035,12 +1061,12 @@ that it cannot infer. For example, the compiler would infer
 <TT>Root:*</TT> as the argument to <TT>R</TT> in the following code:
 
  <DIV CLASS="dpjlisting"><TT><B>abstract class</B> InferredArguments&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>abstract</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> callee() <FONT COLOR="blue"><B>writes</B></FONT> R;
-    <B>void</B> caller() {
-        <FONT COLOR="fuchsia"><EM>// There are no value arguments, so there is no way to infer
-        // the argument to R!  This is equivalent to this.&lt;Root:*&gt;callee();</EM></FONT>
-        callee();
-    }
+  <B>abstract</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> callee() <FONT COLOR="blue"><B>writes</B></FONT> R;
+  <B>void</B> caller() {
+    <FONT COLOR="fuchsia"><EM>// There are no value arguments, so there is no way to infer
+    // the argument to R!  This is equivalent to this.&lt;Root:*&gt;callee();</EM></FONT>
+    callee();
+  }
 }</TT></DIV><BR>
 <BR>
 Finally, because of the restriction on partially-specified RPLs in
@@ -1049,11 +1075,11 @@ method invocations using inferred arguments that it is <EM>not</EM>
 possible to write using explicit arguments. For example:
 
  <DIV CLASS="dpjlisting"><TT><B>abstract class</B> InferredArguments&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>abstract</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> callee(InferredArguments&lt;R&gt; param) <FONT COLOR="blue"><B>writes</B></FONT> R;
-    <B>void</B> caller() {
-        InferredArguments&lt;*&gt; arg = <B>new</B> InferredArguments&lt;Root&gt;();
-        callee(arg);
-    }
+  <B>abstract</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> callee(InferredArguments&lt;R&gt; param) <FONT COLOR="blue"><B>writes</B></FONT> R;
+  <B>void</B> caller() {
+    InferredArguments&lt;*&gt; arg = <B>new</B> InferredArguments&lt;Root&gt;();
+    callee(arg);
+  }
 }</TT></DIV>Here the compiler infers that at the invocation of <TT>callee</TT> a
 fresh region parameter should be bound to both the parameter <TT>R</TT>
 in the method and the parameter <TT>R</TT> in the type.<BR>
@@ -1082,13 +1108,13 @@ For example, the following code can have a data race unless regions
 <TT>R1</TT> and <TT>R2</TT> are bound to disjoint regions:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> Unsafe&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
-    &lt;<FONT COLOR="blue"><B>region</B></FONT> R1, R2&gt;<B>void</B> method(Unsafe&lt;R1&gt; o1, Unsafe&lt;R2&gt; o2) {
-        <FONT COLOR="blue"><B>cobegin</B></FONT> {
-            ++o1.x; <FONT COLOR="fuchsia"><EM>// writes R1</EM></FONT>
-            ++o2.x; <FONT COLOR="fuchsia"><EM>// writes R2</EM></FONT>
-        }
+  <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
+  &lt;<FONT COLOR="blue"><B>region</B></FONT> R1, R2&gt;<B>void</B> method(Unsafe&lt;R1&gt; o1, Unsafe&lt;R2&gt; o2) {
+    <FONT COLOR="blue"><B>cobegin</B></FONT> {
+      ++o1.x; <FONT COLOR="fuchsia"><EM>// writes R1</EM></FONT>
+      ++o2.x; <FONT COLOR="fuchsia"><EM>// writes R2</EM></FONT>
     }
+  }
 }</TT></DIV>To support this reasoning, DPJ provides optional <EM>disjointness
  constraints</EM> for region parameters. If used, the constraints must
 appear after the region parameters, and be separated from them by a
@@ -1110,13 +1136,13 @@ For example, the code above could be rewritten as follows to make it
 safe:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> Safe&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
-    &lt;<FONT COLOR="blue"><B>region</B></FONT> R1, R2 | R1 # R2&gt; <B>void</B>(Safe&lt;R1&gt; o1, Safe&lt;R2&gt; o2) {
-        <FONT COLOR="blue"><B>cobegin</B></FONT> {
-            ++o1.x; <FONT COLOR="fuchsia"><EM>// writes R1</EM></FONT>
-            ++o2.x; <FONT COLOR="fuchsia"><EM>// writes R2</EM></FONT>
-        }
+  <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
+  &lt;<FONT COLOR="blue"><B>region</B></FONT> R1, R2 | R1 # R2&gt; <B>void</B>(Safe&lt;R1&gt; o1, Safe&lt;R2&gt; o2) {
+    <FONT COLOR="blue"><B>cobegin</B></FONT> {
+      ++o1.x; <FONT COLOR="fuchsia"><EM>// writes R1</EM></FONT>
+      ++o2.x; <FONT COLOR="fuchsia"><EM>// writes R2</EM></FONT>
     }
+  }
 }</TT></DIV>There is no interference between the statements of the <TT>cobegin</TT>,
 because <TT>R1</TT> and <TT>R2</TT> are guaranteed to be disjoint regions.
 Therefore, the effects of <TT>++o1.x</TT> and <TT>++o2.x</TT> are to
@@ -1127,14 +1153,14 @@ names, not just other parameters. For example, we can write the
 following:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> Safe2&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <FONT COLOR="blue"><B>region</B></FONT> r;
-    <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
-    &lt;<FONT COLOR="blue"><B>region</B></FONT> R | R # r&gt;<B>void</B>(Safe2&lt;R&gt; o1, Safe2&lt;r&gt; o2) {
-        <FONT COLOR="blue"><B>cobegin</B></FONT> {
-            ++o1.x; <FONT COLOR="fuchsia"><EM>// writes R</EM></FONT>
-            ++o2.x; <FONT COLOR="fuchsia"><EM>// writes r</EM></FONT>
-        }
+  <FONT COLOR="blue"><B>region</B></FONT> r;
+  <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
+  &lt;<FONT COLOR="blue"><B>region</B></FONT> R | R # r&gt;<B>void</B>(Safe2&lt;R&gt; o1, Safe2&lt;r&gt; o2) {
+    <FONT COLOR="blue"><B>cobegin</B></FONT> {
+      ++o1.x; <FONT COLOR="fuchsia"><EM>// writes R</EM></FONT>
+      ++o2.x; <FONT COLOR="fuchsia"><EM>// writes r</EM></FONT>
     }
+  }
 }</TT></DIV>This technique is useful when methods need to operate disjointly in
 parallel on global data and data passed in as an an argument. Of
 course, the region of the global data could also be passed in as an
@@ -1151,13 +1177,13 @@ It is also an error to provide RPL arguments to a class or method that
 do not satisfy the constraints. For example:
 
  <DIV CLASS="dpjlisting"><TT><B>abstract class</B> BadArgs&lt;<FONT COLOR="blue"><B>region</B></FONT> R1, R2 | R1 # R2&gt; {
-    <FONT COLOR="fuchsia"><EM>// Error:  Instantiating BadArgs with R1=Root, R2=Root</EM></FONT>
-    BadArgs&lt;Root, Root&gt; x;
-    <B>abstract</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R3, R4 | R3 # R4&gt;<B>void</B> callee();
-    <FONT COLOR="fuchsia"><EM>// Error:  Invoking callee with R3=Root, R4=Root</EM></FONT>
-    <B>void</B> caller() {
-        <B>this</B>.&lt;Root,Root&gt;callee();
-    }
+  <FONT COLOR="fuchsia"><EM>// Error:  Instantiating BadArgs with R1=Root, R2=Root</EM></FONT>
+  BadArgs&lt;Root, Root&gt; x;
+  <B>abstract</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R3, R4 | R3 # R4&gt;<B>void</B> callee();
+  <FONT COLOR="fuchsia"><EM>// Error:  Invoking callee with R3=Root, R4=Root</EM></FONT>
+  <B>void</B> caller() {
+    <B>this</B>.&lt;Root,Root&gt;callee();
+  }
 }</TT></DIV><TT>BadArgs&lt;Root, Root&gt;</TT> is an invalid type, because the RPLs
 supplied as arguments to <TT>R1</TT> and <TT>R2</TT> are not disjoint, as
 required by the definition of class <TT>BadArgs</TT>. Similarly,
@@ -1193,9 +1219,9 @@ by assigning a type and region to each cell of the array.<BR>
 An array class definition is like an ordinary class definition with a
 single field. The differences are: (1) the definition begins with the
 keyword <TT>arrayclass</TT> instead of <TT>class</TT>; (2) the &#8220;field&#8221; has
-no name (since it actually defines the type of an array cell); and (3)
-in addition to defining the cell the class definition may declare
-regions, but it may have no other members.<BR>
+no name (since it actually defines the type of an array cell) and no
+access specifier; and (3) in addition to defining the cell the class
+definition may declare regions, but it may have no other members.<BR>
 <BR>
 For example, the following code defines an array whose cells have type
 <TT>int</TT> and are located in region <TT>Root</TT>:
@@ -1205,8 +1231,8 @@ whose cells have type <TT>int</TT> and are located in region
 <TT>ArrayInt2.r</TT>:
 
  <DIV CLASS="dpjlisting"><TT>arrayclass ArrayInt2 {
-    <FONT COLOR="blue"><B>region</B></FONT> r;
-    <B>int <FONT COLOR="blue">in</FONT></B> r;
+  <FONT COLOR="blue"><B>region</B></FONT> r;
+  <B>int <FONT COLOR="blue">in</FONT></B> r;
 }</TT></DIV><BR>
 <BR>
 Type and region parameters work just as for ordinary Java classes
@@ -1215,20 +1241,20 @@ declares an array class with one type parameter <TT>T</TT>, one region
 parameter <TT>R</TT>, and cells of type <TT>T</TT> in region <TT>R</TT>:
 
  <DIV CLASS="dpjlisting"><TT>arrayclass Array&lt;<FONT COLOR="blue"><B>type</B></FONT> T, <FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    T <FONT COLOR="blue"><B>in</B></FONT> R;
+  T <FONT COLOR="blue"><B>in</B></FONT> R;
 }</TT></DIV><BR>
 <BR>
 The following code is illegal, because it attempts to define an
 instance method for an array class, which is not allowed:
 
  <DIV CLASS="dpjlisting"><TT>arrayclass Illegal {
-    <B>int</B>;
-    <B>int</B> m() { <B>return</B> 0; }
+  <B>int</B>;
+  <B>int</B> m() { <B>return</B> 0; }
 }</TT></DIV>The following code is also illegal, because it doesn't provide a type
 for the array cells:
 
  <DIV CLASS="dpjlisting"><TT>arrayclass Illegal2 {
-    <FONT COLOR="blue"><B>region</B></FONT> r;
+  <FONT COLOR="blue"><B>region</B></FONT> r;
 }</TT></DIV><BR>
 <BR>
 <!--TOC subsubsection 2.5.2&nbsp;&nbsp;Creating and Using Array Class Objects
@@ -1265,9 +1291,9 @@ and then prints them out:
 
  <DIV CLASS="dpjlisting"><TT>ArrayInt a = <B>new</B> ArrayInt(10):
 <B>for</B> (<B>int</B> i = 0; i &lt; a.length; ++i)
-    a[i] = i;
+  a[i] = i;
 <B>for</B> (<B>int</B> i : a)
-    System.out.println(i);</TT></DIV><BR>
+  System.out.println(i);</TT></DIV><BR>
 <BR>
 <!--TOC subsubsection 2.5.3&nbsp;&nbsp;Index-Parameterized Array Classes
 -->
@@ -1289,14 +1315,15 @@ cell. For example:
 
  <DIV CLASS="dpjlisting"><TT><FONT COLOR="fuchsia"><EM>// Array of int such that cell i is in region [i]</EM></FONT>
 arrayclass IPArrayInt {
-    <B>int <FONT COLOR="blue">in</FONT></B> [index];
+  <B>int <FONT COLOR="blue">in</FONT></B> [index];
 }</TT></DIV>Now we can do disjoint initialization of an array using a parallel
 <TT>foreach</TT> loop (see &sect;&nbsp;<A HREF="#sec:parallel:foreach">6.2</A>):
 
  <DIV CLASS="dpjlisting"><TT>IPArrayInt arr = <B>new</B> IPArrayInt(N);
-<FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, N)
-    <FONT COLOR="fuchsia"><EM>// Write to each distinct arr[i] in parallel</EM></FONT>
-    arr[i] = i;</TT></DIV>The compiler knows this is safe, because the writes to arr[i] touch a
+<FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, N) {
+  <FONT COLOR="fuchsia"><EM>// Write to each distinct arr[i] in parallel</EM></FONT>
+  arr[i] = i;
+}</TT></DIV>The compiler knows this is safe, because the writes to arr[i] touch a
 different region for each iteration of the parallel loop.<BR>
 <BR>
 Index-parameterized arrays also support updates through references to
@@ -1306,10 +1333,10 @@ cell gets its own region, parameterized by the index of the cell. For
 example, suppose we have the following simple class definitions:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> Data&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>int</B> field <FONT COLOR="blue"><B>in</B></FONT> R;
-    <B>static</B> arrayclass Array&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-        Data&lt;R:[index]&gt; <FONT COLOR="blue"><B>in</B></FONT> R:[index];
-    }
+  <B>int</B> field <FONT COLOR="blue"><B>in</B></FONT> R;
+  <B>static</B> arrayclass Array&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
+    Data&lt;R:[index]&gt; <FONT COLOR="blue"><B>in</B></FONT> R:[index];
+  }
 }</TT></DIV>Then we can create the following index-parameterized array:
 
  <DIV CLASS="dpjlisting"><TT>Data.Array arr = <B>new</B> Data.Array(N);</TT></DIV>The type of <TT>arr</TT> is an array such that (1) cell <TT>i</TT> of the
@@ -1318,16 +1345,17 @@ type <TT>Data&lt;[i]&gt;</TT>. Now we can do disjoint initialization of the
 array, as before:
 
  <DIV CLASS="dpjlisting"><TT><FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, N)
-    arr[i] = <B>new</B> Data&lt;[i]&gt;();</TT></DIV>Notice that the type <TT>Data&lt;[i]&gt;</TT> on the left-hand side of the
+  arr[i] = <B>new</B> Data&lt;[i]&gt;();</TT></DIV>Notice that the type <TT>Data&lt;[i]&gt;</TT> on the left-hand side of the
 assignment matches the type of <TT>arr[i]</TT>, as it must; see
 &sect;&nbsp;<A HREF="#sec:types:exp:array">4.3.2</A>.<BR>
 <BR>
 We can also update the objects disjointly through the references in
 the array:
 
- <DIV CLASS="dpjlisting"><TT><FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, N)
-    <FONT COLOR="fuchsia"><EM>// Effect is 'writes [i]'</EM></FONT>
-    ++arr[i].field;</TT></DIV>This is a very useful pattern in shared-memory parallel programming.
+ <DIV CLASS="dpjlisting"><TT><FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, N) {
+  <FONT COLOR="fuchsia"><EM>// Effect is 'writes [i]'</EM></FONT>
+  ++arr[i].field;
+}</TT></DIV>This is a very useful pattern in shared-memory parallel programming.
 See <EM>The Deterministic Parallel Java Tutorial</EM> for more realistic examples.<BR>
 <BR>
 <!--TOC subsubsection 2.5.4&nbsp;&nbsp;Arrays of Arrays-->
@@ -1339,47 +1367,47 @@ For example, to define an array class equivalent to the ordinary Java
 array type <TT>int[][]</TT>, one could do this:
 
  <DIV CLASS="dpjlisting"><TT>arrayclass MatrixInt {
-    ArrayInt;
+  ArrayInt;
 }
 arrayclass ArrayInt {
-    <B>int</B>;
+  <B>int</B>;
 }</TT></DIV>Then we could write the following code:
 
  <DIV CLASS="dpjlisting"><TT><FONT COLOR="fuchsia"><EM>// Create array of 10 ArrayInt</EM></FONT>
 MatrixInt arr = <B>new</B> MatrixInt(10);
 <FONT COLOR="fuchsia"><EM>// Fill it in with 10 ArrayInts</EM></FONT>
 <B>for</B> (<B>int</B> i = 0; i &lt; 10; ++i)
-    arr[i] = <B>new</B> ArrayInt(10);
+  arr[i] = <B>new</B> ArrayInt(10);
 <FONT COLOR="fuchsia"><EM>// Initialize the ArrayInts</EM></FONT>
 <B>for</B> (<B>int</B> i = 0; i &lt; 10; ++i)
-    <B>for</B> (<B>int</B> j = 0; j &lt; 10; ++j)
-        arr[i][j] = 10 * i + j;</TT></DIV><BR>
+  <B>for</B> (<B>int</B> j = 0; j &lt; 10; ++j)
+    arr[i][j] = 10 * i + j;</TT></DIV><BR>
 <BR>
 Of course if we decompose the arrays into regions, then we can update
 them in parallel. Here is another example that uses
 index-parameterized arrays to do just that:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> MatrixExample {
-    <B>static</B> arrayclass MatrixInt&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-        ArrayInt&lt;R:[index]&gt; <FONT COLOR="blue"><B>in</B></FONT> R:[index];
-    }
-    <B>static</B> arrayclass ArrayInt&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-        <B>int <FONT COLOR="blue">in</FONT></B> R:[index];
-    }
-    <B>public static final int</B> N = 10;
+  <B>static</B> arrayclass MatrixInt&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
+    ArrayInt&lt;R:[index]&gt; <FONT COLOR="blue"><B>in</B></FONT> R:[index];
+  }
+  <B>static</B> arrayclass ArrayInt&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
+    <B>int <FONT COLOR="blue">in</FONT></B> R:[index];
+  }
+  <B>public static final int</B> N = 10;
 
-    <B>public static void</B> main(String[] args) {
-        <FONT COLOR="blue"><B>region</B></FONT> r;
-        MatrixInt&lt;r&gt; matrix = <B>new</B> MatrixInt&lt;r&gt;(N);
-        <FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, N) {
-            <FONT COLOR="fuchsia"><EM>// Effect is 'writes [i]'</EM></FONT>
-            matrix[i] = <B>new</B> ArrayInt&lt;r:[i]&gt;(N);
-            <FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> j <FONT COLOR="blue"><B>in</B></FONT> 0, N) {
-                <FONT COLOR="fuchsia"><EM>// Effect is 'writes [i]:[j]'</EM></FONT>
-                matrix[i][j] = N*i+j;
-            }
-        }
+  <B>public static void</B> main(String[] args) {
+    <FONT COLOR="blue"><B>region</B></FONT> r;
+    MatrixInt&lt;r&gt; matrix = <B>new</B> MatrixInt&lt;r&gt;(N);
+    <FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, N) {
+      <FONT COLOR="fuchsia"><EM>// Effect is 'writes [i]'</EM></FONT>
+      matrix[i] = <B>new</B> ArrayInt&lt;r:[i]&gt;(N);
+      <FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> j <FONT COLOR="blue"><B>in</B></FONT> 0, N) {
+        <FONT COLOR="fuchsia"><EM>// Effect is 'writes [i]:[j]'</EM></FONT>
+        matrix[i][j] = N*i+j;
+      }
     }
+  }
 }</TT></DIV>Because of the region decomposition, the compiler can use the effects
 to prove that the parallel tasks are noninterfering. For the details
 of how the compiler would check this example, see
@@ -1395,13 +1423,13 @@ have generic parameters without an explicit cast. For example, the
 following code will not work properly:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> Data&lt;<FONT COLOR="blue"><B>type</B></FONT> T&gt; {
-    T field;
-    arrayclass Array {
-        Data&lt;Integer&gt;;
-    }
-    <B>void</B> m() {
-        Array a = <B>new</B> Array(10);
-    }
+  T field;
+  arrayclass Array {
+    Data&lt;Integer&gt;;
+  }
+  <B>void</B> m() {
+    Array a = <B>new</B> Array(10);
+  }
 }</TT></DIV>This code passes the DPJ compiler, but it will not compile correctly
 to Java bytecode, because the generated code causes a &#8220;generic array
 creation&#8221; error.<BR>
@@ -1409,14 +1437,14 @@ creation&#8221; error.<BR>
 To get around this limitation, you need to use a cast:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> Data&lt;<FONT COLOR="blue"><B>type</B></FONT> T&gt; {
-    T field;
-    arrayclass Array {
-        Data&lt;Integer&gt;;
-    }
-    <B>void</B> m() {
-        <FONT COLOR="fuchsia"><EM>// Rewrite of the last line above so it compiles</EM></FONT>
-        Array a = (Array) ((Object) <B>new</B> Object[10]);
-    }
+  T field;
+  arrayclass Array {
+    Data&lt;Integer&gt;;
+  }
+  <B>void</B> m() {
+    <FONT COLOR="fuchsia"><EM>// Rewrite of the last line above so it compiles</EM></FONT>
+    Array a = (Array) ((Object) <B>new</B> Object[10]);
+  }
 }</TT></DIV>This code is ugly, but it works. Also, the ugliness is localized to
 the point of array creation. Once the array is created and assigned,
 everything else works as it should.<BR>
@@ -1436,11 +1464,12 @@ fully-specified RPL names a <EM>region</EM>, which represents a set of
 memory locations on the heap. The correspondence between memory
 locations and regions is given by the way that the programmer has
 assigned RPLs to class fields (&sect;&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>)
-and bound RPLs to region parameters in class types
-(&sect;&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>) and method invocations
-(&sect;&nbsp;<A HREF="#sec:classes:params:method">2.4.2</A>). A partially-specified RPL names
-a <EM>set of regions</EM> and is useful for expressing hierarchical
-effects (e.g., &#8220;all regions under this one&#8221;).<BR>
+and array class cells (&sect;&nbsp;<A HREF="#sec:classes:array">2.5</A>) and bound RPLs to
+region parameters in class types (&sect;&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>)
+and method invocations (&sect;&nbsp;<A HREF="#sec:classes:params:method">2.4.2</A>). A
+partially-specified RPL names a <EM>set of regions</EM> and is useful
+for expressing hierarchical effects (e.g., &#8220;all regions under this
+one&#8221;).<BR>
 <BR>
 RPLs are naturally nested. In fact the motivation for name &#8220;region
 path list&#8221; is that an RPL is a sequence of names that describes a
@@ -1531,7 +1560,7 @@ in a field region specifier (&sect;&nbsp;<A HREF="#sec:classes:field-region-spec
 and to instantiate a class type (&sect;&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>):
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> RootExample&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    RootExample&lt;Root&gt; x <FONT COLOR="blue"><B>in</B></FONT> Root;
+  RootExample&lt;Root&gt; x <FONT COLOR="blue"><B>in</B></FONT> Root;
 }</TT></DIV><BR>
 <BR>
 The name <TT>Root</TT> has a special meaning: it is the root of the
@@ -1554,16 +1583,16 @@ in a field region specifier (&sect;&nbsp;<A HREF="#sec:classes:field-region-spec
 and to instantiate a class type (&sect;&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>):
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> ClassRegionExample&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <FONT COLOR="blue"><B>region</B></FONT> ClassRegion;
-    <B>int</B> ClassRegionExample&lt;ClassRegion&gt; x <FONT COLOR="blue"><B>in</B></FONT> ClassRegion;
+  <FONT COLOR="blue"><B>region</B></FONT> ClassRegion;
+  <B>int</B> ClassRegionExample&lt;ClassRegion&gt; x <FONT COLOR="blue"><B>in</B></FONT> ClassRegion;
 }</TT></DIV>Because class region names can be package- and class-qualified, like
 Java static fields, the following code is also legal:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> Class1 {
-    <FONT COLOR="blue"><B>region</B></FONT> ClassRegion;
+  <FONT COLOR="blue"><B>region</B></FONT> ClassRegion;
 }
 <B>class</B> Class2 {
-    <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> Class1.ClassRegion;
+  <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> Class1.ClassRegion;
 }</TT></DIV><BR>
 <BR>
 When a class region name <I>R</I> is used as an RPL, it is shorthand for
@@ -1572,7 +1601,7 @@ the name sequence <TT>Root</TT>:<I>R</I>, as described in
 <TT>Class2</TT> is equivalent to the one given above:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> Class2 {
-    <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> Root:Class1.ClassRegion;
+  <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> Root:Class1.ClassRegion;
 }</TT></DIV><BR>
 <BR>
 <!--TOC subsubsection 3.1.3&nbsp;&nbsp;Array Index RPLs-->
@@ -1589,7 +1618,7 @@ evaluates to at runtime (so there is a different region for each
 natural number). It is useful in conjunction with
 <EM>index-parameterized arrays</EM> (&sect;&nbsp;<A HREF="#sec:classes:array:ipa">2.5.3</A>) and
 with DPJ's built-in features for array partitioning
-(&sect;&nbsp;<A HREF="#sec:runtime:partition">7.2</A>).<BR>
+(&sect;&nbsp;<A HREF="#sec:runtime:partition">7.3</A>).<BR>
 <BR>
 As with class region names used as RPLs
 (&sect;&nbsp;<A HREF="#sec:rpls:basic:class">3.1.2</A>), an array index RPL <TT>[</TT><I>e</I><TT>]</TT>
@@ -1609,11 +1638,11 @@ code declares a region name <TT>LocalRegion</TT> in a local scope, and
 uses it to instantiate a type:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> LocalRegionExample&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>void</B> method() {
-        <FONT COLOR="blue"><B>region</B></FONT> LocalRegion;
-        LocalRegionExample&lt;LocalRegion&gt; lre =
-          <B>new</B> LocalRegionExample&lt;LocalRegion&gt;();
-    }
+  <B>void</B> method() {
+    <FONT COLOR="blue"><B>region</B></FONT> LocalRegion;
+    LocalRegionExample&lt;LocalRegion&gt; lre =
+      <B>new</B> LocalRegionExample&lt;LocalRegion&gt;();
+  }
 }</TT></DIV><BR>
 <BR>
 As with class region names and array index regions, an RPL consisting
@@ -1621,11 +1650,11 @@ of a single local region name implicitly starts with <TT>Root</TT>. For
 example, the class definition above is equivalent to the following:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> LocalRegionExample&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>void</B> method() {
-        <FONT COLOR="blue"><B>region</B></FONT> LocalRegion;
-        LocalRegionExample&lt;Root:LocalRegion&gt; lre =
-          <B>new</B> LocalRegionExample&lt;Root:LocalRegion&gt;();
-    }
+  <B>void</B> method() {
+    <FONT COLOR="blue"><B>region</B></FONT> LocalRegion;
+    LocalRegionExample&lt;Root:LocalRegion&gt; lre =
+      <B>new</B> LocalRegionExample&lt;Root:LocalRegion&gt;();
+  }
 }</TT></DIV><BR>
 <BR>
 <!--TOC subsubsection 3.1.5&nbsp;&nbsp;<TT>final</TT> Local Variables and <TT>this</TT> as Region Names-->
@@ -1648,10 +1677,12 @@ type (&sect;&nbsp;<A HREF="#sec:types:class:instant">4.1.1</A>), and in an effec
 (&sect;&nbsp;<A HREF="#sec:effects:summaries">5.2</A>):
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> VarRegionExample&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    VarRegionExample&lt;<B>this</B>&gt; x <B><FONT COLOR="blue">in</FONT> this</B>;
-    <B>void</B> setX(VarRegionExample&lt;<B>this</B>&gt; x) <B><FONT COLOR="blue">writes</FONT> this</B> {
-        <B>this</B>.x = x;
-    }
+  VarRegionExample&lt;<B>this</B>&gt; x <B><FONT COLOR="blue">in</FONT> this</B>;
+  <B>void</B> setX(VarRegionExample&lt;<B>this</B>&gt; x)
+    <B><FONT COLOR="blue">writes</FONT> this</B>
+  {
+    <B>this</B>.x = x;
+  }
 }</TT></DIV><BR>
 <BR>
 Variable RPLs allow <EM>runtime objects to function as regions</EM>, as
@@ -1660,7 +1691,7 @@ the object stored to the variable at runtime. Because the variable
 must be <TT>final</TT> or <TT>this</TT> (which cannot be assigned to), the
 variable always refers to the same object. This feature is
 particularly useful in conjunction with the <TT>Partition</TT> class
-(&sect;&nbsp;<A HREF="#sec:runtime:partition">7.2</A>), because it provides a way to
+(&sect;&nbsp;<A HREF="#sec:runtime:partition">7.3</A>), because it provides a way to
 instantiate a partition with the region corresponding to the array
 being partitioned.<BR>
 <BR>
@@ -1769,8 +1800,8 @@ an object as its first element. For example, consider the following
 class definition:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> ParameterExample&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <FONT COLOR="blue"><B>region</B></FONT> r;
-    <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R:r
+  <FONT COLOR="blue"><B>region</B></FONT> r;
+  <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R:r
 }</TT></DIV>The class <TT>ParameterExample</TT> has one region parameter <TT>R</TT>, and
 one field <TT>x</TT> placed in RPL <TT>R</TT> using a field RPL specifier
 (&sect;&nbsp;<A HREF="#sec:classes:region-names">2.1</A>). Suppose we now instantiate that
@@ -1872,17 +1903,16 @@ A <EM>local RPL</EM> is an RPL that contains a local region name
 parameterized and/or partially specified. For example:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> LocalRPLs&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <FONT COLOR="blue"><B>region</B></FONT> ClassRegion;
-    <B>void</B> method() {
-        <FONT COLOR="blue"><B>region</B></FONT> LocalRegion;
-        <FONT COLOR="fuchsia"><EM>// LocalRegion is a local RPL; it is equivalent 
-        // to Root:LocalRegion</EM></FONT>
-        LocalRPLs&lt;LocalRegion&gt; x = <B>null</B>;
-        <FONT COLOR="fuchsia"><EM>// R:LocalRegion:* is a local RPL</EM></FONT>
-        LocalRpls&lt;ClassRegion:LocalRegion:*&gt; y = <B>null</B>;
-        <FONT COLOR="fuchsia"><EM>// ClassRegion is not a local RPL</EM></FONT>
-        LocalRpls&lt;ClassRegion&gt; z = <B>null</B>;
-    }
+  <FONT COLOR="blue"><B>region</B></FONT> ClassRegion;
+  <B>void</B> method() {
+    <FONT COLOR="blue"><B>region</B></FONT> LocalRegion;
+    <FONT COLOR="fuchsia"><EM>// LocalRegion is a local RPL; it is equivalent to Root:LocalRegion</EM></FONT>
+    LocalRPLs&lt;LocalRegion&gt; x = <B>null</B>;
+    <FONT COLOR="fuchsia"><EM>// R:LocalRegion:* is a local RPL</EM></FONT>
+    LocalRpls&lt;ClassRegion:LocalRegion:*&gt; y = <B>null</B>;
+    <FONT COLOR="fuchsia"><EM>// ClassRegion is not a local RPL</EM></FONT>
+    LocalRpls&lt;ClassRegion&gt; z = <B>null</B>;
+  }
 }</TT></DIV>Local RPLs are important because they define <EM>local effects</EM>
 (&sect;&nbsp;<A HREF="#sec:effects:local">5.3</A>). A local effect is visible only in a
 method and its callees, so doesn't have to be reported to the caller.
@@ -2022,10 +2052,10 @@ the following code, the method parameter <TT>param</TT> has type
 an RPL:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> NestByOwnership&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;method(<B>final</B> NestByOwnership&lt;R&gt; param) {
-        <FONT COLOR="fuchsia"><EM>// param is used as an RPL here; it is nested under R</EM></FONT>
-        NestByOwnership&lt;param&gt; localVar = <B>new</B> NestByOwnership&lt;param&gt;();
-    }
+  &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;method(<B>final</B> NestByOwnership&lt;R&gt; param) {
+    <FONT COLOR="fuchsia"><EM>// param is used as an RPL here; it is nested under R</EM></FONT>
+    NestByOwnership&lt;param&gt; localVar = <B>new</B> NestByOwnership&lt;param&gt;();
+  }
 }</TT></DIV><BR>
 <BR>
 <!--TOC subsubsection 3.6.3&nbsp;&nbsp;Inclusion-->
@@ -2142,13 +2172,13 @@ is included in <TT>R1:*</TT>, <TT>R2:r</TT> is included in <TT>R2:*</TT>, and
 <TT>R1:*</TT> and <TT>R2:*</TT> are constrained to be disjoint.
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> DisjointConstraints&lt;<FONT COLOR="blue"><B>region</B></FONT> R1, R2 | R1:* # R2:*&gt; {
-    <FONT COLOR="blue"><B>region</B></FONT> r;
-    <B>void</B> method() {
-        DisjointConstraints&lt;R1:r&gt; dc1 =
-            <B>new</B> DisjointConstraints&lt;R1:r&gt;();
-        DisjointConstraints&lt;R2:r&gt; dc2 =
-            <B>new</B> DisjointConstraints&lt;R2:r&gt;();
-    }
+  <FONT COLOR="blue"><B>region</B></FONT> r;
+  <B>void</B> method() {
+    DisjointConstraints&lt;R1:r&gt; dc1 =
+    <B>new</B> DisjointConstraints&lt;R1:r&gt;();
+    DisjointConstraints&lt;R2:r&gt; dc2 =
+    <B>new</B> DisjointConstraints&lt;R2:r&gt;();
+  }
 }</TT></DIV><BR>
 <BR>
 Note that <TT>R1:r</TT> and <TT>R2:r</TT> would <EM>not</EM> be disjoint if
@@ -2174,6 +2204,10 @@ identify pairs of never-equal expressions:
 <UL CLASS="itemize"><LI CLASS="li-itemize">
 <I>e</I><SUB>1</SUB> and <I>e</I><SUB>2</SUB> are never-equal if they refer to different
  compile-time constants. For example, 0 and 1 are never-equal.
+<LI CLASS="li-itemize">Index variables <I>i</I><SUB>1</SUB> and <I>i</I><SUB>2</SUB> are never-equal if they
+ represent the values attained by the same index variable <I>i</I> on
+ different iterations of a <TT>foreach</TT> loop
+ (&sect;&nbsp;<A HREF="#sec:parallel:foreach">6.2</A>).
 <LI CLASS="li-itemize"><I>e</I><SUB>1</SUB> and <I>e</I><SUB>2</SUB> are never-equal if they represent the same
  binary operation, one of the corresponding subexpressions is
  always-equal (&sect;&nbsp;<A HREF="#sec:rpls:comparing:equiv">3.6.1</A>), and the other is
@@ -2246,8 +2280,8 @@ without providing any explicit parameter arguments. For example, the
 following code is valid:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> ImplicitArgs&lt;<FONT COLOR="blue"><B>type</B></FONT> T, <FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <FONT COLOR="fuchsia"><EM>// ImplicitArgs is a valid type here</EM></FONT>
-    ImplicitArgs field = <B>null</B>;
+  <FONT COLOR="fuchsia"><EM>// ImplicitArgs is a valid type here</EM></FONT>
+  ImplicitArgs field = <B>null</B>;
 }</TT></DIV><BR>
 <BR>
 When the type arguments are omitted for a class with parameters, the
@@ -2283,8 +2317,8 @@ types and which are the RPLs from the class definition.<BR>
 For example:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> ExplicitArgs&lt;<FONT COLOR="blue"><B>type</B></FONT> T, <FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <FONT COLOR="fuchsia"><EM>// Instantiate an ExplicitArgs type with T=Object, R=Root</EM></FONT>
-    ExplicitArgs&lt;Object,Root&gt; field;
+  <FONT COLOR="fuchsia"><EM>// Instantiate an ExplicitArgs type with T=Object, R=Root</EM></FONT>
+  ExplicitArgs&lt;Object,Root&gt; field;
 }</TT></DIV>This code defines a class <TT>ExplicitArgs</TT> with one type parameter
 <TT>T</TT> and one RPL parameter <TT>R</TT>. The field <TT>field</TT> has
 class type <TT>ExplicitArgs</TT> with <TT>T</TT>=<TT>Object</TT> and
@@ -2298,8 +2332,8 @@ example, in the code above, we could have written the type of field
 <TT>field</TT> as <TT>ExplicitArgs&lt;Object&gt;</TT>. Here is another example:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> ImplicitRPLArg&lt;<FONT COLOR="blue"><B>region</B></FONT> R1, R2&gt; {
-    <FONT COLOR="blue"><B>region</B></FONT> r;
-    ImplicitRPLArg&lt;r&gt; field;
+  <FONT COLOR="blue"><B>region</B></FONT> r;
+  ImplicitRPLArg&lt;r&gt; field;
 }</TT></DIV>The class <TT>ImplicitRPLArg</TT> has two parameters <TT>R1</TT> and
 <TT>R2</TT>, but the type <TT>ImplicitRPLArg&lt;r&gt;</TT> of <TT>field</TT> has only
 one explicit RPL argument, <TT>r</TT>. <TT>r</TT> is bound to the first
@@ -2639,16 +2673,16 @@ and the capture in step 4(b) isn't needed.
 &sect;&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A> gives examples involving capture.
 
  <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>class</B> FieldTypingExample&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-<FONT SIZE=2>   2</FONT>     <FONT COLOR="blue"><B>region</B></FONT> r;
-<FONT SIZE=2>   3</FONT>     FieldTypingExample&lt;R&gt; field1 <FONT COLOR="blue"><B>in</B></FONT> R;
-<FONT SIZE=2>   4</FONT>     <B>void</B> FieldTypingExample&lt;r&gt; method1() {
-<FONT SIZE=2>   5</FONT>         <B>return</B> (<B>new</B> FieldTypingExample&lt;r&gt;).field1;
-<FONT SIZE=2>   6</FONT>     }
-<FONT SIZE=2>   7</FONT>     FieldTypingExample&lt;<B>this</B>&gt; field2 <B><FONT COLOR="blue">in</FONT> this</B>;
-<FONT SIZE=2>   8</FONT>     <B>void</B> FieldTypingExample&lt;arg&gt;
-<FONT SIZE=2>   9</FONT>       method2(<B>final</B> FieldTypingExample&lt;R&gt; arg) {
-<FONT SIZE=2>  10</FONT>         <B>return</B> arg.field;
-<FONT SIZE=2>  11</FONT>     }
+<FONT SIZE=2>   2</FONT>   <FONT COLOR="blue"><B>region</B></FONT> r;
+<FONT SIZE=2>   3</FONT>   FieldTypingExample&lt;R&gt; field1 <FONT COLOR="blue"><B>in</B></FONT> R;
+<FONT SIZE=2>   4</FONT>   <B>void</B> FieldTypingExample&lt;r&gt; method1() {
+<FONT SIZE=2>   5</FONT>     <B>return</B> (<B>new</B> FieldTypingExample&lt;r&gt;).field1;
+<FONT SIZE=2>   6</FONT>   }
+<FONT SIZE=2>   7</FONT>   FieldTypingExample&lt;<B>this</B>&gt; field2 <B><FONT COLOR="blue">in</FONT> this</B>;
+<FONT SIZE=2>   8</FONT>   <B>void</B> FieldTypingExample&lt;arg&gt;
+<FONT SIZE=2>   9</FONT>   method2(<B>final</B> FieldTypingExample&lt;R&gt; arg) {
+<FONT SIZE=2>  10</FONT>     <B>return</B> arg.field;
+<FONT SIZE=2>  11</FONT>   }
 <FONT SIZE=2>  12</FONT> }</TT></DIV><BR>
 <BR>
 Let's see how to compute the type of the expression in the
@@ -2692,7 +2726,7 @@ expression of integer type.<BR>
 <B>Array class type:</B> If <EM>array-exp</EM> has array class type,
 then do the following:
 <OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
-perform the same conversion as for field access
+Perform the same conversion as for field access
  (&sect;&nbsp;<A HREF="#sec:types:exp:field">4.3.1</A>), treating the cell type of the array
  class as the field type.
 <LI CLASS="li-enumerate">Substitute <EM>receiver-exp</EM> for <TT>index</TT> in the result.
@@ -2700,9 +2734,9 @@ perform the same conversion as for field access
 For example, given the following code
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> Data&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>static</B> arrayclass Array&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-        Data&lt;R:[i]&gt; <FONT COLOR="blue"><B>in</B></FONT> R:[i];
-    }
+  <B>static</B> arrayclass Array&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
+    Data&lt;R:[i]&gt; <FONT COLOR="blue"><B>in</B></FONT> R:[i];
+  }
 }
 <FONT COLOR="blue"><B>region</B></FONT> r;
 Data.Array&lt;r&gt; a = <B>new</B> Data.Array&lt;r&gt;(10);</TT></DIV>The access expression <TT>a[0]</TT> has type <TT>Data&lt;r:[0]&gt;</TT>.<BR>
@@ -2760,11 +2794,11 @@ are no-ops, and the capture in step 4(d) isn't needed.
 &sect;&nbsp;<A HREF="#sec:types:exp:capture">4.3.4</A> gives examples involving capture.
 
  <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>abstract class</B> MethodInvocationExample&lt;<FONT COLOR="blue"><B>region</B></FONT> R1, R2&gt; {
-<FONT SIZE=2>   2</FONT>     <B>abstract</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R3&gt;
-<FONT SIZE=2>   3</FONT>         MethodInvocationExample&lt;R3, [i]&gt;callee(<B>int</B> i);
-<FONT SIZE=2>   4</FONT>     MethodInvocationExample&lt;Root, [0]&gt;caller() {
-<FONT SIZE=2>   5</FONT>         <B>return this</B>.&lt;Root&gt;callee(0);
-<FONT SIZE=2>   6</FONT>     }
+<FONT SIZE=2>   2</FONT>   <B>abstract</B> &lt;<FONT COLOR="blue"><B>region</B></FONT> R3&gt;
+<FONT SIZE=2>   3</FONT>     MethodInvocationExample&lt;R3, [i]&gt;callee(<B>int</B> i);
+<FONT SIZE=2>   4</FONT>   MethodInvocationExample&lt;Root, [0]&gt;caller() {
+<FONT SIZE=2>   5</FONT>     <B>return this</B>.&lt;Root&gt;callee(0);
+<FONT SIZE=2>   6</FONT>   }
 <FONT SIZE=2>   7</FONT> }</TT></DIV>Lines 1&ndash;2 define a method <TT>callee</TT> with one RPL parameter
 <TT>R3</TT> and one formal parameter <TT>int i</TT>. It returns type
 <DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>MethodInvocationExample&lt;R3,[i]&gt;</TT>. 
@@ -2806,16 +2840,16 @@ of wildcard, as they can stand in for several different regions. To
 motivate the problem, consider this example:
 
  <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>class</B> CaptureExample&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-<FONT SIZE=2>   2</FONT>     CaptureExample&lt;R&gt; field;
-<FONT SIZE=2>   3</FONT>     <B>void</B> method() {
-<FONT SIZE=2>   4</FONT>         <FONT COLOR="blue"><B>region</B></FONT> r1, r2;
-<FONT SIZE=2>   5</FONT>         <FONT COLOR="fuchsia"><EM>// Create a new CaptureExample&lt;R:r1&gt;</EM></FONT>
-<FONT SIZE=2>   6</FONT>         CaptureExample&lt;R:r1&gt; ce = <B>new</B> CaptureExample&lt;R:r1&gt;();
-<FONT SIZE=2>   7</FONT>         <FONT COLOR="fuchsia"><EM>// Assign it to CaptureExample&lt;R:*&gt;; this is allowed</EM></FONT>
-<FONT SIZE=2>   8</FONT>         CaptureExample&lt;R:*&gt; ceStar = ce;
-<FONT SIZE=2>   9</FONT>         <FONT COLOR="fuchsia"><EM>// This should not be allowed!</EM></FONT>
-<FONT SIZE=2>  10</FONT>         ceStar.field = <B>new</B> CaptureExample&lt;R:r2&gt;();
-<FONT SIZE=2>  11</FONT>     }
+<FONT SIZE=2>   2</FONT>   CaptureExample&lt;R&gt; field;
+<FONT SIZE=2>   3</FONT>   <B>void</B> method() {
+<FONT SIZE=2>   4</FONT>     <FONT COLOR="blue"><B>region</B></FONT> r1, r2;
+<FONT SIZE=2>   5</FONT>     <FONT COLOR="fuchsia"><EM>// Create a new CaptureExample&lt;R:r1&gt;</EM></FONT>
+<FONT SIZE=2>   6</FONT>     CaptureExample&lt;R:r1&gt; ce = <B>new</B> CaptureExample&lt;R:r1&gt;();
+<FONT SIZE=2>   7</FONT>     <FONT COLOR="fuchsia"><EM>// Assign it to CaptureExample&lt;R:*&gt;; this is allowed</EM></FONT>
+<FONT SIZE=2>   8</FONT>     CaptureExample&lt;R:*&gt; ceStar = ce;
+<FONT SIZE=2>   9</FONT>     <FONT COLOR="fuchsia"><EM>// This should not be allowed!</EM></FONT>
+<FONT SIZE=2>  10</FONT>     ceStar.field = <B>new</B> CaptureExample&lt;R:r2&gt;();
+<FONT SIZE=2>  11</FONT>   }
 <FONT SIZE=2>  12</FONT> }</TT></DIV>The assignment in line 10 is a problem: the <EM>actual</EM> type of the
 object stored in <TT>ceStar</TT> is <TT>CaptureExample&lt;R:r1&gt;</TT>. That's
 because the assignment in line 8 didn't change the type of the object;
@@ -2880,11 +2914,11 @@ Here is another common way that capture errors can occur, involving
 method invocations:
 
  <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>abstract class</B> CaptureMethodExample&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-<FONT SIZE=2>   2</FONT>     <B>abstract void</B> callee(CaptureMethodExample&lt;R&gt; x);
-<FONT SIZE=2>   3</FONT>     <B>void</B> caller(CaptureMethodExample&lt;*&gt; y) {
-<FONT SIZE=2>   4</FONT>         <FONT COLOR="fuchsia"><EM>// Compile error!</EM></FONT>
-<FONT SIZE=2>   5</FONT>         y.callee(y);
-<FONT SIZE=2>   6</FONT>     }
+<FONT SIZE=2>   2</FONT>   <B>abstract void</B> callee(CaptureMethodExample&lt;R&gt; x);
+<FONT SIZE=2>   3</FONT>   <B>void</B> caller(CaptureMethodExample&lt;*&gt; y) {
+<FONT SIZE=2>   4</FONT>     <FONT COLOR="fuchsia"><EM>// Compile error!</EM></FONT>
+<FONT SIZE=2>   5</FONT>     y.callee(y);
+<FONT SIZE=2>   6</FONT>   }
 <FONT SIZE=2>   7</FONT> }</TT></DIV>Line 4 causes an error, because it is attempting to assign <TT>y</TT>,
 which has type 
 <DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>CaptureMethodExample&lt;*&gt;</TT> 
@@ -2899,11 +2933,11 @@ Usually you can work around these errors by adding a parameter. For
 example, the code above could be rewritten as follows:
 
  <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>abstract class</B> CaptureMethodExample&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-<FONT SIZE=2>   2</FONT>     <B>abstract void</B> callee(CaptureMethodExample&lt;R&gt; x);
-<FONT SIZE=2>   3</FONT>     &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> caller(CaptureMethodExample&lt;R&gt; y) {
-<FONT SIZE=2>   4</FONT>         <FONT COLOR="fuchsia"><EM>// OK</EM></FONT>
-<FONT SIZE=2>   5</FONT>         y.callee(y);
-<FONT SIZE=2>   6</FONT>     }
+<FONT SIZE=2>   2</FONT>   <B>abstract void</B> callee(CaptureMethodExample&lt;R&gt; x);
+<FONT SIZE=2>   3</FONT>   &lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> caller(CaptureMethodExample&lt;R&gt; y) {
+<FONT SIZE=2>   4</FONT>     <FONT COLOR="fuchsia"><EM>// OK</EM></FONT>
+<FONT SIZE=2>   5</FONT>     y.callee(y);
+<FONT SIZE=2>   6</FONT>   }
 <FONT SIZE=2>   7</FONT> }</TT></DIV>By adding a method region parameter <TT>R</TT>, we &#8220;capture the type
 ourselves.&#8221; Now the code explicitly says that the region in the type
 of <TT>y</TT> is the same as the region of the type of <TT>x</TT>: whatever
@@ -2976,11 +3010,12 @@ represents the following kinds of effects:
 Read and write effects on an RPL <I>R</I> are generated by directly
 accessing a class field declared to be in <I>R</I>
 (&sect;&nbsp;<A HREF="#sec:classes:field-region-spec">2.2</A>) or an array cell in <I>R</I>
-(&sect;&nbsp;<A HREF="#sec:types:array">4.2</A>), or by invoking a method with the effect in
-its effect summary (&sect;&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>).
-Invocation effects are always generated by invoking methods.
-&sect;&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A> gives more details on how DPJ statements
-and expressions generate these effects.<BR>
+(&sect;&sect;&nbsp;<A HREF="#sec:classes:array">2.5</A> and&nbsp;<A HREF="#sec:types:array">4.2</A>), or by
+invoking a method with the effect in its effect summary
+(&sect;&nbsp;<A HREF="#sec:classes:methods:summaries">2.3.1</A>). Invocation effects are
+always generated by invoking methods. &sect;&nbsp;<A HREF="#sec:effects:stmt-exp">5.4</A>
+gives more details on how DPJ statements and expressions generate
+these effects.<BR>
 <BR>
 Invocation effects are necessary because some method invocations can
 commute with others (&sect;&nbsp;<A HREF="#sec:classes:methods:commutative">2.3.4</A>). To
@@ -2999,8 +3034,8 @@ Finally, notice that a write effect can represent both reads and
 writes. Writes are &#8220;stronger&#8221; than reads (for interference, at
 least one of two operations to the same location must be a write), so
 it is sound but conservative to represent reads as writes. In some
-cases it may reduce the size of the effect set. For example, a read
-and a write to the same location may be represented with just the
+cases it may also reduce the size of the effect set. For example, a
+read and a write to the same location may be represented with just the
 write effect. Finally, allowing write effects to represent reads does
 not sacrifice any precision, since (1) a read to a location alone can
 always be represented as a read effect; and (2) a read and write to a
@@ -3045,13 +3080,15 @@ underlying effects. This may change in future versions of DPJ.<BR>
 Here is a simple example of an effect summary:
 
  <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>class</B> Point&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-<FONT SIZE=2>   2</FONT>     <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R, y <FONT COLOR="blue"><B>in</B></FONT> R;
-<FONT SIZE=2>   3</FONT>     &lt;<FONT COLOR="blue"><B>region</B></FONT> Rp&gt;<B>void</B> add(Point&lt;<FONT COLOR="blue"><B>region</B></FONT> Rp&gt; p)
-<FONT SIZE=2>   4</FONT>       <FONT COLOR="blue"><B>reads</B></FONT> Rp <FONT COLOR="blue"><B>writes</B></FONT> R {
-<FONT SIZE=2>   5</FONT>         <B>this</B>.x += p.x;
-<FONT SIZE=2>   6</FONT>         <B>this</B>.y += p.y;
-<FONT SIZE=2>   7</FONT>     }
-<FONT SIZE=2>   8</FONT> }</TT></DIV>This class defines a simple <TT>Point</TT> object with integer
+<FONT SIZE=2>   2</FONT>   <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R, y <FONT COLOR="blue"><B>in</B></FONT> R;
+<FONT SIZE=2>   3</FONT>   &lt;<FONT COLOR="blue"><B>region</B></FONT> Rp&gt;<B>void</B> add(Point&lt;<FONT COLOR="blue"><B>region</B></FONT> Rp&gt; p)
+<FONT SIZE=2>   4</FONT>     <FONT COLOR="blue"><B>reads</B></FONT> Rp
+<FONT SIZE=2>   5</FONT>     <FONT COLOR="blue"><B>writes</B></FONT> R
+<FONT SIZE=2>   6</FONT>   {
+<FONT SIZE=2>   7</FONT>     <B>this</B>.x += p.x;
+<FONT SIZE=2>   8</FONT>     <B>this</B>.y += p.y;
+<FONT SIZE=2>   9</FONT>   }
+<FONT SIZE=2>  10</FONT> }</TT></DIV>This class defines a simple <TT>Point</TT> object with integer
 coordinates <TT>x</TT> and <TT>y</TT>. There is one class region parameter
 <TT>R</TT> (&sect;&nbsp;<A HREF="#sec:classes:params:class">2.4.1</A>), and the coordinate fields
 are placed in the region of <TT>R</TT>. The <TT>add</TT> method takes a
@@ -3077,15 +3114,17 @@ a method scope and never seen by the calling context, so they may be
 ignored when summarizing method effects. For example:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> LocalEffects&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
-    <FONT COLOR="fuchsia"><EM>// method has no effects visible to the caller</EM></FONT>
-    <B>void</B> method() <FONT COLOR="blue"><B>pure</B></FONT> {
-        <FONT COLOR="blue"><B>region</B></FONT> r;
-        <FONT COLOR="fuchsia"><EM>// Write effect on var is local</EM></FONT>
-        LocalEffects&lt;r&gt; var = <B>new</B> LocalEffects&lt;r&gt;();
-        <FONT COLOR="fuchsia"><EM>// Write effect on region r is local</EM></FONT>
-        var.x = 5;
-    }
+  <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
+  <FONT COLOR="fuchsia"><EM>// method has no effects visible to the caller</EM></FONT>
+  <B>void</B> method()
+    <FONT COLOR="blue"><B>pure</B></FONT>
+  {
+    <FONT COLOR="blue"><B>region</B></FONT> r;
+    <FONT COLOR="fuchsia"><EM>// Write effect on var is local</EM></FONT>
+    LocalEffects&lt;r&gt; var = <B>new</B> LocalEffects&lt;r&gt;();
+    <FONT COLOR="fuchsia"><EM>// Write effect on region r is local</EM></FONT>
+    var.x = 5;
+  }
 }</TT></DIV><BR>
 <BR>
 <!--TOC subsection 5.4&nbsp;&nbsp;Effects of Statements and Expressions-->
@@ -3201,10 +3240,11 @@ scope where the effect must be reported. For example, consider the
 following <TT>foreach</TT> loop (&sect;&nbsp;<A HREF="#sec:parallel:foreach">6.2</A>) on an
 index-parameterized array (&sect;&nbsp;<A HREF="#sec:classes:array:ipa">2.5.3</A>):
 
- <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> <B>int</B>[]&lt;[_]&gt; A = <B>new int</B>[N]&lt;[_]&gt;;
-<FONT SIZE=2>   2</FONT> <FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, N) {
-<FONT SIZE=2>   3</FONT>     A[i] = i;
-<FONT SIZE=2>   4</FONT> }</TT></DIV>In line 3, the effect is <TT>writes [i]</TT>. But what is the effect in
+ <DIV CLASS="numbereddpjlisting"><TT><FONT SIZE=2>   1</FONT> arrayclass ArrayInt { <B>int <FONT COLOR="blue">in</FONT></B> [index]; }
+<FONT SIZE=2>   2</FONT> ArrayInt A = <B>new</B> ArrayInt(N);
+<FONT SIZE=2>   3</FONT> <FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, N) {
+<FONT SIZE=2>   4</FONT>   A[i] = i;
+<FONT SIZE=2>   5</FONT> }</TT></DIV>In line 3, the effect is <TT>writes [i]</TT>. But what is the effect in
 the scope outside the loop? This is important, for example, if this
 code appears inside a method body and its effect must be summarized.
 We can solve this problem with partially-specified RPLs
@@ -3220,26 +3260,27 @@ in the following code fragment, neither block contained in the
 <TT>cobegin</TT> has any effect:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> LocalEffectCoarsening&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
-    <B>void</B> method() <FONT COLOR="blue"><B>pure</B></FONT> {
-        <FONT COLOR="blue"><B>cobegin</B></FONT> {
-            <FONT COLOR="fuchsia"><EM>// No effect here because var1 and r1 are out of scope</EM></FONT>
-            {
-                <FONT COLOR="blue"><B>region</B></FONT> r1;
-                LocalEffectCoarsening&lt;r1&gt; var1 =
-                    <B>new</B> LocalEffectCoarsening&lt;r1&gt;();
-                var1.x = 10;
-            }
-            <FONT COLOR="fuchsia"><EM>// No effect here either because var2 and r2 are out of
-            // scope</EM></FONT>
-            {
-                <FONT COLOR="blue"><B>region</B></FONT> r2;
-                LocalEffectCoarsening&lt;r2&gt; var2 =
-                    <B>new</B> LocalEffectCoarsening&lt;r2&gt;();
-                var2.x = 25;
-            }
-        }
+  <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
+  <B>void</B> method()
+    <FONT COLOR="blue"><B>pure</B></FONT>
+  {
+    <FONT COLOR="blue"><B>cobegin</B></FONT> {
+      <FONT COLOR="fuchsia"><EM>// No effect here because var1 and r1 are out of scope</EM></FONT>
+      {
+        <FONT COLOR="blue"><B>region</B></FONT> r1;
+        LocalEffectCoarsening&lt;r1&gt; var1 =
+          <B>new</B> LocalEffectCoarsening&lt;r1&gt;();
+        var1.x = 10;
+      }
+      <FONT COLOR="fuchsia"><EM>// No effect here either because var2 and r2 are out of scope</EM></FONT>
+      {
+        <FONT COLOR="blue"><B>region</B></FONT> r2;
+        LocalEffectCoarsening&lt;r2&gt; var2 =
+          <B>new</B> LocalEffectCoarsening&lt;r2&gt;();
+        var2.x = 25;
+      }
     }
+  }
 }</TT></DIV><BR>
 <BR>
 This pattern can also be used effectively with <TT>foreach</TT>, by
@@ -3247,10 +3288,10 @@ having each iteration create its own objects whose effects are
 invisible to the other iterations:
 
  <DIV CLASS="dpjlisting"><TT><FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, N) {
-    <FONT COLOR="fuchsia"><EM>// r is local to a foreach iteration</EM></FONT>
-    <FONT COLOR="blue"><B>region</B></FONT> r;
-    <FONT COLOR="fuchsia"><EM>// Do some effects on r</EM></FONT>
-    ...
+  <FONT COLOR="fuchsia"><EM>// r is local to a foreach iteration</EM></FONT>
+  <FONT COLOR="blue"><B>region</B></FONT> r;
+  <FONT COLOR="fuchsia"><EM>// Do some effects on r</EM></FONT>
+  ...
 }</TT></DIV>This technique is useful for creating private objects in each
 iteration that manipulate data local to that iteration. See
 <EM>The Deterministic Parallel Java Tutorial</EM> for more examples.<BR>
@@ -3271,17 +3312,20 @@ that is valid in the outer scope.<BR>
 For example:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> VariableCoarsening&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
-    <B>void</B> method() <FONT COLOR="blue"><B>writes</B></FONT> R:* {
-        <FONT COLOR="fuchsia"><EM>// Coarsened effect is 'writes R:*'</EM></FONT>
-        {
-            <B>final</B> VariableCoarsening&lt;R&gt; vc1 =
-                <B>new</B> VariableCoarsening&lt;R&gt;();
-            VariableCoarsening&lt;vc1&gt; vc2 =
-                <B>new</B> VariableCoarsening&lt;vc1&gt;();
-            <FONT COLOR="fuchsia"><EM>// Effect is 'writes vc1'</EM></FONT>
-            vc2.x = 5;
+  <B>int</B> x <FONT COLOR="blue"><B>in</B></FONT> R;
+  <B>void</B> method()
+    <FONT COLOR="blue"><B>writes</B></FONT> R:*
+  {
+    <FONT COLOR="fuchsia"><EM>// Coarsened effect is 'writes R:*'</EM></FONT>
+    {
+      <B>final</B> VariableCoarsening&lt;R&gt; vc1 =
+        <B>new</B> VariableCoarsening&lt;R&gt;();
+      VariableCoarsening&lt;vc1&gt; vc2 =
+        <B>new</B> VariableCoarsening&lt;vc1&gt;();
+      <FONT COLOR="fuchsia"><EM>// Effect is 'writes vc1'</EM></FONT>
+      vc2.x = 5;
     }
+  }
 }</TT></DIV><BR>
 <BR>
 Note that method parameters are in scope in the method definition, so
@@ -3289,9 +3333,9 @@ effects on method parameter RPLs don't need to be coarsened in the
 method's effects:
 
  <DIV CLASS="dpjlisting"><TT><B>abstract class</B> ParamRPLs&lt;<FONT COLOR="blue"><B>region</B></FONT> R&gt; {
-    <B>abstract void</B> method(ParamRPLs&lt;R&gt; param)
-        <FONT COLOR="fuchsia"><EM>// OK; 'writes R:*' is also OK, but less precise</EM></FONT>
-        <FONT COLOR="blue"><B>writes</B></FONT> param;
+  <B>abstract void</B> method(ParamRPLs&lt;R&gt; param)
+    <FONT COLOR="fuchsia"><EM>// OK; 'writes R:*' is also OK, but less precise</EM></FONT>
+    <FONT COLOR="blue"><B>writes</B></FONT> param;
 }</TT></DIV><BR>
 <BR>
 <I>Array index RPLs:</I> An effect on an RPL containing the array
@@ -3402,11 +3446,12 @@ There are two ways to fork tasks: <TT>cobegin</TT>, which forks several
 statements as parallel tasks, and <TT>foreach</TT>, which forks groups of
 consecutive loop iterations as parallel tasks.<BR>
 <BR>
-<!--TOC subsection 6.1&nbsp;&nbsp;<TT>cobegin</TT>-->
+<!--TOC subsection 6.1&nbsp;&nbsp;cobegin
+-->
 
-<H3 CLASS="subsection"><A NAME="htoc62">6.1</A>&nbsp;&nbsp;<TT>cobegin</TT></H3><!--SEC END -->
+<H3 CLASS="subsection"><A NAME="htoc62">6.1</A>&nbsp;&nbsp;cobegin
+<A NAME="sec:parallel:cobegin"></A></H3><!--SEC END -->
 
-<A NAME="sec:parallel:cobegin"></A>
 <!--NAME parallel.cobegin.html-->
 <BR>
 <BR>
@@ -3480,9 +3525,9 @@ scheduler to balance the computation, but (2) the task creation
 overhead is not unduly large. See <EM>The Deterministic Parallel Java Tutorial</EM> for more
 examples of <TT>cobegin</TT>.<BR>
 <BR>
-<!--TOC subsection 6.2&nbsp;&nbsp;<TT>foreach</TT>-->
+<!--TOC subsection 6.2&nbsp;&nbsp;foreach-->
 
-<H3 CLASS="subsection"><A NAME="htoc63">6.2</A>&nbsp;&nbsp;<TT>foreach</TT><A NAME="sec:parallel:foreach"></A></H3><!--SEC END -->
+<H3 CLASS="subsection"><A NAME="htoc63">6.2</A>&nbsp;&nbsp;foreach<A NAME="sec:parallel:foreach"></A></H3><!--SEC END -->
 
 <!--NAME parallel.foreach.html-->
 <BR>
@@ -3493,9 +3538,9 @@ statements of a block. The granularity of parallelism (i.e., how many
 loop iterations to execute in a task) is controllable by the
 programmer.<BR>
 <BR>
-<!--TOC subsubsection 6.2.1&nbsp;&nbsp;Writing the <TT>foreach</TT> loop-->
+<!--TOC subsubsection 6.2.1&nbsp;&nbsp;Writing the foreach Loop-->
 
-<H4 CLASS="subsubsection"><A NAME="htoc64">6.2.1</A>&nbsp;&nbsp;Writing the <TT>foreach</TT> loop<A NAME="sec:parallel:foreach:writing"></A></H4><!--SEC END -->
+<H4 CLASS="subsubsection"><A NAME="htoc64">6.2.1</A>&nbsp;&nbsp;Writing the foreach Loop<A NAME="sec:parallel:foreach:writing"></A></H4><!--SEC END -->
 
 <!--NAME parallel.foreach.writing-->
 <BR>
@@ -3545,9 +3590,9 @@ work according to the programmer-specified granularity
 <TT>foreach</TT>; i.e., all tasks created by the <TT>foreach</TT> must
 complete before any code following the <TT>foreach</TT> is executed.<BR>
 <BR>
-<!--TOC subsubsection 6.2.2&nbsp;&nbsp;Controlling the granularity of parallelism-->
+<!--TOC subsubsection 6.2.2&nbsp;&nbsp;Controlling the Granularity of Parallelism-->
 
-<H4 CLASS="subsubsection"><A NAME="htoc65">6.2.2</A>&nbsp;&nbsp;Controlling the granularity of parallelism<A NAME="sec:parallel:foreach:granularity"></A></H4><!--SEC END -->
+<H4 CLASS="subsubsection"><A NAME="htoc65">6.2.2</A>&nbsp;&nbsp;Controlling the Granularity of Parallelism<A NAME="sec:parallel:foreach:granularity"></A></H4><!--SEC END -->
 
 <!--NAME parallel.foreach.granularity.html-->
 <BR>
@@ -3602,19 +3647,18 @@ This section gives an overview of the classes <TT>ArraySlice</TT> and
 part of the runtime supplied with DPJ and are useful for manipulating
 arrays. For full documentation of these classes, and for coverage of
 the other DPJ runtime classes, see the HTML documentation included in
-the DPJ release at 
-<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>DPJ/Implementation/Runtime/dpjdoc</TT>.
-</DL>
+the DPJ release at <TT>DPJ/Implementation/Runtime/dpjdoc</TT>.<BR>
+<BR>
 To use the DPJ runtime, you have to do the following:
 <OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 Put <TT>import DPJRuntime.*</TT> at the top of your code (or just
  import the class or classes you want to use), as for regular Java.
-<LI CLASS="li-enumerate">When compiling your code, you must compile the runtime classes
- located at <TT>Implementation/Runtime/dpj</TT> in the DPJ release
- together with any code that uses the runtime. For example, if class
- file <TT>Foo.java</TT> depends on the DPJ runtime, then you need to do
+<LI CLASS="li-enumerate">Compile the runtime classes located at
+ <TT>Implementation/Runtime/dpj</TT> in the DPJ release together with
+ any code that uses the runtime. For example, if class file
+ <TT>Foo.java</TT> depends on the DPJ runtime, then you need to do
  something like this:
-<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>dpj Foo.java ${DPJ_ROOT}/Implementation/Runtime/dpj/*java</TT>
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description"><DD CLASS="dd-description"><TT>dpjc Foo.java ${DPJ_ROOT}/Implementation/Runtime/dpj/*java</TT>
 </DL>
 <EM>It is not sufficient to put the runtime classes in your class
  path.</EM> If you do that, you will get a lot of errors. The reason is
@@ -3625,11 +3669,28 @@ annotated code to process the annotations.
  <TT>Implementation/Runtime/classes</TT> in your class path, as for
  regular Java.
 </OL>
-<!--TOC subsection 7.1&nbsp;&nbsp;ArraySlice-->
+<!--TOC subsection 7.1&nbsp;&nbsp;Array Classes-->
 
-<H3 CLASS="subsection"><A NAME="htoc67">7.1</A>&nbsp;&nbsp;ArraySlice<A NAME="sec:runtime:array"></A></H3><!--SEC END -->
+<H3 CLASS="subsection"><A NAME="htoc67">7.1</A>&nbsp;&nbsp;Array Classes<A NAME="sec:runtime:array"></A></H3><!--SEC END -->
 
 <!--NAME runtime.array.html-->
+<BR>
+<BR>
+The DPJ runtime provides a generic array class <TT>Array</TT> that is
+defined like this:
+
+ <DIV CLASS="dpjlisting"><TT><B>package</B> DPJRuntime;
+
+<B>public</B> arrayclass Array&lt;<FONT COLOR="blue"><B>type</B></FONT> T, <FONT COLOR="blue"><B>region</B></FONT> R&gt; {
+  T <FONT COLOR="blue"><B>in</B></FONT> R;
+}</TT></DIV>It also provides a similar array class for each primitive type,
+specialized to that type.<BR>
+<BR>
+<!--TOC subsection 7.2&nbsp;&nbsp;ArraySlice-->
+
+<H3 CLASS="subsection"><A NAME="htoc68">7.2</A>&nbsp;&nbsp;ArraySlice<A NAME="sec:runtime:array-slice"></A></H3><!--SEC END -->
+
+<!--NAME runtime.array-slice.html-->
 <BR>
 <BR>
 In parallel algorithms that operate on arrays, especially
@@ -3657,22 +3718,22 @@ example, the following code creates an <TT>ArraySlice</TT> storing 10
  <DIV CLASS="dpjlisting"><TT><FONT COLOR="blue"><B>region</B></FONT> r;
 ArraySlice&lt;Integer,r&gt; A = <B>new</B> ArraySlice&lt;Integer,r&gt;(10);</TT></DIV><BR>
 <BR>
-Creating a fresh DPJ array is useful, but sometimes you have a Java
-array and you want to make an <TT>ArraySlice</TT> out of it. So the second
-way to create an <TT>ArraySlice</TT> is to call a constructor that takes an
-ordinary Java array as an argument. For example, the following code
-creates a Java array of 10 <TT>Integer</TT> objects, and wraps it in a
+Creating a fresh DPJ array is useful, but sometimes you have an array
+and you want to make an <TT>ArraySlice</TT> out of it. So the second way
+to create an <TT>ArraySlice</TT> is to call a constructor that takes an
+array class as an argument. For example, the following code creates a
+Java array of 10 <TT>Integer</TT> objects, and wraps it in a
 <TT>ArraySlice</TT>:
 
  <DIV CLASS="dpjlisting"><TT><FONT COLOR="blue"><B>region</B></FONT> r;
-Integer[]&lt;r&gt; a = <B>new</B> Integer[10]&lt;r&gt;;
+ArrayInt&lt;r&gt; a = <B>new</B> ArrayInt&lt;r&gt;(10);
 ArraySlice&lt;Integer,r&gt; A = <B>new</B> ArraySlice&lt;Integer,r&gt;(a);</TT></DIV>Note that the type and RPL of the array being passed in (here,
 <TT>Integer</TT> and <TT>r</TT>) must match the type and RPL argument of the
 <TT>ArraySlice</TT> type; if not, a compile error occurs.<BR>
 <BR>
-The third way to create an <TT>ArraySlice</TT> is to make a <EM>subslice</EM>
-(i.e., a slice) of an existing <TT>ArraySlice</TT>. This is explained
-below.<BR>
+The third way to create an <TT>ArraySlice</TT> is to make a
+<EM>subslice</EM> (i.e., a smaller slice) of an existing
+<TT>ArraySlice</TT>. This is explained below.<BR>
 <BR>
 <I>Accessing elements:</I> <TT>ArraySlice</TT> has <TT>put</TT> and
 <TT>get</TT> operations similar to the ones in <TT>java.util.ArrayList</TT>.
@@ -3691,12 +3752,11 @@ than 0 or greater than the array length minus one throws an
 <TT>ArrayIndexOutOfBoundsException</TT>.<BR>
 <BR>
 <I>Subslices:</I> The real usefulness of <TT>ArraySlice</TT> is its
-support for <EM>subslices</EM>, which are contiguous subsections of an
-array. To create a subslice of an <TT>ArraySlice</TT>, you call the
-<TT>subslice</TT> instance method with a start and length argument. For
-example, the following code creates an <TT>ArraySlice</TT> and then extracts
-the subslice of length 2 starting at position 5 (here we use the
-default RPL of <TT>Root</TT>):
+support for <EM>subslices</EM>. To create a subslice of an
+<TT>ArraySlice</TT>, you call the <TT>subslice</TT> instance method with a
+start and length argument. For example, the following code creates an
+<TT>ArraySlice</TT> and then extracts the subslice of length 2 starting
+at position 5 (here we use the default RPL of <TT>Root</TT>):
 
  <DIV CLASS="dpjlisting"><TT>ArraySlice&lt;Integer&gt; A = <B>new</B> ArraySlice&lt;Integer&gt;(10);
 ArraySlice&lt;Integer&gt; B = A.subslice(5,2);</TT></DIV><BR>
@@ -3725,36 +3785,23 @@ subranges. For example, here is some simple recursive code that
 increments every position of an <TT>ArraySlice</TT> by 1:
 
  <DIV CLASS="dpjlisting"><TT>&lt;<FONT COLOR="blue"><B>type</B></FONT> T, <FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> increment(ArraySlice&lt;T,R&gt; A) {
-    <B>if</B> (A.length == 0) <B>return</B>;
-    <B>if</B> (A.length == 1) {
-        A.put(0, A.get(0)+1);
-    }
-    <B>int</B> mid = A.length / 2;
-    increment(A.subslice(0, mid));
-    increment(A.subslice(mid, length-mid));
+  <B>if</B> (A.length == 0) <B>return</B>;
+  <B>if</B> (A.length == 1) {
+    A.put(0, A.get(0)+1);
+  }
+  <B>int</B> mid = A.length / 2;
+  increment(A.subslice(0, mid));
+  increment(A.subslice(mid, length-mid));
 }</TT></DIV>Without the subslice feature, this code would have to be written by
 passing the index ranges as parameters to the <TT>increment</TT> method,
 which is ugly.<BR>
 <BR>
-<B>Specialized ArraySlices:</B> Because Java does not support
-binding primitive types to generic parameters, the DPJ runtime also
-has versions of <TT>ArraySlice</TT> specialized to the primitive types
-(<TT>DPJInt</TT> for <TT>int</TT>, <TT>DPJBoolean</TT> for <TT>boolean</TT>,
-etc.). These operate identically to the generic <TT>ArraySlice</TT>,
-except that the element type is given by the class, and there is no
-generic parameter.<BR>
+<B>Specialized ArraySlice:</B> The DPJ runtime has a version of
+<TT>ArraySlice</TT> specialized to each primitive type.<BR>
 <BR>
-Another way to write such arrays is to create a generic <TT>ArraySlice</TT>
-using the class corresponding to the primitive type. For example,
-instead of an <TT>ArraySliceInt</TT>, one could use a
-<TT>ArraySlice&lt;Integer&gt;</TT>, as described above. This works, but the code
-is more verbose, as well as more memory-intensive and slower, as Java
-has to box and unbox all those primitive types when putting them into
-and getting them out of the array.<BR>
-<BR>
-<!--TOC subsection 7.2&nbsp;&nbsp;Partition-->
+<!--TOC subsection 7.3&nbsp;&nbsp;Partition-->
 
-<H3 CLASS="subsection"><A NAME="htoc68">7.2</A>&nbsp;&nbsp;Partition<A NAME="sec:runtime:partition"></A></H3><!--SEC END -->
+<H3 CLASS="subsection"><A NAME="htoc69">7.3</A>&nbsp;&nbsp;Partition<A NAME="sec:runtime:partition"></A></H3><!--SEC END -->
 
 <!--NAME runtime.partition.html-->
 <BR>
@@ -3765,19 +3812,19 @@ parallel sorting algorithm might repeatedly divide an array into
 disjoint halves (or quarters, etc.) and operate recursively in
 parallel on the pieces. To support effect checking for this kind of
 algorithm, the DPJ runtime includes a class <TT>Partition</TT> for
-representing disjoint collections of subslices of the same array.
-Each of the subslices in the collection is called a <EM>segment</EM> of
-the partition. As with <TT>ArraySlice</TT>, there is a generic version,
-and there are specialized versions.<BR>
+representing disjoint collections of slice of the same array. Each of
+the slices in the collection is called a <EM>segment</EM> of the
+partition. As with <TT>ArraySlice</TT>, there is a generic version, and
+there are specialized versions.<BR>
 <BR>
-<B>Generic <TT>Partition</TT>:</B> The generic <TT>Partition</TT>
-class represents an array of subslices of an <TT>ArraySlice</TT>. It has
+<B>Generic Partition:</B> The generic <TT>Partition</TT>
+class represents an array of slices of an <TT>ArraySlice</TT>. It has
 one type parameter and one RPL parameter:
 
  <DIV CLASS="dpjlisting"><TT><B>class</B> Partition&lt;<FONT COLOR="blue"><B>type</B></FONT> T, <FONT COLOR="blue"><B>region</B></FONT> R&gt;</TT></DIV>The type parameter is the element type of the <TT>ArraySlice</TT> being
 partitioned, and the RPL parameter is the RPL of the array storage.<BR>
 <BR>
-<I>Creating a <TT>Partition</TT>:</I> There are several ways to
+<I>Creating a Partition:</I> There are several ways to
 create a <TT>Partition</TT>; for a full list, see the HTML
 documentation. Here are two useful ways. First, <TT>Partition</TT>
 has a constructor that takes an <TT>ArraySlice</TT> to partition, an index
@@ -3817,20 +3864,21 @@ similarly to an index-parameterized array
 shown in &sect;&nbsp;<A HREF="#sec:runtime:array">7.1</A>:
 
  <DIV CLASS="dpjlisting"><TT>&lt;<FONT COLOR="blue"><B>type</B></FONT> T, <FONT COLOR="blue"><B>region</B></FONT> R&gt;<B>void</B> parallelIncrement(ArraySlice&lt;T,R&gt; A)
-  <FONT COLOR="blue"><B>writes</B></FONT> R:* {
-    <B>if</B> (A.length == 0) <B>return</B>;
-    <B>if</B> (A.length == 1) {
-        <FONT COLOR="fuchsia"><EM>// Effect is 'writes R'</EM></FONT>
-        A.put(0, A.get(0)+1);
-    }
-    <B>int</B> mid = A.length / 2;
-    <B>final</B> Partition&lt;T,R&gt; segs = <B>new</B> Partition&lt;T,R&gt;(A,mid)
-    <FONT COLOR="blue"><B>cobegin</B></FONT> {
-        <FONT COLOR="fuchsia"><EM>// Effect is 'writes segs:[0]:*'</EM></FONT>
-        parallelIncrement(segs.get(0));
-        <FONT COLOR="fuchsia"><EM>// Effect is 'writes segs:[1]:*'</EM></FONT>
-        parallelIncrement(segs.get(1));
-    }
+  <FONT COLOR="blue"><B>writes</B></FONT> R:*
+{
+  <B>if</B> (A.length == 0) <B>return</B>;
+  <B>if</B> (A.length == 1) {
+    <FONT COLOR="fuchsia"><EM>// Effect is 'writes R'</EM></FONT>
+    A.put(0, A.get(0)+1);
+  }
+  <B>int</B> mid = A.length / 2;
+  <B>final</B> Partition&lt;T,R&gt; segs = <B>new</B> Partition&lt;T,R&gt;(A,mid)
+  <FONT COLOR="blue"><B>cobegin</B></FONT> {
+    <FONT COLOR="fuchsia"><EM>// Effect is 'writes segs:[0]:*'</EM></FONT>
+    parallelIncrement(segs.get(0));
+    <FONT COLOR="fuchsia"><EM>// Effect is 'writes segs:[1]:*'</EM></FONT>
+    parallelIncrement(segs.get(1));
+  }
 }</TT></DIV>For more examples of how to use <TT>Partition</TT>, see <EM>The Deterministic Parallel Java Tutorial</EM>.<BR>
 <BR>
 The variable <TT>this</TT> in the type gets substituted by the recevier
@@ -3848,16 +3896,13 @@ Partition&lt;Integer&gt; segs1 = <B>new</B> Partition(A, 2);
 <FONT COLOR="fuchsia"><EM>// Create segments [0,7] and [8,9]</EM></FONT>
 Partition&lt;Integer&gt; segs2 = <B>new</B> Partition(A, 8);</TT></DIV><BR>
 <BR>
-<B>Specialized <TT>Partition</TT>s:</B> As with <TT>ArraySlice</TT>,
-there are versions of <TT>Partition</TT> specialized to the various
-primitive types. They are provided for convenience and efficiency, as
-Java does not support binding primitive types to generic type
-parameters.<BR>
+<B>Specialized Partition:</B> As with <TT>ArraySlice</TT>, there are
+versions of <TT>Partition</TT> specialized to each primitive type.<BR>
 <BR>
 
 <!--TOC section 8&nbsp;&nbsp;Exception Behavior-->
 
-<H2 CLASS="section"><A NAME="htoc69">8</A>&nbsp;&nbsp;Exception Behavior<A NAME="sec:exceptions"></A></H2><!--SEC END -->
+<H2 CLASS="section"><A NAME="htoc70">8</A>&nbsp;&nbsp;Exception Behavior<A NAME="sec:exceptions"></A></H2><!--SEC END -->
 
 <!--NAME exceptions.html-->
 <BR>
@@ -3877,7 +3922,7 @@ If an exception <I>E</I> is thrown in branch <I>B</I> of a <TT>cobegin</TT>
 <BR>
 
  <DIV CLASS="dpjlisting"><TT><FONT COLOR="blue"><B>foreach</B></FONT> (<B>int</B> i <FONT COLOR="blue"><B>in</B></FONT> 0, 10) {
-    loopBody(i);
+  loopBody(i);
 }</TT></DIV><BR>
 <BR>
 If iteration <I>I</I> throws exception <I>E</I>, then replacing the entire
