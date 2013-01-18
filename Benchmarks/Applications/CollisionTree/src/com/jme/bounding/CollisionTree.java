@@ -384,8 +384,8 @@ public class CollisionTree<region R, RMesh> {
 		Vector3f<RTemps> e2 = new Vector3f<RTemps>();
 		Vector3f<RTemps> n1 = new Vector3f<RTemps>();
 		Vector3f<RTemps> n2 = new Vector3f<RTemps>();	
-		float[]<RTemps> isect1 = new float[2]<RTemps>;
-		float[]<RTemps> isect2 = new float[2]<RTemps>;
+		ArrayFloat<RTemps> isect1 = new ArrayFloat<RTemps>(2);
+		ArrayFloat<RTemps> isect2 = new ArrayFloat<RTemps>(2);
  
         for (int i = start; i < end; i++) {
             mesh.<region RTemps>getTriangle(triIndex[i], verts);

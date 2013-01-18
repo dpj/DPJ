@@ -53,7 +53,7 @@ import DPJRuntime.*;
 public class TriMesh<region RMesh> implements Externalizable {
 	private static final long serialVersionUID = 1001L;
 	
-	public float[]<RMesh> vertexArray in RMesh;
+	public ArrayFloat<RMesh> vertexArray in RMesh;
 	public ArrayInt<RMesh> indexArray in RMesh;
 	
 	public Quaternion<RMesh> worldRotation in RMesh;
@@ -128,7 +128,7 @@ public class TriMesh<region RMesh> implements Externalizable {
         worldRotation = (Quaternion<RMesh>)in.readObject();
         worldScale = (Vector3f<RMesh>)in.readObject();
         worldTranslation = (Vector3f<RMesh>)in.readObject();
-        vertexArray = (float[]<RMesh>)in.readObject();
+        vertexArray = (ArrayFloat<RMesh>)in.readObject();
         indexArray = (ArrayInt<RMesh>)in.readObject();
     }
 

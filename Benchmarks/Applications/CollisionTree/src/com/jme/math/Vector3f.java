@@ -36,6 +36,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import DPJRuntime.*;
+
 /**
  * <code>Vector3f</code> defines a Vector for a three float value tuple.
  * <code>Vector3f</code> can represent any three dimensional value, such as a
@@ -292,18 +294,18 @@ public class Vector3f<region R> implements Externalizable {
 
 
     /**
-     * Saves this Vector3f into the given float[] object.
+     * Saves this Vector3f into the given ArrayFloat object.
      * 
      * @param floats
-     *            The float[] to take this Vector3f. If null, a new float[3] is
+     *            The ArrayFloat to take this Vector3f. If null, a new ArrayFloat(3) is
      *            created.
      * @return The array, with X, Y, Z float values in that order
      */
-    public <region Rfloats> float[]<Rfloats> 
-    toArray(float[]<Rfloats> floats) 
+    public <region Rfloats> ArrayFloat<Rfloats> 
+    toArray(ArrayFloat<Rfloats> floats) 
     reads R writes Rfloats:* {
         if (floats == null) {
-            floats = new float[3]<Rfloats>;
+            floats = new ArrayFloat<Rfloats>(3);
         }
         floats[0] = x;
         floats[1] = y;

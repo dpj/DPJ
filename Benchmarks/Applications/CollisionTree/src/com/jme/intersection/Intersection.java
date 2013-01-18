@@ -34,6 +34,8 @@ package com.jme.intersection;
 
 import com.jme.math.*;
 
+import DPJRuntime.*;
+
 /**
  * <code>Intersection</code> provides functional methods for calculating the
  * intersection of some objects. All the methods are static to allow for quick
@@ -81,15 +83,19 @@ public class Intersection {
 		Vector3f<RTemps> e2 = new Vector3f<RTemps>();
 		Vector3f<RTemps> n1 = new Vector3f<RTemps>();
 		Vector3f<RTemps> n2 = new Vector3f<RTemps>();	
-		float[]<RTemps> isect1 = new float[2]<RTemps>;
-		float[]<RTemps> isect2 = new float[2]<RTemps>;
+		ArrayFloat<RTemps> isect1 = new ArrayFloat<RTemps>(2);
+		ArrayFloat<RTemps> isect2 = new ArrayFloat<RTemps>(2);
 		
 		return Intersection.intersection_r(v1, v1, v2, u0, u1, u2, e1, e2, n1, n2, isect1, isect2);
 	}
 	
-	public static <region RVals, RTemps> boolean intersection_r(Vector3f<RVals> v0, Vector3f<RVals> v1, Vector3f<RVals> v2,
-			Vector3f<RVals> u0, Vector3f<RVals> u1, Vector3f<RVals> u2, Vector3f<RTemps> e1, Vector3f<RTemps> e2,
-			Vector3f<RTemps> n1, Vector3f<RTemps> n2, float[]<RTemps> isect1, float[]<RTemps> isect2) 
+	public static <region RVals, RTemps> 
+	    boolean intersection_r(Vector3f<RVals> v0, Vector3f<RVals> v1, 
+				   Vector3f<RVals> v2, Vector3f<RVals> u0, 
+				   Vector3f<RVals> u1, Vector3f<RVals> u2, 
+				   Vector3f<RTemps> e1, Vector3f<RTemps> e2,
+				   Vector3f<RTemps> n1, Vector3f<RTemps> n2, 
+				   ArrayFloat<RTemps> isect1, ArrayFloat<RTemps> isect2) 
 	writes RVals, RTemps:* {
 
 		float d1, d2;
@@ -239,7 +245,7 @@ public class Intersection {
 		return true;		
 	}
 	
-	private static <region RTemps> void sort(float[]<RTemps> f) writes RTemps:* {
+	private static <region RTemps> void sort(ArrayFloat<RTemps> f) writes RTemps:* {
 		if (f[0] > f[1]) {
 			float c = f[0];
 			f[0] = f[1];
@@ -321,17 +327,17 @@ public class Intersection {
 		}
 
 		/* test all edges of triangle 1 against the edges of triangle 2 */
-		float[]<Rn> v0f = new float[3]<Rn>;
+		ArrayFloat<Rn> v0f = new ArrayFloat<Rn>(3);
 		v0.toArray(v0f);
-		float[]<Rn> v1f = new float[3]<Rn>;
+		ArrayFloat<Rn> v1f = new ArrayFloat<Rn>(3);
 		v1.toArray(v1f);
-		float[]<Rn> v2f = new float[3]<Rn>;
+		ArrayFloat<Rn> v2f = new ArrayFloat<Rn>(3);
 		v2.toArray(v2f);
-		float[]<Rn> u0f = new float[3]<Rn>;
+		ArrayFloat<Rn> u0f = new ArrayFloat<Rn>(3);
 		u0.toArray(u0f);
-		float[]<Rn> u1f = new float[3]<Rn>;
+		ArrayFloat<Rn> u1f = new ArrayFloat<Rn>(3);
 		u1.toArray(u1f);
-		float[]<Rn> u2f = new float[3]<Rn>;
+		ArrayFloat<Rn> u2f = new ArrayFloat<Rn>(3);
 		u2.toArray(u2f);
 		if (Intersection.edgeAgainstTriEdges(v0f, v1f, u0f, u1f, u2f, i0, i1)) {
 			return true;
@@ -352,8 +358,12 @@ public class Intersection {
 		return false;
 	}
 
-	private static <region R> boolean pointInTri(float[]<R> V0, float[]<R> U0, float[]<R> U1,
-			float[]<R> U2, int i0, int i1) reads R:* {
+	private static <region R> 
+	    boolean pointInTri(ArrayFloat<R> V0, ArrayFloat<R> U0, 
+			       ArrayFloat<R> U1, ArrayFloat<R> U2, 
+			       int i0, int i1) 
+	    reads R:* 
+        {
 		float a, b, c, d0, d1, d2;
 		/* is T1 completly inside T2? */
 		/* check if V0 is inside tri(U0,U1,U2) */
@@ -377,8 +387,12 @@ public class Intersection {
 		return false;
 	}
 
-	private static <region R> boolean edgeAgainstTriEdges(float[]<R> v0, float[]<R> v1,
-			float[]<R> u0, float[]<R> u1, float[]<R> u2, int i0, int i1) reads R:* {
+	private static <region R> 
+	    boolean edgeAgainstTriEdges(ArrayFloat<R> v0, ArrayFloat<R> v1,
+					ArrayFloat<R> u0, ArrayFloat<R> u1, 
+					ArrayFloat<R> u2, int i0, int i1) 
+	    reads R:* 
+        {
 		float aX, aY;
 		aX = v1[i0] - v0[i0];
 		aY = v1[i1] - v0[i1];
@@ -397,8 +411,12 @@ public class Intersection {
 		return false;
 	}
 
-	private static <region R> boolean edgeEdgeTest(float[]<R> v0, float[]<R> u0, float[]<R> u1,
-			int i0, int i1, float aX, float Ay) reads R:* {
+	private static <region R> 
+	    boolean edgeEdgeTest(ArrayFloat<R> v0, ArrayFloat<R> u0, 
+				 ArrayFloat<R> u1, int i0, int i1, 
+				 float aX, float Ay) 
+	    reads R:* 
+        {
 		float Bx = u0[i0] - u1[i0];
 		float By = u0[i1] - u1[i1];
 		float Cx = v0[i0] - u0[i0];
