@@ -237,14 +237,14 @@ field \kwd{x} in region \kwd{A:B} and field \kwd{y} in region
 \kwd{A:*} to cover both \kwd{A:B} and \kwd{A:C}.  Note in particular
 that \emph{\kwd{A} and \kwd{A:B} are different regions}.  So
 \kwd{writes A} does \emph{not} cover a write to \kwd{A:B}; the \kwd{*}
-is needed to get the inclusion.  This is because to get more precision
-with RPLs, DPJ separates the concepts of \emph{nesting} (\kwd{A:B} is
-nested under \kwd{A}) and \emph{inclusion} (\kwd{A:B} is included in
-\kwd{A:*} but not in \kwd{A}).  It may help to think of RPLs like a
-file system.  For example, given the UNIX path \kwd{foo/bar}, the file
-system is a tree with \kwd{bar} nested under \kwd{foo}; but \kwd{rm
-  foo} won't remove \kwd{bar}; you have to say either \kwd{rm foo/bar}
-or \kwd{rm foo/*}.
+is needed to get the inclusion.  The reason is that to get more
+precision with RPLs, DPJ separates the concepts of \emph{nesting}
+(\kwd{A:B} is nested under \kwd{A}) and \emph{inclusion} (\kwd{A:B} is
+included in \kwd{A:*} but not in \kwd{A}).  It may help to think of
+RPLs like a file system.  For example, given the UNIX path
+\kwd{foo/bar}, the file system is a tree with \kwd{bar} nested under
+\kwd{foo}; but \kwd{rm foo} won't remove \kwd{bar}; you have to say
+either \kwd{rm foo/bar} or \kwd{rm foo/*}.
 
 RPLs are useful in several ways:
 %

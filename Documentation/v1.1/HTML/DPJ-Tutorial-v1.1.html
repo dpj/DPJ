@@ -408,14 +408,14 @@ field <TT>x</TT> in region <TT>A:B</TT> and field <TT>y</TT> in region
 <TT>A:*</TT> to cover both <TT>A:B</TT> and <TT>A:C</TT>. Note in particular
 that <EM><TT>A</TT> and <TT>A:B</TT> are different regions</EM>. So
 <TT>writes A</TT> does <EM>not</EM> cover a write to <TT>A:B</TT>; the <TT>*</TT>
-is needed to get the inclusion. This is because to get more precision
-with RPLs, DPJ separates the concepts of <EM>nesting</EM> (<TT>A:B</TT> is
-nested under <TT>A</TT>) and <EM>inclusion</EM> (<TT>A:B</TT> is included in
-<TT>A:*</TT> but not in <TT>A</TT>). It may help to think of RPLs like a
-file system. For example, given the UNIX path <TT>foo/bar</TT>, the file
-system is a tree with <TT>bar</TT> nested under <TT>foo</TT>; but <TT>rm
- foo</TT> won't remove <TT>bar</TT>; you have to say either <TT>rm foo/bar</TT>
-or <TT>rm foo/*</TT>.<BR>
+is needed to get the inclusion. The reason is that to get more
+precision with RPLs, DPJ separates the concepts of <EM>nesting</EM>
+(<TT>A:B</TT> is nested under <TT>A</TT>) and <EM>inclusion</EM> (<TT>A:B</TT> is
+included in <TT>A:*</TT> but not in <TT>A</TT>). It may help to think of
+RPLs like a file system. For example, given the UNIX path
+<TT>foo/bar</TT>, the file system is a tree with <TT>bar</TT> nested under
+<TT>foo</TT>; but <TT>rm foo</TT> won't remove <TT>bar</TT>; you have to say
+either <TT>rm foo/bar</TT> or <TT>rm foo/*</TT>.<BR>
 <BR>
 RPLs are useful in several ways:
 <UL CLASS="itemize"><LI CLASS="li-itemize">
