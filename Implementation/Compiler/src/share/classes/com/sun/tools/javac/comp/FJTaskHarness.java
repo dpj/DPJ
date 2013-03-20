@@ -82,7 +82,6 @@ public class FJTaskHarness extends TreeScanner {
 
     /* ------------ Visitor methods for various sorts of trees -------------*/
 
-    //Hi, my name is Ugly Hack.  How may I be of service today?
     public void visitSpawn(DPJSpawn that) {}
     public void visitFinish(DPJFinish that) {}
     public void visitCobegin(DPJCobegin that) {}
@@ -94,9 +93,9 @@ public class FJTaskHarness extends TreeScanner {
 	super.visitClassDef(tree);
     	if(classCanBeRun & (tree.mods.flags & INTERFACE)==0)
     	{
-    	    //We need to create a new class to handle FJTask
+    	    // We need to create a new class to handle FJTask
 
-    	    //make class extend FJTask if it does not already extend a class
+    	    // Make class extend FJTask if it does not already extend a class
     	    JCTree extending = make.Ident(names.fromString("RecursiveAction"));
 
     	    JCExpression originalMain = make.Ident(names.fromString("__dpj_run"));
@@ -106,9 +105,9 @@ public class FJTaskHarness extends TreeScanner {
     	    List<JCExpression> thrown = List.<JCExpression>nil().
     	    	append(make.Ident(names.fromString("InterruptedException")));
 
-    	    //Create a boilerplate main method to invoke the main class
+    	    // Create a boilerplate main method to invoke the main class
     	    
-    	    //add "private static String args" to class variable list
+    	    // Add "private static String args" to class variable list
             tree.defs = tree.defs.prepend(make.VarDef(
                          make.Modifiers(PRIVATE | STATIC),
                          names.fromString("args"), null,
@@ -117,7 +116,7 @@ public class FJTaskHarness extends TreeScanner {
                           null, null),
                          null));
 
-    	    //add boilerplate "public static void main()" method to method list
+    	    // Add boilerplate "public static void main()" method to method list
     	    List<JCExpression> literalList = List.<JCExpression>nil();
     	    JCFieldAccess runSelect = make.Select(make.Ident(
     		    			names.fromString("DPJRuntime")),
@@ -125,7 +124,7 @@ public class FJTaskHarness extends TreeScanner {
     	    /*WHY IS THE FOLLOWING LINE NECESSARY???*/
     	    runSelect.setType(new Type(TypeTags.CLASS,null));
     	    
-            //Intermission: assign statement
+            // Assign statement
     	    JCFieldAccess initSelect = make.Select(runSelect, names.fromString("initialize"));
     	    initSelect.setType(new Type(TypeTags.CLASS,null));
     	    JCExpressionStatement assign = make.Exec(
@@ -134,7 +133,6 @@ public class FJTaskHarness extends TreeScanner {
 	        	make.App(initSelect,
 	        		 List.<JCExpression>nil().append(
 	        			 make.Ident(names.fromString("args"))))));
-    	    //End intermission
     	    
     	    JCFieldAccess poolVar = make.Select(runSelect, names.fromString("pool"));
     	    
@@ -187,7 +185,7 @@ public class FJTaskHarness extends TreeScanner {
 	}
 
     public void visitTopLevel(JCCompilationUnit tree) {
-        //Import FJTask library
+        // Import FJTask library
 	tree.defs = tree.defs.prepend(make.Import(make.Select(make.Select(
 				      make.Ident(names.fromString("jsr166y")),
 				      names.fromString("forkjoin")),
